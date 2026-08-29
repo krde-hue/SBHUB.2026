@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sportsbook Operational Workspace & Reference Hub</title>
+    
+    <!-- Firebase Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root[data-theme="dark"] {
+            --bg-base: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-card: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-color: #38bdf8;
+            --accent-hover: #0284c7;
+            --grid-border: #475569;
+            --cell-bg: #1e293b;
+
+            /* Spreadsheet Section Colors */
+            --purple-header: #c084fc;
+            --purple-bg: rgba(192, 132, 252, 0.15);
+            --green-header: #86efac;
+            --green-bg: rgba(134, 239, 172, 0.15);
+            --pink-header: #fca5a5;
+            --pink-bg: rgba(252, 165, 165, 0.15);
+            --blue-header: #93c5fd;
+            --blue-bg: rgba(147, 197, 253, 0.15);
+            --slack-green-header: #15803d;
+            --slack-red-header: #b91c1c;
+        }
+
+        :root[data-theme="light"] {
+            --bg-base: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-card: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --accent-color: #0284c7;
+            --accent-hover: #0369a1;
+            --grid-border: #94a3b8;
+            --cell-bg: #ffffff;
+
+            /* Spreadsheet Section Colors */
+            --purple-header: #d8b4fe;
+            --purple-bg: #f3e8ff;
+            --green-header: #bbf7d0;
+            --green-bg: #f0fdf4;
+            --pink-header: #fecaca;
+            --pink-bg: #fef2f2;
+            --blue-header: #bfdbfe;
+            --blue-bg: #eff6ff;
+            --slack-green-header: #22c55e;
+            --slack-red-header: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            padding: 1.25rem;
+            min-height: 100vh;
+            font-size: 0.83rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .title-credit {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.2px;
+            margin-left: 2.1rem;
+            opacity: 0.85;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-surface);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #22c55e;
+        }
+
+        .btn {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* SPREADSHEET MASTER LAYOUT GRID */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1.3fr 1.2fr;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .grid-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* SECTION TABLE STYLING */
+        .section-card {
+            background: var(--bg-surface);
+            border: 1.5px solid var(--grid-border);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .section-header {
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 0.45rem 0.75rem;
+            text-align: center;
+            border-bottom: 1.5px solid var(--grid-border);
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-purple { background-color: var(--purple-header); }
+        .header-green { background-color: var(--green-header); }
+        .header-pink { background-color: var(--pink-header); }
+        .header-blue { background-color: var(--blue-header); }
+        .header-slack-green { background-color: var(--slack-green-header); color: #ffffff !important; }
+        .header-slack-red { background-color: var(--slack-red-header); color: #ffffff !important; }
+
+        .add-row-btn {
+            background: rgba(255, 255, 255, 0.4);
+            border: none;
+            color: #000000;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+        .add-row-btn:hover {
+            background: #ffffff;
+        }
+
+        table.sheet-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.sheet-table td, table.sheet-table th {
+            border: 1px solid var(--grid-border);
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+            vertical-align: middle;
+            position: relative;
+        }
+
+        .bg-purple td { background-color: var(--purple-bg); }
+        .bg-green td { background-color: var(--green-bg); }
+        .bg-pink td { background-color: var(--pink-bg); }
+        .bg-blue td { background-color: var(--blue-bg); }
+
+        .cell-label {
+            font-weight: 700;
+            color: var(--text-main);
+            width: 38%;
+        }
+
+        .url-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            word-break: break-all;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .url-link:hover {
+            text-decoration: underline;
+        }
+
+        .row-delete-btn {
+            display: none;
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            border-radius: 3px;
+            padding: 1px 4px;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        tr:hover .row-delete-btn {
+            display: inline-block;
+        }
+
+        /* TASKS EXAMPLES LIST */
+        .task-list-table td {
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        /* SLACK CHANNEL GUIDE TABLE */
+        .slack-table th {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .slack-channel-name {
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .slack-desc {
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        @media (max-width: 1280px) {
+            .workspace-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title-group">
+            <div class="header-title">
+                <i data-lucide="layout-grid" style="color: var(--accent-color)"></i>
+                <h1>Sportsbook Operational Workspace</h1>
+            </div>
+            <span class="title-credit">kdv_2026 model</span>
+        </div>
+        <div class="header-controls">
+            <!-- ACTIVE VIEWER COUNT BADGE -->
+            <span class="btn" style="cursor: default; pointer-events: none;" title="Active Viewers">
+                👁️ <span id="activeViewersCount">1</span>
+            </span>
+
+            <a href="index.html" class="btn">
+                <i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i>
+                Back to Dashboard
+            </a>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                <span id="save-status">✓ Live Synced</span>
+            </div>
+            <button class="btn" id="theme-toggle">
+                <i data-lucide="moon" id="theme-icon"></i>
+                <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="workspace-grid">
+        
+        <!-- COLUMN 1: MONITORS, BACKOFFICES & DATA SHEETS -->
+        <div class="grid-column">
+            
+            <!-- MONITORS / BETTICKERS -->
+            <div class="section-card">
+                <div class="section-header header-purple">
+                    <span>Monitors / Bettickers</span>
+                    <button class="add-row-btn" onclick="addSectionRow('monitors')" title="Add Row">+</button>
+                </div>
+                <table class="sheet-table bg-purple">
+                    <tbody id="tbody-monitors"></tbody>
+                </table>
+            </div>
+
+            <!-- BACKOFFICES -->
+            <div class="section-card">
+                <div class="section-header header-green">
+                    <span>BackOffices</span>
+                    <button class="add-row-btn" onclick="addSectionRow('backoffices')" title="Add Row">+</button>
+                </div>
+                <table class="sheet-table bg-green">
+                    <tbody id="tbody-backoffices"></tbody>
+                </table>
+            </div>
+
+            <!-- TOOLS / DATA SHEETS -->
+            <div class="section-card">
+                <div class="section-header header-pink">
+                    <span>Tools / Data Sheets</span>
+                    <button class="add-row-btn" onclick="addSectionRow('tools')" title="Add Row">+</button>
+                </div>
+                <table class="sheet-table bg-pink">
+                    <tbody id="tbody-tools"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- COLUMN 2: TASKS EXAMPLES & BRANDS URL -->
+        <div class="grid-column">
+            
+            <!-- TASKS EXAMPLES -->
+            <div class="section-card">
+                <div class="section-header header-blue">
+                    <span>Tasks Examples</span>
+                    <button class="add-row-btn" onclick="addSectionRow('tasks')" title="Add Task">+</button>
+                </div>
+                <table class="sheet-table task-list-table">
+                    <tbody id="tbody-tasks"></tbody>
+                </table>
+            </div>
+
+            <!-- BRANDS URL -->
+            <div class="section-card">
+                <div class="section-header header-blue">
+                    <span>Brands URL</span>
+                    <button class="add-row-btn" onclick="addSectionRow('brands')" title="Add Brand">+</button>
+                </div>
+                <table class="sheet-table bg-blue">
+                    <tbody id="tbody-brands"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- COLUMN 3: SLACK CHANNELS (Qbet, 30bet, 55bet, BVB) -->
+        <div class="grid-column" style="grid-column: span 1;">
+            
+            <div class="section-card">
+                <div class="section-header header-slack-green">
+                    <span>Slack Channels (Qbet, 30bet, 55bet) also BVB</span>
+                    <button class="add-row-btn" onclick="addSectionRow('slackMain')" title="Add Channel">+</button>
+                </div>
+                <table class="sheet-table slack-table">
+                    <thead>
+                        <tr>
+                            <th>Slack Channel</th>
+                            <th>About Channel (Purpose)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-slackMain"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- COLUMN 4: SLACK CHANNELS (Ibet) -->
+        <div class="grid-column" style="grid-column: span 1;">
+            
+            <div class="section-card">
+                <div class="section-header header-slack-red">
+                    <span>Slack Channels (Ibet)</span>
+                    <button class="add-row-btn" onclick="addSectionRow('slackIbet')" title="Add Channel">+</button>
+                </div>
+                <table class="sheet-table slack-table">
+                    <thead>
+                        <tr>
+                            <th>Slack Channel</th>
+                            <th>About Channel (Ibet)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-slackIbet"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let hubData = {};
+
+        function setupPresenceSystem() {
+            const presenceRef = db.ref('active_workspace_sessions');
+            const connectedRef = db.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    const userSessionRef = presenceRef.push();
+                    userSessionRef.onDisconnect().remove();
+
+                    userSessionRef.set({
+                        online: true,
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            });
+
+            presenceRef.on('value', (snap) => {
+                const count = snap.numChildren();
+                const countElem = document.getElementById('activeViewersCount');
+                if (countElem) {
+                    countElem.innerText = count > 0 ? count : 1;
+                }
+            });
+        }
+
+        function getDefaultHubData() {
+            return {
+                monitors: [
+                    { label: "Qbet, 30bet, 55bet", url: "https://betbook.center/monitor" },
+                    { label: "ibet sweden", url: "https://mga-betbook.center/" },
+                    { label: "ibet betsson", url: "https://p2p.betssonbusiness.com/" },
+                    { label: "pubs, bvbet", url: "https://eu-b7k.center/" }
+                ],
+                backoffices: [
+                    { label: "Pubs, Ibet, Bvbet (Player Limit Adjustment, Market Creation & Suspension)", url: "https://backoffice.betconstruct.com/" },
+                    { label: "All Brands (Except Ibet) Customer Info", url: "https://admin.edgegaming.io/" },
+                    { label: "Ibet Customer Info", url: "https://admin.apexplatform.io/login" },
+                    { label: "Pubs Customer Info", url: "https://pg-backoffice-eu.gogaming.cc/" },
+                    { label: "Betradar", url: "https://mtsc-lts.betradar.com/" },
+                    { label: "Betradar Portal", url: "https://portal.betradar.com/" },
+                    { label: "Kickortech", url: "https://p2ibes.sbx.bet" }
+                ],
+                tools: [
+                    { label: "Black Listed Countries", url: "https://docs.google.com/spreadsheets/d/1HXuRMiLo4vas9zUHvMbUdSFWOG05IORWktFNKznY8/edit#gid=617972875" },
+                    { label: "Asian Monitor", url: "https://www.asianmonitor.com/" },
+                    { label: "Betsson Service Desk", url: "https://p2b.betssonbusiness.com/" },
+                    { label: "BambooHR", url: "https://igroup.bamboohr.com/home/" },
+                    { label: "Confluence", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" },
+                    { label: "Edgegaming Limits Tracker (Qbet, 30bet, 55bet, BVB)", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0DgNYSqFhccXKnMkgJ8z/edit#gid=1305147410" }
+                ],
+                tasks: [
+                    { task: "Check Big Winners" },
+                    { task: "Check Overnight Bets" },
+                    { task: "Check @Sportsbookrisk Escalations" },
+                    { task: "Daily Bet Tickers" },
+                    { task: "Monitor Telegram Channels" },
+                    { task: "Check Softswiss Files" },
+                    { task: "Weekly Client Limit Check" },
+                    { task: "Monthly Client Limit Check" },
+                    { task: "Sports Offer Check" },
+                    { task: "Other tasks as instructed by Manager" }
+                ],
+                brands: [
+                    { label: "Qbet:", url: "https://www.qbet.com/en-UN" },
+                    { label: "30bet:", url: "https://www.30bet.com/en-UN" },
+                    { label: "55bet:", url: "https://www.55bet.com/en-UN" },
+                    { label: "Ibet:", url: "https://www.ibet.com/en-UN" },
+                    { label: "Pubs:", url: "https://pubs.com/en-us" },
+                    { label: "BVB:", url: "https://www.bvbet.com/en-UN" }
+                ],
+                slackMain: [
+                    { name: "#sportsbook-fraud-risk", desc: "Escalations for limited users and user fund concerns" },
+                    { name: "#softswiss-novatech-risk-management", desc: "Escalate users or issues to Softswiss" },
+                    { name: "#sportbook-team", desc: "Team announcements and daily reporting\nUsers requiring further Manager review and other risk-related concerns" },
+                    { name: "#sportsbook-risk-escalations", desc: "Issues detected across all sites (testing-related)" },
+                    { name: "#sports-testing-escalations", desc: "Testing escalations and system checks" },
+                    { name: "#sportsbook-cs", desc: "Customer-related concerns" },
+                    { name: "#sportsbook-vip", desc: "Main communication channel with the VIP team" },
+                    { name: "#vip-report", desc: "VIP daily reports (big winners/losers) and possible escalations" },
+                    { name: "#malta-manila-risk-hq", desc: "Risk team coordination, handovers, and escalated issues" },
+                    { name: "#sportbook-crm", desc: "Sports bonus concerns and requests to remove limited clients from bonuses" },
+                    { name: "#sportsbook-acquisition", desc: "Acquisition queries" },
+                    { name: "#noc-help", desc: "Technical Issues and system-related escalations" },
+                    { name: "#softswiss-product-integrations", desc: "Integration queries" },
+                    { name: "#product-softswiss-escalations-questions", desc: "Softswiss product questions" }
+                ],
+                slackIbet: [
+                    { name: "#softswiss-ibet-riskmanagement", desc: "Escalate users or issues to Softswiss\nEscalations for limited users and user fund concerns" },
+                    { name: "#ibet-sportsbook-fraud", desc: "Team announcements and daily reporting" },
+                    { name: "#sportbook-team", desc: "Main communication channel with team" },
+                    { name: "#ibet-sportsbook-rg-aml", desc: "Responsible Gambling & AML-related discussions" },
+                    { name: "#ibet-sportsbook-vip", desc: "Main communication channel with the VIP team" },
+                    { name: "#sportbook-crm", desc: "Sports bonus concerns and requests to remove limited clients from bonuses" },
+                    { name: "#ibet-cs-sportbook", desc: "CS Sportsbook queries and issues" }
+                ]
+            };
+        }
+
+        function listenToDatabase() {
+            db.ref('workspace_hub_data').on('value', (snapshot) => {
+                const live = snapshot.val();
+                if (live && typeof live === 'object') {
+                    hubData = live;
+                } else {
+                    hubData = getDefaultHubData();
+                    saveToDatabase();
+                }
+                renderAllTables();
+            });
+        }
+
+        function saveToDatabase() {
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.getElementById('save-status');
+            
+            statusText.textContent = "Syncing...";
+            statusDot.style.backgroundColor = "#eab308";
+
+            db.ref('workspace_hub_data').set(hubData).then(() => {
+                statusText.textContent = "✓ Live Synced";
+                statusDot.style.backgroundColor = "#22c55e";
+            });
+        }
+
+        function renderLinkTable(sectionKey, tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = '';
+            const list = hubData[sectionKey] || [];
+
+            list.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="cell-label">${item.label || ''}</td>
+                    <td>
+                        <a href="${item.url || '#'}" target="_blank" class="url-link">${item.url || ''} <i data-lucide="external-link" style="width:11px; height:11px;"></i></a>
+                        <button class="row-delete-btn" onclick="deleteItem('${sectionKey}', ${idx})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTasksTable() {
+            const tbody = document.getElementById('tbody-tasks');
+            tbody.innerHTML = '';
+            const list = hubData.tasks || [];
+
+            list.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        ${item.task || ''}
+                        <button class="row-delete-btn" onclick="deleteItem('tasks', ${idx})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSlackTable(sectionKey, tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = '';
+            const list = hubData[sectionKey] || [];
+
+            list.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="slack-channel-name">${item.name || ''}</td>
+                    <td class="slack-desc">
+                        ${(item.desc || '').replace(/\n/g, '<br>')}
+                        <button class="row-delete-btn" onclick="deleteItem('${sectionKey}', ${idx})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAllTables() {
+            renderLinkTable('monitors', 'tbody-monitors');
+            renderLinkTable('backoffices', 'tbody-backoffices');
+            renderLinkTable('tools', 'tbody-tools');
+            renderLinkTable('brands', 'tbody-brands');
+            renderTasksTable();
+            renderSlackTable('slackMain', 'tbody-slackMain');
+            renderSlackTable('slackIbet', 'tbody-slackIbet');
+            lucide.createIcons();
+        }
+
+        function deleteItem(sectionKey, idx) {
+            if (confirm("Delete this entry?")) {
+                hubData[sectionKey].splice(idx, 1);
+                saveToDatabase();
+            }
+        }
+
+        function addSectionRow(sectionKey) {
+            if (!hubData[sectionKey]) hubData[sectionKey] = [];
+
+            if (sectionKey === 'tasks') {
+                const newVal = prompt("Enter new task name:", "New Task Example");
+                if (newVal) hubData[sectionKey].push({ task: newVal });
+            } else if (sectionKey === 'slackMain' || sectionKey === 'slackIbet') {
+                const name = prompt("Enter Slack channel name:", "#new-channel");
+                const desc = prompt("Enter channel purpose/description:", "Channel purpose");
+                if (name) hubData[sectionKey].push({ name, desc: desc || "" });
+            } else {
+                const label = prompt("Enter reference label:", "New Item");
+                const url = prompt("Enter URL:", "https://");
+                if (label) hubData[sectionKey].push({ label, url: url || "https://" });
+            }
+
+            saveToDatabase();
+        }
+
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (theme === 'dark') {
+                themeIcon.setAttribute('data-lucide', 'moon');
+                themeText.textContent = 'Dark Mode';
+            } else {
+                themeIcon.setAttribute('data-lucide', 'sun');
+                themeText.textContent = 'Light Mode';
+            }
+            lucide.createIcons();
+            localStorage.setItem('workspace_hub_theme', theme);
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('workspace_hub_theme') || 'dark';
+            setTheme(savedTheme);
+            listenToDatabase();
+            setupPresenceSystem();
+        });
+    </script>
+</body>
+</html>
