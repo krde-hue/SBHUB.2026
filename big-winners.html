@@ -11,6 +11,10 @@
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- SheetJS CDN for Live ODS / XLSX Parsing -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
     <style>
         :root[data-theme="dark"] {
             --bg-base: #0f172a;
@@ -80,7 +84,6 @@
             overflow: hidden;
         }
 
-        /* TOGGLEABLE SIDEBAR BAR */
         .sidebar {
             width: 250px;
             background-color: var(--bg-sidebar);
@@ -465,7 +468,6 @@
 </head>
 <body>
 
-    <!-- TOGGLEABLE SIDEBAR BAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="header-title sidebar-title">
@@ -487,9 +489,14 @@
             </div>
         </div>
 
+        <div class="sidebar-section-title">Data Import</div>
+        <div class="sidebar-group">
+            <label for="ods-file-input"><i data-lucide="file-spreadsheet" style="width: 13px; height: 13px;"></i> Import ODS/XLSX</label>
+            <input type="file" id="ods-file-input" class="sidebar-input" accept=".ods,.xlsx,.csv" onchange="importOdsFile(event)">
+        </div>
+
         <div class="sidebar-section-title">Filters Panel</div>
 
-        <!-- BRAND SCATTERED DROPDOWN -->
         <div class="sidebar-group">
             <label for="brand-select-filter"><i data-lucide="filter" style="width: 13px; height: 13px;"></i> Brand Filter</label>
             <select id="brand-select-filter" class="sidebar-select" onchange="applyFilters()">
@@ -504,13 +511,11 @@
             </select>
         </div>
 
-        <!-- DAILY RECORD DATE FILTER -->
         <div class="sidebar-group">
             <label for="date-filter"><i data-lucide="calendar" style="width: 13px; height: 13px;"></i> Date (Per Day)</label>
             <input type="date" id="date-filter" class="sidebar-input" onchange="applyFilters()">
         </div>
 
-        <!-- YEAR RECORD FILTER -->
         <div class="sidebar-group">
             <label for="year-filter"><i data-lucide="calendar-range" style="width: 13px; height: 13px;"></i> Filter Year</label>
             <select id="year-filter" class="sidebar-select" onchange="applyFilters()">
@@ -527,7 +532,6 @@
         </div>
     </aside>
 
-    <!-- DASHBOARD WORKSPACE -->
     <div class="main-wrapper">
         <header>
             <div class="header-title">
@@ -559,15 +563,12 @@
             </div>
         </header>
 
-        <!-- TOP BAR -->
         <div class="top-toolbar">
             <div class="left-controls">
-                <!-- ACTIVE PLAYERS COUNT -->
                 <div style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">
                     Active Players: <span id="active-players-count" style="color: var(--accent-color); font-size: 0.95rem;">0</span>
                 </div>
 
-                <!-- PAGE LAYOUT ZOOM SLIDER -->
                 <div class="font-slider-container">
                     <i data-lucide="type" style="width: 14px; height: 14px;"></i>
                     <span>Font Size:</span>
@@ -579,13 +580,12 @@
             <div class="left-controls">
                 <div class="search-box">
                     <i data-lucide="search" style="width: 14px; height: 14px;"></i>
-                    <input type="text" id="search-input" placeholder="Search Player ID, Email, Notes..." onkeyup="filterPlayers()">
+                    <input type="text" id="search-input" placeholder="Search Player ID, Email, Notes..." oninput="onSearchInputKeyup()">
                 </div>
                 <button class="btn btn-primary" onclick="addNewPlayer()"><i data-lucide="user-plus" style="width: 14px; height: 14px;"></i> Add Player</button>
             </div>
         </div>
 
-        <!-- MAIN TABLE -->
         <div class="table-container">
             <table id="players-table">
                 <thead>
@@ -625,11 +625,11 @@
         let openRowIndex = null;
         const availableBrands = ["qbet", "ibet", "30bet", "55bet", "7abet", "bvbet", "pubs"];
 
-        // UNDO / REDO HISTORY BUFFER
         let undoStack = [];
         let redoStack = [];
         const MAX_HISTORY = 10;
         let isUndoRedoAction = false;
+        let searchTimeout = null;
 
         function saveStateToUndo() {
             if (isUndoRedoAction) return;
@@ -670,116 +670,228 @@
             document.getElementById('font-size-val').textContent = val + 'px';
         }
 
-        // GENERATION OF 747 PLAYERS WITH NON-ZERO 2025 & 2026 DAILY TRANSACTION LOGS
-        function generateHistoricalDataset() {
-            let defaults = [
-                {
-                    id: "19576722", email: "elarion960@gmail.com", link: "https://p2ibet.sbx.bet/playerCard/245/100499731094258696?tab=Overview", brand: "ibet", ccf: "1.00", notes: "New High Volume Winner", status: "Under Review",
-                    records: [
-                        { date: "2025-11-20", amount: -4250.00, notes: "Football Acca Win" },
-                        { date: "2026-08-27", amount: -8910.00, notes: "Tennis In-Play Win" },
-                        { date: "2026-08-28", amount: -15230.50, notes: "Live Betting Activity" }
-                    ]
-                },
-                {
-                    id: "51705", email: "rozhi141@gmail.com", link: "https://mga-betbook.center/ibet/players/1840769", brand: "ibet", ccf: "0.20", notes: "Monitor Bets", status: "Under Review",
-                    records: [
-                        { date: "2025-11-14", amount: -1250.00, notes: "2025 Accumulator Win" },
-                        { date: "2025-12-02", amount: -3100.50, notes: "2025 Tennis In-Play Win" },
-                        { date: "2026-08-26", amount: -1394.47, notes: "Accumulator Win" },
-                        { date: "2026-08-27", amount: -7353.22, notes: "In-Play Tennis Win" },
-                        { date: "2026-08-28", amount: -24927.52, notes: "Football Win" }
-                    ]
-                },
-                {
-                    id: "55415", email: "mackanlindholm44@gmail.com", link: "https://mga-betbook.center/ibet/players/926979", brand: "ibet", ccf: "3.00", notes: "Monitor Bets", status: "Under Review",
-                    records: [
-                        { date: "2025-10-18", amount: -940.00, notes: "2025 Ice Hockey Win" },
-                        { date: "2026-08-27", amount: -1827.77, notes: "Basketball Win" },
-                        { date: "2026-08-28", amount: -2674.30, notes: "In-play Win" }
-                    ]
-                },
-                {
-                    id: "73102", email: "abanob_123@hotmail.se", link: "https://mga-betbook.center/ibet/players/2670708", brand: "ibet", ccf: "1.00", notes: "Monitor Bets", status: "Under Review",
-                    records: [
-                        { date: "2025-09-05", amount: -1800.00, notes: "2025 Football Win" },
-                        { date: "2026-08-26", amount: -3584.56, notes: "Tennis Win" },
-                        { date: "2026-08-27", amount: -3394.56, notes: "Football Win" },
-                        { date: "2026-08-28", amount: -139.26, notes: "Player Win" }
-                    ]
-                },
-                {
-                    id: "128099", email: "tbruinse@hotmail.com", link: "https://betbook.center/qbet/players/8160946", brand: "qbet", ccf: "10.00", notes: "VIP Client - Escalated to Risk Manager", status: "Cleared",
-                    records: [
-                        { date: "2025-08-11", amount: 8200.00, notes: "2025 Single Bet Loss" },
-                        { date: "2026-08-27", amount: 14493.77, notes: "Single Bet Loss" },
-                        { date: "2026-08-28", amount: 19681.17, notes: "High Stake Loss" }
-                    ]
-                },
-                {
-                    id: "136665", email: "destidakwerken@hotmail.com", link: "https://betbook.center/qbet/players/976625", brand: "qbet", ccf: "0.25", notes: "Monitor Bets", status: "Under Review",
-                    records: [
-                        { date: "2025-12-19", amount: -11200.00, notes: "2025 Acca Win" },
-                        { date: "2026-08-27", amount: -23464.32, notes: "Multiple Bets Win" },
-                        { date: "2026-08-28", amount: -20476.61, notes: "Football Acca Win" }
-                    ]
-                },
-                {
-                    id: "140191", email: "petrarudaniel79@gmail.com", link: "https://betbook.center/qbet/players/10536794", brand: "qbet", ccf: "10.00", notes: "VIP Client", status: "Cleared",
-                    records: [
-                        { date: "2026-08-27", amount: -386.56, notes: "Tennis Win" },
-                        { date: "2026-08-28", amount: 9724.50, notes: "Player Loss" }
-                    ]
-                },
-                {
-                    id: "887739", email: "sleman3000@hotmail.com", link: "https://betbook.center/qbet/players/3977682", brand: "qbet", ccf: "10.00", notes: "High Profile Winner", status: "Under Review",
-                    records: [
-                        { date: "2025-07-22", amount: -150000.00, notes: "2025 High Stake Win" },
-                        { date: "2026-08-27", amount: -225501.00, notes: "High Stakes Win" }
-                    ]
+        function generateExtendedDailyLogs(pIndex, id, brand) {
+            const logs = [];
+            const sports = ["Football", "Tennis", "Basketball", "Ice Hockey", "In-Play", "Accumulator"];
+            
+            const dates2026 = ["2026-08-28", "2026-08-27", "2026-08-26", "2026-08-25", "2026-08-24", "2026-08-23", "2026-08-22", "2026-08-21", "2026-08-20"];
+            dates2026.forEach((dStr, idx) => {
+                const sport = sports[(pIndex + idx) % sports.length];
+                const isWin = (pIndex + idx) % 2 === 0;
+                const amt = (isWin ? -1 : 1) * (500 + (pIndex * 12.5) + (idx * 80));
+                
+                logs.push({
+                    date: dStr,
+                    amount: amt,
+                    notes: `2026 ${sport} ${isWin ? 'Win' : 'Loss'} Activity`
+                });
+            });
+
+            for (let month = 12; month >= 7; month--) {
+                const day = 10 + (pIndex % 18);
+                const monthStr = month < 10 ? `0${month}` : `${month}`;
+                const dayStr = day < 10 ? `0${day}` : `${day}`;
+                const sport = sports[(pIndex + month) % sports.length];
+                const isWin = (pIndex + month) % 2 === 0;
+                const amt = (isWin ? -1 : 1) * (350 + (pIndex * 7.5) + (month * 45));
+                
+                logs.push({
+                    date: `2025-${monthStr}-${dayStr}`,
+                    amount: amt,
+                    notes: `${sport} ${isWin ? 'Win' : 'Loss'} Log`
+                });
+            }
+
+            return logs;
+        }
+
+        function importOdsFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                const parsedPlayers = [];
+                
+                jsonRows.forEach((row, rowIndex) => {
+                    if (rowIndex === 0 || !row || row.length === 0) return;
+                    const pId = row[0] ? row[0].toString().trim() : '';
+                    const email = row[1] ? row[1].toString().trim() : '';
+                    if (!pId && !email) return;
+
+                    const link = row[2] ? row[2].toString().trim() : '';
+                    const brand = row[3] ? row[3].toString().trim().toLowerCase() : 'qbet';
+                    const ccf = row[4] ? row[4].toString().trim() : '1.00';
+                    const notes = row[5] ? row[5].toString().trim() : 'Monitor Bets';
+
+                    parsedPlayers.push({
+                        id: pId || (2000000 + rowIndex).toString(),
+                        email: email || `user_${pId}@sportsbook-hub.com`,
+                        link: link || `https://betbook.center/${brand}/players/${pId}`,
+                        brand: brand,
+                        ccf: ccf,
+                        notes: notes,
+                        status: "Under Review",
+                        records: generateExtendedDailyLogs(rowIndex, pId, brand)
+                    });
+                });
+
+                if (parsedPlayers.length > 0) {
+                    saveStateToUndo();
+                    playersData = parsedPlayers;
+                    saveToDatabase();
+                    renderTable();
+                    alert(`Successfully imported ${parsedPlayers.length} players from spreadsheet.`);
                 }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function loadParsedSpreadsheetData() {
+            const seedDataset = [
+                { id: "2029363", email: "n7blok03@gmail.com", link: "https://betbook.center/qbet/players/167774641", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "2033134", email: "appie_0570@hotmail.com", link: "https://betbook.center/qbet/players/170693526", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2033629", email: "huseyinselvili6@gmail.com", link: "https://betbook.center/qbet/players/170902767", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "2035944", email: "atsagkoulidis@gmail.com", link: "https://betbook.center/qbet/players/172562619", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2042173", email: "tennisquinten@gmail.com", link: "https://betbook.center/qbet/players/174671413", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2042188", email: "a.sporken@hotmail.com", link: "https://betbook.center/qbet/players/174685504", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "2043252", email: "sanderseboris01@gmail.com", link: "https://betbook.center/qbet/players/175684958", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2043614", email: "spartanovic@hotmail.com", link: "https://betbook.center/qbet/players/175843289", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2044139", email: "elmacia83@hotmail.com", link: "https://betbook.center/qbet/players/176253084", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2045276", email: "renske-willems@hotmail.com", link: "https://betbook.center/qbet/players/176890025", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "2045937", email: "touma.m@live.nl", link: "https://betbook.center/qbet/players/177157589", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2048225", email: "abdelm.el.b@hotmail.com", link: "https://betbook.center/qbet/players/178544551", brand: "qbet", ccf: "8", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2050430", email: "wesleyvanhijum@hotmail.com", link: "https://betbook.center/qbet/players/180143382", brand: "qbet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "2052184", email: "ewaa_mocro@live.nl", link: "https://betbook.center/qbet/players/181201570", brand: "qbet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "2052800", email: "anthonymutlu@hotmail.com", link: "https://betbook.center/qbet/players/181522854", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2054209", email: "bacuna007@gmail.com", link: "https://betbook.center/qbet/players/182190292", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2054338", email: "melihkosker66@hotmail.com", link: "https://betbook.center/qbet/players/182267605", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2054947", email: "waandersrick60@gmail.com", link: "https://betbook.center/qbet/players/182606493", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2055685", email: "filawiganer3@gmail.com", link: "https://betbook.center/qbet/players/183036248", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "2056298", email: "seissens@hotmail.com", link: "https://betbook.center/qbet/players/183555575", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2057529", email: "markoes_18@hotmail.com", link: "https://betbook.center/qbet/players/184660932", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2058256", email: "faydemir1996@hotmail.com", link: "https://betbook.center/qbet/players/185081225", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "51705", email: "rozhi141@gmail.com", link: "https://mga-betbook.center/ibet/players/1840769", brand: "ibet", ccf: "0.2", notes: "Monitor Bets", status: "Under Review" },
+                { id: "55415", email: "mackanlindholm44@gmail.com", link: "https://mga-betbook.center/ibet/players/926979", brand: "ibet", ccf: "3", notes: "Monitor Bets", status: "Under Review" },
+                { id: "73102", email: "abanob_123@hotmail.se", link: "https://mga-betbook.center/ibet/players/2670708", brand: "ibet", ccf: "1", notes: "Monitor Bets", status: "Under Review" },
+                { id: "128099", email: "tbruinse@hotmail.com", link: "https://betbook.center/qbet/players/8160946", brand: "qbet", ccf: "10", notes: "VIP", status: "Cleared" },
+                { id: "136665", email: "destidakwerken@hotmail.com", link: "https://betbook.center/qbet/players/976625", brand: "qbet", ccf: "0.25", notes: "Monitor Bets", status: "Under Review" },
+                { id: "140191", email: "petrarudaniel79@gmail.com", link: "https://betbook.center/qbet/players/10536794", brand: "qbet", ccf: "10", notes: "VIP", status: "Cleared" },
+                { id: "167907", email: "t.s.mastromatteo@hotmail.com", link: "https://betbook.center/qbet/players/717721", brand: "qbet", ccf: "6", notes: "VIP", status: "Cleared" },
+                { id: "176299", email: "mikeyo009@live.nl", link: "https://betbook.center/qbet/players/71413037", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "183855", email: "a.toutou@hotmail.nl", link: "https://betbook.center/qbet/players/1340245", brand: "qbet", ccf: "6", notes: "Monitor Bets", status: "Under Review" },
+                { id: "191102", email: "alexanderclarensius@hotmail.com", link: "https://mga-betbook.center/ibet/players/8134839", brand: "ibet", ccf: "1", notes: "Monitor Bets", status: "Under Review" },
+                { id: "191867", email: "jako_2pac@hotmail.com", link: "https://betbook.center/qbet/players/12169", brand: "qbet", ccf: "10", notes: "VIP", status: "Cleared" },
+                { id: "192302", email: "furkan_afri@live.nl", link: "https://betbook.center/qbet/players/110074", brand: "qbet", ccf: "6", notes: "VIP", status: "Cleared" },
+                { id: "216686", email: "nomi-pak@hotmail.de", link: "https://betbook.center/qbet/players/46912318", brand: "qbet", ccf: "8", notes: "VIP", status: "Cleared" },
+                { id: "236384", email: "janickajax@hotmail.com", link: "https://betbook.center/qbet/players/10278", brand: "qbet", ccf: "3", notes: "Monitor Bets", status: "Under Review" },
+                { id: "293691", email: "cpasjah@gmail.com", link: "https://betbook.center/qbet/players/11516355", brand: "qbet", ccf: "8", notes: "VIP", status: "Cleared" },
+                { id: "301580", email: "alex_rapidist4ever27@yahoo.com", link: "https://betbook.center/qbet/players/58704300", brand: "qbet", ccf: "0.2", notes: "Operationally Negative", status: "Under Review" },
+                { id: "1891192", email: "pimvanhees2000@hotmail.com", link: "https://betbook.center/qbet/players/112347411", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "1892160", email: "mathijs@vdhazel.nl", link: "https://betbook.center/30bet/players/35447273", brand: "30bet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1895076", email: "changizsafaei@gmail.com", link: "https://betbook.center/30bet/players/36557661", brand: "30bet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "1895577", email: "yves.jamin@hotmail.com", link: "https://betbook.center/qbet/players/114938478", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "1902763", email: "fabiankleine1998@web.de", link: "https://betbook.center/qbet/players/116719819", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1911030", email: "bas.breukel@home.nl", link: "https://betbook.center/qbet/players/118512826", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1919787", email: "ferhatkahraman049@gmail.com", link: "https://betbook.center/qbet/players/121775539", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1934524", email: "teffo.efe@gmail.com", link: "https://betbook.center/qbet/players/128278278", brand: "qbet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "1936404", email: "charismaa61@hotmail.com", link: "https://betbook.center/qbet/players/128961472", brand: "qbet", ccf: "4", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1936546", email: "robertkiraly0612@gmail.com", link: "https://betbook.center/30bet/players/48614234", brand: "30bet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "1943641", email: "ayberkdag@outlook.com", link: "https://betbook.center/qbet/players/131408510", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1944778", email: "g-starplayerac@hotmail.de", link: "https://betbook.center/qbet/players/131956690", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1947880", email: "alemcustic@outlook.com", link: "https://betbook.center/30bet/players/52618631", brand: "30bet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1948356", email: "khaznakatbi.ammar@gmail.com", link: "https://betbook.center/qbet/players/133726182", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1951715", email: "muratcelik61@hotmail.nl", link: "https://betbook.center/qbet/players/134989333", brand: "qbet", ccf: "4", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1959664", email: "tarik-kajuj@hotmail.com", link: "https://betbook.center/qbet/players/137303979", brand: "qbet", ccf: "1", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1967497", email: "dominik.fetzer.vm@gmail.com", link: "https://betbook.center/qbet/players/139906697", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1968322", email: "rogowskidawid@yahoo.com", link: "https://betbook.center/qbet/players/140304660", brand: "qbet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "1970769", email: "gurkan_ts61@icloud.com", link: "https://betbook.center/qbet/players/141259046", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "1972484", email: "p.jespersen95@outlook.com", link: "https://betbook.center/qbet/players/141933514", brand: "qbet", ccf: "1", notes: "VIP", status: "Under Review" },
+                { id: "1973896", email: "rkozbay@hotmail.com", link: "https://betbook.center/qbet/players/142393377", brand: "qbet", ccf: "4", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1976295", email: "tugba-inceoz@hotmail.com", link: "https://betbook.center/qbet/players/143223628", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "1980154", email: "lexvanlieshout1@gmail.com", link: "https://betbook.center/qbet/players/144758840", brand: "qbet", ccf: "3", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1984552", email: "delije_aleks@hotmail.com", link: "https://betbook.center/qbet/players/146771997", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1984709", email: "youridebie2001@gmail.com", link: "https://betbook.center/qbet/players/146812444", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "1989003", email: "emrah_gogen_24@hotmail.com", link: "https://betbook.center/qbet/players/148924350", brand: "qbet", ccf: "8", notes: "Monitor bets", status: "Under Review" },
+                { id: "1990421", email: "flax_144@hotmail.com", link: "https://betbook.center/qbet/players/149431250", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2005793", email: "oliviervanmeesen@hotmail.com", link: "https://betbook.center/qbet/players/154352385", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2006366", email: "solli78@outlook.com", link: "https://betbook.center/qbet/players/154533273", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "2008481", email: "jerrel6@hotmail.com", link: "https://betbook.center/qbet/players/155459558", brand: "qbet", ccf: "6", notes: "VIP", status: "Under Review" },
+                { id: "2010910", email: "valonmeha@googlemail.com", link: "https://betbook.center/qbet/players/156456012", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2011962", email: "sabansabi66@gmail.com", link: "https://betbook.center/55bet/players/990496", brand: "55bet", ccf: "3", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2012186", email: "nybergpeter@hotmail.com", link: "https://betbook.center/30bet/players/73214635", brand: "30bet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2012747", email: "robertsundin1987@gmail.com", link: "https://betbook.center/55bet/players/1014886", brand: "55bet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "2014887", email: "stefan.gerritsen1994@gmail.com", link: "https://betbook.center/qbet/players/158184703", brand: "qbet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "2017467", email: "loni_hyska@hotmail.com", link: "https://betbook.center/qbet/players/159388439", brand: "qbet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "2021026", email: "corstiaanmuller74@gmail.com", link: "https://betbook.center/qbet/players/161284835", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2021529", email: "hakvoortjesse98@gmail.com", link: "https://betbook.center/qbet/players/161609167", brand: "qbet", ccf: "5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "2021993", email: "mink.corne@gmail.com", link: "https://betbook.center/qbet/players/161828401", brand: "qbet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "14456921", email: "anabv14456921@gmail.com", link: "https://eu-b7k.center/bvbet/players/19215", brand: "bvbet", ccf: "1.01", notes: "Monitor Bets", status: "Under Review" },
+                { id: "16923521", email: "cs.16923521@yahoo.com", link: "https://eu-b7k.center/bvbet/players/92231", brand: "bvbet", ccf: "0.8", notes: "Monitor bets", status: "Under Review" },
+                { id: "491901478", email: "08003525_USDT_USDT@qq.com", link: "https://eu-b7k.center/pubs8/players/78298", brand: "pubs", ccf: "1", notes: "Monitor bets", status: "Under Review" },
+                { id: "957892090", email: "08001547_USDT_USDT@qq.com", link: "https://eu-b7k.center/pubs8/players/38916", brand: "pubs", ccf: "1", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1341984302", email: "08007161_USDT_USDT@qq.com", link: "https://eu-b7k.center/pubs8/players/205366", brand: "pubs", ccf: "0.5", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1448763692", email: "08000448_USDT_EUR@qq.com", link: "https://eu-b7k.center/pubs8/players/75479", brand: "pubs", ccf: "1", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1549952376", email: "08000448_USDT_USDT@qq.com", link: "https://eu-b7k.center/pubs8/players/48075", brand: "pubs", ccf: "1", notes: "Monitor Bets", status: "Under Review" },
+                { id: "1846777258", email: "08000448_ETH_GBP@qq.com", link: "https://eu-b7k.center/pubs8/players/79803", brand: "pubs", ccf: "0.99", notes: "Monitor Bets", status: "Under Review" },
+                { id: "228683001", email: "meijersarnis@gmail.com", link: "https://eu-b7k.center/pubs8/players/61947", brand: "pubs", ccf: "1.01", notes: "Monitor Bets", status: "Under Review" },
+                { id: "19643621", email: "franzmair14@web.de", link: "https://p2ibet.sbx.bet/playerCard/245/100499731089520866?tab=Overview", brand: "7abet", ccf: "20", notes: "VIP", status: "Cleared" },
+                { id: "16923521", email: "cs.marton@yahoo.com", link: "https://p2ibet.sbx.bet/playerCard/245/100499731089047755?tab=Overview", brand: "7abet", ccf: "1", notes: "Monitor Bets", status: "Under Review" },
+                { id: "18344522", email: "chippen-17@hotmail.com", link: "https://p2ibet.sbx.bet/playerCard/245/100499731089249480?tab=Overview", brand: "7abet", ccf: "8", notes: "VIP", status: "Under Review" },
+                { id: "19576722", email: "elarion960@gmail.com", link: "https://p2ibet.sbx.bet/playerCard/245/100499731094258696?tab=Overview", brand: "7abet", ccf: "10", notes: "VIP", status: "Under Review" },
+                { id: "22441522", email: "theseymores1980@gmail.com", link: "https://p2ibet.sbx.bet/playerCard/245/100499731094960310?tab=Overview", brand: "7abet", ccf: "20", notes: "VIP", status: "Cleared" },
+                { id: "18461721", email: "enricojreyson@gmail.com", link: "https://betbook.center/qbet/players/580783821", brand: "qbet", ccf: "1.00", notes: "Monitor Bets", status: "Under Review" },
+                { id: "22578121", email: "bovanvanja71@gmail.com", link: "https://betbook.center/qbet/players/657191542", brand: "qbet", ccf: "6", notes: "Monitor Bets", status: "Under Review" },
+                { id: "3980110", email: "alle77@hotmail.com", link: "https://mga-betbook.center/ibet/players/15472027", brand: "ibet", ccf: "0.5", notes: "Monitor Bets", status: "Under Review" }
             ];
 
             const ccfDistribution = ["0.10", "0.20", "0.25", "0.50", "1.00", "2.00", "3.00", "5.00", "6.00", "10.00"];
 
-            for (let i = defaults.length + 1; i <= 747; i++) {
+            for (let i = seedDataset.length; i < 749; i++) {
                 const chosenBrand = availableBrands[i % availableBrands.length];
                 const chosenCcf = ccfDistribution[i % ccfDistribution.length];
                 const pId = (2000000 + i * 37).toString();
                 
-                defaults.push({
+                seedDataset.push({
                     id: pId,
-                    email: `user_${pId}@sportsbook.com`,
+                    email: `customer_${pId}@sportsbook-hub.com`,
                     link: `https://betbook.center/${chosenBrand}/players/${pId}`,
                     brand: chosenBrand,
                     ccf: chosenCcf,
-                    notes: "Standard Monitoring Record",
-                    status: "Under Review",
-                    records: [
-                        { date: "2025-11-15", amount: (i % 3 === 0 ? 1 : -1) * (180.00 + (i * 9.5)), notes: "2025 Logged Bet Activity" },
-                        { date: "2026-08-27", amount: (i % 2 === 0 ? -1 : 1) * (340.00 + (i * 14.2)), notes: "Daily Betting Activity Log" }
-                    ]
+                    notes: "Active Account Logged",
+                    status: "Under Review"
                 });
             }
-            return defaults;
+
+            seedDataset.forEach((player, idx) => {
+                player.records = generateExtendedDailyLogs(idx, player.id, player.brand);
+            });
+
+            return seedDataset;
         }
 
         function listenToRealtimeDatabase() {
             db.ref('big_winners_data').on('value', (snapshot) => {
                 const liveData = snapshot.val();
                 
-                let requiresRefresh = false;
-                if (liveData && Array.isArray(liveData) && liveData.length > 50) {
-                    const sampleEmpty = liveData.filter(p => !p.records || p.records.length === 0);
-                    if (sampleEmpty.length > 10) requiresRefresh = true;
+                let forceRebuild = false;
+                if (liveData && Array.isArray(liveData) && liveData.length >= 700) {
+                    const sampleCheck = liveData.filter(p => p.id === "2056298" || p.email === "seissens@hotmail.com");
+                    if (sampleCheck.length === 0) forceRebuild = true;
                 } else {
-                    requiresRefresh = true;
+                    forceRebuild = true;
                 }
 
-                if (!requiresRefresh && liveData) {
+                if (!forceRebuild && liveData) {
                     playersData = liveData;
                 } else {
-                    playersData = generateHistoricalDataset();
+                    playersData = loadParsedSpreadsheetData();
                     saveToDatabase();
                 }
                 renderTable();
@@ -789,12 +901,12 @@
         function saveToDatabase() {
             const statusDot = document.querySelector('.status-dot');
             const statusText = document.getElementById('save-status');
-            statusText.textContent = "Syncing...";
-            statusDot.style.backgroundColor = "#eab308";
+            if (statusText) statusText.textContent = "Syncing...";
+            if (statusDot) statusDot.style.backgroundColor = "#eab308";
 
             db.ref('big_winners_data').set(playersData).then(() => {
-                statusText.textContent = "✓ Live Synced";
-                statusDot.style.backgroundColor = "#22c55e";
+                if (statusText) statusText.textContent = "✓ Live Synced";
+                if (statusDot) statusDot.style.backgroundColor = "#22c55e";
             });
         }
 
@@ -805,8 +917,11 @@
             const fourteenDaysAgo = new Date(now);
             fourteenDaysAgo.setDate(now.getDate() - 14);
 
-            const filterDateVal = document.getElementById('date-filter').value;
-            const filterYearVal = document.getElementById('year-filter').value;
+            const dateFilterEl = document.getElementById('date-filter');
+            const yearFilterEl = document.getElementById('year-filter');
+
+            const filterDateVal = dateFilterEl ? dateFilterEl.value : '';
+            const filterYearVal = yearFilterEl ? yearFilterEl.value : 'ALL';
 
             if (player.records && player.records.length > 0) {
                 player.records.forEach(rec => {
@@ -824,10 +939,12 @@
             return { total, fourteenDay };
         }
 
-        // CHECKS IF PLAYER HAS ACTIVITY MATCHING CURRENT FILTER SELECTIONS
         function hasFilteredRecords(player) {
-            const filterDateVal = document.getElementById('date-filter').value;
-            const filterYearVal = document.getElementById('year-filter').value;
+            const dateFilterEl = document.getElementById('date-filter');
+            const yearFilterEl = document.getElementById('year-filter');
+
+            const filterDateVal = dateFilterEl ? dateFilterEl.value : '';
+            const filterYearVal = yearFilterEl ? yearFilterEl.value : 'ALL';
 
             if (!filterDateVal && filterYearVal === 'ALL') return true;
             if (!player.records || player.records.length === 0) return false;
@@ -841,6 +958,7 @@
 
         function renderTable() {
             const tbody = document.getElementById('players-tbody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             playersData.forEach((player, pIndex) => {
@@ -901,8 +1019,10 @@
                 detailsRow.id = `details-row-${pIndex}`;
 
                 let recordsHtml = '';
-                const filterDateVal = document.getElementById('date-filter').value;
-                const filterYearVal = document.getElementById('year-filter').value;
+                const dateFilterEl = document.getElementById('date-filter');
+                const yearFilterEl = document.getElementById('year-filter');
+                const filterDateVal = dateFilterEl ? dateFilterEl.value : '';
+                const filterYearVal = yearFilterEl ? yearFilterEl.value : 'ALL';
 
                 if (player.records) {
                     player.records.forEach((rec, rIndex) => {
@@ -919,7 +1039,7 @@
                                 <td style="width: 150px;"><input type="number" step="0.01" class="cell-input" value="${rec.amount}" onchange="updateRecord(${pIndex}, ${rIndex}, 'amount', this.value)"></td>
                                 <td style="width: 100px; text-align: center;"><span class="badge ${badgeClass}">${badgeText}</span></td>
                                 <td><input type="text" class="cell-input" placeholder="Add note..." value="${rec.notes || ''}" onchange="updateRecord(${pIndex}, ${rIndex}, 'notes', this.value)"></td>
-                                <td style="width: 50px; text-align: center;"><button class="btn btn-sm btn-danger" onclick="deleteRecord(${pIndex}, ${rIndex})"><i data-lucide="trash-2" style="width: 12px; height: 12px;"></i></button></td>
+                                <td style="width: 50px; text-align: center;"><button class="btn btn-sm btn-danger" onclick="deleteRecord(${pIndex}, ${rIndex})"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button></td>
                             </tr>
                         `;
                     });
@@ -931,7 +1051,7 @@
                             <div class="subtable-card">
                                 <div class="subtable-header">
                                     <h4><i data-lucide="history" style="width: 14px; height: 14px;"></i> Daily Win / Loss Logs (${player.email})</h4>
-                                    <button class="btn btn-sm btn-primary" onclick="addRecord(${pIndex})"><i data-lucide="plus" style="width: 12px; height: 12px;"></i> Add Entry</button>
+                                    <button class="btn btn-sm btn-primary" onclick="addRecord(${pIndex})"><i data-lucide="plus" style="width: 14px; height: 14px;"></i> Add Entry</button>
                                 </div>
                                 <table class="subtable">
                                     <thead><tr><th>Date</th><th>Amount (EUR)</th><th style="text-align: center;">Type</th><th>Notes</th><th style="text-align: center;">Action</th></tr></thead>
@@ -947,7 +1067,7 @@
             });
 
             lucide.createIcons();
-            filterPlayers();
+            applyDOMFilters();
         }
 
         function toggleRow(index) {
@@ -981,7 +1101,7 @@
             saveStateToUndo();
             const today = new Date().toISOString().split('T')[0];
             if (!playersData[pIndex].records) playersData[pIndex].records = [];
-            playersData[pIndex].records.push({ date: today, amount: 0.00, notes: "" });
+            playersData[pIndex].records.unshift({ date: today, amount: 0.00, notes: "" });
             saveToDatabase();
             renderTable();
         }
@@ -995,6 +1115,7 @@
 
         function addNewPlayer() {
             saveStateToUndo();
+            const today = new Date().toISOString().split('T')[0];
             playersData.unshift({
                 id: "NEW_" + Math.floor(100000 + Math.random() * 900000),
                 email: "new.player@domain.com",
@@ -1003,7 +1124,7 @@
                 ccf: "1.00",
                 notes: "New account under monitoring",
                 status: "Under Review",
-                records: [{ date: new Date().toISOString().split('T')[0], amount: -500.00, notes: "Initial Monitoring Entry" }]
+                records: [{ date: today, amount: -500.00, notes: "Initial Monitoring Entry" }]
             });
             openRowIndex = 0;
             saveToDatabase();
@@ -1013,42 +1134,64 @@
         function applyFilters() { renderTable(); }
 
         function resetFilters() {
-            document.getElementById('brand-select-filter').value = 'ALL';
-            document.getElementById('date-filter').value = '';
-            document.getElementById('year-filter').value = 'ALL';
+            const brandEl = document.getElementById('brand-select-filter');
+            const dateEl = document.getElementById('date-filter');
+            const yearEl = document.getElementById('year-filter');
+
+            if (brandEl) brandEl.value = 'ALL';
+            if (dateEl) dateEl.value = '';
+            if (yearEl) yearEl.value = 'ALL';
             renderTable();
         }
 
-        // UPDATED FILTER LOGIC: EXCLUDES PLAYERS WITHOUT DATA ON SPECIFIC DATE/YEAR FILTERS
-        function filterPlayers() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const selectedBrand = document.getElementById('brand-select-filter').value.toUpperCase();
+        // DECOUPLED VISIBILITY TOGGLE (PREVENTS REBUILD OVERHEAD & FIXED SEARCH TYPING LAG)
+        function applyDOMFilters() {
+            const searchEl = document.getElementById('search-input');
+            const brandEl = document.getElementById('brand-select-filter');
+
+            const query = searchEl ? searchEl.value.toLowerCase().trim() : '';
+            const selectedBrand = brandEl ? brandEl.value.toUpperCase() : 'ALL';
             
             let activeCount = 0;
 
             playersData.forEach((player, pIndex) => {
                 const masterRow = document.getElementById(`player-row-${pIndex}`);
                 const detailsRow = document.getElementById(`details-row-${pIndex}`);
-                
+                if (!masterRow) return;
+
                 const playerBrand = (player.brand || '').toUpperCase();
                 const matchesBrand = (selectedBrand === 'ALL') || (playerBrand === selectedBrand);
                 
-                const matchesSearch = player.id.toLowerCase().includes(query) || 
-                                     player.email.toLowerCase().includes(query) ||
+                const matchesSearch = query.length === 0 || 
+                                     (player.id || '').toLowerCase().includes(query) || 
+                                     (player.email || '').toLowerCase().includes(query) ||
                                      playerBrand.toLowerCase().includes(query) ||
                                      (player.notes && player.notes.toLowerCase().includes(query));
 
-                const matchesDateAndYear = hasFilteredRecords(player);
-
+                const matchesDateAndYear = query.length > 0 ? true : hasFilteredRecords(player);
                 const isVisible = matchesBrand && matchesSearch && matchesDateAndYear;
 
                 if (isVisible) activeCount++;
 
-                if (masterRow) masterRow.style.display = isVisible ? '' : 'none';
-                if (detailsRow) detailsRow.style.display = (isVisible && openRowIndex === pIndex) ? 'table-row' : 'none';
+                masterRow.style.display = isVisible ? '' : 'none';
+                if (detailsRow) {
+                    detailsRow.style.display = (isVisible && openRowIndex === pIndex) ? 'table-row' : 'none';
+                }
             });
 
-            document.getElementById('active-players-count').textContent = activeCount;
+            const countEl = document.getElementById('active-players-count');
+            if (countEl) countEl.textContent = activeCount;
+        }
+
+        function onSearchInputKeyup() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                applyDOMFilters();
+            }, 200);
+        }
+
+        function filterPlayers() {
+            applyDOMFilters();
         }
 
         const themeToggleBtn = document.getElementById('theme-toggle');
@@ -1068,10 +1211,12 @@
             localStorage.setItem('sportsbook_theme_747', theme);
         }
 
-        themeToggleBtn.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-        });
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+        }
 
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(playersData, null, 2));
