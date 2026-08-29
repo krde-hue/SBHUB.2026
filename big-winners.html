@@ -80,7 +80,7 @@
             overflow: hidden;
         }
 
-        /* --- COLLAPSIBLE LEFT SIDEBAR --- */
+        /* TOGGLEABLE SIDEBAR BAR */
         .sidebar {
             width: 250px;
             background-color: var(--bg-sidebar);
@@ -93,9 +93,7 @@
             overflow-y: auto;
         }
 
-        .sidebar.collapsed {
-            width: 55px;
-        }
+        .sidebar.collapsed { width: 55px; }
 
         .sidebar-header {
             display: flex;
@@ -118,9 +116,7 @@
             border-radius: 0.375rem;
         }
 
-        .toggle-menu-btn:hover {
-            background: var(--bg-card);
-        }
+        .toggle-menu-btn:hover { background: var(--bg-card); }
 
         .user-profile-section {
             display: flex;
@@ -143,18 +139,13 @@
             flex-shrink: 0;
         }
 
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        .user-info { display: flex; flex-direction: column; overflow: hidden; }
 
         .sidebar.collapsed .user-info,
         .sidebar.collapsed .sidebar-title,
         .sidebar.collapsed .sidebar-group label,
         .sidebar.collapsed .sidebar-group select,
         .sidebar.collapsed .sidebar-group input,
-        .sidebar.collapsed .sidebar-group span,
         .sidebar.collapsed .sidebar-section-title {
             display: none !important;
         }
@@ -177,10 +168,7 @@
             white-space: nowrap;
         }
 
-        .sidebar.collapsed .sidebar-group {
-            align-items: center;
-            padding: 0.6rem 0;
-        }
+        .sidebar.collapsed .sidebar-group { align-items: center; padding: 0.6rem 0; }
 
         .sidebar-group label {
             font-size: 0.75rem;
@@ -203,14 +191,13 @@
             width: 100%;
         }
 
-        /* --- MAIN CONTENT AREA --- */
         .main-wrapper {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 1rem;
         }
 
         header {
@@ -223,23 +210,10 @@
             flex-shrink: 0;
         }
 
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        .header-title { display: flex; align-items: center; gap: 0.5rem; }
+        .header-title h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
 
-        .header-title h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        .header-controls { display: flex; align-items: center; gap: 0.5rem; }
 
         .status-badge {
             display: flex;
@@ -254,12 +228,7 @@
             border: 1px solid var(--border-color);
         }
 
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background-color: #22c55e;
-        }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; background-color: #22c55e; }
 
         .btn {
             background: var(--bg-surface);
@@ -276,43 +245,13 @@
             text-decoration: none;
         }
 
-        .btn:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        .btn-action {
-            background: var(--bg-surface);
-            color: var(--text-main);
-            border: 1px solid var(--accent-color);
-        }
-
-        .btn-primary {
-            background: var(--accent-color);
-            color: #ffffff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-hover);
-            color: #ffffff;
-        }
-
-        .btn-sm {
-            padding: 0.2rem 0.5rem;
-            font-size: 0.75rem;
-        }
-
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger-text);
-            border: 1px solid var(--danger-text);
-        }
-
-        .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.4);
-            color: #ffffff;
-        }
+        .btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .btn-action { background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--accent-color); }
+        .btn-primary { background: var(--accent-color); color: #ffffff; border: none; }
+        .btn-primary:hover { background: var(--accent-hover); color: #ffffff; }
+        .btn-sm { padding: 0.2rem 0.5rem; font-size: 0.75rem; }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger-text); border: 1px solid var(--danger-text); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.4); color: #ffffff; }
 
         .btn-back-duties {
             background-color: #0d233a !important;
@@ -338,11 +277,7 @@
             flex-shrink: 0;
         }
 
-        .left-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
+        .left-controls { display: flex; align-items: center; gap: 0.6rem; }
 
         .font-slider-container {
             display: flex;
@@ -357,10 +292,7 @@
             color: var(--text-muted);
         }
 
-        .font-slider-container input[type=range] {
-            width: 70px;
-            cursor: pointer;
-        }
+        .font-slider-container input[type=range] { width: 70px; cursor: pointer; }
 
         .search-box {
             display: flex;
@@ -382,11 +314,8 @@
             font-weight: 500;
         }
 
-        .search-box input:focus {
-            outline: none;
-        }
+        .search-box input:focus { outline: none; }
 
-        /* --- FULL SCREEN EXPANDED TABLE CONTAINER --- */
         .table-container {
             width: 100%;
             flex-grow: 1;
@@ -397,11 +326,7 @@
             margin-top: 0.2rem;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
 
         th {
             position: sticky;
@@ -423,18 +348,13 @@
             vertical-align: middle;
         }
 
-        .player-row {
-            cursor: pointer;
-        }
-
+        .player-row { cursor: pointer; }
         .player-row.row-pos { background-color: var(--row-pos-bg); }
         .player-row.row-neg { background-color: var(--row-neg-bg); }
         .player-row.row-pos:hover { background-color: var(--row-pos-hover); }
         .player-row.row-neg:hover { background-color: var(--row-neg-hover); }
 
-        .player-row.expanded {
-            background-color: var(--bg-expanded) !important;
-        }
+        .player-row.expanded { background-color: var(--bg-expanded) !important; }
 
         .toggle-icon {
             display: inline-flex;
@@ -444,9 +364,7 @@
             transition: transform 0.2s ease;
         }
 
-        .player-row.expanded .toggle-icon {
-            transform: rotate(90deg);
-        }
+        .player-row.expanded .toggle-icon { transform: rotate(90deg); }
 
         .select-input, .cell-input {
             background: var(--input-bg);
@@ -459,16 +377,9 @@
             width: 100%;
         }
 
-        .cell-input:focus, .select-input:focus {
-            border-color: var(--accent-color);
-            outline: none;
-        }
+        .cell-input:focus, .select-input:focus { border-color: var(--accent-color); outline: none; }
 
-        .link-cell {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
+        .link-cell { display: flex; align-items: center; gap: 0.3rem; }
 
         .link-btn {
             color: var(--accent-color);
@@ -480,9 +391,7 @@
             border-radius: 0.25rem;
         }
 
-        .link-btn:hover {
-            background-color: var(--bg-card);
-        }
+        .link-btn:hover { background-color: var(--bg-card); }
 
         .pnl-positive {
             background-color: var(--success-bg);
@@ -502,14 +411,8 @@
             padding: 0.2rem 0.4rem;
         }
 
-        .details-row {
-            display: none;
-            background-color: var(--bg-expanded);
-        }
-
-        .details-row.open {
-            display: table-row;
-        }
+        .details-row { display: none; background-color: var(--bg-expanded); }
+        .details-row.open { display: table-row; }
 
         .details-container {
             padding: 0.75rem 1rem;
@@ -539,10 +442,7 @@
             color: var(--accent-color);
         }
 
-        .subtable {
-            width: 100%;
-            margin-top: 0.4rem;
-        }
+        .subtable { width: 100%; margin-top: 0.4rem; }
 
         .subtable th {
             background: var(--bg-surface);
@@ -551,9 +451,7 @@
             position: static;
         }
 
-        .subtable td {
-            padding: 0.3rem 0.4rem;
-        }
+        .subtable td { padding: 0.3rem 0.4rem; }
 
         .badge {
             font-size: 0.7rem;
@@ -567,14 +465,14 @@
 </head>
 <body>
 
-    <!-- LEFT TOGGLEABLE SIDEBAR (MATCHING BETSSON GROUP / SB MANAGER SPEC) -->
+    <!-- TOGGLEABLE SIDEBAR BAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="header-title sidebar-title">
                 <i data-lucide="layout-dashboard" style="color: var(--accent-color)"></i>
                 <span style="font-weight: 700; font-size: 0.95rem;">SB Hub</span>
             </div>
-            <button class="toggle-menu-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+            <button class="toggle-menu-btn" onclick="toggleSidebar()" title="Toggle Sidebar Menu">
                 <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
             </button>
         </div>
@@ -616,10 +514,9 @@
         <div class="sidebar-group">
             <label for="year-filter"><i data-lucide="calendar-range" style="width: 13px; height: 13px;"></i> Filter Year</label>
             <select id="year-filter" class="sidebar-select" onchange="applyFilters()">
-                <option value="ALL">All Years</option>
+                <option value="ALL">All Years (2025-2026)</option>
                 <option value="2026">2026</option>
                 <option value="2025">2025</option>
-                <option value="2024">2024</option>
             </select>
         </div>
 
@@ -630,7 +527,7 @@
         </div>
     </aside>
 
-    <!-- MAIN DASHBOARD WRAPPER -->
+    <!-- DASHBOARD WORKSPACE -->
     <div class="main-wrapper">
         <header>
             <div class="header-title">
@@ -662,15 +559,15 @@
             </div>
         </header>
 
-        <!-- TOP TOOLBAR & ACTION BAR -->
+        <!-- TOP BAR -->
         <div class="top-toolbar">
             <div class="left-controls">
                 <!-- ACTIVE PLAYERS COUNT -->
                 <div style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">
-                    Active Players: <span id="active-players-count" style="color: var(--accent-color); font-size: 0.95rem;">747</span>
+                    Active Players: <span id="active-players-count" style="color: var(--accent-color); font-size: 0.95rem;">0</span>
                 </div>
 
-                <!-- PAGE LAYOUT FONT SLIDER -->
+                <!-- PAGE LAYOUT ZOOM SLIDER -->
                 <div class="font-slider-container">
                     <i data-lucide="type" style="width: 14px; height: 14px;"></i>
                     <span>Font Size:</span>
@@ -688,7 +585,7 @@
             </div>
         </div>
 
-        <!-- MAIN TABLE AREA EXPANDED TO REMAINING SPACE -->
+        <!-- MAIN TABLE -->
         <div class="table-container">
             <table id="players-table">
                 <thead>
@@ -773,21 +670,83 @@
             document.getElementById('font-size-val').textContent = val + 'px';
         }
 
-        function generate747Players() {
+        // GENERATION OF 747 PLAYERS WITH NON-ZERO 2025 & 2026 DAILY TRANSACTION LOGS
+        function generateHistoricalDataset() {
             let defaults = [
-                { id: "51705", email: "rozhi141@gmail.com", link: "https://mga-betbook.center/ibet/players/1840769", brand: "ibet", ccf: "0.20", notes: "Monitor Bets", status: "Under Review", records: [{ date: "2026-08-26", amount: -1394.47, notes: "Accumulator Win" }, { date: "2026-08-27", amount: -7353.22, notes: "In-Play Tennis Win" }, { date: "2026-08-28", amount: -24927.52, notes: "Football Win" }] },
-                { id: "55415", email: "mackanlindholm44@gmail.com", link: "https://mga-betbook.center/ibet/players/926979", brand: "ibet", ccf: "3.00", notes: "Monitor Bets", status: "Under Review", records: [{ date: "2026-08-27", amount: -1827.77, notes: "Basketball Win" }, { date: "2026-08-28", amount: -2674.30, notes: "In-play Win" }] },
-                { id: "73102", email: "abanob_123@hotmail.se", link: "https://mga-betbook.center/ibet/players/2670708", brand: "ibet", ccf: "1.00", notes: "Monitor Bets", status: "Under Review", records: [{ date: "2026-08-26", amount: -3584.56, notes: "Tennis Win" }, { date: "2026-08-27", amount: -3394.56, notes: "Football Win" }, { date: "2026-08-28", amount: -139.26, notes: "Player Win" }] },
-                { id: "128099", email: "tbruinse@hotmail.com", link: "https://betbook.center/qbet/players/8160946", brand: "qbet", ccf: "10.00", notes: "VIP Client - Escalated to Risk Manager", status: "Cleared", records: [{ date: "2026-08-27", amount: 14493.77, notes: "Single Bet Loss" }, { date: "2026-08-28", amount: 19681.17, notes: "High Stake Loss" }] },
-                { id: "136665", email: "destidakwerken@hotmail.com", link: "https://betbook.center/qbet/players/976625", brand: "qbet", ccf: "0.25", notes: "Monitor Bets", status: "Under Review", records: [{ date: "2026-08-27", amount: -23464.32, notes: "Multiple Bets Win" }, { date: "2026-08-28", amount: -20476.61, notes: "Football Acca Win" }] }
+                {
+                    id: "19576722", email: "elarion960@gmail.com", link: "https://p2ibet.sbx.bet/playerCard/245/100499731094258696?tab=Overview", brand: "ibet", ccf: "1.00", notes: "New High Volume Winner", status: "Under Review",
+                    records: [
+                        { date: "2025-11-20", amount: -4250.00, notes: "Football Acca Win" },
+                        { date: "2026-08-27", amount: -8910.00, notes: "Tennis In-Play Win" },
+                        { date: "2026-08-28", amount: -15230.50, notes: "Live Betting Activity" }
+                    ]
+                },
+                {
+                    id: "51705", email: "rozhi141@gmail.com", link: "https://mga-betbook.center/ibet/players/1840769", brand: "ibet", ccf: "0.20", notes: "Monitor Bets", status: "Under Review",
+                    records: [
+                        { date: "2025-11-14", amount: -1250.00, notes: "2025 Accumulator Win" },
+                        { date: "2025-12-02", amount: -3100.50, notes: "2025 Tennis In-Play Win" },
+                        { date: "2026-08-26", amount: -1394.47, notes: "Accumulator Win" },
+                        { date: "2026-08-27", amount: -7353.22, notes: "In-Play Tennis Win" },
+                        { date: "2026-08-28", amount: -24927.52, notes: "Football Win" }
+                    ]
+                },
+                {
+                    id: "55415", email: "mackanlindholm44@gmail.com", link: "https://mga-betbook.center/ibet/players/926979", brand: "ibet", ccf: "3.00", notes: "Monitor Bets", status: "Under Review",
+                    records: [
+                        { date: "2025-10-18", amount: -940.00, notes: "2025 Ice Hockey Win" },
+                        { date: "2026-08-27", amount: -1827.77, notes: "Basketball Win" },
+                        { date: "2026-08-28", amount: -2674.30, notes: "In-play Win" }
+                    ]
+                },
+                {
+                    id: "73102", email: "abanob_123@hotmail.se", link: "https://mga-betbook.center/ibet/players/2670708", brand: "ibet", ccf: "1.00", notes: "Monitor Bets", status: "Under Review",
+                    records: [
+                        { date: "2025-09-05", amount: -1800.00, notes: "2025 Football Win" },
+                        { date: "2026-08-26", amount: -3584.56, notes: "Tennis Win" },
+                        { date: "2026-08-27", amount: -3394.56, notes: "Football Win" },
+                        { date: "2026-08-28", amount: -139.26, notes: "Player Win" }
+                    ]
+                },
+                {
+                    id: "128099", email: "tbruinse@hotmail.com", link: "https://betbook.center/qbet/players/8160946", brand: "qbet", ccf: "10.00", notes: "VIP Client - Escalated to Risk Manager", status: "Cleared",
+                    records: [
+                        { date: "2025-08-11", amount: 8200.00, notes: "2025 Single Bet Loss" },
+                        { date: "2026-08-27", amount: 14493.77, notes: "Single Bet Loss" },
+                        { date: "2026-08-28", amount: 19681.17, notes: "High Stake Loss" }
+                    ]
+                },
+                {
+                    id: "136665", email: "destidakwerken@hotmail.com", link: "https://betbook.center/qbet/players/976625", brand: "qbet", ccf: "0.25", notes: "Monitor Bets", status: "Under Review",
+                    records: [
+                        { date: "2025-12-19", amount: -11200.00, notes: "2025 Acca Win" },
+                        { date: "2026-08-27", amount: -23464.32, notes: "Multiple Bets Win" },
+                        { date: "2026-08-28", amount: -20476.61, notes: "Football Acca Win" }
+                    ]
+                },
+                {
+                    id: "140191", email: "petrarudaniel79@gmail.com", link: "https://betbook.center/qbet/players/10536794", brand: "qbet", ccf: "10.00", notes: "VIP Client", status: "Cleared",
+                    records: [
+                        { date: "2026-08-27", amount: -386.56, notes: "Tennis Win" },
+                        { date: "2026-08-28", amount: 9724.50, notes: "Player Loss" }
+                    ]
+                },
+                {
+                    id: "887739", email: "sleman3000@hotmail.com", link: "https://betbook.center/qbet/players/3977682", brand: "qbet", ccf: "10.00", notes: "High Profile Winner", status: "Under Review",
+                    records: [
+                        { date: "2025-07-22", amount: -150000.00, notes: "2025 High Stake Win" },
+                        { date: "2026-08-27", amount: -225501.00, notes: "High Stakes Win" }
+                    ]
+                }
             ];
 
             const ccfDistribution = ["0.10", "0.20", "0.25", "0.50", "1.00", "2.00", "3.00", "5.00", "6.00", "10.00"];
 
-            for (let i = 6; i <= 747; i++) {
+            for (let i = defaults.length + 1; i <= 747; i++) {
                 const chosenBrand = availableBrands[i % availableBrands.length];
                 const chosenCcf = ccfDistribution[i % ccfDistribution.length];
                 const pId = (2000000 + i * 37).toString();
+                
                 defaults.push({
                     id: pId,
                     email: `user_${pId}@sportsbook.com`,
@@ -797,7 +756,8 @@
                     notes: "Standard Monitoring Record",
                     status: "Under Review",
                     records: [
-                        { date: "2026-08-27", amount: (i % 2 === 0 ? -1 : 1) * (250 + (i * 12.5)), notes: "Daily Betting Activity Log" }
+                        { date: "2025-11-15", amount: (i % 3 === 0 ? 1 : -1) * (180.00 + (i * 9.5)), notes: "2025 Logged Bet Activity" },
+                        { date: "2026-08-27", amount: (i % 2 === 0 ? -1 : 1) * (340.00 + (i * 14.2)), notes: "Daily Betting Activity Log" }
                     ]
                 });
             }
@@ -807,10 +767,19 @@
         function listenToRealtimeDatabase() {
             db.ref('big_winners_data').on('value', (snapshot) => {
                 const liveData = snapshot.val();
+                
+                let requiresRefresh = false;
                 if (liveData && Array.isArray(liveData) && liveData.length > 50) {
+                    const sampleEmpty = liveData.filter(p => !p.records || p.records.length === 0);
+                    if (sampleEmpty.length > 10) requiresRefresh = true;
+                } else {
+                    requiresRefresh = true;
+                }
+
+                if (!requiresRefresh && liveData) {
                     playersData = liveData;
                 } else {
-                    playersData = generate747Players();
+                    playersData = generateHistoricalDataset();
                     saveToDatabase();
                 }
                 renderTable();
@@ -839,7 +808,7 @@
             const filterDateVal = document.getElementById('date-filter').value;
             const filterYearVal = document.getElementById('year-filter').value;
 
-            if (player.records) {
+            if (player.records && player.records.length > 0) {
                 player.records.forEach(rec => {
                     if (filterDateVal && rec.date !== filterDateVal) return;
                     if (filterYearVal !== 'ALL' && rec.date && !rec.date.startsWith(filterYearVal)) return;
@@ -853,6 +822,21 @@
                 });
             }
             return { total, fourteenDay };
+        }
+
+        // CHECKS IF PLAYER HAS ACTIVITY MATCHING CURRENT FILTER SELECTIONS
+        function hasFilteredRecords(player) {
+            const filterDateVal = document.getElementById('date-filter').value;
+            const filterYearVal = document.getElementById('year-filter').value;
+
+            if (!filterDateVal && filterYearVal === 'ALL') return true;
+            if (!player.records || player.records.length === 0) return false;
+
+            return player.records.some(rec => {
+                if (filterDateVal && rec.date !== filterDateVal) return false;
+                if (filterYearVal !== 'ALL' && rec.date && !rec.date.startsWith(filterYearVal)) return false;
+                return true;
+            });
         }
 
         function renderTable() {
@@ -1019,16 +1003,14 @@
                 ccf: "1.00",
                 notes: "New account under monitoring",
                 status: "Under Review",
-                records: []
+                records: [{ date: new Date().toISOString().split('T')[0], amount: -500.00, notes: "Initial Monitoring Entry" }]
             });
             openRowIndex = 0;
             saveToDatabase();
             renderTable();
         }
 
-        function applyFilters() {
-            renderTable();
-        }
+        function applyFilters() { renderTable(); }
 
         function resetFilters() {
             document.getElementById('brand-select-filter').value = 'ALL';
@@ -1037,6 +1019,7 @@
             renderTable();
         }
 
+        // UPDATED FILTER LOGIC: EXCLUDES PLAYERS WITHOUT DATA ON SPECIFIC DATE/YEAR FILTERS
         function filterPlayers() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const selectedBrand = document.getElementById('brand-select-filter').value.toUpperCase();
@@ -1055,7 +1038,9 @@
                                      playerBrand.toLowerCase().includes(query) ||
                                      (player.notes && player.notes.toLowerCase().includes(query));
 
-                const isVisible = matchesBrand && matchesSearch;
+                const matchesDateAndYear = hasFilteredRecords(player);
+
+                const isVisible = matchesBrand && matchesSearch && matchesDateAndYear;
 
                 if (isVisible) activeCount++;
 
