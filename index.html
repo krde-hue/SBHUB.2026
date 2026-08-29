@@ -1,347 +1,698 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sportsbook Hub</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@800;900&family=Rajdhani:wght@700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sportsbook Operations Hub - Dashboard</title>
+    
+    <!-- Orbitron & Rajdhani Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 
-    :root {
-      --bg-overlay: rgba(8, 13, 26, 0.82);
-      --btn-bg: rgba(22, 32, 50, 0.85);
-      --btn-border: rgba(255, 255, 255, 0.12);
-      --btn-text: #ffffff;
-      --card-bg: rgba(15, 23, 42, 0.88);
-      --text-main: #ffffff;
-      --text-muted: #94a3b8;
-    }
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    [data-theme="light"] {
-      --bg-overlay: rgba(241, 245, 249, 0.90);
-      --btn-bg: rgba(255, 255, 255, 0.9);
-      --btn-border: rgba(0, 0, 0, 0.12);
-      --btn-text: #0f172a;
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-    }
+    <style>
+        :root[data-theme="dark"] {
+            --bg-color: #0b1329;
+            --center-btn-bg: #ffffff;
+            --center-btn-active: #38bdf8;
+            --item-btn-bg: #1e293b;
+            --item-hover-bg: #38bdf8;
+            --border-color: #334155;
+            --text-dark: #0f172a;
+            --text-light: #f8fafc;
+            --title-cyan: #38bdf8;
+            --watermark-color: #38bdf8;
+            --watermark-opacity: 0.25;
+            --credit-color: rgba(56, 189, 248, 0.35);
+            --glow-color: rgba(56, 189, 248, 0.75);
+            --shadow-color: rgba(0, 0, 0, 0.65);
+            --canvas-opacity: 0.35;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
-    }
+        :root[data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --center-btn-bg: #0f172a;
+            --center-btn-active: #0284c7;
+            --item-btn-bg: #ffffff;
+            --item-hover-bg: #0284c7;
+            --border-color: #cbd5e1;
+            --text-dark: #ffffff;
+            --text-light: #0f172a;
+            --title-cyan: #0284c7;
+            --watermark-color: #0284c7;
+            --watermark-opacity: 0.20;
+            --credit-color: rgba(2, 132, 199, 0.30);
+            --glow-color: rgba(2, 132, 199, 0.65);
+            --shadow-color: rgba(0, 0, 0, 0.18);
+            --canvas-opacity: 0.18;
+        }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      color: var(--text-main);
-      background-color: #080d1a;
-      background-image: 
-        linear-gradient(var(--bg-overlay), var(--bg-overlay)),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='bgGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23080d1a'/%3E%3Cstop offset='50%25' stop-color='%230f172a'/%3E%3Cstop offset='100%25' stop-color='%23050811'/%3E%3C/linearGradient%3E%3ClinearGradient id='cyanGlow' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2338bdf8' stop-opacity='0.35'/%3E%3Cstop offset='100%25' stop-color='%2338bdf8' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23bgGrad)'/%3E%3Cg stroke='%231e293b' stroke-width='1' opacity='0.5'%3E%3Cline x1='100' y1='140' x2='1500' y2='140'/%3E%3Cline x1='100' y1='280' x2='1500' y2='280'/%3E%3Cline x1='100' y1='420' x2='1500' y2='420'/%3E%3Cline x1='100' y1='560' x2='1500' y2='560'/%3E%3Cline x1='100' y1='700' x2='1500' y2='700'/%3E%3Cline x1='250' y1='140' x2='250' y2='780'/%3E%3Cline x1='550' y1='140' x2='550' y2='780'/%3E%3Cline x1='850' y1='140' x2='850' y2='780'/%3E%3Cline x1='1150' y1='140' x2='1150' y2='780'/%3E%3Cline x1='1450' y1='140' x2='1450' y2='780'/%3E%3C/g%3E%3Cg stroke-width='2'%3E%3Cline x1='180' y1='300' x2='180' y2='450' stroke='%2322c55e'/%3E%3Crect x='170' y='330' width='20' height='90' fill='%2322c55e' rx='2'/%3E%3Cline x1='220' y1='320' x2='220' y2='500' stroke='%23ef4444'/%3E%3Crect x='210' y='360' width='20' height='110' fill='%23ef4444' rx='2'/%3E%3Cline x1='260' y1='250' x2='260' y2='410' stroke='%2322c55e'/%3E%3Crect x='250' y='270' width='20' height='110' fill='%2322c55e' rx='2'/%3E%3Cline x1='300' y1='200' x2='300' y2='350' stroke='%2322c55e'/%3E%3Crect x='290' y='220' width='20' height='90' fill='%2322c55e' rx='2'/%3E%3C/g%3E%3Cpath d='M 400 600 Q 550 300 700 450 T 1000 250 T 1300 380 L 1300 700 L 400 700 Z' fill='url(%23cyanGlow)'/%3E%3Cpath d='M 400 600 Q 550 300 700 450 T 1000 250 T 1300 380' fill='none' stroke='%2338bdf8' stroke-width='4'/%3E%3Cpath d='M 400 680 Q 600 500 800 580 T 1200 300 T 1450 220' fill='none' stroke='%23f59e0b' stroke-width='3' stroke-dasharray='6,6'/%3E%3Cg transform='translate(1350, 580)'%3E%3Cpath d='M0,0 L 0,-70 A 70,70 0 0,1 60,35 Z' fill='%2322c55e' opacity='0.85'/%3E%3Cpath d='M0,0 L 60,35 A 70,70 0 0,1 -50,50 Z' fill='%2338bdf8' opacity='0.85'/%3E%3Cpath d='M0,0 L -50,50 A 70,70 0 0,1 -60,-35 Z' fill='%23ef4444' opacity='0.85'/%3E%3Cpath d='M0,0 L -60,-35 A 70,70 0 0,1 0,-70 Z' fill='%23f59e0b' opacity='0.85'/%3E%3Ccircle cx='0' cy='0' r='38' fill='%230b1324'/%3E%3C/g%3E%3C/svg%3E");
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 5%;
-    }
+        body {
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
 
-    .viewer-counter {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: var(--btn-bg);
-      padding: 0.5rem 1.2rem;
-      border-radius: 30px;
-      border: 1px solid var(--btn-border);
-      backdrop-filter: blur(10px);
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-      letter-spacing: 0.05em;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
+        /* TRADING CANVAS BACKGROUND */
+        #trading-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            opacity: var(--canvas-opacity);
+            pointer-events: none;
+        }
 
-    .eye-icon {
-      width: 20px;
-      height: 20px;
-      fill: #38bdf8;
-    }
+        /* TOP RIGHT CONTROLS */
+        .top-controls {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .theme-toggle-container {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--btn-bg);
-      padding: 0.5rem 1rem;
-      border-radius: 30px;
-      border: 1px solid var(--btn-border);
-      backdrop-filter: blur(10px);
-    }
+        .theme-toggle-btn {
+            background-color: var(--item-btn-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px var(--shadow-color);
+        }
 
-    .toggle-label {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: var(--text-main);
-    }
+        .theme-toggle-btn:hover {
+            border-color: var(--title-cyan);
+            color: var(--title-cyan);
+        }
 
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 46px;
-      height: 24px;
-    }
+        /* MAIN DASHBOARD CONTAINER */
+        .dashboard-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .switch input { opacity: 0; width: 0; height: 0; }
+        /* WATERMARK BACKGROUND HEADERS */
+        .dashboard-header-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            z-index: 2;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #334155;
-      border-radius: 34px;
-    }
+        .welcome-subtitle-bg {
+            font-family: 'Orbitron', 'Rajdhani', sans-serif;
+            color: var(--text-light);
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 0.42em;
+            text-transform: uppercase;
+            margin-bottom: 0px;
+            opacity: calc(var(--watermark-opacity) * 0.85);
+        }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      border-radius: 50%;
-    }
+        .title-wrapper {
+            position: relative;
+            display: inline-block;
+        }
 
-    input:checked + .slider { background-color: #2563eb; }
-    input:checked + .slider:before { transform: translateX(22px); }
+        /* PAC-MAN BITE CANVAS OVERLAY */
+        #pacman-text-canvas {
+            position: relative;
+            display: block;
+            z-index: 3;
+        }
 
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1rem 3%;
-      max-width: 1350px;
-      margin: 0 auto;
-      width: 100%;
-    }
+        /* REDUCED PAC-MAN (32px), LOWERED TO BOTTOM OF LETTER LEGS (78%), SLOW TRAVERSE (180s) */
+        .pacman-sprite {
+            position: absolute;
+            top: 78%;
+            left: 0;
+            width: 32px;
+            height: 32px;
+            margin-top: -16px;
+            margin-left: -16px;
+            background: #ffeb3b;
+            border-radius: 50%;
+            z-index: 15;
+            box-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
+            clip-path: polygon(100% 0%, 100% 50%, 100% 100%, 0% 100%, 0% 0%);
+            animation: pacmanChomp 1.2s ease-in-out infinite alternate, pacmanTraverse 180s linear infinite;
+        }
 
-    .hero {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
+        @keyframes pacmanChomp {
+            0% {
+                clip-path: polygon(100% 18%, 50% 50%, 100% 82%, 100% 100%, 0% 100%, 0% 0%, 100% 0%);
+            }
+            100% {
+                clip-path: polygon(100% 48%, 50% 50%, 100% 52%, 100% 100%, 0% 100%, 0% 0%, 100% 0%);
+            }
+        }
 
-    .welcome-text {
-      font-size: clamp(1.4rem, 2.5vw, 2.2rem);
-      letter-spacing: 0.15em;
-      color: var(--text-main);
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.7);
-    }
+        @keyframes pacmanTraverse {
+            0% {
+                left: 0%;
+                transform: scaleX(1);
+            }
+            49.9% {
+                left: 100%;
+                transform: scaleX(1);
+            }
+            50% {
+                left: 100%;
+                transform: scaleX(-1);
+            }
+            99.9% {
+                left: 0%;
+                transform: scaleX(-1);
+            }
+            100% {
+                left: 0%;
+                transform: scaleX(1);
+            }
+        }
 
-    .brand-title {
-      font-family: 'Orbitron', system-ui, sans-serif;
-      font-size: clamp(2.5rem, 6.5vw, 5.2rem);
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #38bdf8;
-      text-shadow: 0 0 20px rgba(56, 189, 248, 0.6), 0 0 40px rgba(0, 0, 0, 0.8);
-      line-height: 1.1;
-    }
+        /* ITALIC CREDIT POSITIONED BELOW THE 'S' */
+        .hub-credit-bg {
+            position: absolute;
+            left: 0;
+            bottom: -28px;
+            font-family: 'Rajdhani', sans-serif;
+            font-style: italic;
+            color: var(--credit-color);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: lowercase;
+        }
 
-    .menu-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      width: 100%;
-      margin-bottom: 2.5rem;
-    }
+        /* CIRCULAR MENU CONTAINER */
+        .circular-menu {
+            position: relative;
+            width: 720px;
+            height: 720px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
 
-    .menu-row {
-      display: grid;
-      gap: 1.2rem;
-      width: 100%;
-    }
+        /* CENTER TOGGLE BUTTON (140px) */
+        .toggle-btn {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            background-color: var(--center-btn-bg);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            font-size: 3.2rem;
+            cursor: pointer;
+            z-index: 30;
+            box-shadow: 0 12px 35px var(--shadow-color);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                        background-color 0.3s ease,
+                        color 0.3s ease,
+                        box-shadow 0.3s ease;
+        }
 
-    .row-1 { grid-template-columns: repeat(3, 1fr); }
-    .row-2 { grid-template-columns: repeat(2, 1fr); }
-    .row-3 { grid-template-columns: repeat(5, 1fr); }
-    .row-4 { grid-template-columns: repeat(2, 1fr); }
+        .toggle-btn i {
+            transition: transform 0.4s ease;
+        }
 
-    @media (max-width: 900px) {
-      .menu-row { grid-template-columns: 1fr !important; }
-    }
+        .circular-menu.active .toggle-btn {
+            background-color: var(--center-btn-active);
+            color: #ffffff;
+            box-shadow: 0 0 50px var(--glow-color);
+        }
 
-    .nav-btn {
-      background: var(--btn-bg);
-      border: 1px solid var(--btn-border);
-      color: var(--btn-text);
-      padding: 1.4rem 1rem;
-      border-radius: 12px;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-      text-decoration: none;
-    }
+        .circular-menu.active .toggle-btn i {
+            transform: rotate(135deg);
+        }
 
-    .nav-btn:hover {
-      transform: translateY(-4px);
-      color: #ffffff !important;
-    }
+        /* RADIAL ACTION BUTTONS CONTAINER */
+        .menu-items {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
 
-    .hover-cyan:hover {
-      background: rgba(6, 182, 212, 0.9) !important;
-      border-color: #22d3ee !important;
-      box-shadow: 0 0 25px rgba(34, 211, 238, 0.6) !important;
-    }
+        .circular-menu.active .menu-items {
+            pointer-events: auto;
+        }
 
-    .hover-purple:hover {
-      background: rgba(147, 51, 234, 0.9) !important;
-      border-color: #c084fc !important;
-      box-shadow: 0 0 25px rgba(192, 132, 252, 0.6) !important;
-    }
+        /* RADIAL ACTION BUTTONS (110px) */
+        .menu-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 110px;
+            height: 110px;
+            margin-top: -55px;
+            margin-left: -55px;
+            background-color: var(--item-btn-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 2.4rem;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            opacity: 0;
+            transform: translate(0, 0) scale(0);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                        opacity 0.3s ease,
+                        background-color 0.25s ease,
+                        border-color 0.25s ease,
+                        box-shadow 0.25s ease;
+        }
 
-    .hover-green:hover {
-      background: rgba(16, 185, 129, 0.9) !important;
-      border-color: #34d399 !important;
-      box-shadow: 0 0 25px rgba(52, 211, 153, 0.6) !important;
-    }
+        .menu-item:hover {
+            background-color: var(--item-hover-bg);
+            border-color: var(--title-cyan);
+            color: #ffffff;
+            transform: translate(var(--tx), var(--ty)) scale(1.35) !important;
+            box-shadow: 0 0 45px var(--glow-color), 0 0 20px rgba(56, 189, 248, 0.9);
+            z-index: 40;
+        }
 
-    .hover-red:hover {
-      background: rgba(239, 68, 68, 0.9) !important;
-      border-color: #f87171 !important;
-      box-shadow: 0 0 25px rgba(248, 113, 113, 0.6) !important;
-    }
+        .menu-item[data-color="green"]:hover {
+            background-color: #22c55e;
+            border-color: #4ade80;
+            box-shadow: 0 0 45px rgba(34, 197, 94, 0.85);
+        }
+        .menu-item[data-color="red"]:hover {
+            background-color: #ef4444;
+            border-color: #f87171;
+            box-shadow: 0 0 45px rgba(239, 68, 68, 0.85);
+        }
+        .menu-item[data-color="orange"]:hover {
+            background-color: #f97316;
+            border-color: #fb923c;
+            box-shadow: 0 0 45px rgba(249, 115, 22, 0.85);
+        }
 
-    .hover-orange:hover {
-      background: rgba(245, 158, 11, 0.9) !important;
-      border-color: #fbbf24 !important;
-      box-shadow: 0 0 25px rgba(251, 191, 36, 0.6) !important;
-    }
+        /* TOOLTIP BADGE */
+        .menu-item::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -40px;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1.5px solid var(--title-cyan);
+            color: #f8fafc;
+            padding: 5px 14px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
 
-    .hover-blue:hover {
-      background: rgba(37, 99, 235, 0.9) !important;
-      border-color: #60a5fa !important;
-      box-shadow: 0 0 25px rgba(96, 165, 250, 0.6) !important;
-    }
+        .menu-item:hover::after {
+            opacity: 1;
+            transform: translateY(2px);
+        }
 
-    .content-area {
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--btn-border);
-      border-radius: 16px;
-      padding: 2.5rem;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-      min-height: 220px;
-    }
-  </style>
+        @keyframes floatingAnimation {
+            0% { transform: translate(var(--tx), var(--ty)) translateY(0px) scale(1); }
+            50% { transform: translate(var(--tx), var(--ty)) translateY(-8px) scale(1); }
+            100% { transform: translate(var(--tx), var(--ty)) translateY(0px) scale(1); }
+        }
+
+        .circular-menu.active .menu-item.floating:not(:hover) {
+            animation: floatingAnimation 3.2s ease-in-out infinite;
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <div class="viewer-counter">
-      <svg class="eye-icon" viewBox="0 0 24 24">
-        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-      </svg>
-      <span id="viewCount">14</span> Viewing
+    <!-- TRADING CANVAS BACKGROUND -->
+    <canvas id="trading-bg"></canvas>
+
+    <!-- DAYLIGHT / NIGHT MODE TOP CONTROL -->
+    <div class="top-controls">
+        <button class="theme-toggle-btn" id="theme-toggle">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+            <span id="theme-text">Night Mode</span>
+        </button>
     </div>
 
-    <div class="theme-toggle-container">
-      <span class="toggle-label">NIGHT MODE</span>
-      <label class="switch">
-        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-        <span class="slider"></span>
-      </label>
-      <span class="toggle-label">DAYLIGHT MODE</span>
-    </div>
-  </header>
+    <div class="dashboard-container">
+        <!-- BACKGROUND WATERMARK TITLE WITH BITE & HEALING CANVAS -->
+        <div class="dashboard-header-bg">
+            <div class="welcome-subtitle-bg">Welcome to</div>
+            <div class="title-wrapper">
+                <!-- CANVAS FOR TEXT & DYNAMIC BITE/HEAL EFFECT -->
+                <canvas id="pacman-text-canvas" width="1150" height="130"></canvas>
+                
+                <!-- PAC-MAN CHARACTER SPRITE -->
+                <div class="pacman-sprite" id="pacman-sprite"></div>
 
-  <main>
-    <section class="hero">
-      <div class="welcome-text">Welcome to</div>
-      <h1 class="brand-title">SPORTSBOOK HUB</h1>
-    </section>
+                <div class="hub-credit-bg">kriztelhub.2026 model</div>
+            </div>
+        </div>
 
-    <div class="menu-container">
-      <!-- Group 1 -->
-      <div class="menu-row row-1">
-        <a href="duties.html" class="nav-btn hover-cyan">DAILY DUTIES</a>
-        <a href="rota.html" class="nav-btn hover-cyan">ROTA 2026</a>
-        <a href="big-winners.html" class="nav-btn hover-cyan">BIG WINNERS</a>
-      </div>
-
-      <!-- Group 2 -->
-      <div class="menu-row row-2">
-        <a href="https://docs.google.com/spreadsheets/d/1Pl8XVaYNEaupKx57HlXbWibsIeR7a28UfemRasxJ8RY/edit?gid=1450723096#gid=1450723096" target="_blank" class="nav-btn hover-purple">EDGE BOOST</a>
-        <a href="https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=784209986#gid=784209986" target="_blank" class="nav-btn hover-purple">IBET BOOST</a>
-      </div>
-
-      <!-- Group 3 -->
-      <div class="menu-row row-3">
-        <a href="https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410" target="_blank" class="nav-btn hover-green">GREEN TRACKING</a>
-        <a href="https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468" target="_blank" class="nav-btn hover-red">RED TRACKING</a>
-        <a href="https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695" target="_blank" class="nav-btn hover-orange">ORANGE TRACKING</a>
-        <a href="https://docs.google.com/spreadsheets/d/11STKO4Xsj0a8iTuUXSCXC-XEE4-7qmF9/edit?pli=1&gid=1701374259#gid=1701374259" target="_blank" class="nav-btn hover-green">GREEN CRM</a>
-        <a href="https://docs.google.com/spreadsheets/d/1gPks2FdHyOOTiILvn553miz32WeEtOpx/edit?gid=1701374259#gid=1701374259" target="_blank" class="nav-btn hover-red">RED CRM</a>
-      </div>
-
-      <!-- Group 4 -->
-      <div class="menu-row row-4">
-        <a href="https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" target="_blank" class="nav-btn hover-blue">CONFLUENCE</a>
-        <a href="workspace.html" class="nav-btn hover-blue">WORKSPACE</a>
-      </div>
+        <!-- CIRCULAR NAVIGATION MENU -->
+        <div class="circular-menu" id="circular-menu">
+            <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+            <div class="menu-items" id="menu-items"></div>
+        </div>
     </div>
 
-    <section class="content-area" id="displayArea">
-      <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; letter-spacing: 0.05em;">SYSTEM READY</h2>
-      <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 1.05rem;">Select an operational module from above to view active workspace details.</p>
-    </section>
-  </main>
+    <script>
+        // CONFIGURATION JSON DATA
+        const navMenuJSON = [
+            { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "daily-duties.html" },
+            { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
+            { id: "big-winners", icon: "fa-solid fa-trophy", label: "BIG WINNERS", url: "big-winners.html" },
+            { id: "edge-boost", icon: "fa-solid fa-bolt", label: "EDGE BOOST", url: "edge-boost.html" },
+            { id: "ibet-boost", icon: "fa-solid fa-chart-line", label: "IBET BOOST", url: "ibet-boost.html" },
+            { id: "green-tracking", icon: "fa-solid fa-chart-pie", label: "GREEN TRACKING", url: "green-tracking.html", color: "green" },
+            { id: "red-tracking", icon: "fa-solid fa-chart-pie", label: "RED TRACKING", url: "red-tracking.html", color: "red" },
+            { id: "orange-tracking", icon: "fa-solid fa-chart-pie", label: "ORANGE TRACKING", url: "orange-tracking.html", color: "orange" },
+            { id: "green-crm", icon: "fa-solid fa-users", label: "GREEN CRM", url: "green-crm.html", color: "green" },
+            { id: "red-crm", icon: "fa-solid fa-users-slash", label: "RED CRM", url: "red-crm.html", color: "red" },
+            { id: "confluence", icon: "fa-solid fa-book", label: "CONFLUENCE", url: "confluence.html" },
+            { id: "workspace", icon: "fa-solid fa-laptop-code", label: "WORKSPACE", url: "workspace.html" }
+        ];
 
-  <script>
-    function toggleTheme() {
-      const body = document.body;
-      const toggle = document.getElementById('themeToggle');
-      if (toggle.checked) {
-        body.setAttribute('data-theme', 'light');
-      } else {
-        body.removeAttribute('data-theme');
-      }
-    }
+        const circularMenu = document.getElementById('circular-menu');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const menuItemsContainer = document.getElementById('menu-items');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
 
-    let viewers = Math.floor(Math.random() * 8) + 12;
-    document.getElementById('viewCount').innerText = viewers;
+        const radius = 290;
 
-    setInterval(() => {
-      const delta = Math.floor(Math.random() * 3) - 1;
-      viewers = Math.max(5, viewers + delta);
-      document.getElementById('viewCount').innerText = viewers;
-    }, 4000);
-  </script>
+        function buildMenuFromJSON(items) {
+            if (!menuItemsContainer) return;
+            menuItemsContainer.innerHTML = '';
+            const total = items.length;
 
+            items.forEach((item, index) => {
+                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2); 
+                const x = Math.round(radius * Math.cos(angle));
+                const y = Math.round(radius * Math.sin(angle));
+
+                const a = document.createElement('a');
+                a.href = item.url;
+                a.className = 'menu-item';
+                a.setAttribute('data-tooltip', item.label);
+                if (item.color) a.setAttribute('data-color', item.color);
+                
+                a.style.setProperty('--tx', `${x}px`);
+                a.style.setProperty('--ty', `${y}px`);
+
+                a.innerHTML = `<i class="${item.icon}"></i>`;
+                menuItemsContainer.appendChild(a);
+            });
+        }
+
+        if (toggleBtn && circularMenu) {
+            toggleBtn.addEventListener('click', () => {
+                const isActive = circularMenu.classList.toggle('active');
+                const items = menuItemsContainer.querySelectorAll('.menu-item');
+
+                items.forEach((item, index) => {
+                    if (isActive) {
+                        setTimeout(() => {
+                            const tx = item.style.getPropertyValue('--tx');
+                            const ty = item.style.getPropertyValue('--ty');
+                            item.style.opacity = '1';
+                            item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
+
+                            setTimeout(() => {
+                                if (circularMenu.classList.contains('active')) {
+                                    item.classList.add('floating');
+                                }
+                            }, 500);
+                        }, index * 40);
+                    } else {
+                        item.classList.remove('floating');
+                        item.style.opacity = '0';
+                        item.style.transform = 'translate(0, 0) scale(0)';
+                    }
+                });
+            });
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (themeIcon && themeText) {
+                if (theme === 'dark') {
+                    themeIcon.className = 'fa-solid fa-moon';
+                    themeText.textContent = 'Night Mode';
+                } else {
+                    themeIcon.className = 'fa-solid fa-sun';
+                    themeText.textContent = 'Daylight Mode';
+                }
+            }
+            localStorage.setItem('dashboard_theme', theme);
+        }
+
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+        }
+
+        // TARGETED PAC-MAN LETTER LEG BITE & SLOW HEALING ENGINE
+        function initPacmanBiteEngine() {
+            const canvas = document.getElementById('pacman-text-canvas');
+            const sprite = document.getElementById('pacman-sprite');
+            if (!canvas || !sprite) return;
+            const ctx = canvas.getContext('2d');
+
+            const bites = [];
+
+            function render() {
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                const mainColor = isDark ? '#38bdf8' : '#0284c7';
+                const opacity = isDark ? 0.25 : 0.20;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // DRAW WATERMARK TEXT
+                ctx.font = '900 102px Orbitron, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                ctx.fillStyle = mainColor;
+                ctx.globalAlpha = opacity;
+                ctx.shadowColor = mainColor;
+                ctx.shadowBlur = isDark ? 25 : 10;
+
+                ctx.fillText('SPORTSBOOK HUB', canvas.width / 2, canvas.height / 2 + 5);
+                ctx.shadowBlur = 0;
+
+                // TRACK PAC-MAN SPRITE POSITION (FOCUSED ON BOTTOM LEGS OF LETTERS)
+                const spriteRect = sprite.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+
+                const pmX = spriteRect.left + spriteRect.width / 2 - canvasRect.left;
+                const pmY = spriteRect.top + spriteRect.height / 2 - canvasRect.top;
+
+                // Add small bite mark around the leg of the letter
+                if (pmX >= 0 && pmX <= canvas.width) {
+                    bites.push({ x: pmX, y: pmY, radius: 14, opacity: 1.0 });
+                }
+
+                // ERASE LEG BITES & GRADUALLY HEAL SLOWLY OVER TIME
+                ctx.globalCompositeOperation = 'destination-out';
+                for (let i = bites.length - 1; i >= 0; i--) {
+                    const b = bites[i];
+                    ctx.globalAlpha = b.opacity;
+
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Slow healing rate
+                    b.opacity -= 0.0008;
+                    if (b.opacity <= 0) {
+                        bites.splice(i, 1);
+                    }
+                }
+
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+
+                requestAnimationFrame(render);
+            }
+
+            render();
+        }
+
+        // ANIMATED ORDER BOOK DEPTH FLOW BACKGROUND
+        function initTradingBackground() {
+            const canvas = document.getElementById('trading-bg');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let mouse = { x: null, y: null, radius: 160 };
+
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            class DepthParticle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 3 + 1.5;
+                    this.speedX = (Math.random() - 0.5) * 1.2;
+                    this.speedY = (Math.random() - 0.5) * 1.2;
+                    this.isBuy = Math.random() > 0.5;
+                    this.color = this.isBuy ? '34, 197, 94' : '239, 68, 68';
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (mouse.x && mouse.y) {
+                        let dx = mouse.x - this.x;
+                        let dy = mouse.y - this.y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < mouse.radius) {
+                            let angle = Math.atan2(dy, dx);
+                            let force = (mouse.radius - distance) / mouse.radius;
+                            this.x -= Math.cos(angle) * force * 4;
+                            this.y -= Math.sin(angle) * force * 4;
+                        }
+                    }
+
+                    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                        this.reset();
+                    }
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${this.color}, 0.65)`;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = `rgba(${this.color}, 0.8)`;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            const particles = Array.from({ length: 80 }, () => new DepthParticle());
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                ctx.strokeStyle = 'rgba(51, 65, 85, 0.25)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < canvas.width; x += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < canvas.height; y += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+
+                for (let a = 0; a < particles.length; a++) {
+                    for (let b = a + 1; b < particles.length; b++) {
+                        let dx = particles[a].x - particles[b].x;
+                        let dy = particles[a].y - particles[b].y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 110) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[a].x, particles[a].y);
+                            ctx.lineTo(particles[b].x, particles[b].y);
+                            ctx.strokeStyle = `rgba(56, 189, 248, ${0.22 - dist / 500})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
+            setTheme(savedTheme);
+            buildMenuFromJSON(navMenuJSON);
+            initTradingBackground();
+            initPacmanBiteEngine();
+        });
+    </script>
 </body>
 </html>
