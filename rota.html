@@ -371,7 +371,7 @@
 
     <!-- VIEW ONLY WARNING BANNER -->
     <div id="viewOnlyBanner" class="view-only-banner">
-        🔒 View-Only Mode Active: Editing and navigation actions are disabled for non-admin viewers.
+        🔒 View-Only Mode Active: Editing actions are disabled, but local Timezone switching is available below.
     </div>
 
     <div class="header-top">
@@ -695,6 +695,8 @@
                 authBtn.className = 'btn btn-warning';
                 bulkSelects.forEach(el => el.disabled = false);
             }
+            // Always keep Timezone Selector active
+            timezoneSelect.disabled = false;
         }
 
         function copyViewOnlyLink() {
@@ -763,10 +765,13 @@
             db.ref('leave_matrix_db').set(leaveMatrixData);
         }
 
+        // Unlocked: Allows local or global timezone toggling anytime
         function changeTimezoneGlobal(val) {
-            if (isViewOnlyMode) return;
             globalTzOffset = parseFloat(val);
-            db.ref('rota_global_timezone').set(globalTzOffset);
+            if (!isViewOnlyMode) {
+                db.ref('rota_global_timezone').set(globalTzOffset);
+            }
+            renderCalendar();
         }
 
         function toggleDarkMode() {
