@@ -289,28 +289,32 @@
     </section>
 
     <div class="menu-container">
+      <!-- Group 1 -->
       <div class="menu-row row-1">
         <a href="duties.html" class="nav-btn hover-cyan">DAILY DUTIES</a>
         <a href="rota.html" class="nav-btn hover-cyan">ROTA 2026</a>
-        <button class="nav-btn hover-cyan" onclick="showContent('Big Winners')">BIG WINNERS</button>
+        <a href="big-winners.html" class="nav-btn hover-cyan">BIG WINNERS</a>
       </div>
 
+      <!-- Group 2 -->
       <div class="menu-row row-2">
-        <button class="nav-btn hover-purple" onclick="showContent('Edge Boost')">EDGE BOOST</button>
-        <button class="nav-btn hover-purple" onclick="showContent('iBet Boost')">IBET BOOST</button>
+        <a href="edge-boost.html" class="nav-btn hover-purple">EDGE BOOST</a>
+        <a href="ibet-boost.html" class="nav-btn hover-purple">IBET BOOST</a>
       </div>
 
+      <!-- Group 3 -->
       <div class="menu-row row-3">
-        <button class="nav-btn hover-green" onclick="showContent('Green Tracking')">GREEN TRACKING</button>
-        <button class="nav-btn hover-red" onclick="showContent('Red Tracking')">RED TRACKING</button>
-        <button class="nav-btn hover-orange" onclick="showContent('Orange Tracking')">ORANGE TRACKING</button>
-        <button class="nav-btn hover-green" onclick="showContent('Green CRM')">GREEN CRM</button>
-        <button class="nav-btn hover-red" onclick="showContent('Red CRM')">RED CRM</button>
+        <a href="green-tracking.html" class="nav-btn hover-green">GREEN TRACKING</a>
+        <a href="red-tracking.html" class="nav-btn hover-red">RED TRACKING</a>
+        <a href="orange-tracking.html" class="nav-btn hover-orange">ORANGE TRACKING</a>
+        <a href="green-crm.html" class="nav-btn hover-green">GREEN CRM</a>
+        <a href="red-crm.html" class="nav-btn hover-red">RED CRM</a>
       </div>
 
+      <!-- Group 4 -->
       <div class="menu-row row-4">
-        <button class="nav-btn hover-blue" onclick="showContent('Confluence')">CONFLUENCE</button>
-        <button class="nav-btn hover-blue" onclick="showContent('Workspace')">WORKSPACE</button>
+        <a href="confluence.html" class="nav-btn hover-blue">CONFLUENCE</a>
+        <a href="workspace.html" class="nav-btn hover-blue">WORKSPACE</a>
       </div>
     </div>
 
@@ -329,14 +333,6 @@
       } else {
         body.removeAttribute('data-theme');
       }
-    }
-
-    function showContent(section) {
-      const area = document.getElementById('displayArea');
-      area.innerHTML = `
-        <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.05em;">${section}</h2>
-        <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 1.05rem;">Active view for ${section}.</p>
-      `;
     }
 
     let viewers = Math.floor(Math.random() * 8) + 12;
