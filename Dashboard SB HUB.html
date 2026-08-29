@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sportsbook Hub</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@800;900&family=Rajdhani:wght@700&display=swap');
+
+    :root {
+      --bg-overlay: rgba(10, 18, 32, 0.88);
+      --btn-bg: rgba(22, 32, 50, 0.85);
+      --btn-border: rgba(255, 255, 255, 0.12);
+      --btn-text: #ffffff;
+      --card-bg: rgba(15, 23, 42, 0.88);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    [data-theme="light"] {
+      --bg-overlay: rgba(241, 245, 249, 0.92);
+      --btn-bg: rgba(255, 255, 255, 0.9);
+      --btn-border: rgba(0, 0, 0, 0.12);
+      --btn-text: #0f172a;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-main);
+      background-color: #08101e;
+      background-image: 
+        linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+        radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 40%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='400' viewBox='0 0 800 400'%3E%3Cpath d='M0,300 Q200,100 400,250 T800,150' fill='none' stroke='%2338bdf8' stroke-width='3' opacity='0.4'/%3E%3Cpath d='M0,350 Q250,200 500,280 T800,80' fill='none' stroke='%23f59e0b' stroke-width='2.5' opacity='0.35'/%3E%3Cg fill='%2338bdf8' opacity='0.2'%3E%3Crect x='50' y='220' width='12' height='80'/%3E%3Crect x='100' y='180' width='12' height='120'/%3E%3Crect x='150' y='140' width='12' height='160'/%3E%3Crect x='200' y='200' width='12' height='100'/%3E%3Crect x='550' y='120' width='12' height='180'/%3E%3Crect x='600' y='90' width='12' height='210'/%3E%3Crect x='650' y='60' width='12' height='240'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5%;
+    }
+
+    /* Eye Counter Styling */
+    .viewer-counter {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--btn-bg);
+      padding: 0.5rem 1.2rem;
+      border-radius: 30px;
+      border: 1px solid var(--btn-border);
+      backdrop-filter: blur(10px);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .eye-icon {
+      width: 20px;
+      height: 20px;
+      fill: #38bdf8;
+    }
+
+    .theme-toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--btn-bg);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      border: 1px solid var(--btn-border);
+      backdrop-filter: blur(10px);
+    }
+
+    .toggle-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider { background-color: #2563eb; }
+    input:checked + .slider:before { transform: translateX(22px); }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 3%;
+      max-width: 1350px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .welcome-text {
+      font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+      letter-spacing: 0.15em;
+      color: var(--text-main);
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+    }
+
+    .brand-title {
+      font-family: 'Orbitron', system-ui, sans-serif;
+      font-size: clamp(2.5rem, 6.5vw, 5.2rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.6), 0 0 40px rgba(0, 0, 0, 0.8);
+      line-height: 1.1;
+    }
+
+    /* Menu Container & Rows */
+    .menu-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+      margin-bottom: 2.5rem;
+    }
+
+    .menu-row {
+      display: grid;
+      gap: 1.2rem;
+      width: 100%;
+    }
+
+    /* Row 1 Alignment (3 Items) */
+    .row-1 { grid-template-columns: repeat(3, 1fr); }
+    /* Row 2 Alignment (2 Items) */
+    .row-2 { grid-template-columns: repeat(2, 1fr); }
+    /* Row 3 Alignment (5 Items) */
+    .row-3 { grid-template-columns: repeat(5, 1fr); }
+    /* Row 4 Alignment (2 Items) */
+    .row-4 { grid-template-columns: repeat(2, 1fr); }
+
+    @media (max-width: 900px) {
+      .menu-row { grid-template-columns: 1fr !important; }
+    }
+
+    .nav-btn {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--btn-text);
+      padding: 1.4rem 1rem;
+      border-radius: 12px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Futuristic Color Highlights on Hover */
+    .nav-btn:hover {
+      transform: translateY(-4px);
+      color: #ffffff !important;
+    }
+
+    /* Group 1: Core Operations - Electric Cyan Glow */
+    .hover-cyan:hover {
+      background: rgba(6, 182, 212, 0.9) !important;
+      border-color: #22d3ee !important;
+      box-shadow: 0 0 25px rgba(34, 211, 238, 0.6) !important;
+    }
+
+    /* Group 2: Boosts - Cyber Purple Glow */
+    .hover-purple:hover {
+      background: rgba(147, 51, 234, 0.9) !important;
+      border-color: #c084fc !important;
+      box-shadow: 0 0 25px rgba(192, 132, 252, 0.6) !important;
+    }
+
+    /* Group 3: Specific Brand/CRM Highlights */
+    .hover-green:hover {
+      background: rgba(16, 185, 129, 0.9) !important;
+      border-color: #34d399 !important;
+      box-shadow: 0 0 25px rgba(52, 211, 153, 0.6) !important;
+    }
+
+    .hover-red:hover {
+      background: rgba(239, 68, 68, 0.9) !important;
+      border-color: #f87171 !important;
+      box-shadow: 0 0 25px rgba(248, 113, 113, 0.6) !important;
+    }
+
+    .hover-orange:hover {
+      background: rgba(245, 158, 11, 0.9) !important;
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 25px rgba(251, 191, 36, 0.6) !important;
+    }
+
+    /* Group 4: Platforms - Royal Blue Glow */
+    .hover-blue:hover {
+      background: rgba(37, 99, 235, 0.9) !important;
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 25px rgba(96, 165, 250, 0.6) !important;
+    }
+
+    .content-area {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--btn-border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      min-height: 220px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <!-- Viewers Counter with Eye Icon -->
+    <div class="viewer-counter">
+      <svg class="eye-icon" viewBox="0 0 24 24">
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+      </svg>
+      <span id="viewCount">14</span> Viewing
+    </div>
+
+    <div class="theme-toggle-container">
+      <span class="toggle-label">NIGHT MODE</span>
+      <label class="switch">
+        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label">DAYLIGHT MODE</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="welcome-text">Welcome to</div>
+      <h1 class="brand-title">SPORTSBOOK HUB</h1>
+    </section>
+
+    <div class="menu-container">
+      <!-- Group 1 -->
+      <div class="menu-row row-1">
+        <button class="nav-btn hover-cyan" onclick="showContent('Daily Duties')">DAILY DUTIES</button>
+        <button class="nav-btn hover-cyan" onclick="showContent('Rota 2026')">ROTA 2026</button>
+        <button class="nav-btn hover-cyan" onclick="showContent('Big Winners')">BIG WINNERS</button>
+      </div>
+
+      <!-- Group 2 -->
+      <div class="menu-row row-2">
+        <button class="nav-btn hover-purple" onclick="showContent('Edge Boost')">EDGE BOOST</button>
+        <button class="nav-btn hover-purple" onclick="showContent('iBet Boost')">IBET BOOST</button>
+      </div>
+
+      <!-- Group 3 -->
+      <div class="menu-row row-3">
+        <button class="nav-btn hover-green" onclick="showContent('Green Tracking')">GREEN TRACKING</button>
+        <button class="nav-btn hover-red" onclick="showContent('Red Tracking')">RED TRACKING</button>
+        <button class="nav-btn hover-orange" onclick="showContent('Orange Tracking')">ORANGE TRACKING</button>
+        <button class="nav-btn hover-green" onclick="showContent('Green CRM')">GREEN CRM</button>
+        <button class="nav-btn hover-red" onclick="showContent('Red CRM')">RED CRM</button>
+      </div>
+
+      <!-- Group 4 -->
+      <div class="menu-row row-4">
+        <button class="nav-btn hover-blue" onclick="showContent('Confluence')">CONFLUENCE</button>
+        <button class="nav-btn hover-blue" onclick="showContent('Workspace')">WORKSPACE</button>
+      </div>
+    </div>
+
+    <section class="content-area" id="displayArea">
+      <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; letter-spacing: 0.05em;">SYSTEM READY</h2>
+      <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 1.05rem;">Select an operational module from above to view active workspace details.</p>
+    </section>
+  </main>
+
+  <script>
+    // Theme Switcher Logic
+    function toggleTheme() {
+      const body = document.body;
+      const toggle = document.getElementById('themeToggle');
+      if (toggle.checked) {
+        body.setAttribute('data-theme', 'light');
+      } else {
+        body.removeAttribute('data-theme');
+      }
+    }
+
+    // Module Content Switcher
+    function showContent(section) {
+      const area = document.getElementById('displayArea');
+      area.innerHTML = `
+        <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.05em;">${section}</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 1.05rem;">Active view for ${section}.</p>
+      `;
+    }
+
+    // Dynamic Viewer Count Simulation (Works offline, GitHub Pages, or Firebase)
+    let viewers = Math.floor(Math.random() * 8) + 12;
+    document.getElementById('viewCount').innerText = viewers;
+
+    setInterval(() => {
+      const delta = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
+      viewers = Math.max(5, viewers + delta);
+      document.getElementById('viewCount').innerText = viewers;
+    }, 4000);
+  </script>
+
+</body>
+</html>
