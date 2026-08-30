@@ -171,11 +171,18 @@
             touch-action: none;
         }
 
+        .card.ghost-hidden {
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+
         .card.dragging {
             cursor: grabbing;
-            box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.6);
             z-index: 10000 !important;
             pointer-events: none;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .card.red { color: #dc2626; }
@@ -292,8 +299,6 @@
         let tableaus = [[], [], [], [], [], [], []];
         let score = 0;
         let selectedSelection = null;
-
-        // DRAG TRACKING STATE
         let activeDrag = null; 
 
         function createDeck() {
@@ -437,7 +442,7 @@
             }
         }
 
-        // MOUSE / TOUCH DRAG ENGINE WITH STACK SUPPORT
+        // DRAG ENGINE WITH GHOST DUPLICATE PREVENTION
         function attachCardDragEvents(cardElem, source) {
             cardElem.addEventListener('pointerdown', (e) => {
                 e.stopPropagation();
@@ -466,33 +471,33 @@
                 const offsetX = e.clientX - rect.left;
                 const offsetY = e.clientY - rect.top;
 
+                // Hide source cards instantly to avoid duplicate ghost visuals
+                elementsToDrag.forEach(el => el.classList.add('ghost-hidden'));
+
+                // Clone elements for drag floating layer
+                const board = document.getElementById('board-container');
+                let dragClones = elementsToDrag.map((el, idx) => {
+                    let clone = el.cloneNode(true);
+                    clone.classList.remove('ghost-hidden');
+                    clone.classList.add('dragging');
+                    clone.style.position = 'fixed';
+                    clone.style.left = `${e.clientX - offsetX}px`;
+                    clone.style.top = `${e.clientY - offsetY + (idx * cardOffset)}px`;
+                    clone.style.zIndex = 10000 + idx;
+                    board.appendChild(clone);
+                    return clone;
+                });
+
                 activeDrag = {
                     source: source,
-                    elements: elementsToDrag,
+                    origElements: elementsToDrag,
+                    dragClones: dragClones,
                     cards: cardsToMove,
                     offsetX: offsetX,
-                    offsetY: offsetY,
-                    initialPos: elementsToDrag.map(el => ({
-                        el: el,
-                        parent: el.parentElement,
-                        top: el.style.top,
-                        left: el.style.left,
-                        zIndex: el.style.zIndex
-                    }))
+                    offsetY: offsetY
                 };
 
                 selectedSelection = source;
-
-                // Move elements to root container for unrestricted screen dragging
-                const board = document.getElementById('board-container');
-                elementsToDrag.forEach((el, idx) => {
-                    el.classList.add('dragging');
-                    el.style.position = 'fixed';
-                    el.style.left = `${e.clientX - offsetX}px`;
-                    el.style.top = `${e.clientY - offsetY + (idx * cardOffset)}px`;
-                    el.style.zIndex = 10000 + idx;
-                    board.appendChild(el);
-                });
 
                 window.addEventListener('pointermove', handlePointerMove);
                 window.addEventListener('pointerup', handlePointerUp);
@@ -504,7 +509,7 @@
             const isMobile = window.innerWidth <= 768;
             const cardOffset = isMobile ? 18 : 28;
 
-            activeDrag.elements.forEach((el, idx) => {
+            activeDrag.dragClones.forEach((el, idx) => {
                 el.style.left = `${e.clientX - activeDrag.offsetX}px`;
                 el.style.top = `${e.clientY - activeDrag.offsetY + (idx * cardOffset)}px`;
             });
@@ -515,6 +520,9 @@
 
             window.removeEventListener('pointermove', handlePointerMove);
             window.removeEventListener('pointerup', handlePointerUp);
+
+            // Clean up drag clones
+            activeDrag.dragClones.forEach(clone => clone.remove());
 
             const dropTarget = findDropTarget(e.clientX, e.clientY);
             let success = false;
@@ -528,15 +536,8 @@
             }
 
             if (!success) {
-                // Return cards smoothly if dropped in an invalid area
-                activeDrag.initialPos.forEach(item => {
-                    item.el.classList.remove('dragging');
-                    item.el.style.position = 'absolute';
-                    item.el.style.left = item.left;
-                    item.el.style.top = item.top;
-                    item.el.style.zIndex = item.zIndex;
-                    item.parent.appendChild(item.el);
-                });
+                // Restore original cards visibility if drop fails
+                activeDrag.origElements.forEach(el => el.classList.remove('ghost-hidden'));
                 render();
             }
 
@@ -544,7 +545,6 @@
         }
 
         function findDropTarget(x, y) {
-            // Check Foundation Drop Slots
             for (let i = 0; i < 4; i++) {
                 const elem = document.getElementById(`foundation-${i}`);
                 const rect = elem.getBoundingClientRect();
@@ -553,11 +553,10 @@
                 }
             }
 
-            // Check Tableau Drop Columns
             for (let i = 0; i < 7; i++) {
                 const elem = document.getElementById(`tableau-${i}`);
                 const rect = elem.getBoundingClientRect();
-                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom + 200) {
+                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom + 250) {
                     return { type: 'tableau', index: i };
                 }
             }
