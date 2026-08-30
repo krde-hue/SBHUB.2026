@@ -26,7 +26,6 @@
             --title-cyan: #38bdf8;
             --watermark-color: #38bdf8;
             --watermark-opacity: 0.25;
-            --credit-color: rgba(56, 189, 248, 0.45);
             --glow-color: rgba(56, 189, 248, 0.75);
             --shadow-color: rgba(0, 0, 0, 0.65);
             --canvas-opacity: 0.35;
@@ -44,7 +43,6 @@
             --title-cyan: #0284c7;
             --watermark-color: #0284c7;
             --watermark-opacity: 0.20;
-            --credit-color: rgba(2, 132, 199, 0.45);
             --glow-color: rgba(2, 132, 199, 0.65);
             --shadow-color: rgba(0, 0, 0, 0.18);
             --canvas-opacity: 0.18;
@@ -121,6 +119,28 @@
         .mobile-toggle-btn.active {
             background-color: #ec4899;
             border-color: #f472b6;
+        }
+
+        /* BOTTOM-RIGHT LOGO BRANDING */
+        .bottom-right-brand {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .bottom-right-brand img {
+            width: 70px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+            transition: width 0.3s ease;
         }
 
         /* MAIN DASHBOARD CONTAINER */
@@ -212,20 +232,6 @@
             100% { left: 0%; transform: scaleX(1); }
         }
 
-        .hub-credit-bg {
-            position: absolute;
-            right: 25px;
-            bottom: -22px;
-            font-family: 'Rajdhani', sans-serif;
-            font-style: italic;
-            color: var(--credit-color);
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: lowercase;
-            pointer-events: none;
-        }
-
         /* CIRCULAR MENU CONTAINER */
         .circular-menu {
             position: relative;
@@ -310,7 +316,11 @@
             pointer-events: none;
             cursor: pointer;
             z-index: 35;
-            transition: opacity 0.3s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        opacity 0.3s ease, 
+                        background-color 0.25s ease, 
+                        border-color 0.25s ease, 
+                        box-shadow 0.25s ease;
         }
 
         .circular-menu.active .menu-item {
@@ -319,33 +329,39 @@
 
         .menu-item i {
             pointer-events: none;
+            transition: transform 0.25s ease;
         }
 
-        /* CUSTOM DESIGNATED COLORS ON HOVER & SELECTION */
+        /* HOVER ENLARGEMENT (1.4x LARGER) */
         .menu-item:hover {
+            transform: translate(var(--tx), var(--ty)) scale(1.4) !important;
             background-color: var(--item-hover-bg);
             border-color: var(--title-cyan);
             color: #ffffff;
-            box-shadow: 0 0 45px var(--glow-color), 0 0 20px rgba(56, 189, 248, 0.9);
-            z-index: 40;
+            box-shadow: 0 0 50px var(--glow-color), 0 0 25px rgba(56, 189, 248, 0.95);
+            z-index: 50;
+        }
+
+        .menu-item:hover i {
+            transform: scale(1.15);
         }
 
         .menu-item[data-color="green"]:hover {
             background-color: #22c55e !important;
             border-color: #4ade80 !important;
-            box-shadow: 0 0 45px rgba(34, 197, 94, 0.85) !important;
+            box-shadow: 0 0 50px rgba(34, 197, 94, 0.95) !important;
         }
 
         .menu-item[data-color="red"]:hover {
             background-color: #ef4444 !important;
             border-color: #f87171 !important;
-            box-shadow: 0 0 45px rgba(239, 68, 68, 0.85) !important;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.95) !important;
         }
 
         .menu-item[data-color="orange"]:hover {
             background-color: #f97316 !important;
             border-color: #fb923c !important;
-            box-shadow: 0 0 45px rgba(249, 115, 22, 0.85) !important;
+            box-shadow: 0 0 50px rgba(249, 115, 22, 0.95) !important;
         }
 
         /* TOOLTIP BADGE */
@@ -375,7 +391,7 @@
 
         .menu-item:hover::after {
             opacity: 1;
-            transform: translateY(2px);
+            transform: translateY(2px) scale(0.85);
         }
 
         /* MOBILE VIEW OPTIMIZATIONS */
@@ -391,14 +407,18 @@
             border-radius: 18px;
         }
 
+        body.mobile-view-active .bottom-right-brand {
+            bottom: 12px;
+            right: 15px;
+        }
+
+        body.mobile-view-active .bottom-right-brand img {
+            width: 50px;
+        }
+
         body.mobile-view-active .welcome-subtitle-bg {
             font-size: 1.4rem;
             letter-spacing: 0.25em;
-        }
-
-        body.mobile-view-active .hub-credit-bg {
-            font-size: 0.75rem;
-            bottom: -18px;
         }
 
         body.mobile-view-active .circular-menu {
@@ -445,6 +465,11 @@
         </button>
     </div>
 
+    <!-- BOTTOM RIGHT LOGO BRANDING -->
+    <div class="bottom-right-brand">
+        <img src="k-hub-logo.png" alt="K HUB 2026 (kriztel)">
+    </div>
+
     <div class="dashboard-container">
         <!-- BACKGROUND WATERMARK TITLE -->
         <div class="dashboard-header-bg">
@@ -452,7 +477,6 @@
             <div class="title-wrapper">
                 <canvas id="pacman-text-canvas" width="1150" height="150"></canvas>
                 <div class="pacman-sprite" id="pacman-sprite"></div>
-                <div class="hub-credit-bg">kriztelhub.2026 model</div>
             </div>
         </div>
 
@@ -536,7 +560,7 @@
             });
         }
 
-        // NEAR-IMPERCEPTIBLE CLOCKWISE ROTATION LOOP (0.0001 RAD/FRAME)
+        // NEAR-IMPERCEPTIBLE ROTATION ENGINE
         function startSlowRotation() {
             function step() {
                 if (circularMenu.classList.contains('active')) {
