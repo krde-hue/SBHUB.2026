@@ -135,12 +135,42 @@
             user-select: none;
         }
 
-        .bottom-right-brand img {
-            width: 70px;
-            height: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
-            transition: width 0.3s ease;
+        .brand-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+        }
+
+        .brand-icon-svg {
+            width: 55px;
+            height: 55px;
+            margin-bottom: 4px;
+        }
+
+        .brand-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 0.95rem;
+            color: #ffffff;
+            letter-spacing: 0.08em;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .brand-line {
+            width: 80%;
+            height: 1.5px;
+            background: rgba(255, 255, 255, 0.4);
+            margin: 3px 0 2px 0;
+        }
+
+        .brand-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.05em;
         }
 
         /* MAIN DASHBOARD CONTAINER */
@@ -412,8 +442,17 @@
             right: 15px;
         }
 
-        body.mobile-view-active .bottom-right-brand img {
-            width: 50px;
+        body.mobile-view-active .brand-icon-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        body.mobile-view-active .brand-title {
+            font-size: 0.78rem;
+        }
+
+        body.mobile-view-active .brand-subtitle {
+            font-size: 0.70rem;
         }
 
         body.mobile-view-active .welcome-subtitle-bg {
@@ -465,9 +504,32 @@
         </button>
     </div>
 
-    <!-- BOTTOM RIGHT LOGO BRANDING -->
+    <!-- EMBEDDED HIGH-RESOLUTION VECTOR BRANDING (NO BROKEN IMAGES) -->
     <div class="bottom-right-brand">
-        <img src="k-hub-logo.png" alt="K HUB 2026 (kriztel)">
+        <div class="brand-card">
+            <svg class="brand-icon-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0284c7" />
+                        <stop offset="100%" stop-color="#38bdf8" />
+                    </linearGradient>
+                    <linearGradient id="grad-orange" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f97316" />
+                        <stop offset="100%" stop-color="#fb923c" />
+                    </linearGradient>
+                </defs>
+                <!-- Blue Outer Ring Arc -->
+                <path d="M 100 20 A 80 80 0 1 0 170 140" stroke="url(#grad-blue)" stroke-width="18" stroke-linecap="round"/>
+                <!-- Orange Outer Ring Loop -->
+                <path d="M 120 40 A 60 60 0 1 1 150 150" stroke="url(#grad-orange)" stroke-width="18" stroke-linecap="round"/>
+                <!-- Arrow Swoosh Upward -->
+                <path d="M 50 150 Q 90 100 160 30" stroke="url(#grad-blue)" stroke-width="20" stroke-linecap="round"/>
+                <path d="M 130 25 L 175 25 L 175 70 Z" fill="url(#grad-orange)"/>
+            </svg>
+            <div class="brand-title">K HUB 2026</div>
+            <div class="brand-line"></div>
+            <div class="brand-subtitle">(kriztel)</div>
+        </div>
     </div>
 
     <div class="dashboard-container">
