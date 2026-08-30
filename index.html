@@ -192,7 +192,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            pointer-events: none;
             user-select: none;
             white-space: nowrap;
             z-index: 2;
@@ -213,6 +212,7 @@
             margin-bottom: -15px;
             opacity: calc(var(--watermark-opacity) * 0.85);
             transition: font-size 0.3s ease;
+            pointer-events: none;
         }
 
         .title-wrapper {
@@ -223,8 +223,7 @@
             justify-content: center;
         }
 
-        /* WATERMARK TEXT CANVAS */
-        #pacman-text-canvas {
+        #title-text-canvas {
             position: relative;
             display: block;
             z-index: 3;
@@ -232,34 +231,16 @@
             max-width: 95vw;
         }
 
-        .pacman-sprite {
+        /* INTERACTIVE DINO GAME CANVAS */
+        #dino-game-canvas {
             position: absolute;
-            top: 50%;
-            left: 0;
-            width: 32px;
-            height: 32px;
-            margin-top: -16px;
-            margin-left: -16px;
-            background: #ffeb3b;
-            border-radius: 50%;
-            z-index: 15;
-            box-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
-            clip-path: polygon(100% 0%, 100% 50%, 100% 100%, 0% 100%, 0% 0%);
-            animation: pacmanChomp 1.2s ease-in-out infinite alternate, pacmanTraverse 180s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes pacmanChomp {
-            0% { clip-path: polygon(100% 18%, 50% 50%, 100% 82%, 100% 100%, 0% 100%, 0% 0%, 100% 0%); }
-            100% { clip-path: polygon(100% 48%, 50% 50%, 100% 52%, 100% 100%, 0% 100%, 0% 0%, 100% 0%); }
-        }
-
-        @keyframes pacmanTraverse {
-            0% { left: 0%; transform: scaleX(1); }
-            49.9% { left: 100%; transform: scaleX(1); }
-            50% { left: 100%; transform: scaleX(-1); }
-            99.9% { left: 0%; transform: scaleX(-1); }
-            100% { left: 0%; transform: scaleX(1); }
+            bottom: -55px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 40;
+            background: transparent;
+            cursor: pointer;
+            pointer-events: auto;
         }
 
         /* CIRCULAR MENU CONTAINER */
@@ -383,7 +364,6 @@
             transition: transform 0.25s ease;
         }
 
-        /* CUSTOM LETTER ICON BADGES FOR TRACKING */
         .menu-item .letter-icon {
             font-family: 'Orbitron', 'Rajdhani', sans-serif;
             font-weight: 900;
@@ -409,7 +389,6 @@
             text-shadow: 0 0 12px rgba(249, 115, 22, 0.6);
         }
 
-        /* HOVER ENLARGEMENT (1.4x LARGER) */
         .menu-item:hover {
             transform: translate(var(--tx), var(--ty)) scale(1.4) !important;
             background-color: var(--item-hover-bg);
@@ -457,7 +436,6 @@
             text-shadow: none;
         }
 
-        /* TOOLTIP BADGE */
         .menu-item::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -557,6 +535,10 @@
             font-size: 0.72rem;
             padding: 3px 8px;
         }
+
+        body.mobile-view-active #dino-game-canvas {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -602,12 +584,13 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE -->
+        <!-- BACKGROUND WATERMARK TITLE WITH DINO GAME OVERLAY -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
-                <canvas id="pacman-text-canvas" width="1150" height="150"></canvas>
-                <div class="pacman-sprite" id="pacman-sprite"></div>
+                <canvas id="title-text-canvas" width="1150" height="150"></canvas>
+                <!-- INTERACTIVE DINO RUNNER MINI-GAME -->
+                <canvas id="dino-game-canvas" width="1050" height="85"></canvas>
             </div>
         </div>
 
@@ -640,7 +623,6 @@
     </div>
 
     <script>
-        // CONFIGURATION WITH LETTER BADGE ICONS FOR TRACKING OPTIONS
         const navMenuJSON = [
             { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
@@ -787,7 +769,7 @@
             }
             localStorage.setItem('dashboard_mobile_view', isMobileView ? 'true' : 'false');
             buildMenuFromJSON(navMenuJSON);
-            fitPacmanCanvasScale();
+            fitTitleCanvasScale();
         }
 
         if (mobileToggleBtn) {
@@ -815,8 +797,8 @@
             });
         }
 
-        function fitPacmanCanvasScale() {
-            const canvas = document.getElementById('pacman-text-canvas');
+        function fitTitleCanvasScale() {
+            const canvas = document.getElementById('title-text-canvas');
             if (!canvas) return;
             const screenWidth = window.innerWidth;
             if (screenWidth < 1150 || isMobileView) {
@@ -828,14 +810,11 @@
             }
         }
 
-        // TARGETED PAC-MAN LETTER BITE ENGINE
-        function initPacmanBiteEngine() {
-            const canvas = document.getElementById('pacman-text-canvas');
-            const sprite = document.getElementById('pacman-sprite');
-            if (!canvas || !sprite) return;
+        // BACKGROUND WATERMARK TEXT ENGINE
+        function initTitleWatermarkEngine() {
+            const canvas = document.getElementById('title-text-canvas');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
-
-            const bites = [];
 
             function render() {
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -856,38 +835,188 @@
                 ctx.fillText('SPORTSBOOK HUB', canvas.width / 2, canvas.height / 2);
                 ctx.shadowBlur = 0;
 
-                const spriteRect = sprite.getBoundingClientRect();
-                const canvasRect = canvas.getBoundingClientRect();
-
-                const pmX = (spriteRect.left + spriteRect.width / 2 - canvasRect.left) * (canvas.width / canvasRect.width);
-                const pmY = (spriteRect.top + spriteRect.height / 2 - canvasRect.top) * (canvas.height / canvasRect.height);
-
-                if (pmX >= 0 && pmX <= canvas.width) {
-                    bites.push({ x: pmX, y: pmY, radius: 16, opacity: 1.0 });
-                }
-
-                ctx.globalCompositeOperation = 'destination-out';
-                for (let i = bites.length - 1; i >= 0; i--) {
-                    const b = bites[i];
-                    ctx.globalAlpha = b.opacity;
-
-                    ctx.beginPath();
-                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    b.opacity -= 0.0008;
-                    if (b.opacity <= 0) {
-                        bites.splice(i, 1);
-                    }
-                }
-
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.globalAlpha = 1.0;
-
                 requestAnimationFrame(render);
             }
 
             render();
+        }
+
+        // INTERACTIVE CHROME DINO RUNNER MINI-GAME
+        function initDinoRunnerGame() {
+            const canvas = document.getElementById('dino-game-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let gameScore = 0;
+            let gameOver = false;
+            let gameSpeed = 4.2;
+
+            // Dino State
+            const dino = {
+                x: 60,
+                y: 45,
+                width: 24,
+                height: 28,
+                dy: 0,
+                gravity: 0.55,
+                jumpPower: -10,
+                isGrounded: true
+            };
+
+            const groundY = 70;
+            let cactuses = [];
+            let spawnTimer = 0;
+
+            function triggerJump() {
+                if (gameOver) {
+                    // Restart Game
+                    gameScore = 0;
+                    gameOver = false;
+                    gameSpeed = 4.2;
+                    cactuses = [];
+                    dino.y = 45;
+                    dino.dy = 0;
+                    dino.isGrounded = true;
+                    return;
+                }
+                if (dino.isGrounded) {
+                    dino.dy = dino.jumpPower;
+                    dino.isGrounded = false;
+                }
+            }
+
+            // Keyboard & Pointer Jump Event Listeners
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' || e.code === 'ArrowUp') {
+                    if (document.activeElement.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        triggerJump();
+                    }
+                }
+            });
+
+            canvas.addEventListener('click', triggerJump);
+
+            function drawDino(x, y) {
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+
+                // Head & Snout
+                ctx.fillRect(x + 10, y, 14, 10);
+                ctx.fillRect(x + 18, y + 2, 4, 3); // Eye cutout fix
+                ctx.fillStyle = isDark ? '#0b1329' : '#f1f5f9';
+                ctx.fillRect(x + 14, y + 2, 3, 3); // Eye
+                ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+
+                // Body & Arm
+                ctx.fillRect(x + 6, y + 10, 14, 12);
+                ctx.fillRect(x + 18, y + 12, 4, 3); // Small Arm
+
+                // Tail
+                ctx.fillRect(x, y + 10, 6, 6);
+
+                // Legs
+                if (Math.floor(gameScore / 5) % 2 === 0 || !dino.isGrounded) {
+                    ctx.fillRect(x + 6, y + 22, 4, 6);
+                    ctx.fillRect(x + 14, y + 22, 4, 4);
+                } else {
+                    ctx.fillRect(x + 6, y + 22, 4, 4);
+                    ctx.fillRect(x + 14, y + 22, 4, 6);
+                }
+            }
+
+            function drawCactus(x, y, w, h) {
+                ctx.fillStyle = '#22c55e'; // Green Cactus
+                ctx.fillRect(x + w * 0.35, y, w * 0.3, h); // Main stem
+                ctx.fillRect(x, y + h * 0.3, w, h * 0.2); // Arms cross
+                ctx.fillRect(x, y + h * 0.15, w * 0.25, h * 0.2); // Left arm up
+                ctx.fillRect(x + w * 0.75, y + h * 0.15, w * 0.25, h * 0.2); // Right arm up
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                const strokeColor = isDark ? 'rgba(56, 189, 248, 0.4)' : 'rgba(2, 132, 199, 0.3)';
+
+                // Draw Ground Track Line
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, groundY);
+                ctx.lineTo(canvas.width, groundY);
+                ctx.stroke();
+
+                if (!gameOver) {
+                    // Physics Update
+                    dino.dy += dino.gravity;
+                    dino.y += dino.dy;
+
+                    if (dino.y >= groundY - dino.height) {
+                        dino.y = groundY - dino.height;
+                        dino.dy = 0;
+                        dino.isGrounded = true;
+                    }
+
+                    // Spawn Cactus Obstacles
+                    spawnTimer++;
+                    if (spawnTimer > Math.max(60, 120 - gameScore * 0.1)) {
+                        cactuses.push({
+                            x: canvas.width,
+                            y: groundY - 24,
+                            width: 16,
+                            height: 24
+                        });
+                        spawnTimer = 0;
+                    }
+
+                    // Update & Render Cactuses
+                    for (let i = cactuses.length - 1; i >= 0; i--) {
+                        let c = cactuses[i];
+                        c.x -= gameSpeed;
+                        drawCactus(c.x, c.y, c.width, c.height);
+
+                        // Collision Detection
+                        if (
+                            dino.x < c.x + c.width &&
+                            dino.x + dino.width > c.x &&
+                            dino.y < c.y + c.height &&
+                            dino.y + dino.height > c.y
+                        ) {
+                            gameOver = true;
+                        }
+
+                        if (c.x + c.width < 0) {
+                            cactuses.splice(i, 1);
+                        }
+                    }
+
+                    gameScore++;
+                    gameSpeed += 0.0008;
+                } else {
+                    // Draw Dead Cactuses
+                    cactuses.forEach(c => drawCactus(c.x, c.y, c.width, c.height));
+
+                    // Game Over Message
+                    ctx.font = '700 14px Orbitron, sans-serif';
+                    ctx.fillStyle = '#ef4444';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GAME OVER - CLICK / TAP TO RESTART', canvas.width / 2, 35);
+                }
+
+                // Draw Dino
+                drawDino(dino.x, dino.y);
+
+                // Draw Score
+                ctx.font = '700 12px Rajdhani, sans-serif';
+                ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+                ctx.textAlign = 'right';
+                ctx.fillText(`HI DINO RUNNER: ${Math.floor(gameScore / 5)}`, canvas.width - 20, 20);
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
         }
 
         // ANIMATED BACKGROUND PARTICLES
@@ -899,7 +1028,7 @@
             function resize() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                fitPacmanCanvasScale();
+                fitTitleCanvasScale();
             }
             resize();
             window.addEventListener('resize', resize);
@@ -957,8 +1086,9 @@
             }
 
             initTradingBackground();
-            initPacmanBiteEngine();
-            fitPacmanCanvasScale();
+            initTitleWatermarkEngine();
+            initDinoRunnerGame();
+            fitTitleCanvasScale();
             startSlowRotation();
         });
     </script>
