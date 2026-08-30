@@ -13,6 +13,10 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase Realtime Database SDKs for Realtime Leaderboard -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
         :root[data-theme="dark"] {
             --bg-color: #0b1329;
@@ -119,6 +123,69 @@
         .mobile-toggle-btn.active {
             background-color: #ec4899;
             border-color: #f472b6;
+        }
+
+        /* BOTTOM-LEFT REALTIME LEADERBOARD (YELLOW BOX) */
+        .bottom-left-leaderboard {
+            position: absolute;
+            bottom: 20px;
+            left: 25px;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.92);
+            border: 2px solid #facc15;
+            border-radius: 8px;
+            padding: 10px 14px;
+            width: 240px;
+            box-shadow: 0 0 16px rgba(250, 204, 21, 0.35);
+            backdrop-filter: blur(6px);
+        }
+
+        .leaderboard-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: #facc15;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .leaderboard-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #f8fafc;
+            padding: 2px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .rank-tag {
+            color: #38bdf8;
+            font-weight: 900;
+            width: 22px;
+        }
+
+        .score-val {
+            color: #facc15;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.78rem;
         }
 
         /* BOTTOM-RIGHT LOGO BRANDING */
@@ -231,10 +298,10 @@
             max-width: 95vw;
         }
 
-        /* INTERACTIVE MARIO RUNNER GAME CANVAS */
+        /* LOWERED MARIO GAME CANVAS POSITION */
         #mario-game-canvas {
             position: absolute;
-            bottom: -65px;
+            bottom: -320px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 40;
@@ -465,7 +532,7 @@
             transform: translateY(2px) scale(0.85);
         }
 
-        /* MOBILE VIEW OPTIMIZATIONS */
+        /* MOBILE VIEW ADJUSTMENTS */
         body.mobile-view-active .top-controls {
             top: 12px;
             right: 12px;
@@ -481,6 +548,21 @@
         body.mobile-view-active .bottom-right-brand {
             bottom: 12px;
             right: 15px;
+        }
+
+        body.mobile-view-active .bottom-left-leaderboard {
+            bottom: 12px;
+            left: 12px;
+            width: 170px;
+            padding: 6px 8px;
+        }
+
+        body.mobile-view-active .leaderboard-title {
+            font-size: 0.68rem;
+        }
+
+        body.mobile-view-active .leaderboard-item {
+            font-size: 0.72rem;
         }
 
         body.mobile-view-active .brand-icon-svg {
@@ -537,7 +619,9 @@
         }
 
         body.mobile-view-active #mario-game-canvas {
-            display: none;
+            bottom: -150px;
+            width: 350px;
+            height: 120px;
         }
     </style>
 </head>
@@ -556,6 +640,28 @@
             <i class="fa-solid fa-moon" id="theme-icon"></i>
             <span id="theme-text">Night Mode</span>
         </button>
+    </div>
+
+    <!-- BOTTOM-LEFT REALTIME LEADERBOARD (YELLOW BOX) -->
+    <div class="bottom-left-leaderboard">
+        <div class="leaderboard-title">
+            <span>🏆 TOP PLAYERS</span>
+            <span style="font-size: 10px; color: #38bdf8;">LIVE</span>
+        </div>
+        <ul class="leaderboard-list" id="leaderboard-list">
+            <li class="leaderboard-item">
+                <div><span class="rank-tag">#1</span> <span id="rank1-name">KRIZTEL</span></div>
+                <span class="score-val" id="rank1-score">0 PTS</span>
+            </li>
+            <li class="leaderboard-item">
+                <div><span class="rank-tag">#2</span> <span id="rank2-name">ANN</span></div>
+                <span class="score-val" id="rank2-score">0 PTS</span>
+            </li>
+            <li class="leaderboard-item">
+                <div><span class="rank-tag">#3</span> <span id="rank3-name">DAVE</span></div>
+                <span class="score-val" id="rank3-score">0 PTS</span>
+            </li>
+        </ul>
     </div>
 
     <!-- BOTTOM RIGHT LOGO BRANDING -->
@@ -589,8 +695,8 @@
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
                 <canvas id="title-text-canvas" width="1150" height="150"></canvas>
-                <!-- INTERACTIVE SUPER MARIO SIDE-SCROLLER MINI-GAME -->
-                <canvas id="mario-game-canvas" width="1080" height="100"></canvas>
+                <!-- INTERACTIVE SUPER MARIO GAME CANVAS -->
+                <canvas id="mario-game-canvas" width="1150" height="160"></canvas>
             </div>
         </div>
 
@@ -599,7 +705,6 @@
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
                 
-                <!-- VECTOR BULL HEAD WITH TRADING CANDLESTICKS -->
                 <svg class="bull-logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="bullGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -623,6 +728,29 @@
     </div>
 
     <script>
+        // FIREBASE REALTIME LEADERBOARD SETUP
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            } else if (typeof firebase !== 'undefined') {
+                db = firebase.database();
+            }
+        } catch (e) {
+            console.error("Leaderboard init fallback:", e);
+        }
+
         const navMenuJSON = [
             { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
@@ -650,6 +778,62 @@
         let isMobileView = false;
         let rotationAngle = 0;
         let rotationAnimationId = null;
+
+        function getActiveUser() {
+            const params = new URLSearchParams(window.location.search);
+            let userParam = params.get('user') || params.get('name') || params.get('member');
+            
+            if (userParam) {
+                userParam = userParam.toUpperCase().trim();
+                localStorage.setItem('sb_active_user', userParam);
+                return userParam;
+            }
+
+            let savedUser = localStorage.getItem('sb_active_user');
+            if (!savedUser) {
+                savedUser = prompt("Welcome to Operations Hub! Enter your name for Mario Score tracking:", "KRIZTEL");
+                if (savedUser) {
+                    savedUser = savedUser.toUpperCase().trim();
+                    localStorage.setItem('sb_active_user', savedUser);
+                } else {
+                    savedUser = "OPERATOR";
+                }
+            }
+            return savedUser;
+        }
+
+        let currentUser = getActiveUser();
+
+        // REALTIME LEADERBOARD SYNC
+        function listenToRealtimeLeaderboard() {
+            if (!db) return;
+            db.ref('mario_leaderboard').orderByValue().limitToLast(3).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
+
+                if (sorted[0]) {
+                    document.getElementById('rank1-name').textContent = sorted[0][0];
+                    document.getElementById('rank1-score').textContent = `${sorted[0][1]} PTS`;
+                }
+                if (sorted[1]) {
+                    document.getElementById('rank2-name').textContent = sorted[1][0];
+                    document.getElementById('rank2-score').textContent = `${sorted[1][1]} PTS`;
+                }
+                if (sorted[2]) {
+                    document.getElementById('rank3-name').textContent = sorted[2][0];
+                    document.getElementById('rank3-score').textContent = `${sorted[2][1]} PTS`;
+                }
+            });
+        }
+
+        function saveScoreToRealtimeLeaderboard(score) {
+            if (!db || !currentUser) return;
+            db.ref(`mario_leaderboard/${currentUser}`).transaction((currentScore) => {
+                return Math.max(currentScore || 0, score);
+            });
+        }
 
         function getRadius() {
             return isMobileView ? 135 : 290;
@@ -698,7 +882,6 @@
             });
         }
 
-        // NEAR-IMPERCEPTIBLE ROTATION ENGINE
         function startSlowRotation() {
             function step() {
                 if (circularMenu.classList.contains('active')) {
@@ -728,7 +911,6 @@
             }
         }
 
-        // TOGGLE MENU STATE
         if (toggleBtn && circularMenu) {
             function handleToggleMenu(e) {
                 if (e) {
@@ -810,7 +992,6 @@
             }
         }
 
-        // BACKGROUND WATERMARK TEXT ENGINE
         function initTitleWatermarkEngine() {
             const canvas = document.getElementById('title-text-canvas');
             if (!canvas) return;
@@ -841,44 +1022,70 @@
             render();
         }
 
-        // INTERACTIVE SUPER MARIO SIDE-SCROLLER MINI-GAME
+        // INTERACTIVE SUPER MARIO GAME WITH 5-STAGE PROGRESSION & FULL DIRECTIONAL CONTROLS
         function initSuperMarioGame() {
             const canvas = document.getElementById('mario-game-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
             let coins = 0;
+            let highScore = parseInt(localStorage.getItem(`mario_high_${currentUser}`) || '0');
             let gameOver = false;
-            let gameSpeed = 3.8;
+            let levelCleared = false;
+            let currentStage = 1;
+            let baseSpeed = 1.5; // Slower, comfortable enemy move speed
 
+            const stageGoals = [1000, 3000, 5000, 7000, 10000];
             const groundY = 80;
 
-            // Mario Player Object
             const mario = {
                 x: 80,
                 y: 50,
+                baseWidth: 24,
+                baseHeight: 30,
                 width: 24,
                 height: 30,
+                scale: 1.0,
+                speed: 3.5,
+                facingLeft: false,
+                isSuper: false,
+                invincibleTimer: 0,
                 dy: 0,
-                gravity: 0.6,
-                jumpPower: -11,
+                dx: 0,
+                gravity: 0.52,
+                jumpPower: -10.2,
                 isGrounded: true,
                 animFrame: 0
             };
 
-            let entities = []; // Enemies (Goombas) and Collectibles (Mushrooms, Blocks)
+            const keys = { left: false, right: false };
+            let entities = [];
+            let finishLineObj = null;
             let backgroundScroll = 0;
             let spawnTimer = 0;
 
             function triggerJump() {
-                if (gameOver) {
-                    // Reset Game
+                if (gameOver || levelCleared) {
+                    if (coins > highScore) {
+                        highScore = coins;
+                        localStorage.setItem(`mario_high_${currentUser}`, highScore.toString());
+                        saveScoreToRealtimeLeaderboard(highScore);
+                    }
                     coins = 0;
+                    currentStage = 1;
                     gameOver = false;
-                    gameSpeed = 3.8;
+                    levelCleared = false;
+                    baseSpeed = 1.5;
                     entities = [];
-                    mario.y = 50;
+                    finishLineObj = null;
+                    mario.scale = 1.0;
+                    mario.isSuper = false;
+                    mario.width = mario.baseWidth;
+                    mario.height = mario.baseHeight;
+                    mario.x = 80;
+                    mario.y = groundY - mario.height;
                     mario.dy = 0;
+                    mario.dx = 0;
                     mario.isGrounded = true;
                     return;
                 }
@@ -888,97 +1095,124 @@
                 }
             }
 
-            // Keyboard & Click Event Listeners
+            // Keyboard Motion Controllers
             window.addEventListener('keydown', (e) => {
-                if (e.code === 'Space' || e.code === 'ArrowUp') {
+                if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) {
                     if (document.activeElement.tagName !== 'INPUT') {
                         e.preventDefault();
                         triggerJump();
                     }
                 }
+                if (['ArrowLeft', 'KeyA'].includes(e.code)) {
+                    keys.left = true;
+                    mario.facingLeft = true;
+                }
+                if (['ArrowRight', 'KeyD'].includes(e.code)) {
+                    keys.right = true;
+                    mario.facingLeft = false;
+                }
             });
 
-            canvas.addEventListener('click', triggerJump);
+            window.addEventListener('keyup', (e) => {
+                if (['ArrowLeft', 'KeyA'].includes(e.code)) keys.left = false;
+                if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = false;
+            });
 
-            // PIXEL-ART MARIO RENDERING ENGINE (CLASSIC ATTIRE)
+            // Touch / Mouse Directional Tap Support
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const tapX = e.clientX - rect.left;
+                if (tapX < rect.width * 0.35) {
+                    mario.x -= 25; // Move back
+                } else if (tapX > rect.width * 0.65) {
+                    mario.x += 25; // Move forward
+                } else {
+                    triggerJump();
+                }
+            });
+
             function drawMario(x, y) {
+                if (mario.invincibleTimer > 0 && Math.floor(mario.invincibleTimer / 4) % 2 === 0) {
+                    return;
+                }
+
+                ctx.save();
+                ctx.translate(x + (mario.facingLeft ? mario.width : 0), y);
+                if (mario.facingLeft) ctx.scale(-1, 1);
+                ctx.scale(mario.scale, mario.scale);
+
                 // Red Hat & Shirt
                 ctx.fillStyle = '#e52521'; 
-                ctx.fillRect(x + 6, y, 14, 5); // Hat Cap
-                ctx.fillRect(x + 4, y + 5, 18, 4); // Hat Brim
-                ctx.fillRect(x + 6, y + 14, 12, 8); // Red Shirt Body
-                ctx.fillRect(x + 2, y + 14, 4, 6); // Left Arm
-                ctx.fillRect(x + 18, y + 14, 4, 6); // Right Arm
+                ctx.fillRect(6, 0, 14, 5);
+                ctx.fillRect(4, 5, 18, 4);
+                ctx.fillRect(6, 14, 12, 8);
+                ctx.fillRect(2, 14, 4, 6);
+                ctx.fillRect(18, 14, 4, 6);
 
                 // Face & Skin Tone
                 ctx.fillStyle = '#fcc082';
-                ctx.fillRect(x + 6, y + 9, 14, 5); // Face Base
-                ctx.fillRect(x + 2, y + 20, 4, 3); // Left Glove
-                ctx.fillRect(x + 18, y + 20, 4, 3); // Right Glove
+                ctx.fillRect(6, 9, 14, 5);
+                ctx.fillRect(2, 20, 4, 3);
+                ctx.fillRect(18, 20, 4, 3);
 
                 // Hair & Mustache
                 ctx.fillStyle = '#4b2c11';
-                ctx.fillRect(x + 4, y + 7, 6, 4); // Hair
-                ctx.fillRect(x + 12, y + 11, 8, 3); // Mustache
+                ctx.fillRect(4, 7, 6, 4);
+                ctx.fillRect(12, 11, 8, 3);
 
                 // Blue Overalls
                 ctx.fillStyle = '#0022cc';
-                ctx.fillRect(x + 6, y + 20, 12, 6); // Overalls Pant
-                ctx.fillRect(x + 8, y + 16, 3, 5); // Left Strap
-                ctx.fillRect(x + 13, y + 16, 3, 5); // Right Strap
+                ctx.fillRect(6, 20, 12, 6);
+                ctx.fillRect(8, 16, 3, 5);
+                ctx.fillRect(13, 16, 3, 5);
 
-                // Yellow Overall Buttons
+                // Yellow Buttons
                 ctx.fillStyle = '#fcd000';
-                ctx.fillRect(x + 8, y + 19, 2, 2);
-                ctx.fillRect(x + 14, y + 19, 2, 2);
+                ctx.fillRect(8, 19, 2, 2);
+                ctx.fillRect(14, 19, 2, 2);
 
                 // Brown Boots
                 ctx.fillStyle = '#6e3400';
                 if (!mario.isGrounded) {
-                    ctx.fillRect(x + 4, y + 26, 6, 4);
-                    ctx.fillRect(x + 14, y + 24, 6, 4);
-                } else if (Math.floor(mario.animFrame / 6) % 2 === 0) {
-                    ctx.fillRect(x + 4, y + 26, 7, 4);
-                    ctx.fillRect(x + 13, y + 26, 7, 4);
+                    ctx.fillRect(4, 26, 6, 4);
+                    ctx.fillRect(14, 24, 6, 4);
+                } else if (Math.floor(mario.animFrame / 8) % 2 === 0) {
+                    ctx.fillRect(4, 26, 7, 4);
+                    ctx.fillRect(13, 26, 7, 4);
                 } else {
-                    ctx.fillRect(x + 6, y + 26, 7, 4);
-                    ctx.fillRect(x + 11, y + 26, 7, 4);
+                    ctx.fillRect(6, 26, 7, 4);
+                    ctx.fillRect(11, 26, 7, 4);
                 }
+
+                ctx.restore();
             }
 
-            // GOOMBA ENEMY RENDERER
             function drawGoomba(x, y) {
-                // Brown Head Body
                 ctx.fillStyle = '#8b4513';
                 ctx.fillRect(x + 2, y, 16, 12);
                 ctx.fillRect(x, y + 4, 20, 8);
 
-                // Eyes & Brows
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(x + 4, y + 4, 4, 5);
                 ctx.fillRect(x + 12, y + 4, 4, 5);
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(x + 6, y + 6, 2, 3);
                 ctx.fillRect(x + 12, y + 6, 2, 3);
-                ctx.fillRect(x + 3, y + 2, 6, 2); // Left Eyebrow
-                ctx.fillRect(x + 11, y + 2, 6, 2); // Right Eyebrow
+                ctx.fillRect(x + 3, y + 2, 6, 2);
+                ctx.fillRect(x + 11, y + 2, 6, 2);
 
-                // Black Feet
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(x, y + 12, 7, 4);
                 ctx.fillRect(x + 13, y + 12, 7, 4);
             }
 
-            // SUPER MUSHROOM RENDERER
             function drawMushroom(x, y) {
-                // Red Cap with White Dots
                 ctx.fillStyle = '#e52521';
                 ctx.fillRect(x + 2, y, 14, 10);
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(x + 4, y + 2, 4, 4);
                 ctx.fillRect(x + 10, y + 2, 4, 4);
 
-                // Stem & Eyes
                 ctx.fillStyle = '#fcc082';
                 ctx.fillRect(x + 3, y + 10, 12, 6);
                 ctx.fillStyle = '#000000';
@@ -986,7 +1220,6 @@
                 ctx.fillRect(x + 11, y + 11, 2, 3);
             }
 
-            // QUESTION MARK POWER-UP BLOCK
             function drawQuestionBlock(x, y) {
                 ctx.fillStyle = '#f97316';
                 ctx.fillRect(x, y, 18, 18);
@@ -998,30 +1231,46 @@
                 ctx.fillText('?', x + 5, y + 13);
             }
 
-            // BACKGROUND BUILDINGS & CASTLE SKYLINE
+            function drawFinishLine(x, y) {
+                ctx.fillStyle = '#22c55e';
+                ctx.fillRect(x, y + 45, 18, 10);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(x + 7, y - 40, 4, 85);
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath();
+                ctx.arc(x + 9, y - 43, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#22c55e';
+                ctx.beginPath();
+                ctx.moveTo(x + 7, y - 35);
+                ctx.lineTo(x - 22, y - 25);
+                ctx.lineTo(x + 7, y - 15);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#b45309';
+                ctx.fillRect(x + 55, y - 10, 45, 55);
+                ctx.fillRect(x + 63, y - 25, 29, 15);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x + 70, y + 18, 15, 27);
+            }
+
             function drawBackgroundSkyline() {
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
                 const bldgColor = isDark ? 'rgba(30, 41, 59, 0.45)' : 'rgba(203, 213, 225, 0.5)';
 
-                backgroundScroll = (backgroundScroll + gameSpeed * 0.2) % 300;
+                backgroundScroll = (backgroundScroll + baseSpeed * 0.15) % 300;
 
                 ctx.fillStyle = bldgColor;
                 for (let i = -1; i < 5; i++) {
                     let bx = i * 260 - backgroundScroll;
-                    ctx.fillRect(bx, 20, 45, 60);
-                    ctx.fillRect(bx + 55, 35, 35, 45);
-                    ctx.fillRect(bx + 100, 15, 60, 65);
-                    // Windows
-                    ctx.fillStyle = isDark ? 'rgba(56, 189, 248, 0.25)' : 'rgba(2, 132, 199, 0.2)';
-                    ctx.fillRect(bx + 10, 30, 8, 8);
-                    ctx.fillRect(bx + 25, 30, 8, 8);
-                    ctx.fillRect(bx + 110, 25, 10, 10);
-                    ctx.fillRect(bx + 135, 25, 10, 10);
-                    ctx.fillStyle = bldgColor;
+                    ctx.fillRect(bx, 10, 45, 70);
+                    ctx.fillRect(bx + 55, 25, 35, 55);
+                    ctx.fillRect(bx + 100, 5, 60, 75);
                 }
             }
 
-            // MAIN GAME LOOP
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1030,18 +1279,26 @@
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
                 const groundColor = isDark ? '#334155' : '#cbd5e1';
 
-                // Ground Line & Brick Texture
+                // Ground Road & Brick Texture
                 ctx.fillStyle = groundColor;
-                ctx.fillRect(0, groundY, canvas.width, 20);
-                ctx.fillStyle = '#b45309'; // Brick Accents
+                ctx.fillRect(0, groundY, canvas.width, 18);
+                ctx.fillStyle = '#b45309';
                 for (let bx = 0; bx < canvas.width; bx += 20) {
                     ctx.fillRect(bx, groundY, 18, 4);
                 }
 
-                if (!gameOver) {
+                if (!gameOver && !levelCleared) {
                     mario.animFrame++;
+                    if (mario.invincibleTimer > 0) mario.invincibleTimer--;
 
-                    // Physics Update
+                    // Horizontal Movement
+                    if (keys.left) mario.x -= mario.speed;
+                    if (keys.right) mario.x += mario.speed;
+
+                    // Bounds check
+                    mario.x = Math.max(10, Math.min(canvas.width - 60, mario.x));
+
+                    // Gravity & Ground
                     mario.dy += mario.gravity;
                     mario.y += mario.dy;
 
@@ -1051,30 +1308,59 @@
                         mario.isGrounded = true;
                     }
 
-                    // Entity Spawning Engine
-                    spawnTimer++;
-                    if (spawnTimer > 100) {
-                        const rand = Math.random();
-                        if (rand < 0.5) {
-                            entities.push({ type: 'goomba', x: canvas.width, y: groundY - 16, width: 20, height: 16 });
-                        } else if (rand < 0.8) {
-                            entities.push({ type: 'mushroom', x: canvas.width, y: groundY - 16, width: 18, height: 16 });
-                        } else {
-                            entities.push({ type: 'block', x: canvas.width, y: groundY - 45, width: 18, height: 18 });
-                        }
-                        spawnTimer = 0;
+                    // Update Stage Target Logic
+                    const targetGoal = stageGoals[currentStage - 1];
+                    if (coins >= targetGoal && currentStage < 5) {
+                        currentStage++;
+                        baseSpeed += 0.4;
                     }
 
-                    // Update & Render Entities
+                    if (coins >= 10000 && !finishLineObj) {
+                        finishLineObj = { x: canvas.width + 50, y: groundY - 55, width: 110, height: 65 };
+                    }
+
+                    if (!finishLineObj) {
+                        spawnTimer++;
+                        let spawnRate = Math.max(70, 140 - currentStage * 12);
+                        if (spawnTimer > spawnRate) {
+                            const rand = Math.random();
+                            if (currentStage === 5 && rand < 0.3) {
+                                // Stage 5 Special: Double Goomba Stack
+                                entities.push({ type: 'goomba', x: canvas.width, y: groundY - 16, width: 20, height: 16 });
+                                entities.push({ type: 'goomba', x: canvas.width, y: groundY - 32, width: 20, height: 16 });
+                            } else if (rand < 0.5) {
+                                entities.push({ type: 'goomba', x: canvas.width, y: groundY - 16, width: 20, height: 16 });
+                            } else if (rand < 0.8) {
+                                entities.push({ type: 'mushroom', x: canvas.width, y: groundY - 16, width: 18, height: 16 });
+                            } else {
+                                entities.push({ type: 'block', x: canvas.width, y: groundY - 45, width: 18, height: 18 });
+                            }
+                            spawnTimer = 0;
+                        }
+                    }
+
+                    if (finishLineObj) {
+                        finishLineObj.x -= baseSpeed;
+                        drawFinishLine(finishLineObj.x, finishLineObj.y);
+
+                        if (mario.x + mario.width >= finishLineObj.x + 10) {
+                            levelCleared = true;
+                            if (coins > highScore) {
+                                highScore = coins;
+                                localStorage.setItem(`mario_high_${currentUser}`, highScore.toString());
+                                saveScoreToRealtimeLeaderboard(highScore);
+                            }
+                        }
+                    }
+
                     for (let i = entities.length - 1; i >= 0; i--) {
                         let e = entities[i];
-                        e.x -= gameSpeed;
+                        e.x -= baseSpeed;
 
                         if (e.type === 'goomba') drawGoomba(e.x, e.y);
                         else if (e.type === 'mushroom') drawMushroom(e.x, e.y);
                         else if (e.type === 'block') drawQuestionBlock(e.x, e.y);
 
-                        // Collision Detection
                         if (
                             mario.x < e.x + e.width &&
                             mario.x + mario.width > e.x &&
@@ -1082,16 +1368,36 @@
                             mario.y + mario.height > e.y
                         ) {
                             if (e.type === 'goomba') {
-                                // Jump on goomba head check
-                                if (mario.dy > 0 && mario.y + mario.height - mario.dy <= e.y + 6) {
+                                if (mario.dy > 0 && mario.y + mario.height - mario.dy <= e.y + 8) {
                                     entities.splice(i, 1);
-                                    mario.dy = -8; // Bounce off
+                                    mario.dy = -8;
                                     coins += 100;
-                                } else {
-                                    gameOver = true;
+                                } else if (mario.invincibleTimer === 0) {
+                                    if (mario.isSuper) {
+                                        mario.isSuper = false;
+                                        mario.scale = 1.0;
+                                        mario.width = mario.baseWidth;
+                                        mario.height = mario.baseHeight;
+                                        mario.invincibleTimer = 45;
+                                    } else {
+                                        gameOver = true;
+                                        if (coins > highScore) {
+                                            highScore = coins;
+                                            localStorage.setItem(`mario_high_${currentUser}`, highScore.toString());
+                                            saveScoreToRealtimeLeaderboard(highScore);
+                                        }
+                                    }
                                 }
-                            } else if (e.type === 'mushroom' || e.type === 'block') {
+                            } else if (e.type === 'mushroom') {
                                 coins += 200;
+                                mario.isSuper = true;
+                                mario.scale = 1.45;
+                                mario.width = mario.baseWidth * 1.45;
+                                mario.height = mario.baseHeight * 1.45;
+                                mario.y = groundY - mario.height;
+                                entities.splice(i, 1);
+                            } else if (e.type === 'block') {
+                                coins += 150;
                                 entities.splice(i, 1);
                             }
                         }
@@ -1100,31 +1406,43 @@
                             entities.splice(i, 1);
                         }
                     }
+                }
 
-                    gameSpeed += 0.0005;
-                } else {
-                    // Draw Entities Frozen
+                drawMario(mario.x, mario.y);
+
+                // STATUS ANNOUNCEMENTS BELOW GROUND ROAD
+                if (levelCleared) {
+                    if (finishLineObj) drawFinishLine(finishLineObj.x, finishLineObj.y);
+                    ctx.font = '700 12px Orbitron, sans-serif';
+                    ctx.fillStyle = '#22c55e';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`🎉 STAGE 5 CLEARED ${currentUser}! ALL STAGES COMPLETE! Tap to replay.`, 180, 135);
+                } else if (gameOver) {
                     entities.forEach(e => {
                         if (e.type === 'goomba') drawGoomba(e.x, e.y);
                         else if (e.type === 'mushroom') drawMushroom(e.x, e.y);
                         else if (e.type === 'block') drawQuestionBlock(e.x, e.y);
                     });
 
-                    // Game Over Screen
-                    ctx.font = '700 14px Orbitron, sans-serif';
+                    ctx.font = '700 12px Orbitron, sans-serif';
                     ctx.fillStyle = '#ef4444';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('MARIO GAME OVER - CLICK / TAP TO RESTART', canvas.width / 2, 35);
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`GAME OVER ${currentUser}! Tap to restart.`, 180, 135);
                 }
 
-                // Render Mario Player
-                drawMario(mario.x, mario.y);
+                // DEDICATED RETRO SCOREBOX HUD BELOW GROUND ROAD
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(canvas.width - 270, 100, 250, 42);
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(canvas.width - 270, 100, 250, 42);
 
-                // HUD Score & Coins
-                ctx.font = '700 13px Orbitron, sans-serif';
-                ctx.fillStyle = '#facc15'; // Coin Gold
-                ctx.textAlign = 'right';
-                ctx.fillText(`🪙 MARIO SCORE: ${coins}`, canvas.width - 25, 22);
+                ctx.font = '700 11px Orbitron, sans-serif';
+                ctx.fillStyle = '#facc15';
+                ctx.textAlign = 'left';
+                ctx.fillText(`PLAYER: ${currentUser} (STAGE ${currentStage}/5)`, canvas.width - 260, 116);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillText(`SCORE: ${coins} / ${stageGoals[currentStage - 1]} | BEST: ${highScore}`, canvas.width - 260, 132);
 
                 requestAnimationFrame(animate);
             }
@@ -1132,7 +1450,6 @@
             animate();
         }
 
-        // ANIMATED BACKGROUND PARTICLES
         function initTradingBackground() {
             const canvas = document.getElementById('trading-bg');
             if (!canvas) return;
@@ -1201,6 +1518,7 @@
             initTradingBackground();
             initTitleWatermarkEngine();
             initSuperMarioGame();
+            listenToRealtimeLeaderboard();
             fitTitleCanvasScale();
             startSlowRotation();
         });
