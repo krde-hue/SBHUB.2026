@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automated SB Team Operational Duty Roster - Per Day View</title>
 
+    <!-- Firebase Realtime Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -80,4 +81,874 @@
             margin-left: 4px;
         }
 
-        .btn-dashboard:
+        .btn-dashboard:hover {
+            background-color: #173b61 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
+        }
+        
+        .day-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; }
+        
+        .day-title-area { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: var(--header-text); 
+            margin-bottom: 15px; 
+            padding-bottom: 10px; 
+            border-bottom: 2px solid var(--border-color); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .day-title-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .date-picker-wrapper { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+        .date-picker-input { border: none; font-size: 18px; font-weight: bold; color: var(--header-text); width: 160px; outline: none; border-bottom: 1px dashed var(--border-color); background: transparent; cursor: pointer; }
+
+        .reminder-box-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--reminder-bg);
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px dashed var(--border-color);
+            min-width: 300px;
+            flex: 1;
+            max-width: 550px;
+        }
+
+        .reminder-box-input {
+            border: none !important;
+            background: transparent !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            color: var(--reminder-text) !important;
+            outline: none !important;
+            width: 100% !important;
+            padding: 0 !important;
+        }
+
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 750px; }
+        th { background-color: var(--card-bg); color: var(--header-text); padding: 10px 4px; text-align: center; font-weight: 700; border: 1px solid var(--border-color); font-size: 13px; }
+        th.col-member { width: 110px; }
+        th.col-shift { width: 120px; }
+        
+        td { vertical-align: top; border: 1px solid var(--table-border); background-color: var(--card-bg); color: var(--text-color); }
+        
+        .team-member-cell { padding: 15px 5px; font-weight: bold; font-size: 14px; color: var(--text-color); text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 120px; }
+        
+        .shift-select-container { padding: 8px; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 120px; }
+        .shift-select { border: 1px solid var(--border-color); background: var(--dropdown-bg); font-weight: 600; font-size: 12px; cursor: pointer; outline: none; width: 100%; padding: 6px; border-radius: 4px; color: var(--dropdown-text); text-align: center; }
+        .shift-select option { background-color: var(--dropdown-bg); color: var(--dropdown-text); }
+
+        .task-card { padding: 6px; min-height: 120px; height: 100%; display: flex; flex-direction: column; gap: 4px; position: relative; transition: background-color 0.2s; }
+        
+        .task-dropdown-container { position: relative; width: 100%; }
+        .task-dropdown-btn { border: 1px solid var(--border-color); background: var(--dropdown-bg); font-weight: 600; font-size: 10px; cursor: pointer; outline: none; width: 100%; padding: 4px 6px; border-radius: 3px; text-align: left; display: flex; justify-content: space-between; align-items: center; color: var(--dropdown-text); }
+        .task-dropdown-content { display: none; position: absolute; top: 100%; left: 0; right: 0; background-color: var(--dropdown-bg); border: 1.5px solid var(--border-color); border-radius: 4px; box-shadow: 0 6px 16px rgba(0,0,0,0.35); z-index: 100; max-height: 220px; overflow-y: auto; padding: 4px 0; margin-top: 2px; }
+        .task-dropdown-content.show { display: block; }
+        .task-option-label { display: flex; align-items: center; padding: 5px 8px; font-size: 11px; cursor: pointer; color: var(--dropdown-text); gap: 6px; user-select: none; font-weight: 600; }
+        .task-option-label:hover { background-color: rgba(56, 189, 248, 0.2); }
+
+        .task-card.off-duty-active { background-color: #9ca3af !important; border-color: #4b5563 !important; pointer-events: none; opacity: 0.85; }
+        .task-card.off-duty-active .editable-content-area { color: #ffffff !important; font-weight: bold; }
+        .task-card.off-duty-active .task-dropdown-container { display: none !important; }
+
+        .editable-content-area { font-size: 11px; font-weight: 700; color: var(--text-color); width: 100%; flex: 1; min-height: 60px; outline: none; line-height: 1.35; word-break: break-word; white-space: pre-wrap; padding: 4px; margin-top: 2px; background: transparent; }
+
+        .legend-footer { margin-top: 10px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-color); }
+        .legend-color { width: 20px; height: 10px; border-radius: 2px; border: 1px solid #ccc; }
+
+        .autosave-badge { font-size: 11px; color: #2f855a; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #c6f6d5; padding: 3px 8px; border-radius: 12px; display: inline-block; }
+        
+        @keyframes bounceSticker {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-12px) scale(1.2); }
+        }
+        @keyframes blinkBanner {
+            0%, 100% { opacity: 1; box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+            50% { opacity: 0.82; box-shadow: 0 0 5px rgba(34, 197, 94, 0.2); }
+        }
+
+        .jumping-sticker { display: inline-block; font-size: 28px; animation: bounceSticker 0.6s infinite ease-in-out; margin: 0 8px; }
+        
+        .shift-end-banner {
+            background: linear-gradient(135deg, #fef08a, #86efac);
+            color: #14532d;
+            border: 2px solid #22c55e;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: blinkBanner 1.2s infinite ease-in-out;
+            text-align: center;
+        }
+
+        /* MOBILE VIEW OPTIMIZATIONS */
+        body.mobile-view-active {
+            padding: 8px;
+        }
+
+        body.mobile-view-active .header-container {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 12px;
+            gap: 10px;
+        }
+
+        body.mobile-view-active .btn-controls {
+            justify-content: flex-start;
+            gap: 6px;
+        }
+
+        body.mobile-view-active .btn {
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        body.mobile-view-active .day-section {
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        body.mobile-view-active .day-title-area {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        body.mobile-view-active .date-picker-input {
+            font-size: 15px;
+            width: 130px;
+        }
+
+        body.mobile-view-active .reminder-box-wrapper {
+            min-width: 100%;
+            padding: 4px 8px;
+        }
+
+        body.mobile-view-active .reminder-box-input {
+            font-size: 12px !important;
+        }
+
+        body.mobile-view-active .schedule-table {
+            min-width: 620px;
+        }
+
+        body.mobile-view-active th {
+            font-size: 11px;
+            padding: 6px 2px;
+        }
+
+        body.mobile-view-active .team-member-cell {
+            font-size: 12px;
+            min-height: 90px;
+            padding: 6px 2px;
+        }
+
+        body.mobile-view-active .shift-select {
+            font-size: 10px;
+            padding: 3px;
+        }
+
+        body.mobile-view-active .task-card {
+            min-height: 90px;
+            padding: 4px;
+        }
+
+        body.mobile-view-active .editable-content-area {
+            font-size: 10px;
+            min-height: 45px;
+        }
+
+        body.mobile-view-active .legend-footer {
+            gap: 10px;
+            padding: 8px;
+        }
+
+        body.mobile-view-active .legend-item {
+            font-size: 10px;
+        }
+
+        @media print {
+            body { background: white; padding: 0; color: black; }
+            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .shift-end-banner { display: none !important; }
+            .task-card { min-height: 100px; }
+            .schedule-table { border: 2px solid #000 !important; }
+            td, th { border: 1px solid #000 !important; }
+            .day-section { box-shadow: none; padding: 0; margin-bottom: 20px; page-break-after: always; border: none !important; }
+            .task-card.off-duty-active { background-color: #9ca3af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .reminder-box-wrapper { border: none !important; background: transparent !important; }
+            .reminder-box-input { color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="title-group">
+            <h1>SB DUTIES — PER DAY ROSTER MASTER</h1>
+            <span class="title-credit">kdv_2026 model</span>
+        </div>
+        <div class="btn-controls">
+            <span id="activeViewersBadge" class="btn btn-secondary" style="cursor: default; pointer-events: none;" title="Active Viewers">
+                👁️ <span id="activeViewersCount">1</span>
+            </span>
+            <span id="saveStatus" class="autosave-badge">✓ Live Synced</span>
+            
+            <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View: OFF</button>
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+            <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
+            <button class="btn btn-secondary" onclick="addNewDay()">➕ Add Next Day</button>
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
+
+            <!-- SWAPPED TO THE VERY END & ENLARGED -->
+            <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
+        </div>
+    </div>
+
+    <div id="shiftEndBanner" class="shift-end-banner" style="display: none;">
+        <span class="jumping-sticker">🥳</span>
+        <span id="shiftEndMessage">Almost there! Great job today!</span>
+        <span class="jumping-sticker">🎉</span>
+    </div>
+
+    <div id="pagesContainer"></div>
+
+    <div class="legend-footer">
+        <div class="legend-item"><div class="legend-color" style="background-color: #ffffff;"></div><span>7:00 - 16:00</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #a7f3d0;"></div><span>9:00 - 18:00</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #fefce8;"></div><span>10:00 - 19:00</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #fef9c3;"></div><span>12:00 - 21:00</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #e9d5ff;"></div><span>14:00 - 23:00</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #ffedd5;"></div><span>16:00 - 1:00</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #fbcfe8;"></div><span>7:00 - 10:00 (WFH)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #f472b6;"></div><span>7:00 - 16:00 (WFH)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #e5e7eb;"></div><span>RD (Rest Day)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #9ca3af;"></div><span>Off-Duty</span></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        // Safe Firebase Initialization
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            } else if (typeof firebase !== 'undefined') {
+                db = firebase.database();
+            }
+        } catch(e) {
+            console.error("Firebase init fallback:", e);
+        }
+
+        const members = [
+            { id: 'ann', name: 'ANN', index: 0, defaultShift: 'shift-7-16' },
+            { id: 'dave', name: 'DAVE', index: 1, defaultShift: 'shift-10-19' },
+            { id: 'ken', name: 'KEN', index: 2, defaultShift: 'shift-12-21' },
+            { id: 'kriztel', name: 'KRIZTEL', index: 3, defaultShift: 'shift-16-1' }
+        ];
+
+        const timeSlots = [
+            { id: 'slot_7_10', label: '7:00 - 10:00' },
+            { id: 'slot_10_12', label: '10:00 - 12:00' },
+            { id: 'slot_12_16', label: '12:00 - 16:00' },
+            { id: 'slot_16_19', label: '16:00 - 19:00' },
+            { id: 'slot_19_21', label: '19:00 - 21:00' },
+            { id: 'slot_22_1', label: '22:00 - 1:00' }
+        ];
+
+        const availableTasks = [
+            "Prediction Market Ticker",
+            "Pubs Prediction Market Ticker",
+            "@Sportsbookrisk Escalation",
+            "Site Checking (Web/Mobile)",
+            "Big Winners Check",
+            "Boost Check",
+            "Escalation Check",
+            "ALL Tickers",
+            "Qbet tickers",
+            "30Bet tickers",
+            "55Bet tickers",
+            "Ibet tickers",
+            "7A/BV/GqBet",
+            "SoftSwiss Files",
+            "Handover Report AM",
+            "Handover Report PM",
+            "Overnight Bets",
+            "Edge Boost / Banner creation",
+            "iBet Boost",
+            "7A Boosts",
+            "Others (As instructed)"
+        ];
+
+        const shifts = [
+            { id: 'shift-7-16', label: '7:00 - 16:00', endHour: 16, endMinute: 0 },
+            { id: 'shift-9-18', label: '9:00 - 18:00', endHour: 18, endMinute: 0 },
+            { id: 'shift-10-19', label: '10:00 - 19:00', endHour: 19, endMinute: 0 },
+            { id: 'shift-12-21', label: '12:00 - 21:00', endHour: 21, endMinute: 0 },
+            { id: 'shift-14-23', label: '14:00 - 23:00', endHour: 23, endMinute: 0 },
+            { id: 'shift-16-1', label: '16:00 - 1:00', endHour: 1, endMinute: 0 },
+            { id: 'shift-7-10-wfh', label: '7:00 - 10:00 (WFH)', endHour: 10, endMinute: 0 },
+            { id: 'shift-7-16-wfh', label: '7:00 - 16:00 (WFH)', endHour: 16, endMinute: 0 },
+            { id: 'shift-adjusted', label: 'Adjusted', endHour: null, endMinute: null },
+            { id: 'shift-rd', label: 'RD', endHour: null, endMinute: null },
+            { id: 'shift-vl', label: 'VL', endHour: null, endMinute: null },
+            { id: 'shift-sl', label: 'SL', endHour: null, endMinute: null }
+        ];
+
+        const shiftOffDutyMap = {
+            'shift-7-16': ['slot_16_19', 'slot_19_21', 'slot_22_1'],
+            'shift-9-18': ['slot_7_10', 'slot_19_21', 'slot_22_1'],
+            'shift-10-19': ['slot_7_10', 'slot_19_21', 'slot_22_1'],
+            'shift-12-21': ['slot_7_10', 'slot_10_12', 'slot_22_1'],
+            'shift-14-23': ['slot_7_10', 'slot_10_12', 'slot_22_1'],
+            'shift-16-1': ['slot_7_10', 'slot_10_12', 'slot_12_16'],
+            'shift-7-10-wfh': ['slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1'],
+            'shift-7-16-wfh': ['slot_16_19', 'slot_19_21', 'slot_22_1'],
+            'shift-adjusted': [],
+            'shift-rd': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1'],
+            'shift-vl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1'],
+            'shift-sl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1']
+        };
+
+        let database = createDefaultDatabase();
+        let masterRotaCalendar = {};
+        let activeOpenDropdownId = null;
+        let isMobileView = false;
+
+        function toggleMobileView() {
+            const btn = document.getElementById('mobileToggleBtn');
+            isMobileView = !isMobileView;
+            if (isMobileView) {
+                document.body.classList.add('mobile-view-active');
+                if (btn) {
+                    btn.innerText = '📱 Mobile View: ON';
+                    btn.classList.add('active');
+                }
+            } else {
+                document.body.classList.remove('mobile-view-active');
+                if (btn) {
+                    btn.innerText = '📱 Mobile View: OFF';
+                    btn.classList.remove('active');
+                }
+            }
+            localStorage.setItem('duties_mobile_view', isMobileView ? 'true' : 'false');
+        }
+
+        function createDefaultDatabase() {
+            let defaultDb = {
+                "day_1": {
+                    isoDate: new Date().toISOString().split('T')[0],
+                    reminder: "",
+                    grid: {}
+                }
+            };
+            members.forEach(m => {
+                defaultDb["day_1"].grid[m.id] = { shift: m.defaultShift, slots: {} };
+            });
+            return defaultDb;
+        }
+
+        function setupPresenceSystem() {
+            if (!db) return;
+            const presenceRef = db.ref('active_sessions');
+            const connectedRef = db.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    const userSessionRef = presenceRef.push();
+                    userSessionRef.onDisconnect().remove();
+
+                    userSessionRef.set({
+                        online: true,
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            });
+
+            presenceRef.on('value', (snap) => {
+                const count = snap.numChildren();
+                const countElem = document.getElementById('activeViewersCount');
+                if (countElem) {
+                    countElem.innerText = count > 0 ? count : 1;
+                }
+            });
+        }
+
+        function listenToLiveDatabase() {
+            if (!db) return;
+            db.ref('rota_data').on('value', (snapshot) => {
+                masterRotaCalendar = snapshot.val() || {};
+                syncShiftsFromRotaMaster();
+            });
+
+            db.ref('roster_data').on('value', (snapshot) => {
+                const liveData = snapshot.val();
+                if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
+                    database = liveData;
+                } else {
+                    database = createDefaultDatabase();
+                    saveToDatabase();
+                }
+                
+                syncShiftsFromRotaMaster();
+
+                if (!activeOpenDropdownId) {
+                    renderAllPages();
+                } else {
+                    syncActiveDropdownCheckboxes();
+                }
+                checkNearShiftEnd();
+            });
+        }
+
+        function parseRotaShiftToShiftId(rawShiftText) {
+            if (!rawShiftText) return null;
+
+            let text = rawShiftText.trim();
+
+            if (text.startsWith("Adjusted:") || text === "Adjusted") {
+                return "shift-adjusted";
+            }
+
+            if (text === "RD") return "shift-rd";
+            if (text === "VL") return "shift-vl";
+            if (text === "SL") return "shift-sl";
+
+            if (text === "7:00 - 10:00 (WFH)") return "shift-7-10-wfh";
+            if (text === "7:00 - 16:00 (WFH)") return "shift-7-16-wfh";
+
+            if (text.includes("7:00") && text.includes("16:00")) return "shift-7-16";
+            if (text.includes("9:00") && text.includes("18:00")) return "shift-9-18";
+            if (text.includes("10:00") && text.includes("19:00")) return "shift-10-19";
+            if (text.includes("12:00") && text.includes("21:00")) return "shift-12-21";
+            if (text.includes("14:00") && text.includes("23:00")) return "shift-14-23";
+            if (text.includes("16:00") && text.includes("1:00")) return "shift-16-1";
+
+            return "shift-adjusted";
+        }
+
+        function syncShiftsFromRotaMaster() {
+            if (!masterRotaCalendar || Object.keys(masterRotaCalendar).length === 0) return;
+
+            let updated = false;
+            Object.keys(database || {}).forEach(dayKey => {
+                let dayData = database[dayKey];
+                if (dayData && dayData.isoDate) {
+                    let dateParts = dayData.isoDate.split('-');
+                    if (dateParts.length === 3) {
+                        let year = dateParts[0];
+                        let month = parseInt(dateParts[1], 10);
+                        let dayNum = parseInt(dateParts[2], 10);
+
+                        let rotaMonthKey = `${year}_${month}`;
+                        let rotaDayRow = masterRotaCalendar[rotaMonthKey] ? masterRotaCalendar[rotaMonthKey][dayNum] : null;
+
+                        if (rotaDayRow) {
+                            members.forEach(m => {
+                                let rawRotaShift = rotaDayRow[m.index];
+                                let matchedShiftId = parseRotaShiftToShiftId(rawRotaShift);
+
+                                if (matchedShiftId) {
+                                    if (!dayData.grid[m.id]) dayData.grid[m.id] = { slots: {} };
+                                    
+                                    if (dayData.grid[m.id].shift !== matchedShiftId) {
+                                        dayData.grid[m.id].shift = matchedShiftId;
+                                        updated = true;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+
+            if (updated) {
+                renderAllPages();
+            }
+        }
+
+        function saveToDatabase() {
+            if (!database) database = createDefaultDatabase();
+            if (db) db.ref('roster_data').set(database);
+            let statusBadge = document.getElementById('saveStatus');
+            if (statusBadge) {
+                statusBadge.style.opacity = '1';
+                setTimeout(() => { statusBadge.style.opacity = '0'; }, 1000);
+            }
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('sb_theme', newTheme);
+        }
+
+        function checkNearShiftEnd() {
+            const now = new Date();
+            const currentMinutesOfDay = now.getHours() * 60 + now.getMinutes();
+
+            let dayKeys = Object.keys(database || {});
+            if (dayKeys.length === 0) return;
+            let currentDayKey = dayKeys[0];
+            let activeGrid = database[currentDayKey].grid || {};
+
+            let endingMembers = [];
+
+            members.forEach(m => {
+                let memberData = activeGrid[m.id] || { shift: m.defaultShift };
+                let shiftObj = shifts.find(s => s.id === memberData.shift);
+
+                if (shiftObj && shiftObj.endHour !== null) {
+                    let endMinutesOfDay = shiftObj.endHour * 60 + shiftObj.endMinute;
+                    
+                    if (shiftObj.endHour === 1 && currentMinutesOfDay > 12 * 60) {
+                        endMinutesOfDay += 24 * 60;
+                    }
+
+                    let minutesRemaining = endMinutesOfDay - currentMinutesOfDay;
+
+                    if (minutesRemaining > 0 && minutesRemaining <= 20) {
+                        endingMembers.push(m.name);
+                    }
+                }
+            });
+
+            const banner = document.getElementById('shiftEndBanner');
+            const messageElem = document.getElementById('shiftEndMessage');
+
+            if (endingMembers.length > 0 && banner && messageElem) {
+                let nameString = "";
+                if (endingMembers.length === 1) {
+                    nameString = endingMembers[0];
+                } else if (endingMembers.length === 2) {
+                    nameString = `${endingMembers[0]} and ${endingMembers[1]}`;
+                } else {
+                    nameString = `${endingMembers.slice(0, -1).join(', ')}, and ${endingMembers[endingMembers.length - 1]}`;
+                }
+
+                messageElem.innerText = `Almost there, ${nameString}! Shift ends in less than 20 minutes—keep up the great work!`;
+                banner.style.display = 'flex';
+            } else if (banner) {
+                banner.style.display = 'none';
+            }
+        }
+
+        setInterval(checkNearShiftEnd, 30000);
+
+        function isOffDuty(shiftId, slotId) {
+            return (shiftOffDutyMap[shiftId] || []).includes(slotId);
+        }
+
+        function updateReminderText(dayKey, newText) {
+            if (!database[dayKey]) database[dayKey] = { grid: {} };
+            database[dayKey].reminder = newText;
+            saveToDatabase();
+        }
+
+        function renderAllPages() {
+            const container = document.getElementById('pagesContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!database) database = createDefaultDatabase();
+            
+            Object.keys(database).forEach((dayKey) => {
+                let dayData = database[dayKey];
+                let daySection = document.createElement('div');
+                daySection.className = 'day-section';
+                
+                let titleHTML = `
+                    <div class="day-title-area">
+                        <div class="day-title-left">
+                            <span class="date-picker-wrapper">
+                                📅 
+                                <input type="date" class="date-picker-input" value="${dayData.isoDate || ''}" onchange="updateDayDate('${dayKey}', this.value)">
+                                SHIFT
+                            </span>
+                            <div class="reminder-box-wrapper">
+                                <span>📌</span>
+                                <input type="text" class="reminder-box-input" placeholder="Meeting Reminders / Notes..." value="${dayData.reminder || ''}" onchange="updateReminderText('${dayKey}', this.value)">
+                            </div>
+                        </div>
+                        <div class="no-print" style="display:flex; gap:10px; align-items:center;">
+                            <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:4px 8px; font-size:11px;">🧹 Clear Day</button>
+                            <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🗑️ Delete Day</button>
+                        </div>
+                    </div>
+                `;
+                daySection.innerHTML += titleHTML;
+                
+                let tableWrapper = document.createElement('div');
+                tableWrapper.className = 'table-responsive-wrapper';
+
+                let table = document.createElement('table');
+                table.className = 'schedule-table';
+                
+                let thead = `
+                    <thead>
+                        <tr>
+                            <th class="col-member">TEAM</th>
+                            <th class="col-shift">SHIFT</th>
+                            ${timeSlots.map(s => `<th>${s.label}</th>`).join('')}
+                        </tr>
+                    </thead>
+                `;
+                table.innerHTML += thead;
+                
+                let tbody = document.createElement('tbody');
+                members.forEach(m => {
+                    let memberGrid = (dayData.grid && dayData.grid[m.id]) ? dayData.grid[m.id] : { shift: m.defaultShift, slots: {} };
+                    let tr = document.createElement('tr');
+                    
+                    let memberCell = `<td><div class="team-member-cell">${m.name}</div></td>`;
+                    let shiftOptions = shifts.map(s => 
+                        `<option value="${s.id}" ${memberGrid.shift === s.id ? 'selected' : ''}>${s.label}</option>`
+                    ).join('');
+
+                    let shiftCell = `
+                        <td>
+                            <div class="shift-select-container">
+                                <select class="shift-select no-print" onchange="changeShift('${dayKey}', '${m.id}', this.value)">
+                                    ${shiftOptions}
+                                </select>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tr.innerHTML += memberCell + shiftCell;
+                    
+                    timeSlots.forEach(slot => {
+                        let isSlotOffDuty = isOffDuty(memberGrid.shift, slot.id);
+                        let selectedTaskList = (memberGrid.slots && memberGrid.slots[slot.id]) ? memberGrid.slots[slot.id] : [];
+                        let formattedText = isSlotOffDuty ? '' : selectedTaskList.join('\n');
+                        let offDutyClass = isSlotOffDuty ? 'off-duty-active' : '';
+                        
+                        let td = document.createElement('td');
+                        
+                        let taskCheckboxes = availableTasks.map(t => {
+                            let isChecked = selectedTaskList.includes(t) ? 'checked' : '';
+                            return `
+                                <label class="task-option-label" onclick="event.stopPropagation();">
+                                    <input type="checkbox" value="${t}" ${isChecked} onchange="toggleTask('${dayKey}', '${m.id}', '${slot.id}', this, event)">
+                                    ${t}
+                                </label>
+                            `;
+                        }).join('');
+
+                        let dropdownOpenClass = (activeOpenDropdownId === `${dayKey}-${m.id}-${slot.id}`) ? 'show' : '';
+
+                        td.innerHTML = `
+                            <div class="task-card ${memberGrid.shift} ${offDutyClass}">
+                                <div class="task-dropdown-container no-print" onclick="event.stopPropagation();">
+                                    <button type="button" class="task-dropdown-btn" onclick="toggleDropdown(event, '${dayKey}-${m.id}-${slot.id}')">
+                                        <span>▼ Tasks</span>
+                                    </button>
+                                    <div id="dropdown-${dayKey}-${m.id}-${slot.id}" class="task-dropdown-content ${dropdownOpenClass}" onclick="event.stopPropagation();">
+                                        ${taskCheckboxes}
+                                    </div>
+                                </div>
+                                <div class="editable-content-area" id="editor-${dayKey}-${m.id}-${slot.id}" contenteditable="${!isSlotOffDuty}" oninput="updateCellText('${dayKey}', '${m.id}', '${slot.id}', this)">${formattedText}</div>
+                            </div>
+                        `;
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                
+                table.appendChild(tbody);
+                tableWrapper.appendChild(table);
+                daySection.appendChild(tableWrapper);
+                container.appendChild(daySection);
+            });
+        }
+
+        function toggleDropdown(event, id) {
+            event.stopPropagation();
+            const targetContent = document.getElementById(`dropdown-${id}`);
+            const isCurrentlyShown = targetContent ? targetContent.classList.contains('show') : false;
+            
+            document.querySelectorAll('.task-dropdown-content').forEach(el => el.classList.remove('show'));
+            
+            if (!isCurrentlyShown && targetContent) {
+                targetContent.classList.add('show');
+                activeOpenDropdownId = id;
+            } else {
+                activeOpenDropdownId = null;
+            }
+        }
+
+        function toggleTask(dayKey, memberId, slotId, checkbox, event) {
+            if (event) event.stopPropagation();
+
+            if (!database[dayKey]) database[dayKey] = { grid: {} };
+            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: 'shift-7-16', slots: {} };
+            let dayGrid = database[dayKey].grid[memberId];
+            if (!dayGrid.slots) dayGrid.slots = {};
+            if (!dayGrid.slots[slotId]) dayGrid.slots[slotId] = [];
+
+            if (checkbox.checked) {
+                if (!dayGrid.slots[slotId].includes(checkbox.value)) dayGrid.slots[slotId].push(checkbox.value);
+            } else {
+                dayGrid.slots[slotId] = dayGrid.slots[slotId].filter(t => t !== checkbox.value);
+            }
+
+            let editor = document.getElementById(`editor-${dayKey}-${memberId}-${slotId}`);
+            if (editor) {
+                editor.innerText = dayGrid.slots[slotId].join('\n');
+            }
+
+            saveToDatabase();
+        }
+
+        function syncActiveDropdownCheckboxes() {
+            if (!activeOpenDropdownId) return;
+            let parts = activeOpenDropdownId.split('-');
+            if (parts.length < 3) return;
+            let dayKey = parts[0];
+            let memberId = parts[1];
+            let slotId = parts[2];
+
+            let selectedList = (database[dayKey] && database[dayKey].grid[memberId] && database[dayKey].grid[memberId].slots[slotId]) 
+                ? database[dayKey].grid[memberId].slots[slotId] : [];
+
+            let dropdown = document.getElementById(`dropdown-${activeOpenDropdownId}`);
+            if (dropdown) {
+                dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = selectedList.includes(cb.value);
+                });
+            }
+        }
+
+        function changeShift(dayKey, memberId, newShift) {
+            if (!database[dayKey]) database[dayKey] = { grid: {} };
+            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { slots: {} };
+            database[dayKey].grid[memberId].shift = newShift;
+            saveToDatabase();
+            checkNearShiftEnd();
+        }
+
+        function updateCellText(dayKey, memberId, slotId, element) {
+            let lines = element.innerText.split('\n').filter(l => l.trim() !== '');
+            if (!database[dayKey]) database[dayKey] = { grid: {} };
+            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: 'shift-7-16', slots: {} };
+            if (!database[dayKey].grid[memberId].slots) database[dayKey].grid[memberId].slots = {};
+            database[dayKey].grid[memberId].slots[slotId] = lines;
+            saveToDatabase();
+        }
+
+        function updateDayDate(dayKey, newIsoDate) { 
+            if (!database[dayKey]) return;
+            database[dayKey].isoDate = newIsoDate; 
+            saveToDatabase(); 
+            syncShiftsFromRotaMaster();
+        }
+
+        function clearDayDuties(dayKey) {
+            if (confirm("Clear tasks for this day?")) {
+                members.forEach(m => {
+                    if (database[dayKey] && database[dayKey].grid[m.id]) database[dayKey].grid[m.id].slots = {};
+                });
+                saveToDatabase();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm("Clear ALL duties across all days?")) {
+                Object.keys(database || {}).forEach(dayKey => {
+                    members.forEach(m => {
+                        if (database[dayKey] && database[dayKey].grid[m.id]) database[dayKey].grid[m.id].slots = {};
+                    });
+                });
+                saveToDatabase();
+            }
+        }
+
+        function deleteDay(dayKey) {
+            if (Object.keys(database || {}).length <= 1) return alert("You must keep at least one day sheet.");
+            if (confirm("Delete this day sheet?")) {
+                delete database[dayKey];
+                saveToDatabase();
+            }
+        }
+
+        function addNewDay() {
+            if (!database || typeof database !== 'object' || Object.keys(database).length === 0) {
+                database = createDefaultDatabase();
+            } else {
+                let dayKeys = Object.keys(database);
+                let lastKey = dayKeys[dayKeys.length - 1];
+                let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : "2026-09-01";
+                
+                let lastDate = new Date(lastIsoStr);
+                if (isNaN(lastDate.getTime())) lastDate = new Date();
+                lastDate.setDate(lastDate.getDate() + 1);
+                
+                let newIsoDate = lastDate.toISOString().split('T')[0];
+                let newDayNum = parseInt(lastKey.split('_')[1] || '1') + 1;
+                let newDayId = "day_" + newDayNum;
+                
+                database[newDayId] = { isoDate: newIsoDate, reminder: "", grid: {} };
+                members.forEach(m => {
+                    database[newDayId].grid[m.id] = { shift: m.defaultShift, slots: {} };
+                });
+            }
+            
+            saveToDatabase();
+            syncShiftsFromRotaMaster();
+        }
+
+        // Initialize application after DOM is fully parsed
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('sb_theme') === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+            }
+            if (localStorage.getItem('duties_mobile_view') === 'true' || window.innerWidth < 768) {
+                isMobileView = false;
+                toggleMobileView();
+            }
+            renderAllPages();
+            listenToLiveDatabase();
+            setupPresenceSystem();
+            
+            window.addEventListener('click', function(e) {
+                if (!e.target.closest('.task-dropdown-container')) {
+                    document.querySelectorAll('.task-dropdown-content').forEach(el => el.classList.remove('show'));
+                    activeOpenDropdownId = null;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
