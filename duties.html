@@ -21,6 +21,8 @@
             --accent-btn-text: #4a5568;
             --reminder-text: #0d233a;
             --reminder-bg: #e2e8f0;
+            --dropdown-bg: #ffffff;
+            --dropdown-text: #0f172a;
         }
 
         [data-theme="dark"] {
@@ -35,6 +37,8 @@
             --accent-btn-text: #f3f4f6;
             --reminder-text: #facc15;
             --reminder-bg: #374151;
+            --dropdown-bg: #1e293b;
+            --dropdown-text: #f8fafc;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
@@ -46,109 +50,4 @@
         
         .title-credit { 
             font-size: 10px; 
-            font-weight: 500; 
-            color: var(--credit-text); 
-            letter-spacing: 0.2px; 
-            opacity: 0.85;
-        }
-        
-        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        
-        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-primary { background-color: #0d233a; color: white; }
-        .btn-primary:hover { background-color: #173b61; }
-        .btn-secondary { background-color: var(--accent-btn); color: var(--accent-btn-text); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { opacity: 0.85; }
-        .btn-danger { background-color: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
-        .btn-danger:hover { background-color: #fed7d7; }
-        .btn-mobile-toggle { background-color: #a855f7; color: #ffffff; }
-        .btn-mobile-toggle.active { background-color: #ec4899; }
-
-        /* Prominent Dashboard Button Styling */
-        .btn-dashboard {
-            background-color: #0d233a !important;
-            color: #ffffff !important;
-            border: 2px solid #38bdf8 !important;
-            padding: 8px 16px !important;
-            font-size: 13px !important;
-            font-weight: 800 !important;
-            border-radius: 6px !important;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-            margin-left: 4px;
-        }
-
-        .btn-dashboard:hover {
-            background-color: #173b61 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
-        }
-        
-        .day-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; }
-        
-        .day-title-area { 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: var(--header-text); 
-            margin-bottom: 15px; 
-            padding-bottom: 10px; 
-            border-bottom: 2px solid var(--border-color); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .day-title-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            flex: 1;
-        }
-
-        .date-picker-wrapper { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
-        .date-picker-input { border: none; font-size: 18px; font-weight: bold; color: var(--header-text); width: 160px; outline: none; border-bottom: 1px dashed var(--border-color); background: transparent; cursor: pointer; }
-
-        .reminder-box-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background-color: var(--reminder-bg);
-            padding: 5px 12px;
-            border-radius: 6px;
-            border: 1px dashed var(--border-color);
-            min-width: 300px;
-            flex: 1;
-            max-width: 550px;
-        }
-
-        .reminder-box-input {
-            border: none !important;
-            background: transparent !important;
-            font-size: 14px !important;
-            font-weight: 800 !important;
-            color: var(--reminder-text) !important;
-            outline: none !important;
-            width: 100% !important;
-            padding: 0 !important;
-        }
-
-        .table-responsive-wrapper {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 750px; }
-        th { background-color: var(--card-bg); color: var(--header-text); padding: 10px 4px; text-align: center; font-weight: 700; border: 1px solid var(--border-color); font-size: 13px; }
-        th.col-member { width: 110px; }
-        th.col-shift { width: 120px; }
-        
-        td { vertical-align: top; border: 1px solid var(--table-border); background-color: var(--card-bg); }
-        
-        .team-member-cell { padding: 15px 5px; font-weight: bold; font-size: 14px; color: var(--text-color); text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 120px; }
-        
-        .shift-select-container { padding: 8px; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 120px; }
-        .shift-select { border: 1px solid var(--border-color); background: var(--card-bg); font-weight: 600; font-size: 12px; cursor: pointer; outline: none; width: 100%; padding: 6px; border-radius: 4px; color: var(--text-color); text-align: center; }
-
-        .task-card { padding: 6
+            font-weight: 500;
