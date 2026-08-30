@@ -13,7 +13,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase Realtime Database SDKs for Realtime Leaderboard -->
+    <!-- Firebase Realtime Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -90,14 +90,14 @@
             z-index: 100;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .control-btn {
+        .control-btn, .user-select-btn {
             background-color: var(--item-btn-bg);
             border: 1px solid var(--border-color);
             color: var(--text-light);
-            padding: 10px 18px;
+            padding: 9px 16px;
             border-radius: 24px;
             font-size: 0.88rem;
             font-weight: 700;
@@ -107,6 +107,18 @@
             gap: 8px;
             box-shadow: 0 4px 14px var(--shadow-color);
             transition: all 0.2s ease;
+        }
+
+        .user-select-btn {
+            background-color: #0284c7;
+            color: #ffffff;
+            border-color: #38bdf8;
+            outline: none;
+        }
+
+        .user-select-btn option {
+            background-color: #0f172a;
+            color: #ffffff;
         }
 
         .control-btn:hover {
@@ -125,7 +137,7 @@
             border-color: #f472b6;
         }
 
-        /* BOTTOM-LEFT REALTIME LEADERBOARD (YELLOW BOX) */
+        /* BOTTOM-LEFT REALTIME LEADERBOARD */
         .bottom-left-leaderboard {
             position: absolute;
             bottom: 20px;
@@ -135,7 +147,7 @@
             border: 2px solid #facc15;
             border-radius: 8px;
             padding: 10px 14px;
-            width: 240px;
+            width: 250px;
             box-shadow: 0 0 16px rgba(250, 204, 21, 0.35);
             backdrop-filter: blur(6px);
         }
@@ -240,7 +252,6 @@
             letter-spacing: 0.05em;
         }
 
-        /* MAIN DASHBOARD CONTAINER */
         .dashboard-container {
             position: relative;
             z-index: 10;
@@ -252,7 +263,6 @@
             height: 100vh;
         }
 
-        /* WATERMARK HEADERS */
         .dashboard-header-bg {
             position: absolute;
             top: 50%;
@@ -298,10 +308,9 @@
             max-width: 95vw;
         }
 
-        /* LOWERED MARIO GAME CANVAS POSITION */
         #mario-game-canvas {
             position: absolute;
-            bottom: -320px;
+            bottom: -235px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 40;
@@ -310,7 +319,6 @@
             pointer-events: auto;
         }
 
-        /* CIRCULAR MENU CONTAINER */
         .circular-menu {
             position: relative;
             width: 720px;
@@ -323,7 +331,6 @@
             touch-action: none;
         }
 
-        /* CENTER TOGGLE BUTTON WITH BULL ICON DYNAMIC SWITCH */
         .toggle-btn {
             position: relative;
             width: 155px;
@@ -391,7 +398,6 @@
             pointer-events: auto;
         }
 
-        /* RADIAL MENU BUTTONS */
         .menu-item {
             position: absolute;
             top: 50%;
@@ -532,14 +538,14 @@
             transform: translateY(2px) scale(0.85);
         }
 
-        /* MOBILE VIEW ADJUSTMENTS */
         body.mobile-view-active .top-controls {
             top: 12px;
             right: 12px;
             gap: 8px;
         }
 
-        body.mobile-view-active .control-btn {
+        body.mobile-view-active .control-btn,
+        body.mobile-view-active .user-select-btn {
             padding: 6px 12px;
             font-size: 0.75rem;
             border-radius: 18px;
@@ -632,6 +638,16 @@
 
     <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
+        <!-- TEAM MEMBER PROFILE SWITCHER -->
+        <select class="user-select-btn" id="user-profile-select" onchange="changeActiveUser(this.value)">
+            <option value="KRIZTEL">👤 Player: KRIZTEL</option>
+            <option value="ANN">👤 Player: ANN</option>
+            <option value="DAVE">👤 Player: DAVE</option>
+            <option value="KENNETH">👤 Player: KENNETH</option>
+            <option value="MIGUEL">👤 Player: MIGUEL</option>
+            <option value="CUSTOM">+ Custom Name...</option>
+        </select>
+        
         <button class="control-btn mobile-toggle-btn" id="mobile-toggle">
             <i class="fa-solid fa-mobile-screen-button"></i>
             <span id="mobile-text">Mobile View: OFF</span>
@@ -642,7 +658,7 @@
         </button>
     </div>
 
-    <!-- BOTTOM-LEFT REALTIME LEADERBOARD (YELLOW BOX) -->
+    <!-- BOTTOM-LEFT REALTIME LEADERBOARD -->
     <div class="bottom-left-leaderboard">
         <div class="leaderboard-title">
             <span>🏆 TOP PLAYERS</span>
@@ -690,17 +706,14 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE WITH MARIO GAME OVERLAY -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
                 <canvas id="title-text-canvas" width="1150" height="150"></canvas>
-                <!-- INTERACTIVE SUPER MARIO GAME CANVAS -->
                 <canvas id="mario-game-canvas" width="1150" height="160"></canvas>
             </div>
         </div>
 
-        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
@@ -728,7 +741,7 @@
     </div>
 
     <script>
-        // FIREBASE REALTIME LEADERBOARD SETUP
+        // FIREBASE REALTIME DATABASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
             authDomain: "test-daily-task--sb.firebaseapp.com",
@@ -774,65 +787,110 @@
         const themeText = document.getElementById('theme-text');
         const mobileToggleBtn = document.getElementById('mobile-toggle');
         const mobileText = document.getElementById('mobile-text');
+        const userProfileSelect = document.getElementById('user-profile-select');
 
         let isMobileView = false;
         let rotationAngle = 0;
         let rotationAnimationId = null;
 
-        function getActiveUser() {
+        // USER PROFILE ENGINE WITH AUTOMATIC SELECTOR SYNC
+        function initActiveUser() {
             const params = new URLSearchParams(window.location.search);
             let userParam = params.get('user') || params.get('name') || params.get('member');
             
             if (userParam) {
                 userParam = userParam.toUpperCase().trim();
                 localStorage.setItem('sb_active_user', userParam);
-                return userParam;
             }
 
-            let savedUser = localStorage.getItem('sb_active_user');
-            if (!savedUser) {
-                savedUser = prompt("Welcome to Operations Hub! Enter your name for Mario Score tracking:", "KRIZTEL");
-                if (savedUser) {
-                    savedUser = savedUser.toUpperCase().trim();
-                    localStorage.setItem('sb_active_user', savedUser);
+            let savedUser = localStorage.getItem('sb_active_user') || "KRIZTEL";
+            
+            if (userProfileSelect) {
+                let matchOption = Array.from(userProfileSelect.options).find(o => o.value === savedUser);
+                if (matchOption) {
+                    userProfileSelect.value = savedUser;
                 } else {
-                    savedUser = "OPERATOR";
+                    let customOpt = document.createElement('option');
+                    customOpt.value = savedUser;
+                    customOpt.textContent = `👤 Player: ${savedUser}`;
+                    userProfileSelect.appendChild(customOpt);
+                    userProfileSelect.value = savedUser;
                 }
             }
             return savedUser;
         }
 
-        let currentUser = getActiveUser();
+        let currentUser = initActiveUser();
 
-        // REALTIME LEADERBOARD SYNC
+        function changeActiveUser(val) {
+            if (val === "CUSTOM") {
+                let typedName = prompt("Enter your Name for Mario Score tracking:", "KRIZTEL");
+                if (typedName) {
+                    currentUser = typedName.toUpperCase().trim();
+                    localStorage.setItem('sb_active_user', currentUser);
+                    let customOpt = document.createElement('option');
+                    customOpt.value = currentUser;
+                    customOpt.textContent = `👤 Player: ${currentUser}`;
+                    userProfileSelect.appendChild(customOpt);
+                    userProfileSelect.value = currentUser;
+                } else {
+                    userProfileSelect.value = currentUser;
+                    return;
+                }
+            } else {
+                currentUser = val;
+                localStorage.setItem('sb_active_user', currentUser);
+            }
+            listenToRealtimeLeaderboard();
+        }
+
+        // REALTIME LEADERBOARD & LOCAL FALLBACK SYNC
+        function updateLeaderboardUI(scoreList) {
+            if (!scoreList || scoreList.length === 0) return;
+
+            if (scoreList[0]) {
+                document.getElementById('rank1-name').textContent = scoreList[0][0];
+                document.getElementById('rank1-score').textContent = `${scoreList[0][1]} PTS`;
+            }
+            if (scoreList[1]) {
+                document.getElementById('rank2-name').textContent = scoreList[1][0];
+                document.getElementById('rank2-score').textContent = `${scoreList[1][1]} PTS`;
+            }
+            if (scoreList[2]) {
+                document.getElementById('rank3-name').textContent = scoreList[2][0];
+                document.getElementById('rank3-score').textContent = `${scoreList[2][1]} PTS`;
+            }
+        }
+
         function listenToRealtimeLeaderboard() {
+            let localBest = parseInt(localStorage.getItem(`mario_high_${currentUser}`) || '0');
+            updateLeaderboardUI([[currentUser, localBest], ["ANN", 0], ["DAVE", 0]]);
+
             if (!db) return;
-            db.ref('mario_leaderboard').orderByValue().limitToLast(3).on('value', (snapshot) => {
+            db.ref('mario_leaderboard').orderByValue().limitToLast(5).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
 
                 const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
-
-                if (sorted[0]) {
-                    document.getElementById('rank1-name').textContent = sorted[0][0];
-                    document.getElementById('rank1-score').textContent = `${sorted[0][1]} PTS`;
-                }
-                if (sorted[1]) {
-                    document.getElementById('rank2-name').textContent = sorted[1][0];
-                    document.getElementById('rank2-score').textContent = `${sorted[1][1]} PTS`;
-                }
-                if (sorted[2]) {
-                    document.getElementById('rank3-name').textContent = sorted[2][0];
-                    document.getElementById('rank3-score').textContent = `${sorted[2][1]} PTS`;
-                }
+                updateLeaderboardUI(sorted);
             });
         }
 
         function saveScoreToRealtimeLeaderboard(score) {
-            if (!db || !currentUser) return;
-            db.ref(`mario_leaderboard/${currentUser}`).transaction((currentScore) => {
-                return Math.max(currentScore || 0, score);
-            });
+            if (!currentUser) return;
+            let currentLocalHigh = parseInt(localStorage.getItem(`mario_high_${currentUser}`) || '0');
+            if (score > currentLocalHigh) {
+                localStorage.setItem(`mario_high_${currentUser}`, score.toString());
+            }
+
+            if (db) {
+                db.ref(`mario_leaderboard/${currentUser}`).transaction((currentScore) => {
+                    return Math.max(currentScore || 0, score);
+                });
+            } else {
+                let currentBest = Math.max(currentLocalHigh, score);
+                updateLeaderboardUI([[currentUser, currentBest], ["ANN", 0], ["DAVE", 0]]);
+            }
         }
 
         function getRadius() {
@@ -1022,7 +1080,7 @@
             render();
         }
 
-        // INTERACTIVE SUPER MARIO GAME WITH 5-STAGE PROGRESSION & FULL DIRECTIONAL CONTROLS
+        // INTERACTIVE SUPER MARIO GAME WITH LIVE REALTIME RECORDING
         function initSuperMarioGame() {
             const canvas = document.getElementById('mario-game-canvas');
             if (!canvas) return;
@@ -1033,8 +1091,7 @@
             let gameOver = false;
             let levelCleared = false;
             let currentStage = 1;
-            let baseSpeed = 1.5; // Slower, comfortable enemy move speed
-
+            let baseSpeed = 1.5;
             const stageGoals = [1000, 3000, 5000, 7000, 10000];
             const groundY = 80;
 
@@ -1066,11 +1123,7 @@
 
             function triggerJump() {
                 if (gameOver || levelCleared) {
-                    if (coins > highScore) {
-                        highScore = coins;
-                        localStorage.setItem(`mario_high_${currentUser}`, highScore.toString());
-                        saveScoreToRealtimeLeaderboard(highScore);
-                    }
+                    saveScoreToRealtimeLeaderboard(coins);
                     coins = 0;
                     currentStage = 1;
                     gameOver = false;
@@ -1095,7 +1148,6 @@
                 }
             }
 
-            // Keyboard Motion Controllers
             window.addEventListener('keydown', (e) => {
                 if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) {
                     if (document.activeElement.tagName !== 'INPUT') {
@@ -1118,14 +1170,13 @@
                 if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = false;
             });
 
-            // Touch / Mouse Directional Tap Support
             canvas.addEventListener('click', (e) => {
                 const rect = canvas.getBoundingClientRect();
                 const tapX = e.clientX - rect.left;
                 if (tapX < rect.width * 0.35) {
-                    mario.x -= 25; // Move back
+                    mario.x -= 25;
                 } else if (tapX > rect.width * 0.65) {
-                    mario.x += 25; // Move forward
+                    mario.x += 25;
                 } else {
                     triggerJump();
                 }
@@ -1279,7 +1330,6 @@
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
                 const groundColor = isDark ? '#334155' : '#cbd5e1';
 
-                // Ground Road & Brick Texture
                 ctx.fillStyle = groundColor;
                 ctx.fillRect(0, groundY, canvas.width, 18);
                 ctx.fillStyle = '#b45309';
@@ -1291,14 +1341,11 @@
                     mario.animFrame++;
                     if (mario.invincibleTimer > 0) mario.invincibleTimer--;
 
-                    // Horizontal Movement
                     if (keys.left) mario.x -= mario.speed;
                     if (keys.right) mario.x += mario.speed;
 
-                    // Bounds check
                     mario.x = Math.max(10, Math.min(canvas.width - 60, mario.x));
 
-                    // Gravity & Ground
                     mario.dy += mario.gravity;
                     mario.y += mario.dy;
 
@@ -1308,11 +1355,10 @@
                         mario.isGrounded = true;
                     }
 
-                    // Update Stage Target Logic
                     const targetGoal = stageGoals[currentStage - 1];
                     if (coins >= targetGoal && currentStage < 5) {
                         currentStage++;
-                        baseSpeed += 0.4;
+                        baseSpeed += 0.35;
                     }
 
                     if (coins >= 10000 && !finishLineObj) {
@@ -1325,7 +1371,6 @@
                         if (spawnTimer > spawnRate) {
                             const rand = Math.random();
                             if (currentStage === 5 && rand < 0.3) {
-                                // Stage 5 Special: Double Goomba Stack
                                 entities.push({ type: 'goomba', x: canvas.width, y: groundY - 16, width: 20, height: 16 });
                                 entities.push({ type: 'goomba', x: canvas.width, y: groundY - 32, width: 20, height: 16 });
                             } else if (rand < 0.5) {
@@ -1345,11 +1390,7 @@
 
                         if (mario.x + mario.width >= finishLineObj.x + 10) {
                             levelCleared = true;
-                            if (coins > highScore) {
-                                highScore = coins;
-                                localStorage.setItem(`mario_high_${currentUser}`, highScore.toString());
-                                saveScoreToRealtimeLeaderboard(highScore);
-                            }
+                            saveScoreToRealtimeLeaderboard(coins);
                         }
                     }
 
@@ -1372,6 +1413,7 @@
                                     entities.splice(i, 1);
                                     mario.dy = -8;
                                     coins += 100;
+                                    saveScoreToRealtimeLeaderboard(coins);
                                 } else if (mario.invincibleTimer === 0) {
                                     if (mario.isSuper) {
                                         mario.isSuper = false;
@@ -1381,11 +1423,7 @@
                                         mario.invincibleTimer = 45;
                                     } else {
                                         gameOver = true;
-                                        if (coins > highScore) {
-                                            highScore = coins;
-                                            localStorage.setItem(`mario_high_${currentUser}`, highScore.toString());
-                                            saveScoreToRealtimeLeaderboard(highScore);
-                                        }
+                                        saveScoreToRealtimeLeaderboard(coins);
                                     }
                                 }
                             } else if (e.type === 'mushroom') {
@@ -1396,9 +1434,11 @@
                                 mario.height = mario.baseHeight * 1.45;
                                 mario.y = groundY - mario.height;
                                 entities.splice(i, 1);
+                                saveScoreToRealtimeLeaderboard(coins);
                             } else if (e.type === 'block') {
                                 coins += 150;
                                 entities.splice(i, 1);
+                                saveScoreToRealtimeLeaderboard(coins);
                             }
                         }
 
@@ -1406,17 +1446,18 @@
                             entities.splice(i, 1);
                         }
                     }
+
+                    gameSpeed += 0.0001;
                 }
 
                 drawMario(mario.x, mario.y);
 
-                // STATUS ANNOUNCEMENTS BELOW GROUND ROAD
                 if (levelCleared) {
                     if (finishLineObj) drawFinishLine(finishLineObj.x, finishLineObj.y);
                     ctx.font = '700 12px Orbitron, sans-serif';
                     ctx.fillStyle = '#22c55e';
                     ctx.textAlign = 'left';
-                    ctx.fillText(`🎉 STAGE 5 CLEARED ${currentUser}! ALL STAGES COMPLETE! Tap to replay.`, 180, 135);
+                    ctx.fillText(`🎉 STAGE 5 CLEARED ${currentUser}! STAGE COMPLETE! Tap to replay.`, 180, 135);
                 } else if (gameOver) {
                     entities.forEach(e => {
                         if (e.type === 'goomba') drawGoomba(e.x, e.y);
@@ -1430,7 +1471,6 @@
                     ctx.fillText(`GAME OVER ${currentUser}! Tap to restart.`, 180, 135);
                 }
 
-                // DEDICATED RETRO SCOREBOX HUD BELOW GROUND ROAD
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
                 ctx.fillRect(canvas.width - 270, 100, 250, 42);
                 ctx.strokeStyle = '#38bdf8';
@@ -1442,7 +1482,7 @@
                 ctx.textAlign = 'left';
                 ctx.fillText(`PLAYER: ${currentUser} (STAGE ${currentStage}/5)`, canvas.width - 260, 116);
                 ctx.fillStyle = '#38bdf8';
-                ctx.fillText(`SCORE: ${coins} / ${stageGoals[currentStage - 1]} | BEST: ${highScore}`, canvas.width - 260, 132);
+                ctx.fillText(`SCORE: ${coins} / ${stageGoals[currentStage - 1]}  | BEST: ${highScore}`, canvas.width - 260, 132);
 
                 requestAnimationFrame(animate);
             }
