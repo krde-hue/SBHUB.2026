@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@800;900&family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,7 +18,7 @@
         body {
             background-color: #0b1329;
             color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -129,9 +129,9 @@
             background: #ffffff;
             border-radius: 8px;
             color: #0b1329;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 900;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -177,9 +177,9 @@
             background: #ffffff;
             border-radius: 50%;
             color: #0b1329;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 900;
-            font-size: 1.6rem;
+            font-size: 1.7rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -207,8 +207,9 @@
             border: 1.5px solid #a855f7;
             padding: 8px 24px;
             border-radius: 20px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 1.3rem;
             color: #facc15;
             letter-spacing: 0.15em;
             min-width: 140px;
@@ -227,6 +228,33 @@
             20%, 80% { transform: translate3d(-47%, 0, 0); }
             30%, 50%, 70% { transform: translate3d(-54%, 0, 0); }
             40%, 60% { transform: translate3d(-46%, 0, 0); }
+        }
+
+        /* AUTO STAGE CLEAR OVERLAY BANNER */
+        .stage-clear-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(15, 23, 42, 0.95);
+            border: 2.5px solid #22c55e;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+            border-radius: 16px;
+            padding: 20px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #22c55e;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 200;
+        }
+
+        .stage-clear-overlay.show-banner {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
         .controls-row {
@@ -259,7 +287,7 @@
             }
             .grid-tile { width: 36px; height: 36px; font-size: 1.1rem; }
             .wheel-container { width: 220px; height: 220px; }
-            .letter-node { width: 48px; height: 48px; font-size: 1.2rem; }
+            .letter-node { width: 48px; height: 48px; font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -282,6 +310,10 @@
         
         <div class="word-game-area">
             <div class="current-word-box" id="current-word">---</div>
+
+            <div class="stage-clear-overlay" id="clear-overlay">
+                🎉 STAGE CLEARED!
+            </div>
 
             <div class="crossword-grid" id="grid-container"></div>
 
@@ -402,7 +434,6 @@
             const wheel = document.getElementById('letter-wheel');
             const lineCanvas = document.getElementById('line-canvas');
             
-            // Preserve line canvas
             wheel.innerHTML = '';
             wheel.appendChild(lineCanvas);
 
@@ -427,7 +458,6 @@
             initDragListeners();
         }
 
-        // MOUSE / TOUCH DRAG-TO-CONNECT ENGINE
         function initDragListeners() {
             const wheel = document.getElementById('letter-wheel');
             const canvas = document.getElementById('line-canvas');
@@ -566,7 +596,7 @@
             }, 450);
         }
 
-        // AUTOMATIC WORD SUBMISSION & VALIDATION
+        // AUTOMATIC WORD SUBMISSION & NON-BLOCKING STAGE CLEAR TRANSITION
         function autoSubmitWord() {
             const word = selectedLetters.map(item => item.char).join('');
             if (!word) return;
@@ -585,17 +615,22 @@
 
                 clearSelection();
 
-                // Check Stage Clear
+                // Check Stage Clear with Seamless Banner Transition (No Alerts)
                 if (solvedWords.length === stageTargetWords.length) {
+                    const overlay = document.getElementById('clear-overlay');
+                    overlay.textContent = `🎉 STAGE ${currentStage} CLEARED!`;
+                    overlay.classList.add('show-banner');
+
                     setTimeout(() => {
-                        alert(`🎉 STAGE ${currentStage} CLEARED!`);
+                        overlay.classList.remove('show-banner');
                         if (currentStage < 100) {
                             currentStage++;
                             loadStage(currentStage);
                         } else {
-                            alert('🏆 CONGRATULATIONS! YOU CLEARED ALL 100 STAGES!');
+                            overlay.textContent = '🏆 ALL 100 STAGES CLEARED!';
+                            overlay.classList.add('show-banner');
                         }
-                    }, 300);
+                    }, 1000);
                 }
             } else {
                 triggerErrorShake();
