@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
+    <!-- Orbitron & Rajdhani Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -428,8 +430,10 @@
 </head>
 <body>
 
+    <!-- TRADING CANVAS BACKGROUND -->
     <canvas id="trading-bg"></canvas>
 
+    <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
         <button class="control-btn mobile-toggle-btn" id="mobile-toggle">
             <i class="fa-solid fa-mobile-screen-button"></i>
@@ -442,6 +446,7 @@
     </div>
 
     <div class="dashboard-container">
+        <!-- BACKGROUND WATERMARK TITLE -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
@@ -451,6 +456,7 @@
             </div>
         </div>
 
+        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
@@ -530,12 +536,11 @@
             });
         }
 
-        // ULTRA-SLOW CLOCKWISE ROTATION LOOP
+        // NEAR-IMPERCEPTIBLE CLOCKWISE ROTATION LOOP (0.0001 RAD/FRAME)
         function startSlowRotation() {
             function step() {
                 if (circularMenu.classList.contains('active')) {
-                    // Extremely subtle rotational increment (0.0015 radians/frame)
-                    rotationAngle += 0.0015;
+                    rotationAngle += 0.0001; 
                     const items = navMenuJSON;
                     const total = items.length;
                     const radius = getRadius();
@@ -549,7 +554,6 @@
                         a.style.setProperty('--tx', `${x}px`);
                         a.style.setProperty('--ty', `${y}px`);
 
-                        // Only re-apply transform if not being hovered by user
                         if (!a.matches(':hover')) {
                             a.style.transform = `translate(${x}px, ${y}px) scale(1)`;
                         }
