@@ -25,11 +25,12 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            padding: 20px;
         }
 
         .header-bar {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 20px;
             right: 20px;
             display: flex;
@@ -51,17 +52,21 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
         }
 
+        /* FULL EXPANDED CONTAINER MATCHING THE YELLOW BOX AREA */
         .game-card {
             background: #0f172a;
             border: 2px solid #38bdf8;
             border-radius: 12px;
             box-shadow: 0 0 35px rgba(56, 189, 248, 0.35);
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            max-width: 95vw;
+            justify-content: space-between;
+            width: 95vw;
+            height: 82vh;
+            margin-top: 45px;
+            position: relative;
         }
 
         canvas {
@@ -70,6 +75,9 @@
             border: 1.5px solid #334155;
             cursor: pointer;
             touch-action: none;
+            width: 100%;
+            height: calc(100% - 60px);
+            display: block;
         }
 
         .hud-row {
@@ -77,8 +85,17 @@
             justify-content: space-between;
             width: 100%;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: #facc15;
+            padding: 0 10px;
+        }
+
+        .instructions-hint {
+            font-size: 0.88rem;
+            color: #94a3b8;
+            text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -95,10 +112,10 @@
             <span id="stage-display">STAGE: 1 (EASY)</span>
         </div>
         
-        <canvas id="flappyCanvas" width="480" height="580"></canvas>
+        <canvas id="flappyCanvas" width="1200" height="650"></canvas>
 
-        <div style="font-size: 0.85rem; color: #94a3b8; text-align: center;">
-            💡 Tap or Press Spacebar to flap wing & climb altitude
+        <div class="instructions-hint">
+            💡 Tap screen or Press Spacebar to flap wings & climb altitude
         </div>
     </div>
 
@@ -124,17 +141,17 @@
         let score = 0;
         let stage = 1;
         let gameOver = false;
-        let speed = 2.2;
-        let gapSize = 140;
+        let speed = 2.8;
+        let gapSize = 170;
 
-        const bird = { x: 80, y: 250, radius: 14, dy: 0, gravity: 0.42, jump: -8.0 };
+        const bird = { x: 180, y: 300, radius: 18, dy: 0, gravity: 0.45, jump: -9.0 };
         let pipes = [];
         let frame = 0;
 
         function flap() {
             if (gameOver) {
-                score = 0; stage = 1; speed = 2.2; gapSize = 140; gameOver = false;
-                pipes = []; bird.y = 250; bird.dy = 0;
+                score = 0; stage = 1; speed = 2.8; gapSize = 170; gameOver = false;
+                pipes = []; bird.y = 300; bird.dy = 0;
                 return;
             }
             bird.dy = bird.jump;
@@ -142,13 +159,13 @@
 
         canvas.onclick = flap;
         canvas.ontouchstart = (e) => { e.preventDefault(); flap(); };
-        window.onkeydown = (e) => { if (['Space', 'ArrowUp'].includes(e.code)) flap(); };
+        window.onkeydown = (e) => { if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) flap(); };
 
         function updateStage() {
-            if (score >= 3000) { stage = 5; speed = 3.8; gapSize = 95; }
-            else if (score >= 2000) { stage = 4; speed = 3.4; gapSize = 105; }
-            else if (score >= 1200) { stage = 3; speed = 3.0; gapSize = 115; }
-            else if (score >= 500) { stage = 2; speed = 2.6; gapSize = 125; }
+            if (score >= 3000) { stage = 5; speed = 4.8; gapSize = 120; }
+            else if (score >= 2000) { stage = 4; speed = 4.2; gapSize = 130; }
+            else if (score >= 1200) { stage = 3; speed = 3.6; gapSize = 140; }
+            else if (score >= 500) { stage = 2; speed = 3.2; gapSize = 155; }
 
             const stageNames = ["EASY", "NORMAL", "MEDIUM", "HARD", "EXPERT"];
             document.getElementById('stage-display').textContent = `STAGE: ${stage} (${stageNames[stage-1]})`;
@@ -167,21 +184,24 @@
                     db.ref(`flappy_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
                 }
 
-                if (frame % Math.floor(100 / (speed * 0.5)) === 0) {
-                    let topH = Math.floor(Math.random() * (canvas.height - gapSize - 100)) + 30;
+                if (frame % Math.floor(110 / (speed * 0.45)) === 0) {
+                    let topH = Math.floor(Math.random() * (canvas.height - gapSize - 120)) + 40;
                     pipes.push({ x: canvas.width, top: topH, bottom: topH + gapSize, passed: false });
                 }
 
                 for (let i = pipes.length - 1; i >= 0; i--) {
                     let p = pipes[i]; p.x -= speed;
 
-                    // Draw Pipe Obstacles
+                    // Draw Pipe Obstacles with End Caps
                     ctx.fillStyle = '#22c55e';
-                    ctx.fillRect(p.x, 0, 42, p.top);
-                    ctx.fillRect(p.x, p.bottom, 42, canvas.height - p.bottom);
+                    ctx.fillRect(p.x, 0, 60, p.top);
+                    ctx.fillRect(p.x - 4, p.top - 20, 68, 20); // Top Cap
+
+                    ctx.fillRect(p.x, p.bottom, 60, canvas.height - p.bottom);
+                    ctx.fillRect(p.x - 4, p.bottom, 68, 20); // Bottom Cap
 
                     // Collision Check
-                    if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + 42) {
+                    if (bird.x + bird.radius > p.x - 4 && bird.x - bird.radius < p.x + 64) {
                         if (bird.y - bird.radius < p.top || bird.y + bird.radius > p.bottom) {
                             gameOver = true;
                             db.ref(`flappy_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
@@ -194,24 +214,32 @@
                         updateStage();
                     }
 
-                    if (p.x < -50) pipes.splice(i, 1);
+                    if (p.x < -80) pipes.splice(i, 1);
                 }
             }
 
             // Draw Flappy Bird
             ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#ef4444'; ctx.fillRect(bird.x + 5, bird.y - 3, 9, 6);
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(bird.x + 6, bird.y - 4, 12, 8); // Beak
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(bird.x + 5, bird.y - 6, 5, 0, Math.PI * 2); ctx.fill(); // Eye
+            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(bird.x + 7, bird.y - 6, 2, 0, Math.PI * 2); ctx.fill();
 
-            // Draw Score
-            ctx.font = '700 20px Orbitron, sans-serif'; ctx.fillStyle = '#38bdf8'; ctx.textAlign = 'center';
-            ctx.fillText(`SCORE: ${score}`, canvas.width / 2, 40);
+            // Draw Realtime Score HUD
+            ctx.font = '900 28px Orbitron, sans-serif'; ctx.fillStyle = '#38bdf8'; ctx.textAlign = 'center';
+            ctx.fillText(`SCORE: ${score}`, canvas.width / 2, 50);
 
             if (gameOver) {
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'; ctx.fillRect(40, 220, 400, 120);
-                ctx.fillStyle = '#ef4444'; ctx.font = '700 20px Orbitron, sans-serif';
-                ctx.fillText(`GAME OVER ${currentUser}!`, canvas.width / 2, 260);
-                ctx.fillStyle = '#ffffff'; ctx.font = '14px Rajdhani, sans-serif';
-                ctx.fillText('Click or Tap to Retry', canvas.width / 2, 295);
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.88)'; ctx.fillRect(canvas.width / 2 - 250, canvas.height / 2 - 80, 500, 160);
+                ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.strokeRect(canvas.width / 2 - 250, canvas.height / 2 - 80, 500, 160);
+                
+                ctx.fillStyle = '#ef4444'; ctx.font = '900 26px Orbitron, sans-serif';
+                ctx.fillText(`GAME OVER ${currentUser}!`, canvas.width / 2, canvas.height / 2 - 20);
+                
+                ctx.fillStyle = '#facc15'; ctx.font = '700 18px Rajdhani, sans-serif';
+                ctx.fillText(`FINAL SCORE: ${score}`, canvas.width / 2, canvas.height / 2 + 15);
+
+                ctx.fillStyle = '#ffffff'; ctx.font = '600 15px Rajdhani, sans-serif';
+                ctx.fillText('Click or Tap to Retry', canvas.width / 2, canvas.height / 2 + 45);
             }
 
             requestAnimationFrame(loop);
