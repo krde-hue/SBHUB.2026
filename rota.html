@@ -106,6 +106,11 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .viewer-badge:hover {
+            background-color: rgba(255, 255, 255, 0.25);
         }
 
         .view-only-banner {
@@ -383,6 +388,74 @@
             border-radius: 3px;
         }
 
+        /* VIEWER LIST MODAL STYLES */
+        .viewer-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .viewer-modal-backdrop.show { display: flex; }
+
+        .viewer-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            width: 280px;
+            max-width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: var(--text-color);
+        }
+
+        .viewer-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .viewer-modal-close {
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.7;
+        }
+        .viewer-modal-close:hover { opacity: 1; }
+
+        .viewer-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .viewer-list-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+        }
+
+        .viewer-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
         /* MOBILE OPTIMIZED MODE STYLES */
         body.mobile-view-active {
             padding: 8px;
@@ -482,7 +555,7 @@
             <span class="title-credit">kr!ztel_2026 model</span>
         </div>
         <div class="header-top-controls">
-            <span class="viewer-badge" title="Active Viewers">
+            <span class="viewer-badge" title="Click to view online members" onclick="toggleViewerModal()">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
             <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View: OFF</button>
@@ -694,6 +767,19 @@
         </div>
     </div>
 
+    <!-- VIEWER LIST POPUP MODAL -->
+    <div id="viewerModal" class="viewer-modal-backdrop" onclick="closeViewerModal(event)">
+        <div class="viewer-modal" onclick="event.stopPropagation()">
+            <div class="viewer-modal-header">
+                <span>👁️ Active Viewers (<span id="modalViewerCount">0</span>)</span>
+                <span class="viewer-modal-close" onclick="toggleViewerModal()">✕</span>
+            </div>
+            <ul id="viewerListContainer" class="viewer-list">
+                <!-- Dynamic Viewer Names inserted here -->
+            </ul>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
@@ -829,9 +915,26 @@
             });
         }
 
+        function toggleViewerModal() {
+            const modal = document.getElementById('viewerModal');
+            modal.classList.toggle('show');
+        }
+
+        function closeViewerModal(e) {
+            if (e.target.id === 'viewerModal') {
+                document.getElementById('viewerModal').classList.remove('show');
+            }
+        }
+
         function setupPresenceSystem() {
             const presenceRef = db.ref('rota_active_sessions');
             const connectedRef = db.ref('.info/connected');
+
+            let viewerName = localStorage.getItem('rota_viewer_name');
+            if (!viewerName) {
+                viewerName = prompt("Enter your name to appear on active viewer list:", "Guest") || "Guest User";
+                localStorage.setItem('rota_viewer_name', viewerName);
+            }
 
             connectedRef.on('value', (snap) => {
                 if (snap.val() === true) {
@@ -840,17 +943,35 @@
 
                     userSessionRef.set({
                         online: true,
+                        name: viewerName,
                         joinedAt: firebase.database.ServerValue.TIMESTAMP
                     });
                 }
             });
 
             presenceRef.on('value', (snap) => {
-                const count = snap.numChildren();
+                const activeUsers = snap.val() || {};
                 const countElem = document.getElementById('activeViewersCount');
-                if (countElem) {
-                    countElem.innerText = count > 0 ? count : 1;
-                }
+                const modalCountElem = document.getElementById('modalViewerCount');
+                const viewerListContainer = document.getElementById('viewerListContainer');
+
+                viewerListContainer.innerHTML = '';
+                let totalCount = 0;
+
+                Object.keys(activeUsers).forEach(key => {
+                    totalCount++;
+                    const user = activeUsers[key];
+                    const name = user.name || 'Anonymous Viewer';
+
+                    const li = document.createElement('li');
+                    li.className = 'viewer-list-item';
+                    li.innerHTML = `<span class="viewer-dot"></span> <span>${name}</span>`;
+                    viewerListContainer.appendChild(li);
+                });
+
+                const displayCount = totalCount > 0 ? totalCount : 1;
+                if (countElem) countElem.innerText = displayCount;
+                if (modalCountElem) modalCountElem.innerText = displayCount;
             });
         }
 
