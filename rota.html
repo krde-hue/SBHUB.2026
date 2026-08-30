@@ -441,11 +441,17 @@
         .viewer-list-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
             font-size: 12px;
             padding: 6px 8px;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 4px;
+        }
+
+        .viewer-item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .viewer-dot {
@@ -454,6 +460,19 @@
             background-color: #22c55e;
             border-radius: 50%;
             display: inline-block;
+        }
+
+        .reset-name-btn {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 10px;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+            text-align: center;
         }
 
         /* MOBILE OPTIMIZED MODE STYLES */
@@ -777,6 +796,7 @@
             <ul id="viewerListContainer" class="viewer-list">
                 <!-- Dynamic Viewer Names inserted here -->
             </ul>
+            <button class="reset-name-btn" onclick="resetMyViewerName()">Change My Saved Name</button>
         </div>
     </div>
 
@@ -926,22 +946,37 @@
             }
         }
 
+        function resetMyViewerName() {
+            localStorage.removeItem('rota_viewer_name');
+            location.reload();
+        }
+
         function setupPresenceSystem() {
             const presenceRef = db.ref('rota_active_sessions');
             const connectedRef = db.ref('.info/connected');
 
+            // Unique persistent device/session identifier
+            let sessionToken = sessionStorage.getItem('rota_session_token');
+            if (!sessionToken) {
+                sessionToken = 'session_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+                sessionStorage.setItem('rota_session_token', sessionToken);
+            }
+
+            // Only ask for name ONCE per device/browser (Saved in localStorage)
             let viewerName = localStorage.getItem('rota_viewer_name');
             if (!viewerName) {
                 viewerName = prompt("Enter your name to appear on active viewer list:", "Guest") || "Guest User";
-                localStorage.setItem('rota_viewer_name', viewerName);
+                localStorage.setItem('rota_viewer_name', viewerName.trim());
             }
+
+            const myPresenceRef = db.ref(`rota_active_sessions/${sessionToken}`);
 
             connectedRef.on('value', (snap) => {
                 if (snap.val() === true) {
-                    const userSessionRef = presenceRef.push();
-                    userSessionRef.onDisconnect().remove();
+                    // Instantly remove node on connection drop/close
+                    myPresenceRef.onDisconnect().remove();
 
-                    userSessionRef.set({
+                    myPresenceRef.set({
                         online: true,
                         name: viewerName,
                         joinedAt: firebase.database.ServerValue.TIMESTAMP
@@ -949,6 +984,12 @@
                 }
             });
 
+            // Instant cleanup when user closes window/tab/mobile app
+            window.addEventListener('beforeunload', () => {
+                myPresenceRef.remove();
+            });
+
+            // Listen for active users & eliminate duplicate names
             presenceRef.on('value', (snap) => {
                 const activeUsers = snap.val() || {};
                 const countElem = document.getElementById('activeViewersCount');
@@ -956,20 +997,29 @@
                 const viewerListContainer = document.getElementById('viewerListContainer');
 
                 viewerListContainer.innerHTML = '';
-                let totalCount = 0;
-
+                
+                // Collect unique viewer names
+                const uniqueNames = new Set();
                 Object.keys(activeUsers).forEach(key => {
-                    totalCount++;
-                    const user = activeUsers[key];
-                    const name = user.name || 'Anonymous Viewer';
+                    const u = activeUsers[key];
+                    if (u && u.name) {
+                        uniqueNames.add(u.name);
+                    }
+                });
 
+                uniqueNames.forEach(name => {
                     const li = document.createElement('li');
                     li.className = 'viewer-list-item';
-                    li.innerHTML = `<span class="viewer-dot"></span> <span>${name}</span>`;
+                    li.innerHTML = `
+                        <div class="viewer-item-left">
+                            <span class="viewer-dot"></span> 
+                            <span>${name}</span>
+                        </div>
+                    `;
                     viewerListContainer.appendChild(li);
                 });
 
-                const displayCount = totalCount > 0 ? totalCount : 1;
+                const displayCount = uniqueNames.size > 0 ? uniqueNames.size : 1;
                 if (countElem) countElem.innerText = displayCount;
                 if (modalCountElem) modalCountElem.innerText = displayCount;
             });
