@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
-    <!-- Orbitron & Rajdhani Google Fonts -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
@@ -257,6 +257,34 @@
             touch-action: none;
         }
 
+        /* MOBILE TOUCH PREVIEW BANNER */
+        .touch-preview-banner {
+            position: absolute;
+            top: -55px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            border: 2px solid #38bdf8;
+            color: #38bdf8;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 300;
+        }
+
+        .touch-preview-banner.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
         /* STEADY 3D CENTER BUTTON */
         .toggle-btn {
             position: relative;
@@ -366,6 +394,7 @@
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
             backdrop-filter: blur(12px);
             overflow: visible;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .menu-item::before {
@@ -404,7 +433,7 @@
         .menu-item[data-color="red"] .letter-icon { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
         .menu-item[data-color="orange"] .letter-icon { color: #f97316; text-shadow: 0 0 15px rgba(249, 115, 22, 0.8); }
 
-        .menu-item:hover {
+        .menu-item:hover, .menu-item.touch-active {
             background: linear-gradient(145deg, #0284c7, #0369a1) !important;
             border-color: #38bdf8 !important;
             color: #ffffff !important;
@@ -412,25 +441,25 @@
             z-index: 100 !important;
         }
 
-        .menu-item:hover i,
-        .menu-item:hover .letter-icon {
+        .menu-item:hover i, .menu-item.touch-active i,
+        .menu-item:hover .letter-icon, .menu-item.touch-active .letter-icon {
             transform: scale(1.18);
             filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.6));
         }
 
-        .menu-item[data-color="green"]:hover {
+        .menu-item[data-color="green"]:hover, .menu-item[data-color="green"].touch-active {
             background: linear-gradient(145deg, #22c55e, #15803d) !important;
             border-color: #4ade80 !important;
             box-shadow: 0 0 45px rgba(34, 197, 94, 0.95), 0 18px 40px rgba(0, 0, 0, 0.8) !important;
         }
 
-        .menu-item[data-color="red"]:hover {
+        .menu-item[data-color="red"]:hover, .menu-item[data-color="red"].touch-active {
             background: linear-gradient(145deg, #ef4444, #b91c1c) !important;
             border-color: #f87171 !important;
             box-shadow: 0 0 45px rgba(239, 68, 68, 0.95), 0 18px 40px rgba(0, 0, 0, 0.8) !important;
         }
 
-        .menu-item[data-color="orange"]:hover {
+        .menu-item[data-color="orange"]:hover, .menu-item[data-color="orange"].touch-active {
             background: linear-gradient(145deg, #f97316, #c2410c) !important;
             border-color: #fb923c !important;
             box-shadow: 0 0 45px rgba(249, 115, 22, 0.95), 0 18px 40px rgba(0, 0, 0, 0.8) !important;
@@ -460,7 +489,7 @@
             z-index: 200;
         }
 
-        .menu-item:hover::after {
+        .menu-item:hover::after, .menu-item.touch-active::after {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
@@ -562,6 +591,7 @@
 
         <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
+            <div class="touch-preview-banner" id="touch-banner">SELECT A BUTTON</div>
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
                 
@@ -612,8 +642,10 @@
         const mobileToggleBtn = document.getElementById('mobile-toggle');
         const mobileText = document.getElementById('mobile-text');
         const userProfileSelect = document.getElementById('user-profile-select');
+        const touchBanner = document.getElementById('touch-banner');
 
         let isMobileView = false;
+        let activeTouchedItem = null;
 
         function initActiveUser() {
             let savedUser = localStorage.getItem('sb_active_user');
@@ -696,6 +728,79 @@
                 }
                 
                 menuItemsContainer.appendChild(a);
+            });
+        }
+
+        // MOBILE TOUCH/SLIDE HOVER GESTURE ENGINE
+        function initMobileTouchGestures() {
+            if (!circularMenu) return;
+
+            function processTouchPoint(touchX, touchY) {
+                if (!circularMenu.classList.contains('active')) return;
+
+                const items = menuItemsContainer.querySelectorAll('.menu-item');
+                let foundItem = null;
+
+                items.forEach((item) => {
+                    const rect = item.getBoundingClientRect();
+                    // Expand hit radius for smooth touch sliding between buttons
+                    if (
+                        touchX >= rect.left - 15 &&
+                        touchX <= rect.right + 15 &&
+                        touchY >= rect.top - 15 &&
+                        touchY <= rect.bottom + 15
+                    ) {
+                        foundItem = item;
+                    }
+                });
+
+                if (foundItem) {
+                    if (activeTouchedItem && activeTouchedItem !== foundItem) {
+                        activeTouchedItem.classList.remove('touch-active');
+                    }
+                    activeTouchedItem = foundItem;
+                    activeTouchedItem.classList.add('touch-active');
+
+                    const label = activeTouchedItem.getAttribute('data-tooltip');
+                    touchBanner.textContent = `📍 ${label}`;
+                    touchBanner.classList.add('show');
+                } else if (activeTouchedItem) {
+                    activeTouchedItem.classList.remove('touch-active');
+                    activeTouchedItem = null;
+                    touchBanner.classList.remove('show');
+                }
+            }
+
+            circularMenu.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) {
+                    processTouchPoint(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+
+            circularMenu.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    processTouchPoint(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+
+            circularMenu.addEventListener('touchend', (e) => {
+                if (activeTouchedItem) {
+                    const targetUrl = activeTouchedItem.getAttribute('href');
+                    const isExternal = targetUrl.startsWith('http://') || targetUrl.startsWith('https://');
+
+                    setTimeout(() => {
+                        if (isExternal) {
+                            window.open(targetUrl, '_blank');
+                        } else {
+                            window.location.href = targetUrl;
+                        }
+                        if (activeTouchedItem) {
+                            activeTouchedItem.classList.remove('touch-active');
+                            activeTouchedItem = null;
+                        }
+                        touchBanner.classList.remove('show');
+                    }, 120);
+                }
             });
         }
 
@@ -786,7 +891,6 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
-            // Create offscreen buffer canvas
             const textCanvas = document.createElement('canvas');
             textCanvas.width = canvas.width;
             textCanvas.height = canvas.height;
@@ -797,11 +901,10 @@
             const totalWidth = textCtx.measureText(text).width;
             const startX = (canvas.width - totalWidth) / 2;
 
-            // Track dynamic damage rects along Pac-Man's exact path
             let activeBites = [];
 
             let pacmanX = startX - 30; 
-            let pacmanSpeed = 0.08; // ~10-15 seconds per letter
+            let pacmanSpeed = 0.08;
             let mouthAngle = 0.2;
             let mouthSpeed = 0.015;
 
@@ -809,7 +912,6 @@
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
                 const mainColor = isDark ? '#38bdf8' : '#0284c7';
 
-                // Clear Offscreen Buffer
                 textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
 
                 textCtx.font = '900 96px Orbitron, sans-serif';
@@ -819,7 +921,6 @@
                 const centerY = textCanvas.height / 2;
                 const footY = centerY + 28; 
 
-                // 1. Draw Text to Buffer
                 textCtx.save();
                 textCtx.fillStyle = mainColor;
                 textCtx.globalAlpha = isDark ? 0.25 : 0.20;
@@ -836,18 +937,16 @@
                 }
                 textCtx.restore();
 
-                // 2. Add new real-time bite rect at Pac-Man's exact current location
                 if (pacmanX >= startX - 10 && pacmanX <= startX + totalWidth + 10) {
                     activeBites.push({
                         x: pacmanX - 6,
                         y: footY - 14,
                         width: 12,
                         height: 28,
-                        healTimer: 350 // Stays bitten, then heals slowly
+                        healTimer: 350
                     });
                 }
 
-                // 3. Erase Active Bite Rectangles from Buffer
                 textCtx.save();
                 textCtx.globalCompositeOperation = 'destination-out';
 
@@ -857,7 +956,6 @@
                     if (bite.healTimer > 0) {
                         bite.healTimer--;
                     } else {
-                        // Pixel-by-pixel upward healing
                         bite.height -= 0.12; 
                         bite.y += 0.12;
                     }
@@ -870,15 +968,13 @@
                 }
                 textCtx.restore();
 
-                // 4. Draw Buffer onto Screen
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(textCanvas, 0, 0);
 
-                // 5. Draw Slow Chomping Pac-Man
                 pacmanX += pacmanSpeed;
                 if (pacmanX > startX + totalWidth + 50) {
                     pacmanX = startX - 50;
-                    activeBites = []; // Reset on loop
+                    activeBites = [];
                 }
 
                 mouthAngle += mouthSpeed;
@@ -967,6 +1063,7 @@
 
             initTradingBackground();
             initTitleWatermarkEngine();
+            initMobileTouchGestures();
             fitTitleCanvasScale();
         });
     </script>
