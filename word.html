@@ -108,7 +108,6 @@
             position: relative;
         }
 
-        /* DYNAMIC CROSSWORD BOARD */
         .crossword-grid {
             display: flex;
             flex-direction: column;
@@ -149,7 +148,6 @@
             box-shadow: none;
         }
 
-        /* CIRCULAR LETTER WHEEL WITH CANVAS OVERLAY */
         .wheel-container {
             width: 280px;
             height: 280px;
@@ -349,63 +347,367 @@
         let solvedWords = [];
         let stageTargetWords = [];
         let currentWheelLetters = [];
+        let usedRootIndices = [];
         let isDragging = false;
         let pointerPos = { x: 0, y: 0 };
 
-        // EXTENDED DYNAMIC WORD BANK (100-STAGE PROGRESSIVE CURVE)
-        const stageDatabase = [
-            // STAGES 1-15 (EASY: 3-4 Letter Basics)
-            { letters: ['C','A','T'], words: ['CAT', 'AT'] },
-            { letters: ['D','O','G'], words: ['DOG', 'DO'] },
-            { letters: ['S','U','N'], words: ['SUN', 'US'] },
-            { letters: ['B','U','S'], words: ['BUS', 'US'] },
-            { letters: ['P','E','N'], words: ['PEN', 'EN'] },
-            { letters: ['C','O','W'], words: ['COW', 'OW'] },
-            { letters: ['B','O','W'], words: ['BOW', 'OW'] },
-            { letters: ['F','I','X'], words: ['FIX', 'IF'] },
-            { letters: ['L','I','O','N'], words: ['LION', 'ON', 'IN'] },
-            { letters: ['B','I','R','D'], words: ['BIRD', 'RID'] },
-            { letters: ['F','I','S','H'], words: ['FISH', 'IF', 'HI'] },
-            { letters: ['F','I','R','E'], words: ['FIRE', 'RIDE', 'IF'] },
-            { letters: ['B','O','O','K'], words: ['BOOK', 'BOO'] },
-            { letters: ['G','O','L','D'], words: ['GOLD', 'OLD', 'GO'] },
-            { letters: ['K','I','N','G'], words: ['KING', 'IN', 'INK'] },
+        // LARGE DYNAMIC DICTIONARY POOL (PREVENTS REPEAT PUZZLES)
+        const wordMasterList = [
+            // 3-4 LETTER EASY WORDS
+            { root: "CAT", sub: ["CAT", "AT"] },
+            { root: "DOG", sub: ["DOG", "DO"] },
+            { root: "SUN", sub: ["SUN", "US"] },
+            { root: "BUS", sub: ["BUS", "US"] },
+            { root: "PEN", sub: ["PEN", "EN"] },
+            { root: "COW", sub: ["COW", "OW"] },
+            { root: "BOW", sub: ["BOW", "OW"] },
+            { root: "FIX", sub: ["FIX", "IF"] },
+            { root: "LION", sub: ["LION", "ON", "IN"] },
+            { root: "BIRD", sub: ["BIRD", "RID"] },
+            { root: "FISH", sub: ["FISH", "IF", "HI"] },
+            { root: "FIRE", sub: ["FIRE", "RIDE", "IF"] },
+            { root: "BOOK", sub: ["BOOK", "BOO"] },
+            { root: "GOLD", sub: ["GOLD", "OLD", "GO"] },
+            { root: "KING", sub: ["KING", "INK", "IN"] },
+            { root: "PARK", sub: ["PARK", "ARK"] },
+            { root: "STAR", sub: ["STAR", "ARTS", "RAT"] },
+            { root: "MOON", sub: ["MOON", "MOO"] },
+            { root: "TREE", sub: ["TREE", "TEE"] },
+            { root: "WIND", sub: ["WIND", "IN", "WIN"] },
 
-            // STAGES 16-35 (EASY-MODERATE: 4-5 Letter Combinations)
-            { letters: ['S','M','A','R','T'], words: ['SMART', 'STAR', 'ARTS', 'MATS', 'ARM'] },
-            { letters: ['P','L','A','N','T'], words: ['PLANT', 'PLAN', 'PLAT', 'ANT'] },
-            { letters: ['T','R','A','I','N'], words: ['TRAIN', 'RAIN', 'ANTI', 'RAT'] },
-            { letters: ['S','T','O','R','M'], words: ['STORM', 'MOST', 'SORT', 'ROAM'] },
-            { letters: ['B','R','A','I','N'], words: ['BRAIN', 'RAIN', 'BARN', 'RIB'] },
-            { letters: ['C','L','O','U','D'], words: ['CLOUD', 'COLD', 'LOUD', 'OLD'] },
-            { letters: ['G','R','A','C','E'], words: ['GRACE', 'RACE', 'CAGE', 'CARE'] },
-            { letters: ['S','C','A','L','E'], words: ['SCALE', 'SALE', 'CASE', 'LACE'] },
-            { letters: ['F','L','A','M','E'], words: ['FLAME', 'MALE', 'MEAL', 'FAME'] },
-            { letters: ['D','R','E','A','M'], words: ['DREAM', 'DEAR', 'READ', 'MADE'] },
-            { letters: ['G','L','O','B','E'], words: ['GLOBE', 'LOBE', 'BLOG', 'BOLE'] },
-            { letters: ['T','A','B','L','E'], words: ['TABLE', 'ABLE', 'BEAT', 'LATE'] },
-            { letters: ['S','M','I','L','E'], words: ['SMILE', 'MILE', 'SLIME', 'LIME'] },
-            { letters: ['F','O','C','U','S'], words: ['FOCUS','] },
-            { letters: ['P','O','W','E','R'], words: ['POWER', 'PORE', 'ROPE', 'ROW'] },
-
-            // STAGES 36-70 (MODERATE: 5-6 Letter Puzzles)
-            { letters: ['C','O','W','B','O','Y'], words: ['COWBOY', 'COW', 'BOW', 'BOY'] },
-            { letters: ['G','A','R','D','E','N'], words: ['GARDEN', 'READ', 'DEAR', 'EARN', 'RANGE'] },
-            { letters: ['P','L','A','N','E','T'], words: ['PLANET', 'PLANE', 'PLANT', 'LATE', 'TAPE'] },
+            // 5-6 LETTER MODERATE WORDS
+            { root: "SMART", sub: ["SMART", "STAR", "ARTS", "MATS", "ARM"] },
+            { root: "PLANT", sub: ["PLANT", "PLAN", "PLAT", "ANT"] },
+            { root: "TRAIN", sub: ["TRAIN", "RAIN", "ANTI", "RAT"] },
+            { root: "STORM", sub: ["STORM", "MOST", "SORT", "ROAM"] },
+            { root: "BRAIN", sub: ["BRAIN", "RAIN", "BARN", "RIB"] },
+            { root: "CLOUD", sub: ["CLOUD", "COLD", "LOUD", "OLD"] },
+            { root: "GRACE", sub: ["GRACE", "RACE", "CAGE", "CARE"] },
+            { root: "SCALE", sub: ["SCALE", "SALE", "CASE", "LACE"] },
+            { root: "FLAME", sub: ["FLAME", "MALE", "MEAL", "FAME"] },
+            { root: "DREAM", sub: ["DREAM", "DEAR", "READ", "MADE"] },
+            { root: "GLOBE", sub: ["GLOBE", "LOBE", "BLOG", "BOLE"] },
+            { root: "TABLE", sub: ["TABLE", "ABLE", "BEAT", "LATE"] },
+            { root: "SMILE", sub: ["SMILE", "MILE", "SLIME", "LIME"] },
+            { root: "POWER", sub: ["POWER", "PORE", "ROPE", "ROW"] },
+            { root: "COWBOY", sub: ["COWBOY", "COW", "BOW", "BOY"] },
+            { root: "GARDEN", sub: ["GARDEN", "READ", "DEAR", "EARN", "RANGE"] },
+            { root: "PLANET", sub: ["PLANET", "PLANE", "PLANT", "LATE", "TAPE"] },
             { letters: ['M','A','R','K','E','T'], words: ['MARKET', 'MAKE', 'TAKE', 'TEAM', 'MATE'] },
             { letters: ['F','O','R','E','S','T'], words: ['FOREST', 'FORT', 'REST', 'SOFT', 'ROSE'] },
             { letters: ['C','A','S','T','L','E'], words: ['CASTLE', 'CASE', 'EAST', 'LATE', 'SALE'] },
-            { letters: ['D','R','A','G','O','N'], words: ['DRAGON', 'ROAD', 'ORGAN', 'GROAN', 'DRAG'] },
-            { letters: ['S','I','L','V','E','R'], words: ['SILVER', 'LIVE', 'RISE', 'VEIL', 'RILE'] },
-            { letters: ['S','P','R','I','N','G'], words: ['SPRING', 'RING', 'SING', 'SPIN', 'GRIP'] },
-            { letters: ['F','R','I','E','N','D'], words: ['FRIEND', 'FIND', 'RIDE', 'DINE', 'FERN'] },
-            { letters: ['W','I','N','T','E','R'], words: ['WINTER', 'WIRE', 'RENT', 'TWIN', 'TINE'] },
-            { letters: ['S','U','M','M','E','R'], words: ['SUMMER', 'SURE', 'MUSE', 'RUME'] },
-            { letters: ['A','U','T','U','M','N'], words: ['AUTUMN', 'AUNT', 'TUNA', 'MAT'] },
-            { letters: ['A','C','T','I','O','N'], words: ['ACTION', 'COIN', 'COAT', 'INTO', 'TACO'] },
-            { letters: ['F','I','L','T','E','R'], words: ['FILTER', 'FILE', 'LIFT', 'TIRE', 'RITE'] },
 
-            // STAGES 71-100 (HARD: 6-10 Letter Master Challenges)
-            { letters: ['S','P','O','R','T','S','B','O','O','K'], words: ['SPORTSBOOK', 'SPORTS', 'BOOK', 'BOOT', 'PORT', 'POST', 'SPORT'] },
-            { letters: ['F','O','O','T','B','A','L','L'], words: ['FOOTBALL', 'BALL', 'FOOT', 'TOLL', 'FALL', 'LOFT', 'TOOL'] },
-            { letters:
+            // 7-10 LETTER HARD WORDS
+            { root: "SPORTSBOOK", sub: ["SPORTSBOOK", "SPORTS", "BOOK", "BOOT", "PORT", "POST", "SPORT"] },
+            { root: "FOOTBALL", sub: ["FOOTBALL", "BALL", "FOOT", "TOLL", "FALL", "LOFT", "TOOL"] },
+            { root: "CHAMPION", sub: ["CHAMPION", "CAMP", "MAIN", "MICH", "INCH", "PAIN", "PIN"] },
+            { root: "DASHBOARD", sub: ["DASHBOARD", "BOARD", "DASH", "ROAD", "BROAD", "HARD", "BAND"] },
+            { root: "OPERATION", sub: ["OPERATION", "PORT", "PART", "PAIR", "TRAIN", "RAIN", "RATION"] },
+            { root: "FINANCIAL", sub: ["FINANCIAL", "FINAL", "NAIL", "FAIL", "COIN", "CLAN"] },
+            { root: "BUSINESS", sub: ["BUSINESS", "BUS", "SUN", "SIN", "SINE", "BINS"] },
+            { root: "TECHNOLOGY", sub: ["TECHNOLOGY", "TECH", "LONG", "ONLY", "TONE", "ECHO"] }
+        ];
+
+        function getRandomUnusedIndex(minLen, maxLen) {
+            let pool = wordMasterList.filter((item, idx) => {
+                let len = item.root ? item.root.length : item.letters.length;
+                return len >= minLen && len <= maxLen && !usedRootIndices.includes(idx);
+            });
+
+            if (pool.length === 0) {
+                usedRootIndices = []; // Reset tracked pool if exhausted
+                return Math.floor(Math.random() * wordMasterList.length);
+            }
+
+            let chosen = pool[Math.floor(Math.random() * pool.length)];
+            let originalIndex = wordMasterList.indexOf(chosen);
+            usedRootIndices.push(originalIndex);
+            return originalIndex;
+        }
+
+        function getStageConfig(stageNum) {
+            let item;
+            let diff = 'EASY';
+            let diffClass = 'diff-easy';
+
+            if (stageNum <= 25) {
+                let idx = getRandomUnusedIndex(3, 4);
+                item = wordMasterList[idx];
+                diff = 'EASY';
+                diffClass = 'diff-easy';
+            } else if (stageNum <= 60) {
+                let idx = getRandomUnusedIndex(5, 6);
+                item = wordMasterList[idx];
+                diff = 'MODERATE';
+                diffClass = 'diff-mod';
+            } else {
+                let idx = getRandomUnusedIndex(7, 10);
+                item = wordMasterList[idx];
+                diff = 'HARD';
+                diffClass = 'diff-hard';
+            }
+
+            let letters = item.letters ? item.letters : item.root.split('');
+            let words = item.words ? item.words : item.sub;
+
+            // Shuffle Wheel Letters on Load
+            letters = [...letters].sort(() => Math.random() - 0.5);
+
+            return { letters, words, diff, class: diffClass };
+        }
+
+        function loadStage(stageNum) {
+            const config = getStageConfig(stageNum);
+            stageTargetWords = config.words;
+            currentWheelLetters = [...config.letters];
+            solvedWords = [];
+            selectedLetters = [];
+
+            document.getElementById('stage-display').textContent = `STAGE ${stageNum} / 100`;
+            const diffTag = document.getElementById('diff-tag');
+            diffTag.textContent = config.diff;
+            diffTag.className = `difficulty-badge ${config.class}`;
+
+            renderGrid();
+            renderWheel();
+            updateCurrentWordDisplay();
+        }
+
+        function renderGrid() {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = '';
+
+            stageTargetWords.forEach(word => {
+                const row = document.createElement('div');
+                row.className = 'word-row';
+
+                for (let i = 0; i < word.length; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'grid-tile hidden-tile';
+                    tile.setAttribute('data-word', word);
+                    tile.setAttribute('data-index', i);
+                    tile.textContent = word[i];
+                    row.appendChild(tile);
+                }
+                container.appendChild(row);
+            });
+        }
+
+        function renderWheel() {
+            const wheel = document.getElementById('letter-wheel');
+            const lineCanvas = document.getElementById('line-canvas');
+            
+            wheel.innerHTML = '';
+            wheel.appendChild(lineCanvas);
+
+            const total = currentWheelLetters.length;
+            const radius = 95;
+
+            currentWheelLetters.forEach((char, idx) => {
+                const angle = (idx / total) * (2 * Math.PI) - (Math.PI / 2);
+                const x = Math.round(radius * Math.cos(angle));
+                const y = Math.round(radius * Math.sin(angle));
+
+                const node = document.createElement('div');
+                node.className = 'letter-node';
+                node.textContent = char;
+                node.setAttribute('data-idx', idx);
+                node.style.left = `calc(50% + ${x}px - 28px)`;
+                node.style.top = `calc(50% + ${y}px - 28px)`;
+
+                wheel.appendChild(node);
+            });
+
+            initDragListeners();
+        }
+
+        function initDragListeners() {
+            const wheel = document.getElementById('letter-wheel');
+            const canvas = document.getElementById('line-canvas');
+            const ctx = canvas.getContext('2d');
+
+            function getWheelCenterOffset(node) {
+                const rect = wheel.getBoundingClientRect();
+                const nodeRect = node.getBoundingClientRect();
+                return {
+                    x: nodeRect.left + nodeRect.width / 2 - rect.left,
+                    y: nodeRect.top + nodeRect.height / 2 - rect.top
+                };
+            }
+
+            function drawLines() {
+                canvas.width = wheel.clientWidth;
+                canvas.height = wheel.clientHeight;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (selectedLetters.length === 0) return;
+
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 12;
+
+                ctx.beginPath();
+                selectedLetters.forEach((item, idx) => {
+                    const pos = getWheelCenterOffset(item.elem);
+                    if (idx === 0) ctx.moveTo(pos.x, pos.y);
+                    else ctx.lineTo(pos.x, pos.y);
+                });
+
+                if (isDragging) {
+                    ctx.lineTo(pointerPos.x, pointerPos.y);
+                }
+                ctx.stroke();
+            }
+
+            function checkNodeCollision(clientX, clientY) {
+                const nodes = document.querySelectorAll('.letter-node');
+                nodes.forEach(node => {
+                    const rect = node.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const dist = Math.hypot(clientX - centerX, clientY - centerY);
+
+                    if (dist < 32) {
+                        const idx = node.getAttribute('data-idx');
+                        const alreadySelected = selectedLetters.some(item => item.elem === node);
+
+                        if (!alreadySelected) {
+                            selectedLetters.push({ char: node.textContent, elem: node });
+                            node.classList.add('active-node');
+                            updateCurrentWordDisplay();
+                        }
+                    }
+                });
+            }
+
+            function handleStart(e) {
+                e.preventDefault();
+                isDragging = true;
+                clearSelection();
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                const rect = wheel.getBoundingClientRect();
+                pointerPos = { x: clientX - rect.left, y: clientY - rect.top };
+
+                checkNodeCollision(clientX, clientY);
+                drawLines();
+            }
+
+            function handleMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                const rect = wheel.getBoundingClientRect();
+                pointerPos = { x: clientX - rect.left, y: clientY - rect.top };
+
+                checkNodeCollision(clientX, clientY);
+                drawLines();
+            }
+
+            function handleEnd(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                drawLines();
+                autoSubmitWord();
+            }
+
+            wheel.onmousedown = handleStart;
+            wheel.onmousemove = handleMove;
+            window.onmouseup = handleEnd;
+
+            wheel.ontouchstart = handleStart;
+            wheel.ontouchmove = handleMove;
+            window.ontouchend = handleEnd;
+        }
+
+        function updateCurrentWordDisplay() {
+            const word = selectedLetters.map(item => item.char).join('');
+            document.getElementById('current-word').textContent = word || '---';
+        }
+
+        function clearSelection() {
+            selectedLetters.forEach(item => item.elem.classList.remove('active-node'));
+            selectedLetters = [];
+            updateCurrentWordDisplay();
+            const canvas = document.getElementById('line-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function shuffleWheel() {
+            currentWheelLetters.sort(() => Math.random() - 0.5);
+            clearSelection();
+            renderWheel();
+        }
+
+        function triggerErrorShake() {
+            const wordBox = document.getElementById('current-word');
+            wordBox.classList.add('error-shake');
+            setTimeout(() => {
+                wordBox.classList.remove('error-shake');
+                clearSelection();
+            }, 450);
+        }
+
+        function autoSubmitWord() {
+            const word = selectedLetters.map(item => item.char).join('');
+            if (!word) return;
+
+            if (stageTargetWords.includes(word) && !solvedWords.includes(word)) {
+                solvedWords.push(word);
+                totalScore += word.length * 100;
+                document.getElementById('score-display').textContent = `SCORE: ${totalScore}`;
+
+                db.ref(`word_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, totalScore));
+
+                const tiles = document.querySelectorAll(`.grid-tile[data-word="${word}"]`);
+                tiles.forEach(tile => tile.classList.remove('hidden-tile'));
+
+                clearSelection();
+
+                if (solvedWords.length === stageTargetWords.length) {
+                    const overlay = document.getElementById('clear-overlay');
+                    overlay.textContent = `🎉 STAGE ${currentStage} CLEARED!`;
+                    overlay.classList.add('show-banner');
+
+                    setTimeout(() => {
+                        overlay.classList.remove('show-banner');
+                        if (currentStage < 100) {
+                            currentStage++;
+                            loadStage(currentStage);
+                        } else {
+                            overlay.textContent = '🏆 ALL 100 STAGES CLEARED!';
+                            overlay.classList.add('show-banner');
+                        }
+                    }, 1000);
+                }
+            } else {
+                triggerErrorShake();
+            }
+        }
+
+        function giveHint() {
+            const unsolved = stageTargetWords.filter(w => !solvedWords.includes(w));
+            if (unsolved.length > 0) {
+                const word = unsolved[0];
+                const hiddenTiles = document.querySelectorAll(`.grid-tile[data-word="${word}"].hidden-tile`);
+                if (hiddenTiles.length > 0) {
+                    hiddenTiles[0].classList.remove('hidden-tile');
+                }
+            }
+        }
+
+        loadStage(1);
+    </script>
+</body>
+</html>
