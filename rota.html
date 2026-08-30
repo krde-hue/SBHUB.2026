@@ -49,6 +49,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .title-group {
@@ -82,7 +84,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: opacity 0.2s;
+            transition: opacity 0.2s, background-color 0.2s;
             font-size: 13px;
         }
         .btn:hover { opacity: 0.85; }
@@ -90,6 +92,8 @@
         .btn-secondary { background-color: rgba(255, 255, 255, 0.2); color: var(--text-color); border: 1px solid var(--border-color); }
         .btn-warning { background-color: #eab308; color: #000000; }
         .btn-admin { background-color: #22c55e; color: #ffffff; }
+        .btn-mobile-toggle { background-color: #a855f7; color: #ffffff; }
+        .btn-mobile-toggle.active { background-color: #ec4899; }
 
         .viewer-badge {
             background-color: rgba(255, 255, 255, 0.15);
@@ -143,7 +147,10 @@
             flex-wrap: wrap;
         }
 
-        .table-container { overflow-x: auto; }
+        .table-container { 
+            overflow-x: auto; 
+            width: 100%;
+        }
 
         table {
             border-collapse: collapse;
@@ -288,11 +295,12 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 480px;
+            min-width: 320px;
             flex: 1;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            width: 100%;
         }
 
         .leave-section-title {
@@ -323,9 +331,14 @@
             height: 320px;
         }
 
+        .leave-table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+
         .leave-table {
             width: 100%;
-            min-width: 100%;
+            min-width: 420px;
         }
 
         .badge-vl {
@@ -365,6 +378,84 @@
             outline: none;
             border-radius: 3px;
         }
+
+        /* MOBILE OPTIMIZED MODE STYLES */
+        body.mobile-view-active {
+            padding: 8px;
+        }
+
+        body.mobile-view-active .header-top {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        body.mobile-view-active .header-top-controls {
+            justify-content: flex-start;
+            gap: 6px;
+        }
+
+        body.mobile-view-active .btn {
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        body.mobile-view-active .controls {
+            padding: 10px;
+            gap: 8px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        body.mobile-view-active .controls > div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        body.mobile-view-active .controls select, 
+        body.mobile-view-active .controls input {
+            font-size: 12px;
+            padding: 4px 6px;
+        }
+
+        body.mobile-view-active .main-layout {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        body.mobile-view-active th, 
+        body.mobile-view-active td {
+            padding: 3px 2px;
+            font-size: 11px;
+        }
+
+        body.mobile-view-active .day-col, 
+        body.mobile-view-active .date-col {
+            width: 50px;
+        }
+
+        body.mobile-view-active .custom-dropdown-btn {
+            font-size: 10px;
+            padding: 3px;
+        }
+
+        body.mobile-view-active .custom-editable-input, 
+        body.mobile-view-active .miguel-editable-cell {
+            font-size: 10px;
+            padding: 3px;
+        }
+
+        body.mobile-view-active .leave-section {
+            padding: 10px;
+            min-width: 100%;
+        }
+
+        body.mobile-view-active .chart-container-inner {
+            max-width: 260px;
+            height: 260px;
+        }
     </style>
 </head>
 <body>
@@ -383,6 +474,7 @@
             <span class="viewer-badge" title="Active Viewers">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
+            <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View: OFF</button>
             <button id="adminAuthBtn" class="btn btn-admin" onclick="handleAdminAuth()">🔑 Admin Login</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
             <button class="btn btn-warning" onclick="copyViewOnlyLink()" title="Generate View-Only Link">🔗 Share View-Only</button>
@@ -557,32 +649,36 @@
 
             <div>
                 <div class="leave-section-title">🎋 Vacation & Sick Leave Dates</div>
-                <table class="leave-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;">Type</th>
-                            <th>Ann</th>
-                            <th>Dave</th>
-                            <th>Kenneth</th>
-                            <th>Kriztel</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leave-dates-body"></tbody>
-                </table>
+                <div class="leave-table-wrapper">
+                    <table class="leave-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Type</th>
+                                <th>Ann</th>
+                                <th>Dave</th>
+                                <th>Kenneth</th>
+                                <th>Kriztel</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leave-dates-body"></tbody>
+                    </table>
+                </div>
             </div>
 
             <div>
                 <div class="leave-section-title" style="color: #38bdf8;">🏠 WFH Allowance Tracker</div>
-                <table class="leave-table">
-                    <thead>
-                        <tr>
-                            <th>Team Member</th>
-                            <th>WFH Dates Taken</th>
-                            <th style="width: 90px;">Total Used</th>
-                        </tr>
-                    </thead>
-                    <tbody id="wfh-tracker-body"></tbody>
-                </table>
+                <div class="leave-table-wrapper">
+                    <table class="leave-table">
+                        <thead>
+                            <tr>
+                                <th>Team Member</th>
+                                <th>WFH Dates Taken</th>
+                                <th style="width: 90px;">Total Used</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wfh-tracker-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -633,6 +729,7 @@
         const tbody = document.getElementById('schedule-body');
         const leaveDatesBody = document.getElementById('leave-dates-body');
         const wfhTrackerBody = document.getElementById('wfh-tracker-body');
+        const mobileToggleBtn = document.getElementById('mobileToggleBtn');
         const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
 
         let vlChartInstance = null;
@@ -641,7 +738,23 @@
         let leaveMatrixData = {};
         
         let isViewOnlyMode = true;
+        let isMobileView = false;
         const ADMIN_PASSWORD = "sportsbook2026";
+
+        function toggleMobileView() {
+            isMobileView = !isMobileView;
+            if (isMobileView) {
+                document.body.classList.add('mobile-view-active');
+                mobileToggleBtn.innerText = '📱 Mobile View: ON';
+                mobileToggleBtn.classList.add('active');
+            } else {
+                document.body.classList.remove('mobile-view-active');
+                mobileToggleBtn.innerText = '📱 Mobile View: OFF';
+                mobileToggleBtn.classList.remove('active');
+            }
+            localStorage.setItem('rota_mobile_view', isMobileView ? 'true' : 'false');
+            if (vlChartInstance) renderVLPieChart();
+        }
 
         function checkViewOnlyMode() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -695,7 +808,6 @@
                 authBtn.className = 'btn btn-warning';
                 bulkSelects.forEach(el => el.disabled = false);
             }
-            // Always keep Timezone Selector active
             timezoneSelect.disabled = false;
         }
 
@@ -765,7 +877,6 @@
             db.ref('leave_matrix_db').set(leaveMatrixData);
         }
 
-        // Unlocked: Allows local or global timezone toggling anytime
         function changeTimezoneGlobal(val) {
             globalTzOffset = parseFloat(val);
             if (!isViewOnlyMode) {
@@ -866,7 +977,7 @@
                         input.type = 'text';
                         input.className = 'miguel-editable-cell';
                         input.value = formatShiftForTimezone(activeShift);
-                        input.placeholder = "e.g. 8:00 - 17:00";
+                        input.placeholder = "8:00-17:00";
                         if (isViewOnlyMode) input.disabled = true;
 
                         input.addEventListener('change', () => {
@@ -882,7 +993,7 @@
                         const input = document.createElement('input');
                         input.type = 'text';
                         input.className = 'custom-editable-input';
-                        input.value = customVal || "e.g. 13:30 - 22:30";
+                        input.value = customVal || "13:30-22:30";
                         if (isViewOnlyMode) input.disabled = true;
 
                         input.addEventListener('change', () => {
@@ -1170,6 +1281,10 @@
             checkViewOnlyMode();
             if (localStorage.getItem('rota_theme') === 'light') {
                 document.body.setAttribute('data-theme', 'light');
+            }
+            if (localStorage.getItem('rota_mobile_view') === 'true' || window.innerWidth < 768) {
+                isMobileView = false;
+                toggleMobileView();
             }
             setupPresenceSystem();
             listenToDatabase();
