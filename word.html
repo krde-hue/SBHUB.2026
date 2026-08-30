@@ -108,30 +108,33 @@
             position: relative;
         }
 
-        /* GRID BOARD DISPLAY */
+        /* DYNAMIC CROSSWORD BOARD */
         .crossword-grid {
             display: flex;
             flex-direction: column;
             gap: 8px;
             align-items: center;
             justify-content: center;
-            min-width: 320px;
+            min-width: 300px;
+            max-height: 100%;
+            overflow-y: auto;
+            padding: 10px;
         }
 
         .word-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .grid-tile {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             background: #ffffff;
             border-radius: 8px;
             color: #0b1329;
             font-family: 'Inter', sans-serif;
             font-weight: 900;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -172,14 +175,14 @@
         }
 
         .letter-node {
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             background: #ffffff;
             border-radius: 50%;
             color: #0b1329;
             font-family: 'Inter', sans-serif;
             font-weight: 900;
-            font-size: 1.7rem;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -197,7 +200,6 @@
             box-shadow: 0 0 20px #38bdf8;
         }
 
-        /* CURRENT WORD PILL & ERROR SHAKE ANIMATION */
         .current-word-box {
             position: absolute;
             top: 20px;
@@ -230,7 +232,6 @@
             40%, 60% { transform: translate3d(-46%, 0, 0); }
         }
 
-        /* AUTO STAGE CLEAR OVERLAY BANNER */
         .stage-clear-overlay {
             position: absolute;
             top: 50%;
@@ -281,13 +282,10 @@
         }
 
         @media (max-width: 768px) {
-            .word-game-area {
-                flex-direction: column;
-                gap: 30px;
-            }
-            .grid-tile { width: 36px; height: 36px; font-size: 1.1rem; }
+            .word-game-area { flex-direction: column; gap: 20px; }
+            .grid-tile { width: 32px; height: 32px; font-size: 1rem; }
             .wheel-container { width: 220px; height: 220px; }
-            .letter-node { width: 48px; height: 48px; font-size: 1.3rem; }
+            .letter-node { width: 44px; height: 44px; font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -354,301 +352,60 @@
         let isDragging = false;
         let pointerPos = { x: 0, y: 0 };
 
-        const easyPool = [
-            { letters: ['C','O','W'], words: ['COW', 'OW'] },
-            { letters: ['B','O','W'], words: ['BOW', 'OW'] },
+        // EXTENDED DYNAMIC WORD BANK (100-STAGE PROGRESSIVE CURVE)
+        const stageDatabase = [
+            // STAGES 1-15 (EASY: 3-4 Letter Basics)
             { letters: ['C','A','T'], words: ['CAT', 'AT'] },
             { letters: ['D','O','G'], words: ['DOG', 'DO'] },
             { letters: ['S','U','N'], words: ['SUN', 'US'] },
             { letters: ['B','U','S'], words: ['BUS', 'US'] },
             { letters: ['P','E','N'], words: ['PEN', 'EN'] },
-            { letters: ['F','I','X'], words: ['FIX', 'IF'] }
-        ];
+            { letters: ['C','O','W'], words: ['COW', 'OW'] },
+            { letters: ['B','O','W'], words: ['BOW', 'OW'] },
+            { letters: ['F','I','X'], words: ['FIX', 'IF'] },
+            { letters: ['L','I','O','N'], words: ['LION', 'ON', 'IN'] },
+            { letters: ['B','I','R','D'], words: ['BIRD', 'RID'] },
+            { letters: ['F','I','S','H'], words: ['FISH', 'IF', 'HI'] },
+            { letters: ['F','I','R','E'], words: ['FIRE', 'RIDE', 'IF'] },
+            { letters: ['B','O','O','K'], words: ['BOOK', 'BOO'] },
+            { letters: ['G','O','L','D'], words: ['GOLD', 'OLD', 'GO'] },
+            { letters: ['K','I','N','G'], words: ['KING', 'IN', 'INK'] },
 
-        const modPool = [
+            // STAGES 16-35 (EASY-MODERATE: 4-5 Letter Combinations)
+            { letters: ['S','M','A','R','T'], words: ['SMART', 'STAR', 'ARTS', 'MATS', 'ARM'] },
+            { letters: ['P','L','A','N','T'], words: ['PLANT', 'PLAN', 'PLAT', 'ANT'] },
+            { letters: ['T','R','A','I','N'], words: ['TRAIN', 'RAIN', 'ANTI', 'RAT'] },
+            { letters: ['S','T','O','R','M'], words: ['STORM', 'MOST', 'SORT', 'ROAM'] },
+            { letters: ['B','R','A','I','N'], words: ['BRAIN', 'RAIN', 'BARN', 'RIB'] },
+            { letters: ['C','L','O','U','D'], words: ['CLOUD', 'COLD', 'LOUD', 'OLD'] },
+            { letters: ['G','R','A','C','E'], words: ['GRACE', 'RACE', 'CAGE', 'CARE'] },
+            { letters: ['S','C','A','L','E'], words: ['SCALE', 'SALE', 'CASE', 'LACE'] },
+            { letters: ['F','L','A','M','E'], words: ['FLAME', 'MALE', 'MEAL', 'FAME'] },
+            { letters: ['D','R','E','A','M'], words: ['DREAM', 'DEAR', 'READ', 'MADE'] },
+            { letters: ['G','L','O','B','E'], words: ['GLOBE', 'LOBE', 'BLOG', 'BOLE'] },
+            { letters: ['T','A','B','L','E'], words: ['TABLE', 'ABLE', 'BEAT', 'LATE'] },
+            { letters: ['S','M','I','L','E'], words: ['SMILE', 'MILE', 'SLIME', 'LIME'] },
+            { letters: ['F','O','C','U','S'], words: ['FOCUS','] },
+            { letters: ['P','O','W','E','R'], words: ['POWER', 'PORE', 'ROPE', 'ROW'] },
+
+            // STAGES 36-70 (MODERATE: 5-6 Letter Puzzles)
             { letters: ['C','O','W','B','O','Y'], words: ['COWBOY', 'COW', 'BOW', 'BOY'] },
-            { letters: ['G','A','R','D','E','N'], words: ['GARDEN', 'READ', 'DEAR', 'EARN'] },
-            { letters: ['P','L','A','N','E','T'], words: ['PLANET', 'PLANE', 'PLANT', 'LATE'] },
-            { letters: ['M','A','R','K','E','T'], words: ['MARKET', 'MAKE', 'TAKE', 'TEAM'] },
-            { letters: ['S','M','A','R','T'], words: ['SMART', 'STAR', 'ARTS', 'MATS'] }
-        ];
+            { letters: ['G','A','R','D','E','N'], words: ['GARDEN', 'READ', 'DEAR', 'EARN', 'RANGE'] },
+            { letters: ['P','L','A','N','E','T'], words: ['PLANET', 'PLANE', 'PLANT', 'LATE', 'TAPE'] },
+            { letters: ['M','A','R','K','E','T'], words: ['MARKET', 'MAKE', 'TAKE', 'TEAM', 'MATE'] },
+            { letters: ['F','O','R','E','S','T'], words: ['FOREST', 'FORT', 'REST', 'SOFT', 'ROSE'] },
+            { letters: ['C','A','S','T','L','E'], words: ['CASTLE', 'CASE', 'EAST', 'LATE', 'SALE'] },
+            { letters: ['D','R','A','G','O','N'], words: ['DRAGON', 'ROAD', 'ORGAN', 'GROAN', 'DRAG'] },
+            { letters: ['S','I','L','V','E','R'], words: ['SILVER', 'LIVE', 'RISE', 'VEIL', 'RILE'] },
+            { letters: ['S','P','R','I','N','G'], words: ['SPRING', 'RING', 'SING', 'SPIN', 'GRIP'] },
+            { letters: ['F','R','I','E','N','D'], words: ['FRIEND', 'FIND', 'RIDE', 'DINE', 'FERN'] },
+            { letters: ['W','I','N','T','E','R'], words: ['WINTER', 'WIRE', 'RENT', 'TWIN', 'TINE'] },
+            { letters: ['S','U','M','M','E','R'], words: ['SUMMER', 'SURE', 'MUSE', 'RUME'] },
+            { letters: ['A','U','T','U','M','N'], words: ['AUTUMN', 'AUNT', 'TUNA', 'MAT'] },
+            { letters: ['A','C','T','I','O','N'], words: ['ACTION', 'COIN', 'COAT', 'INTO', 'TACO'] },
+            { letters: ['F','I','L','T','E','R'], words: ['FILTER', 'FILE', 'LIFT', 'TIRE', 'RITE'] },
 
-        const hardPool = [
-            { letters: ['S','P','O','R','T','S','B','O','O','K'], words: ['SPORTSBOOK', 'SPORTS', 'BOOK', 'BOOT', 'PORT'] },
-            { letters: ['F','O','O','T','B','A','L','L'], words: ['FOOTBALL', 'BALL', 'FOOT', 'TOLL', 'FALL'] },
-            { letters: ['C','H','A','M','P','I','O','N'], words: ['CHAMPION', 'CAMP', 'MAIN', 'MICH', 'INCH'] },
-            { letters: ['D','A','S','H','B','O','A','R','D'], words: ['DASHBOARD', 'BOARD', 'DASH', 'ROAD', 'BROAD'] }
-        ];
-
-        function getStageConfig(stageNum) {
-            if (stageNum <= 30) {
-                let item = easyPool[(stageNum - 1) % easyPool.length];
-                return { letters: item.letters, words: item.words, diff: 'EASY', class: 'diff-easy' };
-            } else if (stageNum <= 70) {
-                let item = modPool[(stageNum - 31) % modPool.length];
-                return { letters: item.letters, words: item.words, diff: 'MODERATE', class: 'diff-mod' };
-            } else {
-                let item = hardPool[(stageNum - 71) % hardPool.length];
-                return { letters: item.letters, words: item.words, diff: 'HARD', class: 'diff-hard' };
-            }
-        }
-
-        function loadStage(stageNum) {
-            const config = getStageConfig(stageNum);
-            stageTargetWords = config.words;
-            currentWheelLetters = [...config.letters];
-            solvedWords = [];
-            selectedLetters = [];
-
-            document.getElementById('stage-display').textContent = `STAGE ${stageNum} / 100`;
-            const diffTag = document.getElementById('diff-tag');
-            diffTag.textContent = config.diff;
-            diffTag.className = `difficulty-badge ${config.class}`;
-
-            renderGrid();
-            renderWheel();
-            updateCurrentWordDisplay();
-        }
-
-        function renderGrid() {
-            const container = document.getElementById('grid-container');
-            container.innerHTML = '';
-
-            stageTargetWords.forEach(word => {
-                const row = document.createElement('div');
-                row.className = 'word-row';
-
-                for (let i = 0; i < word.length; i++) {
-                    const tile = document.createElement('div');
-                    tile.className = 'grid-tile hidden-tile';
-                    tile.setAttribute('data-word', word);
-                    tile.setAttribute('data-index', i);
-                    tile.textContent = word[i];
-                    row.appendChild(tile);
-                }
-                container.appendChild(row);
-            });
-        }
-
-        function renderWheel() {
-            const wheel = document.getElementById('letter-wheel');
-            const lineCanvas = document.getElementById('line-canvas');
-            
-            wheel.innerHTML = '';
-            wheel.appendChild(lineCanvas);
-
-            const total = currentWheelLetters.length;
-            const radius = 95;
-
-            currentWheelLetters.forEach((char, idx) => {
-                const angle = (idx / total) * (2 * Math.PI) - (Math.PI / 2);
-                const x = Math.round(radius * Math.cos(angle));
-                const y = Math.round(radius * Math.sin(angle));
-
-                const node = document.createElement('div');
-                node.className = 'letter-node';
-                node.textContent = char;
-                node.setAttribute('data-idx', idx);
-                node.style.left = `calc(50% + ${x}px - 30px)`;
-                node.style.top = `calc(50% + ${y}px - 30px)`;
-
-                wheel.appendChild(node);
-            });
-
-            initDragListeners();
-        }
-
-        function initDragListeners() {
-            const wheel = document.getElementById('letter-wheel');
-            const canvas = document.getElementById('line-canvas');
-            const ctx = canvas.getContext('2d');
-
-            function getWheelCenterOffset(node) {
-                const rect = wheel.getBoundingClientRect();
-                const nodeRect = node.getBoundingClientRect();
-                return {
-                    x: nodeRect.left + nodeRect.width / 2 - rect.left,
-                    y: nodeRect.top + nodeRect.height / 2 - rect.top
-                };
-            }
-
-            function drawLines() {
-                canvas.width = wheel.clientWidth;
-                canvas.height = wheel.clientHeight;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                if (selectedLetters.length === 0) return;
-
-                ctx.strokeStyle = '#38bdf8';
-                ctx.lineWidth = 5;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.shadowColor = '#38bdf8';
-                ctx.shadowBlur = 12;
-
-                ctx.beginPath();
-                selectedLetters.forEach((item, idx) => {
-                    const pos = getWheelCenterOffset(item.elem);
-                    if (idx === 0) ctx.moveTo(pos.x, pos.y);
-                    else ctx.lineTo(pos.x, pos.y);
-                });
-
-                if (isDragging) {
-                    ctx.lineTo(pointerPos.x, pointerPos.y);
-                }
-                ctx.stroke();
-            }
-
-            function checkNodeCollision(clientX, clientY) {
-                const nodes = document.querySelectorAll('.letter-node');
-                nodes.forEach(node => {
-                    const rect = node.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-                    const dist = Math.hypot(clientX - centerX, clientY - centerY);
-
-                    if (dist < 32) {
-                        const idx = node.getAttribute('data-idx');
-                        const alreadySelected = selectedLetters.some(item => item.elem === node);
-
-                        if (!alreadySelected) {
-                            selectedLetters.push({ char: node.textContent, elem: node });
-                            node.classList.add('active-node');
-                            updateCurrentWordDisplay();
-                        }
-                    }
-                });
-            }
-
-            function handleStart(e) {
-                e.preventDefault();
-                isDragging = true;
-                clearSelection();
-
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-                const rect = wheel.getBoundingClientRect();
-                pointerPos = { x: clientX - rect.left, y: clientY - rect.top };
-
-                checkNodeCollision(clientX, clientY);
-                drawLines();
-            }
-
-            function handleMove(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-                const rect = wheel.getBoundingClientRect();
-                pointerPos = { x: clientX - rect.left, y: clientY - rect.top };
-
-                checkNodeCollision(clientX, clientY);
-                drawLines();
-            }
-
-            function handleEnd(e) {
-                if (!isDragging) return;
-                isDragging = false;
-                drawLines();
-                autoSubmitWord();
-            }
-
-            wheel.onmousedown = handleStart;
-            wheel.onmousemove = handleMove;
-            window.onmouseup = handleEnd;
-
-            wheel.ontouchstart = handleStart;
-            wheel.ontouchmove = handleMove;
-            window.ontouchend = handleEnd;
-        }
-
-        function updateCurrentWordDisplay() {
-            const word = selectedLetters.map(item => item.char).join('');
-            document.getElementById('current-word').textContent = word || '---';
-        }
-
-        function clearSelection() {
-            selectedLetters.forEach(item => item.elem.classList.remove('active-node'));
-            selectedLetters = [];
-            updateCurrentWordDisplay();
-            const canvas = document.getElementById('line-canvas');
-            if (canvas) {
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-        }
-
-        function shuffleWheel() {
-            currentWheelLetters.sort(() => Math.random() - 0.5);
-            clearSelection();
-            renderWheel();
-        }
-
-        function triggerErrorShake() {
-            const wordBox = document.getElementById('current-word');
-            wordBox.classList.add('error-shake');
-            setTimeout(() => {
-                wordBox.classList.remove('error-shake');
-                clearSelection();
-            }, 450);
-        }
-
-        // AUTOMATIC WORD SUBMISSION & NON-BLOCKING STAGE CLEAR TRANSITION
-        function autoSubmitWord() {
-            const word = selectedLetters.map(item => item.char).join('');
-            if (!word) return;
-
-            if (stageTargetWords.includes(word) && !solvedWords.includes(word)) {
-                solvedWords.push(word);
-                totalScore += word.length * 100;
-                document.getElementById('score-display').textContent = `SCORE: ${totalScore}`;
-
-                // Sync to Firebase
-                db.ref(`word_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, totalScore));
-
-                // Reveal word on crossword grid
-                const tiles = document.querySelectorAll(`.grid-tile[data-word="${word}"]`);
-                tiles.forEach(tile => tile.classList.remove('hidden-tile'));
-
-                clearSelection();
-
-                // Check Stage Clear with Seamless Banner Transition (No Alerts)
-                if (solvedWords.length === stageTargetWords.length) {
-                    const overlay = document.getElementById('clear-overlay');
-                    overlay.textContent = `🎉 STAGE ${currentStage} CLEARED!`;
-                    overlay.classList.add('show-banner');
-
-                    setTimeout(() => {
-                        overlay.classList.remove('show-banner');
-                        if (currentStage < 100) {
-                            currentStage++;
-                            loadStage(currentStage);
-                        } else {
-                            overlay.textContent = '🏆 ALL 100 STAGES CLEARED!';
-                            overlay.classList.add('show-banner');
-                        }
-                    }, 1000);
-                }
-            } else {
-                triggerErrorShake();
-            }
-        }
-
-        function giveHint() {
-            const unsolved = stageTargetWords.filter(w => !solvedWords.includes(w));
-            if (unsolved.length > 0) {
-                const word = unsolved[0];
-                const hiddenTiles = document.querySelectorAll(`.grid-tile[data-word="${word}"].hidden-tile`);
-                if (hiddenTiles.length > 0) {
-                    hiddenTiles[0].classList.remove('hidden-tile');
-                }
-            }
-        }
-
-        loadStage(1);
-    </script>
-</body>
-</html>
+            // STAGES 71-100 (HARD: 6-10 Letter Master Challenges)
+            { letters: ['S','P','O','R','T','S','B','O','O','K'], words: ['SPORTSBOOK', 'SPORTS', 'BOOK', 'BOOT', 'PORT', 'POST', 'SPORT'] },
+            { letters: ['F','O','O','T','B','A','L','L'], words: ['FOOTBALL', 'BALL', 'FOOT', 'TOLL', 'FALL', 'LOFT', 'TOOL'] },
+            { letters:
