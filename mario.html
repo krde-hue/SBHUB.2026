@@ -253,7 +253,7 @@
         let currentUser = localStorage.getItem('sb_active_user') || 'GUEST';
         document.getElementById('player-display').textContent = `PLAYER: ${currentUser}`;
 
-        // 1. ACCURATE REALTIME PRESENCE / LIVE VIEWERS TRACKING
+        // 1. PRESENCE / LIVE VIEWERS TRACKING
         const myPresenceRef = db.ref(`mario_presence/${currentUser}_${Math.random().toString(36).substr(2, 6)}`);
         const connectedRef = db.ref('.info/connected');
 
@@ -280,7 +280,6 @@
             for (let name in data) {
                 scoresArray.push({ name: name, score: data[name] });
             }
-            // Sort highest to lowest
             scoresArray.sort((a, b) => b.score - a.score);
 
             leaderboardUl.innerHTML = '';
@@ -451,11 +450,13 @@
             blocks = JSON.parse(JSON.stringify(template.blocks));
             goombas = JSON.parse(JSON.stringify(template.goombas));
             
+            // RESET HERO POSITION & VELOCITY CLEANLY TO PREVENT FALL-THROUGH
             hero.x = 100;
-            hero.y = groundY - 32;
+            hero.height = hero.isSuper ? hero.baseHeight * 1.4 : hero.baseHeight;
+            hero.y = groundY - hero.height;
             hero.dx = 0;
             hero.dy = 0;
-            hero.isGrounded = false;
+            hero.isGrounded = true;
             hero.invincibleTimer = 0;
             cameraX = 0;
             gameOver = false;
