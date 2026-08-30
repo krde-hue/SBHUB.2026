@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
-    <!-- Orbitron & Rajdhani Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -66,9 +64,9 @@
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             overflow: hidden;
             position: relative;
+            touch-action: none;
         }
 
-        /* TRADING CANVAS BACKGROUND */
         #trading-bg {
             position: absolute;
             top: 0;
@@ -80,7 +78,6 @@
             pointer-events: none;
         }
 
-        /* TOP RIGHT CONTROLS */
         .top-controls {
             position: absolute;
             top: 20px;
@@ -123,7 +120,6 @@
             border-color: #f472b6;
         }
 
-        /* MAIN DASHBOARD CONTAINER */
         .dashboard-container {
             position: relative;
             z-index: 10;
@@ -135,7 +131,6 @@
             height: 100vh;
         }
 
-        /* WATERMARK BACKGROUND HEADERS */
         .dashboard-header-bg {
             position: absolute;
             top: 50%;
@@ -169,7 +164,6 @@
             display: inline-block;
         }
 
-        /* PAC-MAN BITE CANVAS OVERLAY */
         #pacman-text-canvas {
             position: relative;
             display: block;
@@ -196,35 +190,16 @@
         }
 
         @keyframes pacmanChomp {
-            0% {
-                clip-path: polygon(100% 18%, 50% 50%, 100% 82%, 100% 100%, 0% 100%, 0% 0%, 100% 0%);
-            }
-            100% {
-                clip-path: polygon(100% 48%, 50% 50%, 100% 52%, 100% 100%, 0% 100%, 0% 0%, 100% 0%);
-            }
+            0% { clip-path: polygon(100% 18%, 50% 50%, 100% 82%, 100% 100%, 0% 100%, 0% 0%, 100% 0%); }
+            100% { clip-path: polygon(100% 48%, 50% 50%, 100% 52%, 100% 100%, 0% 100%, 0% 0%, 100% 0%); }
         }
 
         @keyframes pacmanTraverse {
-            0% {
-                left: 0%;
-                transform: scaleX(1);
-            }
-            49.9% {
-                left: 100%;
-                transform: scaleX(1);
-            }
-            50% {
-                left: 100%;
-                transform: scaleX(-1);
-            }
-            99.9% {
-                left: 0%;
-                transform: scaleX(-1);
-            }
-            100% {
-                left: 0%;
-                transform: scaleX(1);
-            }
+            0% { left: 0%; transform: scaleX(1); }
+            49.9% { left: 100%; transform: scaleX(1); }
+            50% { left: 100%; transform: scaleX(-1); }
+            99.9% { left: 0%; transform: scaleX(-1); }
+            100% { left: 0%; transform: scaleX(1); }
         }
 
         .hub-credit-bg {
@@ -239,10 +214,9 @@
             letter-spacing: 0.12em;
             text-transform: lowercase;
             pointer-events: none;
-            transition: font-size 0.3s ease, bottom 0.3s ease;
         }
 
-        /* CIRCULAR MENU CONTAINER */
+        /* RADIAL SWIPE MENU WRAPPER */
         .circular-menu {
             position: relative;
             width: 720px;
@@ -251,10 +225,15 @@
             justify-content: center;
             align-items: center;
             z-index: 20;
-            transition: width 0.3s ease, height 0.3s ease;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
         }
 
-        /* CENTER TOGGLE BUTTON (140px) */
+        .circular-menu:active {
+            cursor: grabbing;
+        }
+
         .toggle-btn {
             position: relative;
             width: 140px;
@@ -270,18 +249,8 @@
             z-index: 30;
             box-shadow: 0 12px 35px var(--shadow-color);
             transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
-                        background-color 0.3s ease,
-                        color 0.3s ease,
-                        box-shadow 0.3s ease,
-                        width 0.3s ease,
-                        height 0.3s ease,
-                        font-size 0.3s ease;
+                        background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
             pointer-events: auto;
-        }
-
-        .toggle-btn i {
-            transition: transform 0.4s ease;
-            pointer-events: none;
         }
 
         .circular-menu.active .toggle-btn {
@@ -294,20 +263,19 @@
             transform: rotate(135deg);
         }
 
-        /* RADIAL ACTION BUTTONS CONTAINER */
         .menu-items {
             position: absolute;
             width: 100%;
             height: 100%;
             pointer-events: none;
             z-index: 25;
+            transition: transform 0.1s ease-out;
         }
 
         .circular-menu.active .menu-items {
             pointer-events: auto;
         }
 
-        /* RADIAL ACTION BUTTONS (110px) */
         .menu-item {
             position: absolute;
             top: 50%;
@@ -331,15 +299,7 @@
             pointer-events: none;
             cursor: pointer;
             z-index: 35;
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                        opacity 0.3s ease,
-                        background-color 0.25s ease,
-                        border-color 0.25s ease,
-                        box-shadow 0.25s ease,
-                        width 0.3s ease,
-                        height 0.3s ease,
-                        margin 0.3s ease,
-                        font-size 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
         }
 
         .circular-menu.active .menu-item {
@@ -350,40 +310,15 @@
             pointer-events: none;
         }
 
-        .menu-item:hover {
-            background-color: var(--item-hover-bg);
-            border-color: var(--title-cyan);
-            color: #ffffff;
-            transform: translate(var(--tx), var(--ty)) scale(1.35) !important;
-            box-shadow: 0 0 45px var(--glow-color), 0 0 20px rgba(56, 189, 248, 0.9);
-            z-index: 40;
-        }
-
-        .menu-item[data-color="green"]:hover {
-            background-color: #22c55e;
-            border-color: #4ade80;
-            box-shadow: 0 0 45px rgba(34, 197, 94, 0.85);
-        }
-        .menu-item[data-color="red"]:hover {
-            background-color: #ef4444;
-            border-color: #f87171;
-            box-shadow: 0 0 45px rgba(239, 68, 68, 0.85);
-        }
-        .menu-item[data-color="orange"]:hover {
-            background-color: #f97316;
-            border-color: #fb923c;
-            box-shadow: 0 0 45px rgba(249, 115, 22, 0.85);
-        }
-
-        /* TOOLTIP BADGE */
+        /* TOOLTIP ALWAYS VISIBLE ON HOVER / TOUCH WITHOUT IMMEDIATE TRIGGERING */
         .menu-item::after {
             content: attr(data-tooltip);
             position: absolute;
-            bottom: -40px;
-            background: rgba(15, 23, 42, 0.96);
+            bottom: -38px;
+            background: rgba(15, 23, 42, 0.98);
             border: 1.5px solid var(--title-cyan);
             color: #f8fafc;
-            padding: 5px 14px;
+            padding: 5px 12px;
             border-radius: 8px;
             font-family: 'Rajdhani', sans-serif;
             font-size: 0.92rem;
@@ -392,49 +327,24 @@
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease, font-size 0.3s ease, padding 0.3s ease;
+            transition: opacity 0.25s ease 0.1s, transform 0.25s ease 0.1s;
             box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
         }
 
-        .menu-item:hover::after {
+        .menu-item:hover::after,
+        .menu-item.active-focus::after {
             opacity: 1;
             transform: translateY(2px);
         }
 
-        @keyframes floatingAnimation {
-            0% { transform: translate(var(--tx), var(--ty)) translateY(0px) scale(1); }
-            50% { transform: translate(var(--tx), var(--ty)) translateY(-8px) scale(1); }
-            100% { transform: translate(var(--tx), var(--ty)) translateY(0px) scale(1); }
+        .menu-item:hover {
+            background-color: var(--item-hover-bg);
+            border-color: var(--title-cyan);
+            color: #ffffff;
+            z-index: 40;
         }
 
-        .circular-menu.active .menu-item.floating:not(:hover) {
-            animation: floatingAnimation 3.2s ease-in-out infinite;
-        }
-
-        /* MOBILE VIEW OPTIMIZATIONS */
-        body.mobile-view-active .top-controls {
-            top: 12px;
-            right: 12px;
-            gap: 8px;
-        }
-
-        body.mobile-view-active .control-btn {
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            border-radius: 18px;
-        }
-
-        body.mobile-view-active .welcome-subtitle-bg {
-            font-size: 1.4rem;
-            letter-spacing: 0.25em;
-        }
-
-        body.mobile-view-active .hub-credit-bg {
-            font-size: 0.75rem;
-            bottom: -20px;
-        }
-
+        /* MOBILE VIEW STYLES */
         body.mobile-view-active .circular-menu {
             width: 340px;
             height: 340px;
@@ -464,10 +374,8 @@
 </head>
 <body>
 
-    <!-- TRADING CANVAS BACKGROUND -->
     <canvas id="trading-bg"></canvas>
 
-    <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
         <button class="control-btn mobile-toggle-btn" id="mobile-toggle">
             <i class="fa-solid fa-mobile-screen-button"></i>
@@ -480,21 +388,15 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE WITH BITE & HEALING CANVAS -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
-                <!-- CANVAS FOR TEXT & DYNAMIC BITE/HEAL EFFECT -->
                 <canvas id="pacman-text-canvas" width="1150" height="130"></canvas>
-                
-                <!-- PAC-MAN CHARACTER SPRITE -->
                 <div class="pacman-sprite" id="pacman-sprite"></div>
-
                 <div class="hub-credit-bg">kriztelhub.2026 model</div>
             </div>
         </div>
 
-        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
@@ -504,7 +406,6 @@
     </div>
 
     <script>
-        // DIRECT EXTERNAL URL CONFIGURATION
         const navMenuJSON = [
             { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
@@ -524,335 +425,82 @@
         const toggleBtn = document.getElementById('toggle-btn');
         const menuItemsContainer = document.getElementById('menu-items');
         const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
         const mobileToggleBtn = document.getElementById('mobile-toggle');
-        const mobileText = document.getElementById('mobile-text');
 
         let isMobileView = false;
-        let currentRadius = 290;
+        let rotationOffset = 0;
+        let isDragging = false;
+        let startAngle = 0;
 
         function updateRadius() {
-            currentRadius = isMobileView ? 135 : 290;
+            return isMobileView ? 135 : 290;
         }
 
-        function buildMenuFromJSON(items) {
+        function buildMenuFromJSON() {
             if (!menuItemsContainer) return;
             menuItemsContainer.innerHTML = '';
-            const total = items.length;
-            updateRadius();
+            const total = navMenuJSON.length;
+            const radius = updateRadius();
 
-            items.forEach((item, index) => {
-                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2); 
-                const x = Math.round(currentRadius * Math.cos(angle));
-                const y = Math.round(currentRadius * Math.sin(angle));
+            navMenuJSON.forEach((item, index) => {
+                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2) + rotationOffset; 
+                const x = Math.round(radius * Math.cos(angle));
+                const y = Math.round(radius * Math.sin(angle));
 
                 const a = document.createElement('a');
                 a.href = item.url;
                 a.className = 'menu-item';
                 a.setAttribute('data-tooltip', item.label);
-                
-                // Open external links directly in a new tab
+
                 if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
                     a.setAttribute('target', '_blank');
                     a.setAttribute('rel', 'noopener noreferrer');
                 }
 
-                if (item.color) a.setAttribute('data-color', item.color);
-                
                 a.style.setProperty('--tx', `${x}px`);
                 a.style.setProperty('--ty', `${y}px`);
+                a.style.transform = circularMenu.classList.contains('active') 
+                    ? `translate(${x}px, ${y}px) scale(1)` 
+                    : 'translate(0, 0) scale(0)';
+                if (circularMenu.classList.contains('active')) a.style.opacity = '1';
 
                 a.innerHTML = `<i class="${item.icon}"></i>`;
+
+                // DELIBERATE CLICK GUARD (Prevents auto-launching when swiping)
+                a.addEventListener('click', (e) => {
+                    if (isDragging) {
+                        e.preventDefault();
+                    }
+                });
+
                 menuItemsContainer.appendChild(a);
             });
-
-            // Re-position active menu items dynamically if open
-            if (circularMenu.classList.contains('active')) {
-                const activeItems = menuItemsContainer.querySelectorAll('.menu-item');
-                activeItems.forEach(item => {
-                    const tx = item.style.getPropertyValue('--tx');
-                    const ty = item.style.getPropertyValue('--ty');
-                    item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
-                });
-            }
         }
 
-        function toggleMobileView() {
-            isMobileView = !isMobileView;
-            if (isMobileView) {
-                document.body.classList.add('mobile-view-active');
-                mobileText.textContent = 'Mobile View: ON';
-                mobileToggleBtn.classList.add('active');
-            } else {
-                document.body.classList.remove('mobile-view-active');
-                mobileText.textContent = 'Mobile View: OFF';
-                mobileToggleBtn.classList.remove('active');
-            }
-            localStorage.setItem('dashboard_mobile_view', isMobileView ? 'true' : 'false');
-            buildMenuFromJSON(navMenuJSON);
-            fitPacmanCanvasScale();
+        /* ROTATIONAL SWIPE / DRAG CONTROLLER */
+        function getPointerAngle(e) {
+            const rect = circularMenu.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return Math.atan2(clientY - centerY, clientX - centerX);
         }
 
-        if (mobileToggleBtn) {
-            mobileToggleBtn.addEventListener('click', toggleMobileView);
-        }
+        circularMenu.addEventListener('pointerdown', (e) => {
+            if (!circularMenu.classList.contains('active')) return;
+            isDragging = false;
+            startAngle = getPointerAngle(e) - rotationOffset;
 
-        if (toggleBtn && circularMenu) {
-            toggleBtn.addEventListener('click', () => {
-                const isActive = circularMenu.classList.toggle('active');
-                const items = menuItemsContainer.querySelectorAll('.menu-item');
+            const onPointerMove = (moveEvt) => {
+                isDragging = true;
+                rotationOffset = getPointerAngle(moveEvt) - startAngle;
+                buildMenuFromJSON();
+            };
 
-                items.forEach((item, index) => {
-                    if (isActive) {
-                        setTimeout(() => {
-                            const tx = item.style.getPropertyValue('--tx');
-                            const ty = item.style.getPropertyValue('--ty');
-                            item.style.opacity = '1';
-                            item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
+            const onPointerUp = () => {
+                window.removeEventListener('pointermove', onPointerMove);
+                window.removeEventListener('pointerup', onPointerUp);
+            };
 
-                            setTimeout(() => {
-                                if (circularMenu.classList.contains('active')) {
-                                    item.classList.add('floating');
-                                }
-                            }, 500);
-                        }, index * 40);
-                    } else {
-                        item.classList.remove('floating');
-                        item.style.opacity = '0';
-                        item.style.transform = 'translate(0, 0) scale(0)';
-                    }
-                });
-            });
-        }
-
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            if (themeIcon && themeText) {
-                if (theme === 'dark') {
-                    themeIcon.className = 'fa-solid fa-moon';
-                    themeText.textContent = 'Night Mode';
-                } else {
-                    themeIcon.className = 'fa-solid fa-sun';
-                    themeText.textContent = 'Daylight Mode';
-                }
-            }
-            localStorage.setItem('dashboard_theme', theme);
-        }
-
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-            });
-        }
-
-        function fitPacmanCanvasScale() {
-            const canvas = document.getElementById('pacman-text-canvas');
-            if (!canvas) return;
-            const screenWidth = window.innerWidth;
-            if (screenWidth < 1150 || isMobileView) {
-                const targetWidth = isMobileView ? Math.min(screenWidth * 0.95, 360) : Math.min(screenWidth * 0.95, 1150);
-                const scale = targetWidth / 1150;
-                canvas.style.transform = `scale(${scale})`;
-            } else {
-                canvas.style.transform = `scale(1)`;
-            }
-        }
-
-        // TARGETED PAC-MAN LETTER LEG BITE & SLOW HEALING ENGINE
-        function initPacmanBiteEngine() {
-            const canvas = document.getElementById('pacman-text-canvas');
-            const sprite = document.getElementById('pacman-sprite');
-            if (!canvas || !sprite) return;
-            const ctx = canvas.getContext('2d');
-
-            const bites = [];
-
-            function render() {
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                const mainColor = isDark ? '#38bdf8' : '#0284c7';
-                const opacity = isDark ? 0.25 : 0.20;
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // DRAW WATERMARK TEXT
-                ctx.font = '900 102px Orbitron, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                ctx.fillStyle = mainColor;
-                ctx.globalAlpha = opacity;
-                ctx.shadowColor = mainColor;
-                ctx.shadowBlur = isDark ? 25 : 10;
-
-                ctx.fillText('SPORTSBOOK HUB', canvas.width / 2, canvas.height / 2 + 5);
-                ctx.shadowBlur = 0;
-
-                // TRACK PAC-MAN SPRITE POSITION (FOCUSED ON BOTTOM LEGS OF LETTERS)
-                const spriteRect = sprite.getBoundingClientRect();
-                const canvasRect = canvas.getBoundingClientRect();
-
-                const pmX = spriteRect.left + spriteRect.width / 2 - canvasRect.left;
-                const pmY = spriteRect.top + spriteRect.height / 2 - canvasRect.top;
-
-                // Add small bite mark around the leg of the letter
-                if (pmX >= 0 && pmX <= canvas.width) {
-                    bites.push({ x: pmX, y: pmY, radius: 14, opacity: 1.0 });
-                }
-
-                // ERASE LEG BITES & GRADUALLY HEAL SLOWLY OVER TIME
-                ctx.globalCompositeOperation = 'destination-out';
-                for (let i = bites.length - 1; i >= 0; i--) {
-                    const b = bites[i];
-                    ctx.globalAlpha = b.opacity;
-
-                    ctx.beginPath();
-                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // Slow healing rate
-                    b.opacity -= 0.0008;
-                    if (b.opacity <= 0) {
-                        bites.splice(i, 1);
-                    }
-                }
-
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.globalAlpha = 1.0;
-
-                requestAnimationFrame(render);
-            }
-
-            render();
-        }
-
-        // ANIMATED ORDER BOOK DEPTH FLOW BACKGROUND
-        function initTradingBackground() {
-            const canvas = document.getElementById('trading-bg');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            let mouse = { x: null, y: null, radius: 160 };
-
-            window.addEventListener('mousemove', (e) => {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            });
-
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                fitPacmanCanvasScale();
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            class DepthParticle {
-                constructor() { this.reset(); }
-                reset() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 3 + 1.5;
-                    this.speedX = (Math.random() - 0.5) * 1.2;
-                    this.speedY = (Math.random() - 0.5) * 1.2;
-                    this.isBuy = Math.random() > 0.5;
-                    this.color = this.isBuy ? '34, 197, 94' : '239, 68, 68';
-                }
-                update() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-
-                    if (mouse.x && mouse.y) {
-                        let dx = mouse.x - this.x;
-                        let dy = mouse.y - this.y;
-                        let distance = Math.sqrt(dx * dx + dy * dy);
-                        if (distance < mouse.radius) {
-                            let angle = Math.atan2(dy, dx);
-                            let force = (mouse.radius - distance) / mouse.radius;
-                            this.x -= Math.cos(angle) * force * 4;
-                            this.y -= Math.sin(angle) * force * 4;
-                        }
-                    }
-
-                    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-                        this.reset();
-                    }
-                }
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(${this.color}, 0.65)`;
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = `rgba(${this.color}, 0.8)`;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-            }
-
-            const particles = Array.from({ length: 80 }, () => new DepthParticle());
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                ctx.strokeStyle = 'rgba(51, 65, 85, 0.25)';
-                ctx.lineWidth = 1;
-                for (let x = 0; x < canvas.width; x += 80) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, canvas.height);
-                    ctx.stroke();
-                }
-                for (let y = 0; y < canvas.height; y += 80) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(canvas.width, y);
-                    ctx.stroke();
-                }
-
-                for (let a = 0; a < particles.length; a++) {
-                    for (let b = a + 1; b < particles.length; b++) {
-                        let dx = particles[a].x - particles[b].x;
-                        let dy = particles[a].y - particles[b].y;
-                        let dist = Math.sqrt(dx * dx + dy * dy);
-
-                        if (dist < 110) {
-                            ctx.beginPath();
-                            ctx.moveTo(particles[a].x, particles[a].y);
-                            ctx.lineTo(particles[b].x, particles[b].y);
-                            ctx.strokeStyle = `rgba(56, 189, 248, ${0.22 - dist / 500})`;
-                            ctx.lineWidth = 0.8;
-                            ctx.stroke();
-                        }
-                    }
-                }
-
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
-
-                requestAnimationFrame(animate);
-            }
-
-            animate();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
-            setTheme(savedTheme);
-
-            if (localStorage.getItem('dashboard_mobile_view') === 'true' || window.innerWidth < 768) {
-                isMobileView = false;
-                toggleMobileView();
-            } else {
-                buildMenuFromJSON(navMenuJSON);
-            }
-
-            initTradingBackground();
-            initPacmanBiteEngine();
-            fitPacmanCanvasScale();
-        });
-    </script>
-</body>
-</html>
+            window.addEventListener('pointermove', onPointerMove);
