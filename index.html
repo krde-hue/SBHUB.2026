@@ -231,10 +231,10 @@
             max-width: 95vw;
         }
 
-        /* INTERACTIVE DINO GAME CANVAS */
-        #dino-game-canvas {
+        /* INTERACTIVE MARIO RUNNER GAME CANVAS */
+        #mario-game-canvas {
             position: absolute;
-            bottom: -55px;
+            bottom: -65px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 40;
@@ -536,7 +536,7 @@
             padding: 3px 8px;
         }
 
-        body.mobile-view-active #dino-game-canvas {
+        body.mobile-view-active #mario-game-canvas {
             display: none;
         }
     </style>
@@ -584,13 +584,13 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE WITH DINO GAME OVERLAY -->
+        <!-- BACKGROUND WATERMARK TITLE WITH MARIO GAME OVERLAY -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
                 <canvas id="title-text-canvas" width="1150" height="150"></canvas>
-                <!-- INTERACTIVE DINO RUNNER MINI-GAME -->
-                <canvas id="dino-game-canvas" width="1050" height="85"></canvas>
+                <!-- INTERACTIVE SUPER MARIO SIDE-SCROLLER MINI-GAME -->
+                <canvas id="mario-game-canvas" width="1080" height="100"></canvas>
             </div>
         </div>
 
@@ -841,51 +841,54 @@
             render();
         }
 
-        // INTERACTIVE CHROME DINO RUNNER MINI-GAME
-        function initDinoRunnerGame() {
-            const canvas = document.getElementById('dino-game-canvas');
+        // INTERACTIVE SUPER MARIO SIDE-SCROLLER MINI-GAME
+        function initSuperMarioGame() {
+            const canvas = document.getElementById('mario-game-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
-            let gameScore = 0;
+            let coins = 0;
             let gameOver = false;
-            let gameSpeed = 4.2;
+            let gameSpeed = 3.8;
 
-            // Dino State
-            const dino = {
-                x: 60,
-                y: 45,
+            const groundY = 80;
+
+            // Mario Player Object
+            const mario = {
+                x: 80,
+                y: 50,
                 width: 24,
-                height: 28,
+                height: 30,
                 dy: 0,
-                gravity: 0.55,
-                jumpPower: -10,
-                isGrounded: true
+                gravity: 0.6,
+                jumpPower: -11,
+                isGrounded: true,
+                animFrame: 0
             };
 
-            const groundY = 70;
-            let cactuses = [];
+            let entities = []; // Enemies (Goombas) and Collectibles (Mushrooms, Blocks)
+            let backgroundScroll = 0;
             let spawnTimer = 0;
 
             function triggerJump() {
                 if (gameOver) {
-                    // Restart Game
-                    gameScore = 0;
+                    // Reset Game
+                    coins = 0;
                     gameOver = false;
-                    gameSpeed = 4.2;
-                    cactuses = [];
-                    dino.y = 45;
-                    dino.dy = 0;
-                    dino.isGrounded = true;
+                    gameSpeed = 3.8;
+                    entities = [];
+                    mario.y = 50;
+                    mario.dy = 0;
+                    mario.isGrounded = true;
                     return;
                 }
-                if (dino.isGrounded) {
-                    dino.dy = dino.jumpPower;
-                    dino.isGrounded = false;
+                if (mario.isGrounded) {
+                    mario.dy = mario.jumpPower;
+                    mario.isGrounded = false;
                 }
             }
 
-            // Keyboard & Pointer Jump Event Listeners
+            // Keyboard & Click Event Listeners
             window.addEventListener('keydown', (e) => {
                 if (e.code === 'Space' || e.code === 'ArrowUp') {
                     if (document.activeElement.tagName !== 'INPUT') {
@@ -897,121 +900,231 @@
 
             canvas.addEventListener('click', triggerJump);
 
-            function drawDino(x, y) {
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+            // PIXEL-ART MARIO RENDERING ENGINE (CLASSIC ATTIRE)
+            function drawMario(x, y) {
+                // Red Hat & Shirt
+                ctx.fillStyle = '#e52521'; 
+                ctx.fillRect(x + 6, y, 14, 5); // Hat Cap
+                ctx.fillRect(x + 4, y + 5, 18, 4); // Hat Brim
+                ctx.fillRect(x + 6, y + 14, 12, 8); // Red Shirt Body
+                ctx.fillRect(x + 2, y + 14, 4, 6); // Left Arm
+                ctx.fillRect(x + 18, y + 14, 4, 6); // Right Arm
 
-                // Head & Snout
-                ctx.fillRect(x + 10, y, 14, 10);
-                ctx.fillRect(x + 18, y + 2, 4, 3); // Eye cutout fix
-                ctx.fillStyle = isDark ? '#0b1329' : '#f1f5f9';
-                ctx.fillRect(x + 14, y + 2, 3, 3); // Eye
-                ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+                // Face & Skin Tone
+                ctx.fillStyle = '#fcc082';
+                ctx.fillRect(x + 6, y + 9, 14, 5); // Face Base
+                ctx.fillRect(x + 2, y + 20, 4, 3); // Left Glove
+                ctx.fillRect(x + 18, y + 20, 4, 3); // Right Glove
 
-                // Body & Arm
-                ctx.fillRect(x + 6, y + 10, 14, 12);
-                ctx.fillRect(x + 18, y + 12, 4, 3); // Small Arm
+                // Hair & Mustache
+                ctx.fillStyle = '#4b2c11';
+                ctx.fillRect(x + 4, y + 7, 6, 4); // Hair
+                ctx.fillRect(x + 12, y + 11, 8, 3); // Mustache
 
-                // Tail
-                ctx.fillRect(x, y + 10, 6, 6);
+                // Blue Overalls
+                ctx.fillStyle = '#0022cc';
+                ctx.fillRect(x + 6, y + 20, 12, 6); // Overalls Pant
+                ctx.fillRect(x + 8, y + 16, 3, 5); // Left Strap
+                ctx.fillRect(x + 13, y + 16, 3, 5); // Right Strap
 
-                // Legs
-                if (Math.floor(gameScore / 5) % 2 === 0 || !dino.isGrounded) {
-                    ctx.fillRect(x + 6, y + 22, 4, 6);
-                    ctx.fillRect(x + 14, y + 22, 4, 4);
+                // Yellow Overall Buttons
+                ctx.fillStyle = '#fcd000';
+                ctx.fillRect(x + 8, y + 19, 2, 2);
+                ctx.fillRect(x + 14, y + 19, 2, 2);
+
+                // Brown Boots
+                ctx.fillStyle = '#6e3400';
+                if (!mario.isGrounded) {
+                    ctx.fillRect(x + 4, y + 26, 6, 4);
+                    ctx.fillRect(x + 14, y + 24, 6, 4);
+                } else if (Math.floor(mario.animFrame / 6) % 2 === 0) {
+                    ctx.fillRect(x + 4, y + 26, 7, 4);
+                    ctx.fillRect(x + 13, y + 26, 7, 4);
                 } else {
-                    ctx.fillRect(x + 6, y + 22, 4, 4);
-                    ctx.fillRect(x + 14, y + 22, 4, 6);
+                    ctx.fillRect(x + 6, y + 26, 7, 4);
+                    ctx.fillRect(x + 11, y + 26, 7, 4);
                 }
             }
 
-            function drawCactus(x, y, w, h) {
-                ctx.fillStyle = '#22c55e'; // Green Cactus
-                ctx.fillRect(x + w * 0.35, y, w * 0.3, h); // Main stem
-                ctx.fillRect(x, y + h * 0.3, w, h * 0.2); // Arms cross
-                ctx.fillRect(x, y + h * 0.15, w * 0.25, h * 0.2); // Left arm up
-                ctx.fillRect(x + w * 0.75, y + h * 0.15, w * 0.25, h * 0.2); // Right arm up
+            // GOOMBA ENEMY RENDERER
+            function drawGoomba(x, y) {
+                // Brown Head Body
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(x + 2, y, 16, 12);
+                ctx.fillRect(x, y + 4, 20, 8);
+
+                // Eyes & Brows
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x + 4, y + 4, 4, 5);
+                ctx.fillRect(x + 12, y + 4, 4, 5);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x + 6, y + 6, 2, 3);
+                ctx.fillRect(x + 12, y + 6, 2, 3);
+                ctx.fillRect(x + 3, y + 2, 6, 2); // Left Eyebrow
+                ctx.fillRect(x + 11, y + 2, 6, 2); // Right Eyebrow
+
+                // Black Feet
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x, y + 12, 7, 4);
+                ctx.fillRect(x + 13, y + 12, 7, 4);
             }
 
+            // SUPER MUSHROOM RENDERER
+            function drawMushroom(x, y) {
+                // Red Cap with White Dots
+                ctx.fillStyle = '#e52521';
+                ctx.fillRect(x + 2, y, 14, 10);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x + 4, y + 2, 4, 4);
+                ctx.fillRect(x + 10, y + 2, 4, 4);
+
+                // Stem & Eyes
+                ctx.fillStyle = '#fcc082';
+                ctx.fillRect(x + 3, y + 10, 12, 6);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x + 5, y + 11, 2, 3);
+                ctx.fillRect(x + 11, y + 11, 2, 3);
+            }
+
+            // QUESTION MARK POWER-UP BLOCK
+            function drawQuestionBlock(x, y) {
+                ctx.fillStyle = '#f97316';
+                ctx.fillRect(x, y, 18, 18);
+                ctx.fillStyle = '#000000';
+                ctx.strokeRect(x, y, 18, 18);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px monospace';
+                ctx.fillText('?', x + 5, y + 13);
+            }
+
+            // BACKGROUND BUILDINGS & CASTLE SKYLINE
+            function drawBackgroundSkyline() {
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                const bldgColor = isDark ? 'rgba(30, 41, 59, 0.45)' : 'rgba(203, 213, 225, 0.5)';
+
+                backgroundScroll = (backgroundScroll + gameSpeed * 0.2) % 300;
+
+                ctx.fillStyle = bldgColor;
+                for (let i = -1; i < 5; i++) {
+                    let bx = i * 260 - backgroundScroll;
+                    ctx.fillRect(bx, 20, 45, 60);
+                    ctx.fillRect(bx + 55, 35, 35, 45);
+                    ctx.fillRect(bx + 100, 15, 60, 65);
+                    // Windows
+                    ctx.fillStyle = isDark ? 'rgba(56, 189, 248, 0.25)' : 'rgba(2, 132, 199, 0.2)';
+                    ctx.fillRect(bx + 10, 30, 8, 8);
+                    ctx.fillRect(bx + 25, 30, 8, 8);
+                    ctx.fillRect(bx + 110, 25, 10, 10);
+                    ctx.fillRect(bx + 135, 25, 10, 10);
+                    ctx.fillStyle = bldgColor;
+                }
+            }
+
+            // MAIN GAME LOOP
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                const strokeColor = isDark ? 'rgba(56, 189, 248, 0.4)' : 'rgba(2, 132, 199, 0.3)';
+                drawBackgroundSkyline();
 
-                // Draw Ground Track Line
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(0, groundY);
-                ctx.lineTo(canvas.width, groundY);
-                ctx.stroke();
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                const groundColor = isDark ? '#334155' : '#cbd5e1';
+
+                // Ground Line & Brick Texture
+                ctx.fillStyle = groundColor;
+                ctx.fillRect(0, groundY, canvas.width, 20);
+                ctx.fillStyle = '#b45309'; // Brick Accents
+                for (let bx = 0; bx < canvas.width; bx += 20) {
+                    ctx.fillRect(bx, groundY, 18, 4);
+                }
 
                 if (!gameOver) {
-                    // Physics Update
-                    dino.dy += dino.gravity;
-                    dino.y += dino.dy;
+                    mario.animFrame++;
 
-                    if (dino.y >= groundY - dino.height) {
-                        dino.y = groundY - dino.height;
-                        dino.dy = 0;
-                        dino.isGrounded = true;
+                    // Physics Update
+                    mario.dy += mario.gravity;
+                    mario.y += mario.dy;
+
+                    if (mario.y >= groundY - mario.height) {
+                        mario.y = groundY - mario.height;
+                        mario.dy = 0;
+                        mario.isGrounded = true;
                     }
 
-                    // Spawn Cactus Obstacles
+                    // Entity Spawning Engine
                     spawnTimer++;
-                    if (spawnTimer > Math.max(60, 120 - gameScore * 0.1)) {
-                        cactuses.push({
-                            x: canvas.width,
-                            y: groundY - 24,
-                            width: 16,
-                            height: 24
-                        });
+                    if (spawnTimer > 100) {
+                        const rand = Math.random();
+                        if (rand < 0.5) {
+                            entities.push({ type: 'goomba', x: canvas.width, y: groundY - 16, width: 20, height: 16 });
+                        } else if (rand < 0.8) {
+                            entities.push({ type: 'mushroom', x: canvas.width, y: groundY - 16, width: 18, height: 16 });
+                        } else {
+                            entities.push({ type: 'block', x: canvas.width, y: groundY - 45, width: 18, height: 18 });
+                        }
                         spawnTimer = 0;
                     }
 
-                    // Update & Render Cactuses
-                    for (let i = cactuses.length - 1; i >= 0; i--) {
-                        let c = cactuses[i];
-                        c.x -= gameSpeed;
-                        drawCactus(c.x, c.y, c.width, c.height);
+                    // Update & Render Entities
+                    for (let i = entities.length - 1; i >= 0; i--) {
+                        let e = entities[i];
+                        e.x -= gameSpeed;
+
+                        if (e.type === 'goomba') drawGoomba(e.x, e.y);
+                        else if (e.type === 'mushroom') drawMushroom(e.x, e.y);
+                        else if (e.type === 'block') drawQuestionBlock(e.x, e.y);
 
                         // Collision Detection
                         if (
-                            dino.x < c.x + c.width &&
-                            dino.x + dino.width > c.x &&
-                            dino.y < c.y + c.height &&
-                            dino.y + dino.height > c.y
+                            mario.x < e.x + e.width &&
+                            mario.x + mario.width > e.x &&
+                            mario.y < e.y + e.height &&
+                            mario.y + mario.height > e.y
                         ) {
-                            gameOver = true;
+                            if (e.type === 'goomba') {
+                                // Jump on goomba head check
+                                if (mario.dy > 0 && mario.y + mario.height - mario.dy <= e.y + 6) {
+                                    entities.splice(i, 1);
+                                    mario.dy = -8; // Bounce off
+                                    coins += 100;
+                                } else {
+                                    gameOver = true;
+                                }
+                            } else if (e.type === 'mushroom' || e.type === 'block') {
+                                coins += 200;
+                                entities.splice(i, 1);
+                            }
                         }
 
-                        if (c.x + c.width < 0) {
-                            cactuses.splice(i, 1);
+                        if (e.x + e.width < 0) {
+                            entities.splice(i, 1);
                         }
                     }
 
-                    gameScore++;
-                    gameSpeed += 0.0008;
+                    gameSpeed += 0.0005;
                 } else {
-                    // Draw Dead Cactuses
-                    cactuses.forEach(c => drawCactus(c.x, c.y, c.width, c.height));
+                    // Draw Entities Frozen
+                    entities.forEach(e => {
+                        if (e.type === 'goomba') drawGoomba(e.x, e.y);
+                        else if (e.type === 'mushroom') drawMushroom(e.x, e.y);
+                        else if (e.type === 'block') drawQuestionBlock(e.x, e.y);
+                    });
 
-                    // Game Over Message
+                    // Game Over Screen
                     ctx.font = '700 14px Orbitron, sans-serif';
                     ctx.fillStyle = '#ef4444';
                     ctx.textAlign = 'center';
-                    ctx.fillText('GAME OVER - CLICK / TAP TO RESTART', canvas.width / 2, 35);
+                    ctx.fillText('MARIO GAME OVER - CLICK / TAP TO RESTART', canvas.width / 2, 35);
                 }
 
-                // Draw Dino
-                drawDino(dino.x, dino.y);
+                // Render Mario Player
+                drawMario(mario.x, mario.y);
 
-                // Draw Score
-                ctx.font = '700 12px Rajdhani, sans-serif';
-                ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+                // HUD Score & Coins
+                ctx.font = '700 13px Orbitron, sans-serif';
+                ctx.fillStyle = '#facc15'; // Coin Gold
                 ctx.textAlign = 'right';
-                ctx.fillText(`HI DINO RUNNER: ${Math.floor(gameScore / 5)}`, canvas.width - 20, 20);
+                ctx.fillText(`🪙 MARIO SCORE: ${coins}`, canvas.width - 25, 22);
 
                 requestAnimationFrame(animate);
             }
@@ -1087,7 +1200,7 @@
 
             initTradingBackground();
             initTitleWatermarkEngine();
-            initDinoRunnerGame();
+            initSuperMarioGame();
             fitTitleCanvasScale();
             startSlowRotation();
         });
