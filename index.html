@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
-    <!-- Orbitron & Rajdhani Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -135,7 +133,7 @@
             height: 100vh;
         }
 
-        /* PERFECTLY CENTERED WATERMARK HEADERS */
+        /* WATERMARK HEADERS */
         .dashboard-header-bg {
             position: absolute;
             top: 50%;
@@ -160,7 +158,7 @@
             font-weight: 700;
             letter-spacing: 0.42em;
             text-transform: uppercase;
-            margin-bottom: -10px;
+            margin-bottom: -15px;
             opacity: calc(var(--watermark-opacity) * 0.85);
             transition: font-size 0.3s ease;
         }
@@ -173,7 +171,7 @@
             justify-content: center;
         }
 
-        /* WATERMARK TEXT & BITE CANVAS */
+        /* WATERMARK TEXT CANVAS */
         #pacman-text-canvas {
             position: relative;
             display: block;
@@ -214,7 +212,7 @@
 
         .hub-credit-bg {
             position: absolute;
-            right: 15px;
+            right: 25px;
             bottom: -22px;
             font-family: 'Rajdhani', sans-serif;
             font-style: italic;
@@ -239,7 +237,7 @@
             touch-action: none;
         }
 
-        /* CENTER TOGGLE BUTTON ALWAYS TOUCHABLE */
+        /* CENTER TOGGLE BUTTON */
         .toggle-btn {
             position: relative;
             width: 140px;
@@ -286,6 +284,7 @@
             pointer-events: auto;
         }
 
+        /* RADIAL MENU BUTTONS */
         .menu-item {
             position: absolute;
             top: 50%;
@@ -309,7 +308,7 @@
             pointer-events: none;
             cursor: pointer;
             z-index: 35;
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            transition: opacity 0.3s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .circular-menu.active .menu-item {
@@ -318,6 +317,33 @@
 
         .menu-item i {
             pointer-events: none;
+        }
+
+        /* CUSTOM DESIGNATED COLORS ON HOVER & SELECTION */
+        .menu-item:hover {
+            background-color: var(--item-hover-bg);
+            border-color: var(--title-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 45px var(--glow-color), 0 0 20px rgba(56, 189, 248, 0.9);
+            z-index: 40;
+        }
+
+        .menu-item[data-color="green"]:hover {
+            background-color: #22c55e !important;
+            border-color: #4ade80 !important;
+            box-shadow: 0 0 45px rgba(34, 197, 94, 0.85) !important;
+        }
+
+        .menu-item[data-color="red"]:hover {
+            background-color: #ef4444 !important;
+            border-color: #f87171 !important;
+            box-shadow: 0 0 45px rgba(239, 68, 68, 0.85) !important;
+        }
+
+        .menu-item[data-color="orange"]:hover {
+            background-color: #f97316 !important;
+            border-color: #fb923c !important;
+            box-shadow: 0 0 45px rgba(249, 115, 22, 0.85) !important;
         }
 
         /* TOOLTIP BADGE */
@@ -341,16 +367,13 @@
             box-shadow: 0 6px 18px rgba(0,0,0,0.6);
         }
 
+        .menu-item[data-color="green"]::after { border-color: #22c55e; }
+        .menu-item[data-color="red"]::after { border-color: #ef4444; }
+        .menu-item[data-color="orange"]::after { border-color: #f97316; }
+
         .menu-item:hover::after {
             opacity: 1;
             transform: translateY(2px);
-        }
-
-        .menu-item:hover {
-            background-color: var(--item-hover-bg);
-            border-color: var(--title-cyan);
-            color: #ffffff;
-            z-index: 40;
         }
 
         /* MOBILE VIEW OPTIMIZATIONS */
@@ -405,10 +428,8 @@
 </head>
 <body>
 
-    <!-- TRADING CANVAS BACKGROUND -->
     <canvas id="trading-bg"></canvas>
 
-    <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
         <button class="control-btn mobile-toggle-btn" id="mobile-toggle">
             <i class="fa-solid fa-mobile-screen-button"></i>
@@ -421,7 +442,6 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE WITH BITE & HEALING CANVAS -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
@@ -431,7 +451,6 @@
             </div>
         </div>
 
-        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
@@ -466,6 +485,8 @@
         const mobileText = document.getElementById('mobile-text');
 
         let isMobileView = false;
+        let rotationAngle = 0;
+        let rotationAnimationId = null;
 
         function getRadius() {
             return isMobileView ? 135 : 290;
@@ -478,7 +499,7 @@
             const radius = getRadius();
 
             items.forEach((item, index) => {
-                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2); 
+                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2) + rotationAngle; 
                 const x = Math.round(radius * Math.cos(angle));
                 const y = Math.round(radius * Math.sin(angle));
 
@@ -486,6 +507,7 @@
                 a.href = item.url;
                 a.className = 'menu-item';
                 a.setAttribute('data-tooltip', item.label);
+                if (item.color) a.setAttribute('data-color', item.color);
 
                 if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
                     a.setAttribute('target', '_blank');
@@ -495,12 +517,52 @@
                 a.style.setProperty('--tx', `${x}px`);
                 a.style.setProperty('--ty', `${y}px`);
 
+                if (circularMenu.classList.contains('active')) {
+                    a.style.opacity = '1';
+                    a.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+                } else {
+                    a.style.opacity = '0';
+                    a.style.transform = `translate(0px, 0px) scale(0)`;
+                }
+
                 a.innerHTML = `<i class="${item.icon}"></i>`;
                 menuItemsContainer.appendChild(a);
             });
         }
 
-        // TOGGLE MENU STATE (RESPONSIVE TOUCH & CLICK)
+        // ULTRA-SLOW CLOCKWISE ROTATION LOOP
+        function startSlowRotation() {
+            function step() {
+                if (circularMenu.classList.contains('active')) {
+                    // Extremely subtle rotational increment (0.0015 radians/frame)
+                    rotationAngle += 0.0015;
+                    const items = navMenuJSON;
+                    const total = items.length;
+                    const radius = getRadius();
+                    const menuElements = menuItemsContainer.querySelectorAll('.menu-item');
+
+                    menuElements.forEach((a, index) => {
+                        const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2) + rotationAngle; 
+                        const x = Math.round(radius * Math.cos(angle));
+                        const y = Math.round(radius * Math.sin(angle));
+
+                        a.style.setProperty('--tx', `${x}px`);
+                        a.style.setProperty('--ty', `${y}px`);
+
+                        // Only re-apply transform if not being hovered by user
+                        if (!a.matches(':hover')) {
+                            a.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+                        }
+                    });
+                }
+                rotationAnimationId = requestAnimationFrame(step);
+            }
+            if (!rotationAnimationId) {
+                step();
+            }
+        }
+
+        // TOGGLE MENU STATE
         if (toggleBtn && circularMenu) {
             function handleToggleMenu(e) {
                 if (e) {
@@ -517,7 +579,7 @@
                             const ty = item.style.getPropertyValue('--ty');
                             item.style.opacity = '1';
                             item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
-                        }, index * 30);
+                        }, index * 25);
                     } else {
                         item.style.opacity = '0';
                         item.style.transform = 'translate(0, 0) scale(0)';
@@ -526,7 +588,6 @@
             }
 
             toggleBtn.addEventListener('click', handleToggleMenu);
-            toggleBtn.addEventListener('touchend', handleToggleMenu);
         }
 
         function toggleMobileView() {
@@ -583,7 +644,7 @@
             }
         }
 
-        // TARGETED PAC-MAN LETTER LEG BITE & SLOW HEALING ENGINE
+        // TARGETED PAC-MAN LETTER BITE ENGINE
         function initPacmanBiteEngine() {
             const canvas = document.getElementById('pacman-text-canvas');
             const sprite = document.getElementById('pacman-sprite');
@@ -599,7 +660,6 @@
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // DRAW WATERMARK TEXT EXACTLY CENTERED
                 ctx.font = '900 96px Orbitron, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -612,7 +672,6 @@
                 ctx.fillText('SPORTSBOOK HUB', canvas.width / 2, canvas.height / 2);
                 ctx.shadowBlur = 0;
 
-                // TRACK PAC-MAN SPRITE POSITION
                 const spriteRect = sprite.getBoundingClientRect();
                 const canvasRect = canvas.getBoundingClientRect();
 
@@ -623,7 +682,6 @@
                     bites.push({ x: pmX, y: pmY, radius: 16, opacity: 1.0 });
                 }
 
-                // ERASE LEG BITES & GRADUALLY HEAL SLOWLY OVER TIME
                 ctx.globalCompositeOperation = 'destination-out';
                 for (let i = bites.length - 1; i >= 0; i--) {
                     const b = bites[i];
@@ -717,6 +775,7 @@
             initTradingBackground();
             initPacmanBiteEngine();
             fitPacmanCanvasScale();
+            startSlowRotation();
         });
     </script>
 </body>
