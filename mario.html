@@ -82,9 +82,36 @@
             align-items: center;
             width: 100%;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #facc15;
             padding: 0 10px;
+        }
+
+        .viewer-pill {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            color: #4ade80;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .viewer-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
         }
 
         .char-select-btn {
@@ -116,6 +143,55 @@
             image-rendering: pixelated;
         }
 
+        /* REALTIME SCOREBOARD OVERLAY */
+        .leaderboard-overlay {
+            position: absolute;
+            top: 75px;
+            right: 35px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1.5px solid #facc15;
+            border-radius: 10px;
+            padding: 10px 14px;
+            width: 210px;
+            z-index: 90;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+        }
+
+        .lb-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #facc15;
+            text-align: center;
+            border-bottom: 1px solid rgba(250, 204, 21, 0.3);
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .lb-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .lb-item {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #f8fafc;
+        }
+
+        .lb-item.highlight {
+            color: #38bdf8;
+        }
+
         .controls-hint {
             font-size: 0.88rem;
             color: #94a3b8;
@@ -134,6 +210,10 @@
 
     <div class="game-card">
         <div class="hud-row">
+            <div class="viewer-pill">
+                <span class="viewer-dot"></span>
+                <span id="live-viewers-count">1 LIVE VIEWING</span>
+            </div>
             <span id="player-display">PLAYER: --</span>
             <div>
                 <button class="char-select-btn" id="char-btn" onclick="toggleCharacter()">CHARACTER: MARIO 🔴</button>
@@ -143,6 +223,14 @@
         </div>
         
         <canvas id="marioCanvas" width="1200" height="600"></canvas>
+
+        <!-- REALTIME ARCADE LEADERBOARD -->
+        <div class="leaderboard-overlay">
+            <div class="lb-title"><i class="fa-solid fa-trophy"></i> TOP SCORES</div>
+            <ul class="lb-list" id="leaderboard-ul">
+                <li class="lb-item"><span>1. --</span><span>0</span></li>
+            </ul>
+        </div>
 
         <div class="controls-hint">
             💡 Controls: [A / D] or [Left / Right Arrow] to Move | [Spacebar / W / Up Arrow] to Jump
@@ -165,6 +253,56 @@
         let currentUser = localStorage.getItem('sb_active_user') || 'GUEST';
         document.getElementById('player-display').textContent = `PLAYER: ${currentUser}`;
 
+        // 1. ACCURATE REALTIME PRESENCE / LIVE VIEWERS TRACKING
+        const myPresenceRef = db.ref(`mario_presence/${currentUser}_${Math.random().toString(36).substr(2, 6)}`);
+        const connectedRef = db.ref('.info/connected');
+
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+                myPresenceRef.onDisconnect().remove();
+                myPresenceRef.set({
+                    user: currentUser,
+                    joinedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+        });
+
+        db.ref('mario_presence').on('value', (snap) => {
+            const count = snap.numChildren() || 1;
+            document.getElementById('live-viewers-count').textContent = `${count} LIVE VIEWING`;
+        });
+
+        // 2. REALTIME HIGH SCORE LEADERBOARD SYNC
+        const leaderboardUl = document.getElementById('leaderboard-ul');
+        db.ref('mario_leaderboard').on('value', (snap) => {
+            const data = snap.val() || {};
+            let scoresArray = [];
+            for (let name in data) {
+                scoresArray.push({ name: name, score: data[name] });
+            }
+            // Sort highest to lowest
+            scoresArray.sort((a, b) => b.score - a.score);
+
+            leaderboardUl.innerHTML = '';
+            if (scoresArray.length === 0) {
+                leaderboardUl.innerHTML = '<li class="lb-item"><span>No games yet</span></li>';
+            } else {
+                scoresArray.slice(0, 5).forEach((item, idx) => {
+                    const li = document.createElement('li');
+                    li.className = `lb-item ${item.name === currentUser ? 'highlight' : ''}`;
+                    li.innerHTML = `<span>${idx + 1}. ${item.name}</span><span>${item.score}</span>`;
+                    leaderboardUl.appendChild(li);
+                });
+            }
+        });
+
+        function saveScoreToFirebase(pts) {
+            if (pts <= 0) return;
+            db.ref(`mario_leaderboard/${currentUser}`).transaction(curr => {
+                return Math.max(curr || 0, pts);
+            });
+        }
+
         const canvas = document.getElementById('marioCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -183,7 +321,7 @@
             x: 100, y: groundY - 32, baseWidth: 28, baseHeight: 32, width: 28, height: 32,
             dx: 0, dy: 0, speed: 4.5, gravity: 0.55, jumpPower: -12.5,
             isGrounded: false, facingLeft: false, isSuper: false,
-            invincibleTimer: 0 // Prevents double-hit instant death
+            invincibleTimer: 0
         };
 
         const keys = { left: false, right: false };
@@ -399,7 +537,6 @@
         }
 
         function drawHero(x, y) {
-            // Invincibility Flickering Effect
             if (hero.invincibleTimer > 0 && Math.floor(hero.invincibleTimer / 4) % 2 === 0) {
                 return;
             }
@@ -610,12 +747,14 @@
                                 mushrooms.push({ x: b.x + 2, y: b.y - 32, w: 28, h: 28, dx: 1.5 });
                             }
                             updateHUD();
+                            saveScoreToFirebase(score);
                         } else if (b.type === 'brick' && hero.isSuper) {
                             shatterBrick(b.x, b.y);
                             blocks.splice(i, 1);
                             score += 50;
                             spawnPopup('50', hero.x, hero.y - 10);
                             updateHUD();
+                            saveScoreToFirebase(score);
                         }
                     }
 
@@ -627,7 +766,7 @@
                         hero.dy = 0;
                         score += 5000;
                         updateHUD();
-                        db.ref(`mario_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                        saveScoreToFirebase(score);
                     }
                 }
 
@@ -646,10 +785,10 @@
                         spawnPopup('SUPER!', hero.x, hero.y - 20);
                         mushrooms.splice(idx, 1);
                         updateHUD();
+                        saveScoreToFirebase(score);
                     }
                 });
 
-                // ENEMY COLLISION WITH SUPER DOWN-SIZING & INVINCIBILITY
                 goombas.forEach(g => {
                     if (!g.alive) return;
                     g.x += g.dx;
@@ -661,32 +800,29 @@
                         hero.y + hero.height > g.y &&
                         hero.y + hero.height - hero.dy <= g.y + 12
                     ) {
-                        // Stomp enemy from above
                         g.alive = false;
                         hero.dy = -8;
                         score += 200;
                         spawnPopup('200', g.x, g.y - 10);
                         updateHUD();
+                        saveScoreToFirebase(score);
                     } else if (
                         hero.x + hero.width > g.x &&
                         hero.x < g.x + g.w &&
                         hero.y + hero.height > g.y &&
                         hero.y < g.y + g.h
                     ) {
-                        // Hit by enemy
                         if (hero.invincibleTimer === 0) {
                             if (hero.isSuper) {
-                                // DOWNSIZE TO SMALL FORM (DOES NOT DIE)
                                 hero.isSuper = false;
                                 hero.width = hero.baseWidth;
                                 hero.height = hero.baseHeight;
                                 hero.y = groundY - hero.height;
-                                hero.invincibleTimer = 60; // 1 second invincibility frames
+                                hero.invincibleTimer = 60;
                                 spawnPopup('DOWN!', hero.x, hero.y - 20);
                             } else {
-                                // Small form dies
                                 gameOver = true;
-                                db.ref(`mario_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                                saveScoreToFirebase(score);
                             }
                         }
                     }
@@ -694,7 +830,7 @@
 
                 if (hero.y > canvas.height) {
                     gameOver = true;
-                    db.ref(`mario_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                    saveScoreToFirebase(score);
                 }
 
                 cameraX = Math.max(0, Math.min(hero.x - 200, levelLength - canvas.width));
