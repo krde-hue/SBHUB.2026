@@ -5,47 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
+    <!-- Orbitron & Rajdhani Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
         :root[data-theme="dark"] {
-            --bg-color: #0b1329;
-            --center-btn-bg: #1e293b;
-            --center-btn-active: #0f172a;
-            --item-btn-bg: #1e293b;
-            --item-hover-bg: #38bdf8;
-            --border-color: #334155;
+            --bg-color: #060b19;
+            --center-btn-bg: linear-gradient(145deg, #1e293b, #0f172a);
+            --item-btn-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+            --border-color: rgba(56, 189, 248, 0.35);
             --text-dark: #0f172a;
             --text-light: #f8fafc;
             --title-cyan: #38bdf8;
-            --watermark-color: #38bdf8;
             --watermark-opacity: 0.25;
-            --glow-color: rgba(56, 189, 248, 0.85);
-            --shadow-color: rgba(0, 0, 0, 0.65);
+            --glow-color: rgba(56, 189, 248, 0.65);
+            --shadow-color: rgba(0, 0, 0, 0.85);
             --canvas-opacity: 0.35;
         }
 
         :root[data-theme="light"] {
             --bg-color: #f1f5f9;
-            --center-btn-bg: #ffffff;
-            --center-btn-active: #0f172a;
-            --item-btn-bg: #ffffff;
-            --item-hover-bg: #0284c7;
-            --border-color: #cbd5e1;
+            --center-btn-bg: linear-gradient(145deg, #ffffff, #e2e8f0);
+            --item-btn-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(226, 232, 240, 0.95));
+            --border-color: rgba(2, 132, 199, 0.35);
             --text-dark: #ffffff;
             --text-light: #0f172a;
             --title-cyan: #0284c7;
-            --watermark-color: #0284c7;
             --watermark-opacity: 0.20;
-            --glow-color: rgba(2, 132, 199, 0.65);
-            --shadow-color: rgba(0, 0, 0, 0.18);
+            --glow-color: rgba(2, 132, 199, 0.45);
+            --shadow-color: rgba(0, 0, 0, 0.2);
             --canvas-opacity: 0.18;
         }
 
@@ -91,7 +84,7 @@
         }
 
         .control-btn, .select-dropdown {
-            background-color: var(--item-btn-bg);
+            background: var(--item-btn-bg);
             border: 1px solid var(--border-color);
             color: var(--text-light);
             padding: 9px 16px;
@@ -102,8 +95,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 14px var(--shadow-color);
-            transition: all 0.2s ease;
+            box-shadow: 0 8px 20px var(--shadow-color), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             outline: none;
         }
 
@@ -114,9 +108,9 @@
         }
 
         .game-dropdown {
-            background-color: #f97316;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: #ffffff;
-            border-color: #fb923c;
+            border-color: #f87171;
         }
 
         .select-dropdown option {
@@ -127,81 +121,19 @@
         .control-btn:hover {
             border-color: var(--title-cyan);
             color: var(--title-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px var(--glow-color);
         }
 
         .mobile-toggle-btn {
-            background-color: #a855f7;
+            background: linear-gradient(135deg, #a855f7, #9333ea);
             color: #ffffff;
             border-color: #c084fc;
         }
 
         .mobile-toggle-btn.active {
-            background-color: #ec4899;
+            background: linear-gradient(135deg, #ec4899, #db2777);
             border-color: #f472b6;
-        }
-
-        /* BOTTOM-LEFT REALTIME LEADERBOARD */
-        .bottom-left-leaderboard {
-            position: absolute;
-            bottom: 20px;
-            left: 25px;
-            z-index: 100;
-            background: rgba(15, 23, 42, 0.92);
-            border: 2px solid #facc15;
-            border-radius: 8px;
-            padding: 10px 14px;
-            width: 250px;
-            box-shadow: 0 0 16px rgba(250, 204, 21, 0.35);
-            backdrop-filter: blur(6px);
-        }
-
-        .leaderboard-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 900;
-            color: #facc15;
-            letter-spacing: 0.05em;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .leaderboard-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: #f8fafc;
-            padding: 2px 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
-        }
-
-        .leaderboard-item:last-child {
-            border-bottom: none;
-        }
-
-        .rank-tag {
-            color: #38bdf8;
-            font-weight: 900;
-            width: 22px;
-            display: inline-block;
-        }
-
-        .score-val {
-            color: #facc15;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.78rem;
         }
 
         /* BOTTOM-RIGHT LOGO BRANDING */
@@ -312,18 +244,7 @@
             max-width: 95vw;
         }
 
-        #mario-game-canvas {
-            position: absolute;
-            bottom: -430px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 40;
-            background: transparent;
-            cursor: pointer;
-            pointer-events: auto;
-            touch-action: none;
-        }
-
+        /* CIRCULAR NAVIGATION MENU */
         .circular-menu {
             position: relative;
             width: 720px;
@@ -336,12 +257,13 @@
             touch-action: none;
         }
 
+        /* STEADY 3D CENTER BUTTON */
         .toggle-btn {
             position: relative;
             width: 155px;
             height: 155px;
-            background-color: var(--center-btn-bg);
-            border: 4px solid var(--border-color);
+            background: var(--center-btn-bg);
+            border: 2px solid var(--border-color);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -350,11 +272,23 @@
             font-size: 3.2rem;
             cursor: pointer;
             z-index: 60;
-            box-shadow: 0 12px 35px var(--shadow-color);
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
-                        background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+            box-shadow: 0 15px 35px var(--shadow-color), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -4px 8px rgba(0, 0, 0, 0.6);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
             pointer-events: auto !important;
-            overflow: hidden;
+            overflow: visible;
+            backdrop-filter: blur(12px);
+        }
+
+        .toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 5%;
+            left: 15%;
+            width: 70%;
+            height: 40%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
         .toggle-btn i {
@@ -362,6 +296,7 @@
             pointer-events: none;
             position: absolute;
             z-index: 2;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
         }
 
         .bull-logo-svg {
@@ -373,12 +308,13 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease;
             z-index: 1;
             pointer-events: none;
+            filter: drop-shadow(0 6px 12px rgba(56, 189, 248, 0.6));
         }
 
         .circular-menu.active .toggle-btn {
-            background-color: #0a172c;
+            background: linear-gradient(145deg, #0f172a, #0284c7);
             border-color: #38bdf8;
-            box-shadow: 0 0 60px rgba(56, 189, 248, 0.85), inset 0 0 20px rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 60px rgba(56, 189, 248, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.4);
         }
 
         .circular-menu.active .toggle-btn i {
@@ -403,6 +339,7 @@
             pointer-events: auto;
         }
 
+        /* STEADY 3D NEON GLASS ORB MENU BUTTONS */
         .menu-item {
             position: absolute;
             top: 50%;
@@ -411,8 +348,8 @@
             height: 110px;
             margin-top: -55px;
             margin-left: -55px;
-            background-color: var(--item-btn-bg);
-            border: 3px solid var(--border-color);
+            background: var(--item-btn-bg);
+            border: 2px solid var(--border-color);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -420,17 +357,27 @@
             color: var(--text-light);
             text-decoration: none;
             font-size: 2.4rem;
-            box-shadow: 0 8px 24px var(--shadow-color);
+            box-shadow: 0 12px 30px var(--shadow-color), inset 0 2px 4px rgba(255, 255, 255, 0.35), inset 0 -4px 6px rgba(0, 0, 0, 0.6);
             opacity: 0;
             transform: translate(0, 0) scale(0);
             pointer-events: none;
             cursor: pointer;
             z-index: 35;
-            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                        opacity 0.3s ease, 
-                        background-color 0.25s ease, 
-                        border-color 0.25s ease, 
-                        box-shadow 0.25s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(12px);
+            overflow: visible;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 6%;
+            left: 15%;
+            width: 70%;
+            height: 38%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
         .circular-menu.active .menu-item {
@@ -439,7 +386,8 @@
 
         .menu-item i {
             pointer-events: none;
-            transition: transform 0.25s ease;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
         }
 
         .menu-item .letter-icon {
@@ -449,166 +397,85 @@
             line-height: 1;
             display: inline-block;
             pointer-events: none;
-            transition: transform 0.25s ease, color 0.25s ease;
+            transition: transform 0.3s ease, color 0.3s ease;
         }
 
-        .menu-item[data-color="green"] .letter-icon {
-            color: #22c55e;
-            text-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
-        }
-
-        .menu-item[data-color="red"] .letter-icon {
-            color: #ef4444;
-            text-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
-        }
-
-        .menu-item[data-color="orange"] .letter-icon {
-            color: #f97316;
-            text-shadow: 0 0 12px rgba(249, 115, 22, 0.6);
-        }
+        .menu-item[data-color="green"] .letter-icon { color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.8); }
+        .menu-item[data-color="red"] .letter-icon { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
+        .menu-item[data-color="orange"] .letter-icon { color: #f97316; text-shadow: 0 0 15px rgba(249, 115, 22, 0.8); }
 
         .menu-item:hover {
-            transform: translate(var(--tx), var(--ty)) scale(1.4) !important;
-            background-color: var(--item-hover-bg);
-            border-color: var(--title-cyan);
-            color: #ffffff;
-            box-shadow: 0 0 50px var(--glow-color), 0 0 25px rgba(56, 189, 248, 0.95);
-            z-index: 50;
+            background: linear-gradient(145deg, #0284c7, #0369a1) !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 45px var(--glow-color), 0 18px 40px rgba(0, 0, 0, 0.8), inset 0 2px 6px rgba(255, 255, 255, 0.6) !important;
+            z-index: 100 !important;
         }
 
         .menu-item:hover i,
         .menu-item:hover .letter-icon {
-            transform: scale(1.15);
+            transform: scale(1.18);
+            filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.6));
         }
 
         .menu-item[data-color="green"]:hover {
-            background-color: #22c55e !important;
+            background: linear-gradient(145deg, #22c55e, #15803d) !important;
             border-color: #4ade80 !important;
-            box-shadow: 0 0 50px rgba(34, 197, 94, 0.95) !important;
-        }
-
-        .menu-item[data-color="green"]:hover .letter-icon {
-            color: #ffffff !important;
-            text-shadow: none;
+            box-shadow: 0 0 45px rgba(34, 197, 94, 0.95), 0 18px 40px rgba(0, 0, 0, 0.8) !important;
         }
 
         .menu-item[data-color="red"]:hover {
-            background-color: #ef4444 !important;
+            background: linear-gradient(145deg, #ef4444, #b91c1c) !important;
             border-color: #f87171 !important;
-            box-shadow: 0 0 50px rgba(239, 68, 68, 0.95) !important;
-        }
-
-        .menu-item[data-color="red"]:hover .letter-icon {
-            color: #ffffff !important;
-            text-shadow: none;
+            box-shadow: 0 0 45px rgba(239, 68, 68, 0.95), 0 18px 40px rgba(0, 0, 0, 0.8) !important;
         }
 
         .menu-item[data-color="orange"]:hover {
-            background-color: #f97316 !important;
+            background: linear-gradient(145deg, #f97316, #c2410c) !important;
             border-color: #fb923c !important;
-            box-shadow: 0 0 50px rgba(249, 115, 22, 0.95) !important;
+            box-shadow: 0 0 45px rgba(249, 115, 22, 0.95), 0 18px 40px rgba(0, 0, 0, 0.8) !important;
         }
 
-        .menu-item[data-color="orange"]:hover .letter-icon {
-            color: #ffffff !important;
-            text-shadow: none;
-        }
-
+        /* HOVER TOOLTIP BADGES */
         .menu-item::after {
             content: attr(data-tooltip);
             position: absolute;
-            bottom: -38px;
-            background: rgba(15, 23, 42, 0.98);
+            bottom: -42px;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            background: #0f172a;
             border: 1.5px solid var(--title-cyan);
-            color: #f8fafc;
-            padding: 5px 12px;
-            border-radius: 8px;
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 10px;
             font-family: 'Rajdhani', sans-serif;
-            font-size: 0.92rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+            z-index: 200;
         }
-
-        .menu-item[data-color="green"]::after { border-color: #22c55e; }
-        .menu-item[data-color="red"]::after { border-color: #ef4444; }
-        .menu-item[data-color="orange"]::after { border-color: #f97316; }
 
         .menu-item:hover::after {
             opacity: 1;
-            transform: translateY(2px) scale(0.85);
+            transform: translateX(-50%) translateY(0);
         }
 
-        body.mobile-view-active .top-controls {
-            top: 12px;
-            right: 12px;
-            gap: 8px;
-        }
-
+        body.mobile-view-active .top-controls { top: 12px; right: 12px; gap: 8px; }
         body.mobile-view-active .control-btn,
-        body.mobile-view-active .select-dropdown {
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            border-radius: 18px;
-        }
-
-        body.mobile-view-active .bottom-right-brand {
-            bottom: 12px;
-            right: 15px;
-        }
-
-        body.mobile-view-active .bottom-left-leaderboard {
-            bottom: 12px;
-            left: 12px;
-            width: 170px;
-            padding: 6px 8px;
-        }
-
-        body.mobile-view-active .leaderboard-title {
-            font-size: 0.68rem;
-        }
-
-        body.mobile-view-active .leaderboard-item {
-            font-size: 0.72rem;
-        }
-
-        body.mobile-view-active .brand-icon-svg {
-            width: 40px;
-            height: 40px;
-        }
-
-        body.mobile-view-active .brand-title {
-            font-size: 0.78rem;
-        }
-
-        body.mobile-view-active .brand-subtitle {
-            font-size: 0.70rem;
-        }
-
-        body.mobile-view-active .welcome-subtitle-bg {
-            font-size: 1.4rem;
-            letter-spacing: 0.25em;
-        }
-
-        body.mobile-view-active .circular-menu {
-            width: 340px;
-            height: 340px;
-        }
-
-        body.mobile-view-active .toggle-btn {
-            width: 95px;
-            height: 95px;
-            font-size: 2rem;
-        }
-
-        body.mobile-view-active .bull-logo-svg {
-            width: 65px;
-            height: 65px;
-        }
+        body.mobile-view-active .select-dropdown { padding: 6px 12px; font-size: 0.75rem; border-radius: 18px; }
+        body.mobile-view-active .bottom-right-brand { bottom: 12px; right: 15px; }
+        body.mobile-view-active .brand-icon-svg { width: 40px; height: 40px; }
+        body.mobile-view-active .brand-title { font-size: 0.78rem; }
+        body.mobile-view-active .brand-subtitle { font-size: 0.70rem; }
+        body.mobile-view-active .welcome-subtitle-bg { font-size: 1.4rem; letter-spacing: 0.25em; }
+        body.mobile-view-active .circular-menu { width: 340px; height: 340px; }
+        body.mobile-view-active .toggle-btn { width: 95px; height: 95px; font-size: 2rem; }
+        body.mobile-view-active .bull-logo-svg { width: 65px; height: 65px; }
 
         body.mobile-view-active .menu-item {
             width: 58px;
@@ -616,33 +483,23 @@
             margin-top: -29px;
             margin-left: -29px;
             font-size: 1.3rem;
-            border-width: 2px;
+            border-width: 1.5px;
         }
 
-        body.mobile-view-active .menu-item .letter-icon {
-            font-size: 1.3rem;
-        }
-
-        body.mobile-view-active .menu-item::after {
-            bottom: -28px;
-            font-size: 0.72rem;
-            padding: 3px 8px;
-        }
-
-        body.mobile-view-active #mario-game-canvas {
-            bottom: -180px;
-            width: 350px;
-            height: 120px;
-        }
+        body.mobile-view-active .menu-item .letter-icon { font-size: 1.3rem; }
+        body.mobile-view-active .menu-item::after { bottom: -30px; font-size: 0.72rem; padding: 3px 8px; }
     </style>
 </head>
 <body>
 
+    <!-- TRADING CANVAS BACKGROUND -->
     <canvas id="trading-bg"></canvas>
 
+    <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
         <select class="select-dropdown game-dropdown" id="game-selector" onchange="switchGame(this.value)">
-            <option value="mario" selected>🎮 Game: Mario (On-Screen)</option>
+            <option value="" disabled selected>🎮 Select Game...</option>
+            <option value="mario">🎮 Game: Super Mario Arcade ↗</option>
             <option value="flappy">🎮 Game: Flappy Bird ↗</option>
             <option value="block">🎮 Game: Block Puzzle ↗</option>
             <option value="solitaire">🎮 Game: Solitaire ↗</option>
@@ -669,27 +526,7 @@
         </button>
     </div>
 
-    <div class="bottom-left-leaderboard">
-        <div class="leaderboard-title">
-            <span>🏆 TOP PLAYERS</span>
-            <span style="font-size: 10px; color: #38bdf8;">LIVE</span>
-        </div>
-        <ul class="leaderboard-list" id="leaderboard-list">
-            <li class="leaderboard-item">
-                <div><span class="rank-tag" id="rank1-tag"></span> <span id="rank1-name">--</span></div>
-                <span class="score-val" id="rank1-score">0 PTS</span>
-            </li>
-            <li class="leaderboard-item">
-                <div><span class="rank-tag" id="rank2-tag"></span> <span id="rank2-name">--</span></div>
-                <span class="score-val" id="rank2-score">0 PTS</span>
-            </li>
-            <li class="leaderboard-item">
-                <div><span class="rank-tag" id="rank3-tag"></span> <span id="rank3-name">--</span></div>
-                <span class="score-val" id="rank3-score">0 PTS</span>
-            </li>
-        </ul>
-    </div>
-
+    <!-- BOTTOM RIGHT LOGO BRANDING -->
     <div class="bottom-right-brand">
         <div class="brand-card">
             <svg class="brand-icon-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -715,14 +552,15 @@
     </div>
 
     <div class="dashboard-container">
+        <!-- BACKGROUND WATERMARK TITLE WITH REAL TIME DYNAMIC FOOT-LEG CHOMPING -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
                 <canvas id="title-text-canvas" width="1150" height="150"></canvas>
-                <canvas id="mario-game-canvas" width="1150" height="160"></canvas>
             </div>
         </div>
 
+        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
@@ -750,29 +588,6 @@
     </div>
 
     <script>
-        // FIREBASE REALTIME DATABASE CONFIGURATION
-        const firebaseConfig = {
-            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
-            authDomain: "test-daily-task--sb.firebaseapp.com",
-            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
-            projectId: "test-daily-task--sb",
-            storageBucket: "test-daily-task--sb.firebasestorage.app",
-            messagingSenderId: "928476661919",
-            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
-        };
-
-        let db = null;
-        try {
-            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-            } else if (typeof firebase !== 'undefined') {
-                db = firebase.database();
-            }
-        } catch (e) {
-            console.error("Leaderboard init fallback:", e);
-        }
-
         const navMenuJSON = [
             { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
@@ -799,33 +614,11 @@
         const userProfileSelect = document.getElementById('user-profile-select');
 
         let isMobileView = false;
-        let rotationAngle = 0;
-        let rotationAnimationId = null;
 
         function initActiveUser() {
-            const params = new URLSearchParams(window.location.search);
-            let userParam = params.get('user') || params.get('name') || params.get('member');
-            
-            if (userParam) {
-                userParam = userParam.toUpperCase().trim();
-                localStorage.setItem('sb_active_user', userParam);
-            }
-
             let savedUser = localStorage.getItem('sb_active_user');
-            
             if (userProfileSelect && savedUser) {
-                let matchOption = Array.from(userProfileSelect.options).find(o => o.value === savedUser);
-                if (matchOption) {
-                    userProfileSelect.value = savedUser;
-                } else {
-                    let customOpt = document.createElement('option');
-                    customOpt.value = savedUser;
-                    customOpt.textContent = `👤 Player: ${savedUser}`;
-                    userProfileSelect.appendChild(customOpt);
-                    userProfileSelect.value = savedUser;
-                }
-            } else if (userProfileSelect) {
-                userProfileSelect.selectedIndex = 0; 
+                userProfileSelect.value = savedUser;
             }
             return savedUser || "GUEST";
         }
@@ -834,7 +627,7 @@
 
         function changeActiveUser(val) {
             if (val === "CUSTOM") {
-                let typedName = prompt("Enter your Name for Score tracking:", "KRIZTEL");
+                let typedName = prompt("Enter your Name:", "KRIZTEL");
                 if (typedName) {
                     currentUser = typedName.toUpperCase().trim();
                     localStorage.setItem('sb_active_user', currentUser);
@@ -843,88 +636,27 @@
                     customOpt.textContent = `👤 Player: ${currentUser}`;
                     userProfileSelect.appendChild(customOpt);
                     userProfileSelect.value = currentUser;
-                } else {
-                    userProfileSelect.value = currentUser;
-                    return;
                 }
             } else {
                 currentUser = val;
                 localStorage.setItem('sb_active_user', currentUser);
             }
-            listenToRealtimeLeaderboard();
         }
 
-        // DYNAMIC RANK SORTING & CLEAN ZERO STATE
-        function updateLeaderboardUI(scoreList) {
-            if (!scoreList) return;
-
-            const hasAnyScore = scoreList.some(item => item[1] > 0);
-
-            for (let i = 1; i <= 3; i++) {
-                const item = scoreList[i - 1];
-                const tagElem = document.getElementById(`rank${i}-tag`);
-                const nameElem = document.getElementById(`rank${i}-name`);
-                const scoreElem = document.getElementById(`rank${i}-score`);
-
-                if (item && (hasAnyScore || item[1] > 0)) {
-                    tagElem.textContent = `#${i}`;
-                    nameElem.textContent = item[0];
-                    scoreElem.textContent = `${item[1]} PTS`;
-                } else {
-                    tagElem.textContent = ""; 
-                    nameElem.textContent = item ? item[0] : "--";
-                    scoreElem.textContent = "0 PTS";
-                }
-            }
-        }
-
-        function listenToRealtimeLeaderboard() {
-            let localBest = parseInt(localStorage.getItem(`mario_high_${currentUser}`) || '0');
-            updateLeaderboardUI([[currentUser, localBest], ["ANN", 0], ["DAVE", 0]]);
-
-            if (!db) return;
-            db.ref('mario_leaderboard').orderByValue().limitToLast(5).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
-
-                const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
-                updateLeaderboardUI(sorted);
-            });
-        }
-
-        function saveScoreToRealtimeLeaderboard(score) {
-            if (!currentUser || currentUser === "GUEST") return;
-            let currentLocalHigh = parseInt(localStorage.getItem(`mario_high_${currentUser}`) || '0');
-            if (score > currentLocalHigh) {
-                localStorage.setItem(`mario_high_${currentUser}`, score.toString());
-            }
-
-            if (db) {
-                db.ref(`mario_leaderboard/${currentUser}`).transaction((currentScore) => {
-                    return Math.max(currentScore || 0, score);
-                });
-            } else {
-                let currentBest = Math.max(currentLocalHigh, score);
-                updateLeaderboardUI([[currentUser, currentBest], ["ANN", 0], ["DAVE", 0]]);
-            }
-        }
-
-        // REDIRECT STANDALONE GAMES TO NEW TABS
         function switchGame(val) {
             const selector = document.getElementById('game-selector');
-            if (val === 'flappy') {
+            if (val === 'mario') {
+                window.open('mario.html', '_blank');
+            } else if (val === 'flappy') {
                 window.open('flappy.html', '_blank');
-                if (selector) selector.value = 'mario';
             } else if (val === 'block') {
                 window.open('block.html', '_blank');
-                if (selector) selector.value = 'mario';
             } else if (val === 'solitaire') {
                 window.open('solitaire.html', '_blank');
-                if (selector) selector.value = 'mario';
             } else if (val === 'word') {
                 window.open('word.html', '_blank');
-                if (selector) selector.value = 'mario';
             }
+            if (selector) selector.value = '';
         }
 
         function getRadius() {
@@ -938,7 +670,7 @@
             const radius = getRadius();
 
             items.forEach((item, index) => {
-                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2) + rotationAngle; 
+                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2);
                 const x = Math.round(radius * Math.cos(angle));
                 const y = Math.round(radius * Math.sin(angle));
 
@@ -946,6 +678,7 @@
                 a.href = item.url;
                 a.className = 'menu-item';
                 a.setAttribute('data-tooltip', item.label);
+                a.setAttribute('data-index', index);
                 if (item.color) a.setAttribute('data-color', item.color);
 
                 if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
@@ -956,14 +689,6 @@
                 a.style.setProperty('--tx', `${x}px`);
                 a.style.setProperty('--ty', `${y}px`);
 
-                if (circularMenu.classList.contains('active')) {
-                    a.style.opacity = '1';
-                    a.style.transform = `translate(${x}px, ${y}px) scale(1)`;
-                } else {
-                    a.style.opacity = '0';
-                    a.style.transform = `translate(0px, 0px) scale(0)`;
-                }
-
                 if (item.letter) {
                     a.innerHTML = `<span class="letter-icon">${item.letter}</span>`;
                 } else {
@@ -972,35 +697,6 @@
                 
                 menuItemsContainer.appendChild(a);
             });
-        }
-
-        function startSlowRotation() {
-            function step() {
-                if (circularMenu.classList.contains('active')) {
-                    rotationAngle += 0.0001; 
-                    const items = navMenuJSON;
-                    const total = items.length;
-                    const radius = getRadius();
-                    const menuElements = menuItemsContainer.querySelectorAll('.menu-item');
-
-                    menuElements.forEach((a, index) => {
-                        const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2) + rotationAngle; 
-                        const x = Math.round(radius * Math.cos(angle));
-                        const y = Math.round(radius * Math.sin(angle));
-
-                        a.style.setProperty('--tx', `${x}px`);
-                        a.style.setProperty('--ty', `${y}px`);
-
-                        if (!a.matches(':hover')) {
-                            a.style.transform = `translate(${x}px, ${y}px) scale(1)`;
-                        }
-                    });
-                }
-                rotationAnimationId = requestAnimationFrame(step);
-            }
-            if (!rotationAnimationId) {
-                step();
-            }
         }
 
         if (toggleBtn && circularMenu) {
@@ -1013,10 +709,10 @@
                 const items = menuItemsContainer.querySelectorAll('.menu-item');
 
                 items.forEach((item, index) => {
+                    const tx = item.style.getPropertyValue('--tx');
+                    const ty = item.style.getPropertyValue('--ty');
                     if (isActive) {
                         setTimeout(() => {
-                            const tx = item.style.getPropertyValue('--tx');
-                            const ty = item.style.getPropertyValue('--ty');
                             item.style.opacity = '1';
                             item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
                         }, index * 25);
@@ -1084,370 +780,124 @@
             }
         }
 
+        // DYNAMIC PAC-MAN LEG-CHOMP & SLOW SELF-HEALING ENGINE
         function initTitleWatermarkEngine() {
             const canvas = document.getElementById('title-text-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
+            // Create offscreen buffer canvas
+            const textCanvas = document.createElement('canvas');
+            textCanvas.width = canvas.width;
+            textCanvas.height = canvas.height;
+            const textCtx = textCanvas.getContext('2d');
+
+            const text = "SPORTSBOOK HUB";
+            textCtx.font = '900 96px Orbitron, sans-serif';
+            const totalWidth = textCtx.measureText(text).width;
+            const startX = (canvas.width - totalWidth) / 2;
+
+            // Track dynamic damage rects along Pac-Man's exact path
+            let activeBites = [];
+
+            let pacmanX = startX - 30; 
+            let pacmanSpeed = 0.08; // ~10-15 seconds per letter
+            let mouthAngle = 0.2;
+            let mouthSpeed = 0.015;
+
             function render() {
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
                 const mainColor = isDark ? '#38bdf8' : '#0284c7';
-                const opacity = isDark ? 0.25 : 0.20;
 
+                // Clear Offscreen Buffer
+                textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+
+                textCtx.font = '900 96px Orbitron, sans-serif';
+                textCtx.textAlign = 'center';
+                textCtx.textBaseline = 'middle';
+
+                const centerY = textCanvas.height / 2;
+                const footY = centerY + 28; 
+
+                // 1. Draw Text to Buffer
+                textCtx.save();
+                textCtx.fillStyle = mainColor;
+                textCtx.globalAlpha = isDark ? 0.25 : 0.20;
+                textCtx.shadowColor = mainColor;
+                textCtx.shadowBlur = isDark ? 20 : 8;
+
+                let currentX = startX;
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    const charWidth = textCtx.measureText(char).width;
+                    const charCenterX = currentX + charWidth / 2;
+                    textCtx.fillText(char, charCenterX, centerY);
+                    currentX += charWidth;
+                }
+                textCtx.restore();
+
+                // 2. Add new real-time bite rect at Pac-Man's exact current location
+                if (pacmanX >= startX - 10 && pacmanX <= startX + totalWidth + 10) {
+                    activeBites.push({
+                        x: pacmanX - 6,
+                        y: footY - 14,
+                        width: 12,
+                        height: 28,
+                        healTimer: 350 // Stays bitten, then heals slowly
+                    });
+                }
+
+                // 3. Erase Active Bite Rectangles from Buffer
+                textCtx.save();
+                textCtx.globalCompositeOperation = 'destination-out';
+
+                for (let j = activeBites.length - 1; j >= 0; j--) {
+                    let bite = activeBites[j];
+                    
+                    if (bite.healTimer > 0) {
+                        bite.healTimer--;
+                    } else {
+                        // Pixel-by-pixel upward healing
+                        bite.height -= 0.12; 
+                        bite.y += 0.12;
+                    }
+
+                    if (bite.height <= 0) {
+                        activeBites.splice(j, 1);
+                    } else {
+                        textCtx.fillRect(bite.x, bite.y, bite.width, bite.height);
+                    }
+                }
+                textCtx.restore();
+
+                // 4. Draw Buffer onto Screen
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(textCanvas, 0, 0);
 
-                ctx.font = '900 96px Orbitron, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+                // 5. Draw Slow Chomping Pac-Man
+                pacmanX += pacmanSpeed;
+                if (pacmanX > startX + totalWidth + 50) {
+                    pacmanX = startX - 50;
+                    activeBites = []; // Reset on loop
+                }
 
-                ctx.fillStyle = mainColor;
-                ctx.globalAlpha = opacity;
-                ctx.shadowColor = mainColor;
-                ctx.shadowBlur = isDark ? 25 : 10;
+                mouthAngle += mouthSpeed;
+                if (mouthAngle > 0.4 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
 
-                ctx.fillText('SPORTSBOOK HUB', canvas.width / 2, canvas.height / 2);
-                ctx.shadowBlur = 0;
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(pacmanX, footY, 13, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
+                ctx.lineTo(pacmanX, footY);
+                ctx.fillStyle = '#facc15';
+                ctx.shadowColor = '#facc15';
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.restore();
 
                 requestAnimationFrame(render);
             }
 
             render();
-        }
-
-        // SUPER MARIO DASHBOARD ENGINE
-        function initSuperMarioGame() {
-            const canvas = document.getElementById('mario-game-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            let coins = 0;
-            let highScore = parseInt(localStorage.getItem(`mario_high_${currentUser}`) || '0');
-            let gameOver = false;
-            let levelCleared = false;
-            let currentStage = 1;
-            let baseSpeed = 1.5;
-            const stageGoals = [1000, 3000, 5000, 7000, 10000];
-            const groundY = 80;
-
-            const mario = {
-                x: 80,
-                y: groundY - 30,
-                baseWidth: 24,
-                baseHeight: 30,
-                width: 24,
-                height: 30,
-                scale: 1.0,
-                speed: 3.5,
-                facingLeft: false,
-                isSuper: false,
-                invincibleTimer: 0,
-                dy: 0,
-                gravity: 0.52,
-                jumpPower: -10.2,
-                isGrounded: true,
-                animFrame: 0
-            };
-
-            const keys = { left: false, right: false };
-            let entities = [];
-            let finishLineObj = null;
-            let backgroundScroll = 0;
-            let spawnTimer = 0;
-
-            function triggerJump() {
-                if (gameOver || levelCleared) {
-                    saveScoreToRealtimeLeaderboard(coins);
-                    coins = 0;
-                    currentStage = 1;
-                    gameOver = false;
-                    levelCleared = false;
-                    baseSpeed = 1.5;
-                    entities = [];
-                    finishLineObj = null;
-                    mario.scale = 1.0;
-                    mario.isSuper = false;
-                    mario.width = mario.baseWidth;
-                    mario.height = mario.baseHeight;
-                    mario.x = 80;
-                    mario.y = groundY - mario.height;
-                    mario.dy = 0;
-                    mario.isGrounded = true;
-                    return;
-                }
-                if (mario.isGrounded) {
-                    mario.dy = mario.jumpPower;
-                    mario.isGrounded = false;
-                }
-            }
-
-            window.addEventListener('keydown', (e) => {
-                if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) {
-                    if (document.activeElement.tagName !== 'INPUT') {
-                        e.preventDefault();
-                        triggerJump();
-                    }
-                }
-                if (['ArrowLeft', 'KeyA'].includes(e.code)) {
-                    keys.left = true;
-                    mario.facingLeft = true;
-                }
-                if (['ArrowRight', 'KeyD'].includes(e.code)) {
-                    keys.right = true;
-                    mario.facingLeft = false;
-                }
-            });
-
-            window.addEventListener('keyup', (e) => {
-                if (['ArrowLeft', 'KeyA'].includes(e.code)) keys.left = false;
-                if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = false;
-            });
-
-            function handleScreenTap(e) {
-                e.preventDefault();
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const tapX = clientX - rect.left;
-
-                if (tapX < rect.width * 0.20) {
-                    mario.x -= 20;
-                    mario.facingLeft = true;
-                } else if (tapX > rect.width * 0.80) {
-                    mario.x += 20;
-                    mario.facingLeft = false;
-                } else {
-                    triggerJump();
-                }
-            }
-
-            canvas.addEventListener('click', handleScreenTap);
-            canvas.addEventListener('touchstart', handleScreenTap, { passive: false });
-
-            function drawMario(x, y) {
-                if (mario.invincibleTimer > 0 && Math.floor(mario.invincibleTimer / 4) % 2 === 0) {
-                    return;
-                }
-
-                ctx.save();
-                ctx.translate(x + (mario.facingLeft ? mario.width : 0), y);
-                if (mario.facingLeft) ctx.scale(-1, 1);
-                ctx.scale(mario.scale, mario.scale);
-
-                // Red Hat & Shirt
-                ctx.fillStyle = '#e52521'; 
-                ctx.fillRect(6, 0, 14, 5);
-                ctx.fillRect(4, 5, 18, 4);
-                ctx.fillRect(6, 14, 12, 8);
-                ctx.fillRect(2, 14, 4, 6);
-                ctx.fillRect(18, 14, 4, 6);
-
-                // Face & Skin Tone
-                ctx.fillStyle = '#fcc082';
-                ctx.fillRect(6, 9, 14, 5);
-                ctx.fillRect(2, 20, 4, 3);
-                ctx.fillRect(18, 20, 4, 3);
-
-                // Hair & Mustache
-                ctx.fillStyle = '#4b2c11';
-                ctx.fillRect(4, 7, 6, 4);
-                ctx.fillRect(12, 11, 8, 3);
-
-                // Blue Overalls
-                ctx.fillStyle = '#0022cc';
-                ctx.fillRect(6, 20, 12, 6);
-                ctx.fillRect(8, 16, 3, 5);
-                ctx.fillRect(13, 16, 3, 5);
-
-                // Yellow Buttons
-                ctx.fillStyle = '#fcd000';
-                ctx.fillRect(8, 19, 2, 2);
-                ctx.fillRect(14, 19, 2, 2);
-
-                // Brown Boots
-                ctx.fillStyle = '#6e3400';
-                if (!mario.isGrounded) {
-                    ctx.fillRect(4, 26, 6, 4);
-                    ctx.fillRect(14, 24, 6, 4);
-                } else if (Math.floor(mario.animFrame / 8) % 2 === 0) {
-                    ctx.fillRect(4, 26, 7, 4);
-                    ctx.fillRect(13, 26, 7, 4);
-                } else {
-                    ctx.fillRect(6, 26, 7, 4);
-                    ctx.fillRect(11, 26, 7, 4);
-                }
-
-                ctx.restore();
-            }
-
-            function drawGoomba(x, y) {
-                ctx.fillStyle = '#8b4513';
-                ctx.fillRect(x + 2, y, 16, 12);
-                ctx.fillRect(x, y + 4, 20, 8);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(x + 4, y + 4, 4, 5);
-                ctx.fillRect(x + 12, y + 4, 4, 5);
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(x + 6, y + 6, 2, 3);
-                ctx.fillRect(x + 12, y + 6, 2, 3);
-                ctx.fillRect(x + 3, y + 2, 6, 2);
-                ctx.fillRect(x + 11, y + 2, 6, 2);
-
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(x, y + 12, 7, 4);
-                ctx.fillRect(x + 13, y + 12, 7, 4);
-            }
-
-            function drawMushroom(x, y) {
-                ctx.fillStyle = '#e52521';
-                ctx.fillRect(x + 2, y, 14, 10);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(x + 4, y + 2, 4, 4);
-                ctx.fillRect(x + 10, y + 2, 4, 4);
-
-                ctx.fillStyle = '#fcc082';
-                ctx.fillRect(x + 3, y + 10, 12, 6);
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(x + 5, y + 11, 2, 3);
-                ctx.fillRect(x + 11, y + 11, 2, 3);
-            }
-
-            function drawBackgroundSkyline() {
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                const bldgColor = isDark ? 'rgba(30, 41, 59, 0.45)' : 'rgba(203, 213, 225, 0.5)';
-
-                backgroundScroll = (backgroundScroll + baseSpeed * 0.15) % 300;
-
-                ctx.fillStyle = bldgColor;
-                for (let i = -1; i < 5; i++) {
-                    let bx = i * 260 - backgroundScroll;
-                    ctx.fillRect(bx, 10, 45, 70);
-                    ctx.fillRect(bx + 55, 25, 35, 55);
-                    ctx.fillRect(bx + 100, 5, 60, 75);
-                }
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                drawBackgroundSkyline();
-
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                const groundColor = isDark ? '#334155' : '#cbd5e1';
-
-                ctx.fillStyle = groundColor;
-                ctx.fillRect(0, groundY, canvas.width, 18);
-                ctx.fillStyle = '#b45309';
-                for (let bx = 0; bx < canvas.width; bx += 20) {
-                    ctx.fillRect(bx, groundY, 18, 4);
-                }
-
-                if (!gameOver && !levelCleared) {
-                    mario.animFrame++;
-                    if (mario.invincibleTimer > 0) mario.invincibleTimer--;
-
-                    if (keys.left) mario.x -= mario.speed;
-                    if (keys.right) mario.x += mario.speed;
-
-                    mario.x = Math.max(10, Math.min(canvas.width - 60, mario.x));
-
-                    mario.dy += mario.gravity;
-                    mario.y += mario.dy;
-
-                    if (mario.y >= groundY - mario.height) {
-                        mario.y = groundY - mario.height;
-                        mario.dy = 0;
-                        mario.isGrounded = true;
-                    }
-
-                    const targetGoal = stageGoals[currentStage - 1];
-                    if (coins >= targetGoal && currentStage < 5) {
-                        currentStage++;
-                        baseSpeed += 0.35;
-                    }
-
-                    spawnTimer++;
-                    if (spawnTimer > Math.max(70, 140 - currentStage * 12)) {
-                        const rand = Math.random();
-                        if (rand < 0.5) entities.push({ type: 'goomba', x: canvas.width, y: groundY - 16, width: 20, height: 16 });
-                        else if (rand < 0.8) entities.push({ type: 'mushroom', x: canvas.width, y: groundY - 16, width: 18, height: 16 });
-                        spawnTimer = 0;
-                    }
-
-                    for (let i = entities.length - 1; i >= 0; i--) {
-                        let e = entities[i];
-                        e.x -= baseSpeed;
-
-                        if (e.type === 'goomba') drawGoomba(e.x, e.y);
-                        else if (e.type === 'mushroom') drawMushroom(e.x, e.y);
-
-                        if (
-                            mario.x < e.x + e.width &&
-                            mario.x + mario.width > e.x &&
-                            mario.y < e.y + e.height &&
-                            mario.y + mario.height > e.y
-                        ) {
-                            if (e.type === 'goomba') {
-                                if (mario.dy > 0 && mario.y + mario.height - mario.dy <= e.y + 8) {
-                                    entities.splice(i, 1);
-                                    mario.dy = -8;
-                                    coins += 100;
-                                    saveScoreToRealtimeLeaderboard(coins);
-                                } else if (mario.invincibleTimer === 0) {
-                                    if (mario.isSuper) {
-                                        mario.isSuper = false;
-                                        mario.scale = 1.0;
-                                        mario.width = mario.baseWidth;
-                                        mario.height = mario.baseHeight;
-                                        mario.invincibleTimer = 45;
-                                    } else {
-                                        gameOver = true;
-                                        saveScoreToRealtimeLeaderboard(coins);
-                                    }
-                                }
-                            } else if (e.type === 'mushroom') {
-                                coins += 200;
-                                mario.isSuper = true;
-                                mario.scale = 1.45;
-                                mario.width = mario.baseWidth * 1.45;
-                                mario.height = mario.baseHeight * 1.45;
-                                mario.y = groundY - mario.height;
-                                entities.splice(i, 1);
-                                saveScoreToRealtimeLeaderboard(coins);
-                            }
-                        }
-
-                        if (e.x + e.width < 0) entities.splice(i, 1);
-                    }
-
-                    baseSpeed += 0.0001;
-                }
-
-                drawMario(mario.x, mario.y);
-
-                if (gameOver) {
-                    ctx.font = '700 12px Orbitron, sans-serif';
-                    ctx.fillStyle = '#ef4444';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(`GAME OVER ${currentUser}! Tap to restart.`, 180, 135);
-                }
-
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-                ctx.fillRect(canvas.width - 270, 100, 250, 42);
-                ctx.strokeStyle = '#38bdf8';
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(canvas.width - 270, 100, 250, 42);
-
-                ctx.font = '700 11px Orbitron, sans-serif';
-                ctx.fillStyle = '#facc15';
-                ctx.textAlign = 'left';
-                ctx.fillText(`PLAYER: ${currentUser} (STAGE ${currentStage}/5)`, canvas.width - 260, 116);
-                ctx.fillStyle = '#38bdf8';
-                ctx.fillText(`SCORE: ${coins} / ${stageGoals[currentStage - 1]}  | BEST: ${highScore}`, canvas.width - 260, 132);
-
-                requestAnimationFrame(animate);
-            }
-
-            animate();
         }
 
         function initTradingBackground() {
@@ -1517,10 +967,7 @@
 
             initTradingBackground();
             initTitleWatermarkEngine();
-            initSuperMarioGame();
-            listenToRealtimeLeaderboard();
             fitTitleCanvasScale();
-            startSlowRotation();
         });
     </script>
 </body>
