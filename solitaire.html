@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -166,9 +165,11 @@
             font-weight: 800;
             font-size: 1.2rem;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            cursor: pointer;
+            cursor: grab;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
+
+        .card:active { cursor: grabbing; }
 
         .card.red { color: #dc2626; }
         .card.black { color: #0f172a; }
@@ -177,6 +178,7 @@
             background: linear-gradient(135deg, #1e3a8a 25%, #1e40af 25%, #1e40af 50%, #1e3a8a 50%, #1e3a8a 75%, #1e40af 75%);
             background-size: 20px 20px;
             border: 2px solid #ffffff;
+            cursor: default;
         }
 
         .card.face-down * { display: none; }
@@ -220,7 +222,7 @@
 
     <div class="header-bar">
         <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
-        <div style="font-family: 'Orbitron'; font-weight: 900; color: #22c55e; font-size: 1.2rem;">CLASSIC SOLITAIRE</div>
+        <div style="font-family: 'Orbitron'; font-weight: 900; color: #38bdf8; font-size: 1.2rem;">CLASSIC SOLITAIRE</div>
     </div>
 
     <div class="game-card">
@@ -236,24 +238,24 @@
             <div class="top-row">
                 <div class="deck-area">
                     <div class="card-slot" id="stock-pile" onclick="drawStockCard()"></div>
-                    <div class="card-slot" id="waste-pile"></div>
+                    <div class="card-slot" id="waste-pile" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'waste')"></div>
                 </div>
                 <div class="foundation-area">
-                    <div class="card-slot foundation" id="foundation-0" onclick="handleFoundationClick(0)"></div>
-                    <div class="card-slot foundation" id="foundation-1" onclick="handleFoundationClick(1)"></div>
-                    <div class="card-slot foundation" id="foundation-2" onclick="handleFoundationClick(2)"></div>
-                    <div class="card-slot foundation" id="foundation-3" onclick="handleFoundationClick(3)"></div>
+                    <div class="card-slot foundation" id="foundation-0" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'foundation', 0)" onclick="handleFoundationClick(0)"></div>
+                    <div class="card-slot foundation" id="foundation-1" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'foundation', 1)" onclick="handleFoundationClick(1)"></div>
+                    <div class="card-slot foundation" id="foundation-2" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'foundation', 2)" onclick="handleFoundationClick(2)"></div>
+                    <div class="card-slot foundation" id="foundation-3" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'foundation', 3)" onclick="handleFoundationClick(3)"></div>
                 </div>
             </div>
 
             <div class="tableau-row">
-                <div class="tableau-column" id="tableau-0" onclick="handleTableauColumnClick(0)"></div>
-                <div class="tableau-column" id="tableau-1" onclick="handleTableauColumnClick(1)"></div>
-                <div class="tableau-column" id="tableau-2" onclick="handleTableauColumnClick(2)"></div>
-                <div class="tableau-column" id="tableau-3" onclick="handleTableauColumnClick(3)"></div>
-                <div class="tableau-column" id="tableau-4" onclick="handleTableauColumnClick(4)"></div>
-                <div class="tableau-column" id="tableau-5" onclick="handleTableauColumnClick(5)"></div>
-                <div class="tableau-column" id="tableau-6" onclick="handleTableauColumnClick(6)"></div>
+                <div class="tableau-column" id="tableau-0" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'tableau', 0)" onclick="handleTableauColumnClick(0)"></div>
+                <div class="tableau-column" id="tableau-1" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'tableau', 1)" onclick="handleTableauColumnClick(1)"></div>
+                <div class="tableau-column" id="tableau-2" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'tableau', 2)" onclick="handleTableauColumnClick(2)"></div>
+                <div class="tableau-column" id="tableau-3" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'tableau', 3)" onclick="handleTableauColumnClick(3)"></div>
+                <div class="tableau-column" id="tableau-4" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'tableau', 4)" onclick="handleTableauColumnClick(4)"></div>
+                <div class="tableau-column" id="tableau-5" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'tableau', 5)" onclick="handleTableauColumnClick(5)"></div>
+                <div class="tableau-column" id="tableau-6" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'tableau', 6)" onclick="handleTableauColumnClick(6)"></div>
             </div>
         </div>
     </div>
@@ -282,8 +284,9 @@
         let foundations = [[], [], [], []];
         let tableaus = [[], [], [], [], [], [], []];
         let score = 0;
-        let selectedSelection = null; // { type: 'waste'|'tableau', colIndex, cardIndex }
+        let selectedSelection = null;
 
+        // FISHER-YATES NON-REPEATING SHUFFLE
         function createDeck() {
             let deck = [];
             SUITS.forEach(suit => {
@@ -298,7 +301,15 @@
                     });
                 });
             });
-            return deck.sort(() => Math.random() - 0.5);
+
+            // Cryptographically random shuffle to prevent repeated games
+            let array = new Uint32Array(deck.length);
+            window.crypto.getRandomValues(array);
+            for (let i = deck.length - 1; i > 0; i--) {
+                let j = array[i] % (i + 1);
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
         }
 
         function initGame() {
@@ -311,7 +322,6 @@
             selectedSelection = null;
             updateScore(0);
 
-            // Deal to tableau
             for (let i = 0; i < 7; i++) {
                 for (let j = 0; j <= i; j++) {
                     let card = deck.pop();
@@ -345,7 +355,7 @@
             render();
         }
 
-        function renderCardElement(card) {
+        function renderCardElement(card, isDraggable = false) {
             let div = document.createElement('div');
             div.className = `card ${card.color} ${card.faceUp ? '' : 'face-down'}`;
             if (card.faceUp) {
@@ -354,8 +364,32 @@
                     <div class="card-suit-center">${card.suit}</div>
                     <div class="card-corner-bottom">${card.value}${card.suit}</div>
                 `;
+                if (isDraggable) div.draggable = true;
             }
             return div;
+        }
+
+        // HTML5 DRAG & DROP HANDLERS
+        function handleDragStart(e, source) {
+            e.dataTransfer.setData('text/plain', JSON.stringify(source));
+            selectedSelection = source;
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e, targetType, targetIdx = 0) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!selectedSelection) return;
+
+            if (targetType === 'foundation') {
+                handleFoundationClick(targetIdx);
+            } else if (targetType === 'tableau') {
+                handleTableauColumnClick(targetIdx);
+            }
         }
 
         function render() {
@@ -372,8 +406,10 @@
             wastePile.innerHTML = '';
             if (waste.length > 0) {
                 let topCard = waste[waste.length - 1];
-                let cardElem = renderCardElement(topCard);
+                let cardElem = renderCardElement(topCard, true);
                 if (selectedSelection && selectedSelection.type === 'waste') cardElem.classList.add('selected');
+                
+                cardElem.ondragstart = (e) => handleDragStart(e, { type: 'waste' });
                 cardElem.onclick = (e) => {
                     e.stopPropagation();
                     selectedSelection = { type: 'waste' };
@@ -403,7 +439,7 @@
                 let pile = tableaus[i];
 
                 pile.forEach((card, idx) => {
-                    let cardElem = renderCardElement(card);
+                    let cardElem = renderCardElement(card, card.faceUp);
                     cardElem.style.top = `${idx * cardOffset}px`;
                     cardElem.style.zIndex = idx;
 
@@ -413,6 +449,7 @@
                     }
 
                     if (card.faceUp) {
+                        cardElem.ondragstart = (e) => handleDragStart(e, { type: 'tableau', colIndex: i, cardIndex: idx });
                         cardElem.onclick = (e) => {
                             e.stopPropagation();
                             if (selectedSelection) {
