@@ -67,6 +67,7 @@
             position: relative;
         }
 
+        /* TRADING CANVAS BACKGROUND */
         #trading-bg {
             position: absolute;
             top: 0;
@@ -78,6 +79,7 @@
             pointer-events: none;
         }
 
+        /* TOP RIGHT CONTROLS */
         .top-controls {
             position: absolute;
             top: 20px;
@@ -138,6 +140,7 @@
             border-color: #f472b6;
         }
 
+        /* BOTTOM-LEFT REALTIME LEADERBOARD */
         .bottom-left-leaderboard {
             position: absolute;
             bottom: 20px;
@@ -201,6 +204,7 @@
             font-size: 0.78rem;
         }
 
+        /* BOTTOM-RIGHT LOGO BRANDING */
         .bottom-right-brand {
             position: absolute;
             bottom: 20px;
@@ -626,7 +630,7 @@
         }
 
         body.mobile-view-active #mario-game-canvas {
-            bottom: -150px;
+            bottom: -180px;
             width: 350px;
             height: 120px;
         }
@@ -641,6 +645,8 @@
             <option value="mario" selected>🎮 Game: Mario (On-Screen)</option>
             <option value="flappy">🎮 Game: Flappy Bird ↗</option>
             <option value="block">🎮 Game: Block Puzzle ↗</option>
+            <option value="solitaire">🎮 Game: Solitaire ↗</option>
+            <option value="word">🎮 Game: Word Puzzle ↗</option>
         </select>
 
         <select class="select-dropdown" id="user-profile-select" onchange="changeActiveUser(this.value)">
@@ -744,6 +750,7 @@
     </div>
 
     <script>
+        // FIREBASE REALTIME DATABASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
             authDomain: "test-daily-task--sb.firebaseapp.com",
@@ -847,6 +854,7 @@
             listenToRealtimeLeaderboard();
         }
 
+        // DYNAMIC RANK SORTING & CLEAN ZERO STATE
         function updateLeaderboardUI(scoreList) {
             if (!scoreList) return;
 
@@ -901,6 +909,7 @@
             }
         }
 
+        // REDIRECT STANDALONE GAMES TO NEW TABS
         function switchGame(val) {
             const selector = document.getElementById('game-selector');
             if (val === 'flappy') {
@@ -908,6 +917,12 @@
                 if (selector) selector.value = 'mario';
             } else if (val === 'block') {
                 window.open('block.html', '_blank');
+                if (selector) selector.value = 'mario';
+            } else if (val === 'solitaire') {
+                window.open('solitaire.html', '_blank');
+                if (selector) selector.value = 'mario';
+            } else if (val === 'word') {
+                window.open('word.html', '_blank');
                 if (selector) selector.value = 'mario';
             }
         }
@@ -1099,7 +1114,7 @@
             render();
         }
 
-        // MARIO GAME ON DASHBOARD
+        // SUPER MARIO DASHBOARD ENGINE
         function initSuperMarioGame() {
             const canvas = document.getElementById('mario-game-canvas');
             if (!canvas) return;
@@ -1115,9 +1130,22 @@
             const groundY = 80;
 
             const mario = {
-                x: 80, y: groundY - 30, baseWidth: 24, baseHeight: 30, width: 24, height: 30, scale: 1.0,
-                speed: 3.5, facingLeft: false, isSuper: false, invincibleTimer: 0, dy: 0, gravity: 0.52,
-                jumpPower: -10.2, isGrounded: true, animFrame: 0
+                x: 80,
+                y: groundY - 30,
+                baseWidth: 24,
+                baseHeight: 30,
+                width: 24,
+                height: 30,
+                scale: 1.0,
+                speed: 3.5,
+                facingLeft: false,
+                isSuper: false,
+                invincibleTimer: 0,
+                dy: 0,
+                gravity: 0.52,
+                jumpPower: -10.2,
+                isGrounded: true,
+                animFrame: 0
             };
 
             const keys = { left: false, right: false };
@@ -1129,21 +1157,44 @@
             function triggerJump() {
                 if (gameOver || levelCleared) {
                     saveScoreToRealtimeLeaderboard(coins);
-                    coins = 0; currentStage = 1; gameOver = false; levelCleared = false; baseSpeed = 1.5;
-                    entities = []; finishLineObj = null; mario.scale = 1.0; mario.isSuper = false;
-                    mario.width = mario.baseWidth; mario.height = mario.baseHeight; mario.x = 80;
-                    mario.y = groundY - mario.height; mario.dy = 0; mario.isGrounded = true;
+                    coins = 0;
+                    currentStage = 1;
+                    gameOver = false;
+                    levelCleared = false;
+                    baseSpeed = 1.5;
+                    entities = [];
+                    finishLineObj = null;
+                    mario.scale = 1.0;
+                    mario.isSuper = false;
+                    mario.width = mario.baseWidth;
+                    mario.height = mario.baseHeight;
+                    mario.x = 80;
+                    mario.y = groundY - mario.height;
+                    mario.dy = 0;
+                    mario.isGrounded = true;
                     return;
                 }
-                if (mario.isGrounded) { mario.dy = mario.jumpPower; mario.isGrounded = false; }
+                if (mario.isGrounded) {
+                    mario.dy = mario.jumpPower;
+                    mario.isGrounded = false;
+                }
             }
 
             window.addEventListener('keydown', (e) => {
                 if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) {
-                    if (document.activeElement.tagName !== 'INPUT') { e.preventDefault(); triggerJump(); }
+                    if (document.activeElement.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        triggerJump();
+                    }
                 }
-                if (['ArrowLeft', 'KeyA'].includes(e.code)) { keys.left = true; mario.facingLeft = true; }
-                if (['ArrowRight', 'KeyD'].includes(e.code)) { keys.right = true; mario.facingLeft = false; }
+                if (['ArrowLeft', 'KeyA'].includes(e.code)) {
+                    keys.left = true;
+                    mario.facingLeft = true;
+                }
+                if (['ArrowRight', 'KeyD'].includes(e.code)) {
+                    keys.right = true;
+                    mario.facingLeft = false;
+                }
             });
 
             window.addEventListener('keyup', (e) => {
@@ -1157,42 +1208,107 @@
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const tapX = clientX - rect.left;
 
-                if (tapX < rect.width * 0.20) { mario.x -= 20; mario.facingLeft = true; }
-                else if (tapX > rect.width * 0.80) { mario.x += 20; mario.facingLeft = false; }
-                else { triggerJump(); }
+                if (tapX < rect.width * 0.20) {
+                    mario.x -= 20;
+                    mario.facingLeft = true;
+                } else if (tapX > rect.width * 0.80) {
+                    mario.x += 20;
+                    mario.facingLeft = false;
+                } else {
+                    triggerJump();
+                }
             }
 
             canvas.addEventListener('click', handleScreenTap);
             canvas.addEventListener('touchstart', handleScreenTap, { passive: false });
 
             function drawMario(x, y) {
-                if (mario.invincibleTimer > 0 && Math.floor(mario.invincibleTimer / 4) % 2 === 0) return;
+                if (mario.invincibleTimer > 0 && Math.floor(mario.invincibleTimer / 4) % 2 === 0) {
+                    return;
+                }
 
                 ctx.save();
                 ctx.translate(x + (mario.facingLeft ? mario.width : 0), y);
                 if (mario.facingLeft) ctx.scale(-1, 1);
                 ctx.scale(mario.scale, mario.scale);
 
-                ctx.fillStyle = '#e52521'; ctx.fillRect(6, 0, 14, 5); ctx.fillRect(4, 5, 18, 4); ctx.fillRect(6, 14, 12, 8);
-                ctx.fillStyle = '#fcc082'; ctx.fillRect(6, 9, 14, 5);
-                ctx.fillStyle = '#4b2c11'; ctx.fillRect(4, 7, 6, 4); ctx.fillRect(12, 11, 8, 3);
-                ctx.fillStyle = '#0022cc'; ctx.fillRect(6, 20, 12, 6);
-                ctx.fillStyle = '#fcd000'; ctx.fillRect(8, 19, 2, 2); ctx.fillRect(14, 19, 2, 2);
-                ctx.fillStyle = '#6e3400'; ctx.fillRect(4, 26, 7, 4); ctx.fillRect(13, 26, 7, 4);
+                // Red Hat & Shirt
+                ctx.fillStyle = '#e52521'; 
+                ctx.fillRect(6, 0, 14, 5);
+                ctx.fillRect(4, 5, 18, 4);
+                ctx.fillRect(6, 14, 12, 8);
+                ctx.fillRect(2, 14, 4, 6);
+                ctx.fillRect(18, 14, 4, 6);
+
+                // Face & Skin Tone
+                ctx.fillStyle = '#fcc082';
+                ctx.fillRect(6, 9, 14, 5);
+                ctx.fillRect(2, 20, 4, 3);
+                ctx.fillRect(18, 20, 4, 3);
+
+                // Hair & Mustache
+                ctx.fillStyle = '#4b2c11';
+                ctx.fillRect(4, 7, 6, 4);
+                ctx.fillRect(12, 11, 8, 3);
+
+                // Blue Overalls
+                ctx.fillStyle = '#0022cc';
+                ctx.fillRect(6, 20, 12, 6);
+                ctx.fillRect(8, 16, 3, 5);
+                ctx.fillRect(13, 16, 3, 5);
+
+                // Yellow Buttons
+                ctx.fillStyle = '#fcd000';
+                ctx.fillRect(8, 19, 2, 2);
+                ctx.fillRect(14, 19, 2, 2);
+
+                // Brown Boots
+                ctx.fillStyle = '#6e3400';
+                if (!mario.isGrounded) {
+                    ctx.fillRect(4, 26, 6, 4);
+                    ctx.fillRect(14, 24, 6, 4);
+                } else if (Math.floor(mario.animFrame / 8) % 2 === 0) {
+                    ctx.fillRect(4, 26, 7, 4);
+                    ctx.fillRect(13, 26, 7, 4);
+                } else {
+                    ctx.fillRect(6, 26, 7, 4);
+                    ctx.fillRect(11, 26, 7, 4);
+                }
 
                 ctx.restore();
             }
 
             function drawGoomba(x, y) {
-                ctx.fillStyle = '#8b4513'; ctx.fillRect(x + 2, y, 16, 12); ctx.fillRect(x, y + 4, 20, 8);
-                ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y + 4, 4, 5); ctx.fillRect(x + 12, y + 4, 4, 5);
-                ctx.fillStyle = '#000000'; ctx.fillRect(x, y + 12, 7, 4); ctx.fillRect(x + 13, y + 12, 7, 4);
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(x + 2, y, 16, 12);
+                ctx.fillRect(x, y + 4, 20, 8);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x + 4, y + 4, 4, 5);
+                ctx.fillRect(x + 12, y + 4, 4, 5);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x + 6, y + 6, 2, 3);
+                ctx.fillRect(x + 12, y + 6, 2, 3);
+                ctx.fillRect(x + 3, y + 2, 6, 2);
+                ctx.fillRect(x + 11, y + 2, 6, 2);
+
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x, y + 12, 7, 4);
+                ctx.fillRect(x + 13, y + 12, 7, 4);
             }
 
             function drawMushroom(x, y) {
-                ctx.fillStyle = '#e52521'; ctx.fillRect(x + 2, y, 14, 10);
-                ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y + 2, 4, 4); ctx.fillRect(x + 10, y + 2, 4, 4);
-                ctx.fillStyle = '#fcc082'; ctx.fillRect(x + 3, y + 10, 12, 6);
+                ctx.fillStyle = '#e52521';
+                ctx.fillRect(x + 2, y, 14, 10);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x + 4, y + 2, 4, 4);
+                ctx.fillRect(x + 10, y + 2, 4, 4);
+
+                ctx.fillStyle = '#fcc082';
+                ctx.fillRect(x + 3, y + 10, 12, 6);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x + 5, y + 11, 2, 3);
+                ctx.fillRect(x + 11, y + 11, 2, 3);
             }
 
             function drawBackgroundSkyline() {
@@ -1218,9 +1334,12 @@
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
                 const groundColor = isDark ? '#334155' : '#cbd5e1';
 
-                ctx.fillStyle = groundColor; ctx.fillRect(0, groundY, canvas.width, 18);
+                ctx.fillStyle = groundColor;
+                ctx.fillRect(0, groundY, canvas.width, 18);
                 ctx.fillStyle = '#b45309';
-                for (let bx = 0; bx < canvas.width; bx += 20) ctx.fillRect(bx, groundY, 18, 4);
+                for (let bx = 0; bx < canvas.width; bx += 20) {
+                    ctx.fillRect(bx, groundY, 18, 4);
+                }
 
                 if (!gameOver && !levelCleared) {
                     mario.animFrame++;
@@ -1321,7 +1440,7 @@
                 ctx.font = '700 11px Orbitron, sans-serif';
                 ctx.fillStyle = '#facc15';
                 ctx.textAlign = 'left';
-                ctx.fillText(`MARIO: ${currentUser} (STAGE ${currentStage}/5)`, canvas.width - 260, 116);
+                ctx.fillText(`PLAYER: ${currentUser} (STAGE ${currentStage}/5)`, canvas.width - 260, 116);
                 ctx.fillStyle = '#38bdf8';
                 ctx.fillText(`SCORE: ${coins} / ${stageGoals[currentStage - 1]}  | BEST: ${highScore}`, canvas.width - 260, 132);
 
