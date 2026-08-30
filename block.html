@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Puzzle - Sportsbook Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background-color: #0b1329;
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .header-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .btn-back {
+            background-color: #38bdf8;
+            color: #0b1329;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            max-width: 95vw;
+        }
+
+        canvas {
+            background: #0f172a;
+            border-radius: 8px;
+            border: 2px solid #38bdf8;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.3);
+        }
+
+        .sidebar {
+            background: #0f172a;
+            border: 2px solid #38bdf8;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 180px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .controls-hint {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .ctrl-btn {
+            background: #1e293b;
+            border: 1px solid #38bdf8;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+        <div style="font-family: 'Orbitron'; font-weight: 900; color: #f97316; font-size: 1.2rem;">BLOCK PUZZLE TETRIS</div>
+    </div>
+
+    <div class="game-layout">
+        <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+        <div class="sidebar">
+            <div style="font-size: 0.8rem; color: #facc15;" id="player-label">PLAYER: --</div>
+            <div style="font-size: 0.85rem; color: #38bdf8;">SCORE</div>
+            <div style="font-size: 1.2rem; color: #ffffff;" id="score-label">0</div>
+            
+            <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 10px;">NEXT PIECE</div>
+            <canvas id="nextCanvas" width="100" height="100" style="border:none; box-shadow:none;"></canvas>
+        </div>
+    </div>
+
+    <div class="controls-hint">
+        <button class="ctrl-btn" onclick="moveLeft()">◀</button>
+        <button class="ctrl-btn" onclick="rotatePiece()">🔄 Rotate</button>
+        <button class="ctrl-btn" onclick="moveRight()">▶</button>
+        <button class="ctrl-btn" style="background:#ef4444;" onclick="dropFast()">⬇</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentUser = localStorage.getItem('sb_active_user') || 'GUEST';
+        document.getElementById('player-label').textContent = `PLAYER: ${currentUser}`;
+
+        const canvas = document.getElementById('tetrisCanvas');
+        const ctx = canvas.getContext('2d');
+        const rows = 20, cols = 10, size = 30;
+
+        let grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+        let score = 0;
+        let gameOver = false;
+
+        const COLORS = [null, '#facc15', '#0284c7', '#22c55e', '#ef4444', '#a855f7', '#f97316', '#ec4899'];
+        const SHAPES = [
+            [],
+            [[1,1],[1,1]], // O
+            [[1,1,1,1]], // I
+            [[0,1,0],[1,1,1]], // T
+            [[1,1,0],[0,1,1]], // Z
+            [[0,1,1],[1,1,0]], // S
+            [[1,0,0],[1,1,1]], // L
+            [[0,0,1],[1,1,1]]  // J
+        ];
+
+        let piece = newPiece();
+        let dropCounter = 0, dropInterval = 800, lastTime = 0;
+
+        function newPiece() {
+            let id = Math.floor(Math.random() * 7) + 1;
+            return { shape: SHAPES[id], color: id, x: 3, y: 0 };
+        }
+
+        function collide(board, p) {
+            for (let r = 0; r < p.shape.length; r++) {
+                for (let c = 0; c < p.shape[r].length; c++) {
+                    if (p.shape[r][c] && (board[r + p.y] && board[r + p.y][c + p.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function merge(board, p) {
+            p.shape.forEach((row, r) => {
+                row.forEach((val, c) => {
+                    if (val) board[r + p.y][c + p.x] = p.color;
+                });
+            });
+        }
+
+        function clearLines() {
+            outer: for (let r = rows - 1; r >= 0; r--) {
+                for (let c = 0; c < cols; c++) {
+                    if (grid[r][c] === 0) continue outer;
+                }
+                const row = grid.splice(r, 1)[0].fill(0);
+                grid.unshift(row);
+                score += 300;
+                document.getElementById('score-label').textContent = score;
+                db.ref(`block_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                r++;
+            }
+        }
+
+        function moveLeft() { piece.x--; if (collide(grid, piece)) piece.x++; }
+        function moveRight() { piece.x++; if (collide(grid, piece)) piece.x--; }
+        function dropFast() {
+            piece.y++;
+            if (collide(grid, piece)) {
+                piece.y--;
+                merge(grid, piece);
+                clearLines();
+                piece = newPiece();
+                if (collide(grid, piece)) {
+                    gameOver = true;
+                    db.ref(`block_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                }
+            }
+            dropCounter = 0;
+        }
+
+        function rotatePiece() {
+            const rotated = piece.shape[0].map((_, i) => piece.shape.map(row => row[i]).reverse());
+            const pos = piece.x;
+            piece.shape = rotated;
+            if (collide(grid, piece)) piece.x = pos;
+        }
+
+        window.onkeydown = (e) => {
+            if (e.code === 'ArrowLeft') moveLeft();
+            if (e.code === 'ArrowRight') moveRight();
+            if (e.code === 'ArrowDown') dropFast();
+            if (e.code === 'ArrowUp') rotatePiece();
+        };
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Fixed Grid
+            grid.forEach((row, r) => {
+                row.forEach((val, c) => {
+                    if (val) {
+                        ctx.fillStyle = COLORS[val];
+                        ctx.fillRect(c * size + 1, r * size + 1, size - 2, size - 2);
+                    }
+                });
+            });
+
+            // Draw Falling Piece
+            if (piece) {
+                piece.shape.forEach((row, r) => {
+                    row.forEach((val, c) => {
+                        if (val) {
+                            ctx.fillStyle = COLORS[piece.color];
+                            ctx.fillRect((c + piece.x) * size + 1, (r + piece.y) * size + 1, size - 2, size - 2);
+                        }
+                    });
+                });
+            }
+
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+                ctx.fillRect(20, 250, 260, 100);
+                ctx.fillStyle = '#ef4444'; ctx.font = '700 18px Orbitron, sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(`GAME OVER ${currentUser}!`, canvas.width / 2, 290);
+                ctx.fillStyle = '#ffffff'; ctx.font = '12px Rajdhani, sans-serif';
+                ctx.fillText('Refresh page to restart', canvas.width / 2, 320);
+            }
+        }
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+
+            if (dropCounter > dropInterval && !gameOver) {
+                dropFast();
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>

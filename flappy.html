@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Arcade - Sportsbook Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background-color: #0b1329;
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .header-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .btn-back {
+            background-color: #38bdf8;
+            color: #0b1329;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card {
+            background: #0f172a;
+            border: 2px solid #38bdf8;
+            border-radius: 12px;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.35);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            max-width: 95vw;
+        }
+
+        canvas {
+            background: #070e1d;
+            border-radius: 8px;
+            border: 1.5px solid #334155;
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            color: #facc15;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+        <div style="font-family: 'Orbitron'; font-weight: 900; color: #38bdf8; font-size: 1.2rem;">FLAPPY BIRD ARCADE</div>
+    </div>
+
+    <div class="game-card">
+        <div class="hud-row">
+            <span id="player-display">PLAYER: --</span>
+            <span id="stage-display">STAGE: 1 (EASY)</span>
+        </div>
+        
+        <canvas id="flappyCanvas" width="480" height="580"></canvas>
+
+        <div style="font-size: 0.85rem; color: #94a3b8; text-align: center;">
+            💡 Tap or Press Spacebar to flap wing & climb altitude
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentUser = localStorage.getItem('sb_active_user') || 'GUEST';
+        document.getElementById('player-display').textContent = `PLAYER: ${currentUser}`;
+
+        const canvas = document.getElementById('flappyCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let score = 0;
+        let stage = 1;
+        let gameOver = false;
+        let speed = 2.2;
+        let gapSize = 140;
+
+        const bird = { x: 80, y: 250, radius: 14, dy: 0, gravity: 0.42, jump: -8.0 };
+        let pipes = [];
+        let frame = 0;
+
+        function flap() {
+            if (gameOver) {
+                score = 0; stage = 1; speed = 2.2; gapSize = 140; gameOver = false;
+                pipes = []; bird.y = 250; bird.dy = 0;
+                return;
+            }
+            bird.dy = bird.jump;
+        }
+
+        canvas.onclick = flap;
+        canvas.ontouchstart = (e) => { e.preventDefault(); flap(); };
+        window.onkeydown = (e) => { if (['Space', 'ArrowUp'].includes(e.code)) flap(); };
+
+        function updateStage() {
+            if (score >= 3000) { stage = 5; speed = 3.8; gapSize = 95; }
+            else if (score >= 2000) { stage = 4; speed = 3.4; gapSize = 105; }
+            else if (score >= 1200) { stage = 3; speed = 3.0; gapSize = 115; }
+            else if (score >= 500) { stage = 2; speed = 2.6; gapSize = 125; }
+
+            const stageNames = ["EASY", "NORMAL", "MEDIUM", "HARD", "EXPERT"];
+            document.getElementById('stage-display').textContent = `STAGE: ${stage} (${stageNames[stage-1]})`;
+        }
+
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameOver) {
+                frame++;
+                bird.dy += bird.gravity;
+                bird.y += bird.dy;
+
+                if (bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
+                    gameOver = true;
+                    db.ref(`flappy_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                }
+
+                if (frame % Math.floor(100 / (speed * 0.5)) === 0) {
+                    let topH = Math.floor(Math.random() * (canvas.height - gapSize - 100)) + 30;
+                    pipes.push({ x: canvas.width, top: topH, bottom: topH + gapSize, passed: false });
+                }
+
+                for (let i = pipes.length - 1; i >= 0; i--) {
+                    let p = pipes[i]; p.x -= speed;
+
+                    // Draw Pipe Obstacles
+                    ctx.fillStyle = '#22c55e';
+                    ctx.fillRect(p.x, 0, 42, p.top);
+                    ctx.fillRect(p.x, p.bottom, 42, canvas.height - p.bottom);
+
+                    // Collision Check
+                    if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + 42) {
+                        if (bird.y - bird.radius < p.top || bird.y + bird.radius > p.bottom) {
+                            gameOver = true;
+                            db.ref(`flappy_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                        }
+                    }
+
+                    if (!p.passed && p.x < bird.x) {
+                        p.passed = true;
+                        score += 100;
+                        updateStage();
+                    }
+
+                    if (p.x < -50) pipes.splice(i, 1);
+                }
+            }
+
+            // Draw Flappy Bird
+            ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(bird.x + 5, bird.y - 3, 9, 6);
+
+            // Draw Score
+            ctx.font = '700 20px Orbitron, sans-serif'; ctx.fillStyle = '#38bdf8'; ctx.textAlign = 'center';
+            ctx.fillText(`SCORE: ${score}`, canvas.width / 2, 40);
+
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'; ctx.fillRect(40, 220, 400, 120);
+                ctx.fillStyle = '#ef4444'; ctx.font = '700 20px Orbitron, sans-serif';
+                ctx.fillText(`GAME OVER ${currentUser}!`, canvas.width / 2, 260);
+                ctx.fillStyle = '#ffffff'; ctx.font = '14px Rajdhani, sans-serif';
+                ctx.fillText('Click or Tap to Retry', canvas.width / 2, 295);
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+    </script>
+</body>
+</html>
