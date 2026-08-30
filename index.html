@@ -159,9 +159,9 @@
             position: relative;
             display: block;
             z-index: 3;
+            pointer-events: none;
         }
 
-        /* REDUCED PAC-MAN (32px), LOWERED TO BOTTOM OF LETTER LEGS (78%), SLOW TRAVERSE (180s) */
         .pacman-sprite {
             position: absolute;
             top: 78%;
@@ -176,6 +176,7 @@
             box-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
             clip-path: polygon(100% 0%, 100% 50%, 100% 100%, 0% 100%, 0% 0%);
             animation: pacmanChomp 1.2s ease-in-out infinite alternate, pacmanTraverse 180s linear infinite;
+            pointer-events: none;
         }
 
         @keyframes pacmanChomp {
@@ -210,7 +211,6 @@
             }
         }
 
-        /* ITALIC CREDIT POSITIONED BELOW THE 'S' */
         .hub-credit-bg {
             position: absolute;
             left: 0;
@@ -222,6 +222,7 @@
             font-weight: 600;
             letter-spacing: 0.12em;
             text-transform: lowercase;
+            pointer-events: none;
         }
 
         /* CIRCULAR MENU CONTAINER */
@@ -254,10 +255,12 @@
                         background-color 0.3s ease,
                         color 0.3s ease,
                         box-shadow 0.3s ease;
+            pointer-events: auto;
         }
 
         .toggle-btn i {
             transition: transform 0.4s ease;
+            pointer-events: none;
         }
 
         .circular-menu.active .toggle-btn {
@@ -276,6 +279,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
+            z-index: 25;
         }
 
         .circular-menu.active .menu-items {
@@ -303,11 +307,22 @@
             box-shadow: 0 8px 24px var(--shadow-color);
             opacity: 0;
             transform: translate(0, 0) scale(0);
+            pointer-events: none;
+            cursor: pointer;
+            z-index: 35;
             transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
                         opacity 0.3s ease,
                         background-color 0.25s ease,
                         border-color 0.25s ease,
                         box-shadow 0.25s ease;
+        }
+
+        .circular-menu.active .menu-item {
+            pointer-events: auto;
+        }
+
+        .menu-item i {
+            pointer-events: none;
         }
 
         .menu-item:hover {
@@ -411,9 +426,9 @@
     </div>
 
     <script>
-        // CONFIGURATION JSON DATA
+        // UPDATED CONFIGURATION DIRECT LINK MATCHES
         const navMenuJSON = [
-            { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "daily-duties.html" },
+            { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
             { id: "big-winners", icon: "fa-solid fa-trophy", label: "BIG WINNERS", url: "big-winners.html" },
             { id: "edge-boost", icon: "fa-solid fa-bolt", label: "EDGE BOOST", url: "edge-boost.html" },
