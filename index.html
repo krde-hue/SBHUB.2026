@@ -91,11 +91,11 @@
             gap: 12px;
         }
 
-        .theme-toggle-btn {
+        .control-btn {
             background-color: var(--item-btn-bg);
             border: 1px solid var(--border-color);
             color: var(--text-light);
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 24px;
             font-size: 0.88rem;
             font-weight: 700;
@@ -104,11 +104,23 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 14px var(--shadow-color);
+            transition: all 0.2s ease;
         }
 
-        .theme-toggle-btn:hover {
+        .control-btn:hover {
             border-color: var(--title-cyan);
             color: var(--title-cyan);
+        }
+
+        .mobile-toggle-btn {
+            background-color: #a855f7;
+            color: #ffffff;
+            border-color: #c084fc;
+        }
+
+        .mobile-toggle-btn.active {
+            background-color: #ec4899;
+            border-color: #f472b6;
         }
 
         /* MAIN DASHBOARD CONTAINER */
@@ -119,6 +131,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            height: 100vh;
         }
 
         /* WATERMARK BACKGROUND HEADERS */
@@ -147,6 +161,7 @@
             text-transform: uppercase;
             margin-bottom: 0px;
             opacity: calc(var(--watermark-opacity) * 0.85);
+            transition: font-size 0.3s ease;
         }
 
         .title-wrapper {
@@ -160,6 +175,7 @@
             display: block;
             z-index: 3;
             pointer-events: none;
+            max-width: 100vw;
         }
 
         .pacman-sprite {
@@ -223,6 +239,7 @@
             letter-spacing: 0.12em;
             text-transform: lowercase;
             pointer-events: none;
+            transition: font-size 0.3s ease, bottom 0.3s ease;
         }
 
         /* CIRCULAR MENU CONTAINER */
@@ -234,6 +251,7 @@
             justify-content: center;
             align-items: center;
             z-index: 20;
+            transition: width 0.3s ease, height 0.3s ease;
         }
 
         /* CENTER TOGGLE BUTTON (140px) */
@@ -254,7 +272,10 @@
             transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
                         background-color 0.3s ease,
                         color 0.3s ease,
-                        box-shadow 0.3s ease;
+                        box-shadow 0.3s ease,
+                        width 0.3s ease,
+                        height 0.3s ease,
+                        font-size 0.3s ease;
             pointer-events: auto;
         }
 
@@ -314,7 +335,11 @@
                         opacity 0.3s ease,
                         background-color 0.25s ease,
                         border-color 0.25s ease,
-                        box-shadow 0.25s ease;
+                        box-shadow 0.25s ease,
+                        width 0.3s ease,
+                        height 0.3s ease,
+                        margin 0.3s ease,
+                        font-size 0.3s ease;
         }
 
         .circular-menu.active .menu-item {
@@ -367,7 +392,7 @@
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
+            transition: opacity 0.2s ease, transform 0.2s ease, font-size 0.3s ease, padding 0.3s ease;
             box-shadow: 0 6px 18px rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
         }
@@ -386,6 +411,55 @@
         .circular-menu.active .menu-item.floating:not(:hover) {
             animation: floatingAnimation 3.2s ease-in-out infinite;
         }
+
+        /* MOBILE VIEW OPTIMIZATIONS */
+        body.mobile-view-active .top-controls {
+            top: 12px;
+            right: 12px;
+            gap: 8px;
+        }
+
+        body.mobile-view-active .control-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            border-radius: 18px;
+        }
+
+        body.mobile-view-active .welcome-subtitle-bg {
+            font-size: 1.4rem;
+            letter-spacing: 0.25em;
+        }
+
+        body.mobile-view-active .hub-credit-bg {
+            font-size: 0.75rem;
+            bottom: -20px;
+        }
+
+        body.mobile-view-active .circular-menu {
+            width: 340px;
+            height: 340px;
+        }
+
+        body.mobile-view-active .toggle-btn {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+
+        body.mobile-view-active .menu-item {
+            width: 58px;
+            height: 58px;
+            margin-top: -29px;
+            margin-left: -29px;
+            font-size: 1.3rem;
+            border-width: 2px;
+        }
+
+        body.mobile-view-active .menu-item::after {
+            bottom: -28px;
+            font-size: 0.72rem;
+            padding: 3px 8px;
+        }
     </style>
 </head>
 <body>
@@ -393,9 +467,13 @@
     <!-- TRADING CANVAS BACKGROUND -->
     <canvas id="trading-bg"></canvas>
 
-    <!-- DAYLIGHT / NIGHT MODE TOP CONTROL -->
+    <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
-        <button class="theme-toggle-btn" id="theme-toggle">
+        <button class="control-btn mobile-toggle-btn" id="mobile-toggle">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+            <span id="mobile-text">Mobile View: OFF</span>
+        </button>
+        <button class="control-btn" id="theme-toggle">
             <i class="fa-solid fa-moon" id="theme-icon"></i>
             <span id="theme-text">Night Mode</span>
         </button>
@@ -448,18 +526,26 @@
         const themeToggleBtn = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const themeText = document.getElementById('theme-text');
+        const mobileToggleBtn = document.getElementById('mobile-toggle');
+        const mobileText = document.getElementById('mobile-text');
 
-        const radius = 290;
+        let isMobileView = false;
+        let currentRadius = 290;
+
+        function updateRadius() {
+            currentRadius = isMobileView ? 135 : 290;
+        }
 
         function buildMenuFromJSON(items) {
             if (!menuItemsContainer) return;
             menuItemsContainer.innerHTML = '';
             const total = items.length;
+            updateRadius();
 
             items.forEach((item, index) => {
                 const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2); 
-                const x = Math.round(radius * Math.cos(angle));
-                const y = Math.round(radius * Math.sin(angle));
+                const x = Math.round(currentRadius * Math.cos(angle));
+                const y = Math.round(currentRadius * Math.sin(angle));
 
                 const a = document.createElement('a');
                 a.href = item.url;
@@ -480,6 +566,36 @@
                 a.innerHTML = `<i class="${item.icon}"></i>`;
                 menuItemsContainer.appendChild(a);
             });
+
+            // Re-position active menu items dynamically if open
+            if (circularMenu.classList.contains('active')) {
+                const activeItems = menuItemsContainer.querySelectorAll('.menu-item');
+                activeItems.forEach(item => {
+                    const tx = item.style.getPropertyValue('--tx');
+                    const ty = item.style.getPropertyValue('--ty');
+                    item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
+                });
+            }
+        }
+
+        function toggleMobileView() {
+            isMobileView = !isMobileView;
+            if (isMobileView) {
+                document.body.classList.add('mobile-view-active');
+                mobileText.textContent = 'Mobile View: ON';
+                mobileToggleBtn.classList.add('active');
+            } else {
+                document.body.classList.remove('mobile-view-active');
+                mobileText.textContent = 'Mobile View: OFF';
+                mobileToggleBtn.classList.remove('active');
+            }
+            localStorage.setItem('dashboard_mobile_view', isMobileView ? 'true' : 'false');
+            buildMenuFromJSON(navMenuJSON);
+            fitPacmanCanvasScale();
+        }
+
+        if (mobileToggleBtn) {
+            mobileToggleBtn.addEventListener('click', toggleMobileView);
         }
 
         if (toggleBtn && circularMenu) {
@@ -529,6 +645,19 @@
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 setTheme(currentTheme === 'dark' ? 'light' : 'dark');
             });
+        }
+
+        function fitPacmanCanvasScale() {
+            const canvas = document.getElementById('pacman-text-canvas');
+            if (!canvas) return;
+            const screenWidth = window.innerWidth;
+            if (screenWidth < 1150 || isMobileView) {
+                const targetWidth = isMobileView ? Math.min(screenWidth * 0.95, 360) : Math.min(screenWidth * 0.95, 1150);
+                const scale = targetWidth / 1150;
+                canvas.style.transform = `scale(${scale})`;
+            } else {
+                canvas.style.transform = `scale(1)`;
+            }
         }
 
         // TARGETED PAC-MAN LETTER LEG BITE & SLOW HEALING ENGINE
@@ -614,6 +743,7 @@
             function resize() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                fitPacmanCanvasScale();
             }
             resize();
             window.addEventListener('resize', resize);
@@ -711,9 +841,17 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
             setTheme(savedTheme);
-            buildMenuFromJSON(navMenuJSON);
+
+            if (localStorage.getItem('dashboard_mobile_view') === 'true' || window.innerWidth < 768) {
+                isMobileView = false;
+                toggleMobileView();
+            } else {
+                buildMenuFromJSON(navMenuJSON);
+            }
+
             initTradingBackground();
             initPacmanBiteEngine();
+            fitPacmanCanvasScale();
         });
     </script>
 </body>
