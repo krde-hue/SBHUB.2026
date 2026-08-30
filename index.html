@@ -67,6 +67,7 @@
             position: relative;
         }
 
+        /* TRADING CANVAS BACKGROUND */
         #trading-bg {
             position: absolute;
             top: 0;
@@ -78,6 +79,7 @@
             pointer-events: none;
         }
 
+        /* TOP RIGHT CONTROLS */
         .top-controls {
             position: absolute;
             top: 20px;
@@ -132,6 +134,7 @@
             border-color: #f472b6;
         }
 
+        /* BOTTOM-LEFT REALTIME LEADERBOARD */
         .bottom-left-leaderboard {
             position: absolute;
             bottom: 20px;
@@ -194,6 +197,7 @@
             font-size: 0.78rem;
         }
 
+        /* BOTTOM-RIGHT LOGO BRANDING */
         .bottom-right-brand {
             position: absolute;
             bottom: 20px;
@@ -245,6 +249,7 @@
             letter-spacing: 0.05em;
         }
 
+        /* MAIN DASHBOARD CONTAINER */
         .dashboard-container {
             position: relative;
             z-index: 10;
@@ -256,6 +261,7 @@
             height: 100vh;
         }
 
+        /* WATERMARK HEADERS */
         .dashboard-header-bg {
             position: absolute;
             top: 50%;
@@ -301,9 +307,10 @@
             max-width: 95vw;
         }
 
+        /* MARIO GAME CANVAS RE-POSITIONED INSIDE THE YELLOW BOX AREA */
         #mario-game-canvas {
             position: absolute;
-            bottom: -235px;
+            bottom: -430px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 40;
@@ -313,6 +320,7 @@
             touch-action: none;
         }
 
+        /* CIRCULAR MENU CONTAINER */
         .circular-menu {
             position: relative;
             width: 720px;
@@ -325,6 +333,7 @@
             touch-action: none;
         }
 
+        /* CENTER TOGGLE BUTTON WITH BULL ICON DYNAMIC SWITCH */
         .toggle-btn {
             position: relative;
             width: 155px;
@@ -392,6 +401,7 @@
             pointer-events: auto;
         }
 
+        /* RADIAL MENU BUTTONS */
         .menu-item {
             position: absolute;
             top: 50%;
@@ -619,7 +629,7 @@
         }
 
         body.mobile-view-active #mario-game-canvas {
-            bottom: -150px;
+            bottom: -180px;
             width: 350px;
             height: 120px;
         }
@@ -1067,7 +1077,7 @@
             render();
         }
 
-        // INTERACTIVE SUPER MARIO GAME
+        // INTERACTIVE SUPER MARIO GAME (FULLY ISOLATED IN YELLOW BOX AREA)
         function initSuperMarioGame() {
             const canvas = document.getElementById('mario-game-canvas');
             if (!canvas) return;
@@ -1447,6 +1457,7 @@
 
                 drawMario(mario.x, mario.y);
 
+                // ANNOUNCEMENTS BELOW GROUND ROAD
                 if (levelCleared) {
                     if (finishLineObj) drawFinishLine(finishLineObj.x, finishLineObj.y);
                     ctx.font = '700 12px Orbitron, sans-serif';
@@ -1466,6 +1477,7 @@
                     ctx.fillText(`GAME OVER ${currentUser}! Tap to restart.`, 180, 135);
                 }
 
+                // DEDICATED RETRO SCOREBOX HUD
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
                 ctx.fillRect(canvas.width - 270, 100, 250, 42);
                 ctx.strokeStyle = '#38bdf8';
@@ -1536,7 +1548,6 @@
                 requestAnimationFrame(animate);
             }
 
- circularMenu.classList.add('active'); // Pre-expand menu items
             animate();
         }
 
