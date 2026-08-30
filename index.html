@@ -317,6 +317,7 @@
             background: transparent;
             cursor: pointer;
             pointer-events: auto;
+            touch-action: none;
         }
 
         .circular-menu {
@@ -638,7 +639,6 @@
 
     <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
-        <!-- TEAM MEMBER PROFILE SWITCHER -->
         <select class="user-select-btn" id="user-profile-select" onchange="changeActiveUser(this.value)">
             <option value="KRIZTEL">👤 Player: KRIZTEL</option>
             <option value="ANN">👤 Player: ANN</option>
@@ -706,14 +706,17 @@
     </div>
 
     <div class="dashboard-container">
+        <!-- BACKGROUND WATERMARK TITLE WITH MARIO GAME OVERLAY -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
                 <canvas id="title-text-canvas" width="1150" height="150"></canvas>
+                <!-- INTERACTIVE SUPER MARIO GAME CANVAS -->
                 <canvas id="mario-game-canvas" width="1150" height="160"></canvas>
             </div>
         </div>
 
+        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
                 <i class="fa-solid fa-plus"></i>
@@ -793,7 +796,6 @@
         let rotationAngle = 0;
         let rotationAnimationId = null;
 
-        // USER PROFILE ENGINE WITH AUTOMATIC SELECTOR SYNC
         function initActiveUser() {
             const params = new URLSearchParams(window.location.search);
             let userParam = params.get('user') || params.get('name') || params.get('member');
@@ -844,7 +846,6 @@
             listenToRealtimeLeaderboard();
         }
 
-        // REALTIME LEADERBOARD & LOCAL FALLBACK SYNC
         function updateLeaderboardUI(scoreList) {
             if (!scoreList || scoreList.length === 0) return;
 
@@ -1080,7 +1081,7 @@
             render();
         }
 
-        // INTERACTIVE SUPER MARIO GAME WITH LIVE REALTIME RECORDING
+        // INTERACTIVE SUPER MARIO GAME WITH ADVANCED MOBILE TAP JUMP CONTROLS
         function initSuperMarioGame() {
             const canvas = document.getElementById('mario-game-canvas');
             if (!canvas) return;
@@ -1148,6 +1149,7 @@
                 }
             }
 
+            // Keyboard Motion Controllers
             window.addEventListener('keydown', (e) => {
                 if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) {
                     if (document.activeElement.tagName !== 'INPUT') {
@@ -1170,17 +1172,27 @@
                 if (['ArrowRight', 'KeyD'].includes(e.code)) keys.right = false;
             });
 
-            canvas.addEventListener('click', (e) => {
+            // ENHANCED MOBILE TAP JUMP CONTROLLER (FREE SPACE TAPPING)
+            function handleScreenTap(e) {
+                e.preventDefault();
                 const rect = canvas.getBoundingClientRect();
-                const tapX = e.clientX - rect.left;
-                if (tapX < rect.width * 0.35) {
-                    mario.x -= 25;
-                } else if (tapX > rect.width * 0.65) {
-                    mario.x += 25;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const tapX = clientX - rect.left;
+
+                // Far left 20% = Step Back, Far right 20% = Step Forward, All other 60% Free Space = JUMP
+                if (tapX < rect.width * 0.20) {
+                    mario.x -= 20;
+                    mario.facingLeft = true;
+                } else if (tapX > rect.width * 0.80) {
+                    mario.x += 20;
+                    mario.facingLeft = false;
                 } else {
                     triggerJump();
                 }
-            });
+            }
+
+            canvas.addEventListener('click', handleScreenTap);
+            canvas.addEventListener('touchstart', handleScreenTap, { passive: false });
 
             function drawMario(x, y) {
                 if (mario.invincibleTimer > 0 && Math.floor(mario.invincibleTimer / 4) % 2 === 0) {
@@ -1471,6 +1483,7 @@
                     ctx.fillText(`GAME OVER ${currentUser}! Tap to restart.`, 180, 135);
                 }
 
+                // RETRO HUD BOX
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
                 ctx.fillRect(canvas.width - 270, 100, 250, 42);
                 ctx.strokeStyle = '#38bdf8';
