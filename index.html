@@ -189,6 +189,7 @@
             color: #38bdf8;
             font-weight: 900;
             width: 22px;
+            display: inline-block;
         }
 
         .score-val {
@@ -249,7 +250,6 @@
             letter-spacing: 0.05em;
         }
 
-        /* MAIN DASHBOARD CONTAINER */
         .dashboard-container {
             position: relative;
             z-index: 10;
@@ -261,7 +261,6 @@
             height: 100vh;
         }
 
-        /* WATERMARK HEADERS */
         .dashboard-header-bg {
             position: absolute;
             top: 50%;
@@ -307,7 +306,6 @@
             max-width: 95vw;
         }
 
-        /* MARIO GAME CANVAS RE-POSITIONED INSIDE THE YELLOW BOX AREA */
         #mario-game-canvas {
             position: absolute;
             bottom: -430px;
@@ -320,7 +318,6 @@
             touch-action: none;
         }
 
-        /* CIRCULAR MENU CONTAINER */
         .circular-menu {
             position: relative;
             width: 720px;
@@ -333,7 +330,6 @@
             touch-action: none;
         }
 
-        /* CENTER TOGGLE BUTTON WITH BULL ICON DYNAMIC SWITCH */
         .toggle-btn {
             position: relative;
             width: 155px;
@@ -401,7 +397,6 @@
             pointer-events: auto;
         }
 
-        /* RADIAL MENU BUTTONS */
         .menu-item {
             position: absolute;
             top: 50%;
@@ -641,10 +636,11 @@
 
     <div class="top-controls">
         <select class="user-select-btn" id="user-profile-select" onchange="changeActiveUser(this.value)">
-            <option value="KRIZTEL">👤 Player: KRIZTEL</option>
+            <option value="" disabled selected>-- Select Your Name --</option>
             <option value="ANN">👤 Player: ANN</option>
             <option value="DAVE">👤 Player: DAVE</option>
             <option value="KENNETH">👤 Player: KENNETH</option>
+            <option value="KRIZTEL">👤 Player: KRIZTEL</option>
             <option value="MIGUEL">👤 Player: MIGUEL</option>
             <option value="CUSTOM">+ Custom Name...</option>
         </select>
@@ -666,15 +662,15 @@
         </div>
         <ul class="leaderboard-list" id="leaderboard-list">
             <li class="leaderboard-item">
-                <div><span class="rank-tag">#1</span> <span id="rank1-name">KRIZTEL</span></div>
+                <div><span class="rank-tag" id="rank1-tag"></span> <span id="rank1-name">--</span></div>
                 <span class="score-val" id="rank1-score">0 PTS</span>
             </li>
             <li class="leaderboard-item">
-                <div><span class="rank-tag">#2</span> <span id="rank2-name">ANN</span></div>
+                <div><span class="rank-tag" id="rank2-tag"></span> <span id="rank2-name">--</span></div>
                 <span class="score-val" id="rank2-score">0 PTS</span>
             </li>
             <li class="leaderboard-item">
-                <div><span class="rank-tag">#3</span> <span id="rank3-name">DAVE</span></div>
+                <div><span class="rank-tag" id="rank3-tag"></span> <span id="rank3-name">--</span></div>
                 <span class="score-val" id="rank3-score">0 PTS</span>
             </li>
         </ul>
@@ -801,9 +797,9 @@
                 localStorage.setItem('sb_active_user', userParam);
             }
 
-            let savedUser = localStorage.getItem('sb_active_user') || "KRIZTEL";
+            let savedUser = localStorage.getItem('sb_active_user');
             
-            if (userProfileSelect) {
+            if (userProfileSelect && savedUser) {
                 let matchOption = Array.from(userProfileSelect.options).find(o => o.value === savedUser);
                 if (matchOption) {
                     userProfileSelect.value = savedUser;
@@ -814,8 +810,10 @@
                     userProfileSelect.appendChild(customOpt);
                     userProfileSelect.value = savedUser;
                 }
+            } else if (userProfileSelect) {
+                userProfileSelect.selectedIndex = 0; 
             }
-            return savedUser;
+            return savedUser || "GUEST";
         }
 
         let currentUser = initActiveUser();
@@ -842,20 +840,28 @@
             listenToRealtimeLeaderboard();
         }
 
+        // DYNAMIC RANK SORTING & HIDE NUMBERS IF ALL ZERO
         function updateLeaderboardUI(scoreList) {
-            if (!scoreList || scoreList.length === 0) return;
+            if (!scoreList) return;
 
-            if (scoreList[0]) {
-                document.getElementById('rank1-name').textContent = scoreList[0][0];
-                document.getElementById('rank1-score').textContent = `${scoreList[0][1]} PTS`;
-            }
-            if (scoreList[1]) {
-                document.getElementById('rank2-name').textContent = scoreList[1][0];
-                document.getElementById('rank2-score').textContent = `${scoreList[1][1]} PTS`;
-            }
-            if (scoreList[2]) {
-                document.getElementById('rank3-name').textContent = scoreList[2][0];
-                document.getElementById('rank3-score').textContent = `${scoreList[2][1]} PTS`;
+            const nonZeroEntries = scoreList.filter(item => item[1] > 0);
+            const hasAnyScore = nonZeroEntries.length > 0;
+
+            for (let i = 1; i <= 3; i++) {
+                const item = scoreList[i - 1];
+                const tagElem = document.getElementById(`rank${i}-tag`);
+                const nameElem = document.getElementById(`rank${i}-name`);
+                const scoreElem = document.getElementById(`rank${i}-score`);
+
+                if (item && (hasAnyScore || item[1] > 0)) {
+                    tagElem.textContent = `#${i}`;
+                    nameElem.textContent = item[0];
+                    scoreElem.textContent = `${item[1]} PTS`;
+                } else {
+                    tagElem.textContent = ""; 
+                    nameElem.textContent = item ? item[0] : "--";
+                    scoreElem.textContent = "0 PTS";
+                }
             }
         }
 
@@ -874,7 +880,7 @@
         }
 
         function saveScoreToRealtimeLeaderboard(score) {
-            if (!currentUser) return;
+            if (!currentUser || currentUser === "GUEST") return;
             let currentLocalHigh = parseInt(localStorage.getItem(`mario_high_${currentUser}`) || '0');
             if (score > currentLocalHigh) {
                 localStorage.setItem(`mario_high_${currentUser}`, score.toString());
@@ -1077,7 +1083,7 @@
             render();
         }
 
-        // INTERACTIVE SUPER MARIO GAME (FULLY ISOLATED IN YELLOW BOX AREA)
+        // INTERACTIVE SUPER MARIO GAME
         function initSuperMarioGame() {
             const canvas = document.getElementById('mario-game-canvas');
             if (!canvas) return;
@@ -1105,7 +1111,6 @@
                 isSuper: false,
                 invincibleTimer: 0,
                 dy: 0,
-                dx: 0,
                 gravity: 0.52,
                 jumpPower: -10.2,
                 isGrounded: true,
@@ -1135,7 +1140,6 @@
                     mario.x = 80;
                     mario.y = groundY - mario.height;
                     mario.dy = 0;
-                    mario.dx = 0;
                     mario.isGrounded = true;
                     return;
                 }
@@ -1457,7 +1461,6 @@
 
                 drawMario(mario.x, mario.y);
 
-                // ANNOUNCEMENTS BELOW GROUND ROAD
                 if (levelCleared) {
                     if (finishLineObj) drawFinishLine(finishLineObj.x, finishLineObj.y);
                     ctx.font = '700 12px Orbitron, sans-serif';
@@ -1477,7 +1480,6 @@
                     ctx.fillText(`GAME OVER ${currentUser}! Tap to restart.`, 180, 135);
                 }
 
-                // DEDICATED RETRO SCOREBOX HUD
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
                 ctx.fillRect(canvas.width - 270, 100, 250, 42);
                 ctx.strokeStyle = '#38bdf8';
