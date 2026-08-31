@@ -59,7 +59,6 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); padding: 15px; color: var(--text-color); transition: background-color 0.3s; }
 
-        /* STICKY FROZEN TOP MENU BAR */
         .sticky-top-panel {
             position: sticky;
             top: 0;
@@ -194,7 +193,6 @@
 </head>
 <body>
 
-    <!-- STICKY FROZEN HEADER PANEL -->
     <div class="sticky-top-panel">
         <div class="header-container">
             <div class="title-group">
@@ -248,7 +246,6 @@
     </div>
 
     <script>
-        // Firebase Setup
         const firebaseConfig = {
             apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
             authDomain: "test-daily-task--sb.firebaseapp.com",
@@ -274,7 +271,7 @@
         let is7DayFilterActive = false;
         let undoStack = [];
         let redoStack = [];
-        let saveDebounceTimer = null; // PREVENTS UI FREEZING DURING TYPING
+        let saveDebounceTimer = null;
 
         const sportsOptions = [
             { name: "Football", class: "sport-football" },
@@ -303,7 +300,7 @@
             return found ? found.class : "type-single";
         }
 
-        // FOOTBALL DATASET - ALL 143 ROWS FULLY ALIGNED TO HEADERS:
+        // FOOTBALL DATASET - MAPPED STRICTLY TO TABLE HEADERS:
         // [0:BO, 1:PUB, 2:Brands, 3:KO Date, 4:KO Time, 5:Sports, 6:League, 7:Event, 8:Type, 9:Market 1, 10:Market 2, 11:Market 3, 12:Market 4, 13:Notes, 14:Other Ideas]
         const footballDataset = [
             [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Football", "Veikkausliiga", "TPS - Marienhamn", "Bet Builder", "TPS to win", "Corner over 10.5", "", "", "Activated July 31", ""],
@@ -441,7 +438,7 @@
             [true, true, "7Abet/BVBet", "08.31.2026", "20:00:00", "Football", "Italy Serie A", "Lecce - Roma", "Bet Builder", "Roma to score 1st goal", "Total Over 2.5", "", "", "Activated August 27", ""],
             [true, true, "7Abet/BVBet", "08.31.2026", "20:00:00", "Football", "LaLiga", "Barcelona - Rayo Vallecano", "Bet Builder", "Total Corners over 10.5", "Raphina to score a goal", "", "", "Activated August 27", ""],
 
-            // FULLY FIXED ROWS 135-143 (Explicit Brands="7Abet/BVBet" at Index 2):
+            // FIXED ROWS 135-143 (Explicit Brands="7Abet/BVBet" at Index 2):
             [true, true, "7Abet/BVBet", "09.01.2026", "20:00:00", "Football", "Italy Serie A", "Parma - Cremonese", "Bet Builder", "Over 3.5 total goals", "Bonazzoli to score a goal", "", "", "Activated August 31", ""],
             [true, true, "7Abet/BVBet", "09.01.2026", "20:00:00", "Football", "Italy Serie A", "Torino - Monza", "Bet Builder", "Torino to win", "Both team to Score - YES", "", "", "Activated August 31", ""],
             [true, true, "7Abet/BVBet", "09.01.2026", "20:00:00", "Football", "England Championship", "West Ham - Wolves", "Bet Builder", "HT/FT 1/1", "Both team to Score - YES", "", "", "Activated August 30", ""],
@@ -671,10 +668,9 @@
                 return;
             }
 
-            // CRITICAL FIX: Only overwrite local data if the user is NOT actively typing to prevent focus-loss & freezing
             db.ref('edge_boosts_master_v22').on('value', (snapshot) => {
                 if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT')) {
-                    return; // Ignore remote re-renders while typing
+                    return; 
                 }
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object' && liveData["Edge Football"] && liveData["Edge Football"].rows && liveData["Edge Football"].rows.length >= 100) {
@@ -686,7 +682,6 @@
             });
         }
 
-        // DEBOUNCED DATABASE SAVING - ELIMINATES TYPING FREEZES
         function debouncedSaveToFirebase() {
             const statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
@@ -697,7 +692,7 @@
             clearTimeout(saveDebounceTimer);
             saveDebounceTimer = setTimeout(() => {
                 saveToFirebaseNow();
-            }, 400); // 400ms delay after last key press
+            }, 400);
         }
 
         function saveToFirebaseNow() {
@@ -1186,7 +1181,6 @@
             }
         }
 
-        // SMOOTH INPUT HANDLING: Updates local data instantly & debounces network save (NO FREEZING/RE-RENDERING)
         function updateCellDirectly(rowIndex, colIndex, value) {
             workbookData[currentSheet].rows[rowIndex][colIndex] = value;
             debouncedSaveToFirebase();
