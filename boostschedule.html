@@ -89,7 +89,6 @@
         .btn-secondary { background-color: rgba(255, 255, 255, 0.15); color: var(--text-color); border: 1px solid var(--border-color); }
         .btn-success { background-color: #22c55e; color: #ffffff; }
 
-        /* RETURN TO DASHBOARD BUTTON STYLES */
         .btn-dashboard {
             background: linear-gradient(135deg, #1e293b, #0f172a) !important;
             color: #ffffff !important;
@@ -110,7 +109,6 @@
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
         }
 
-        /* FIXED FONT SLIDER TOOLBAR */
         .font-slider-wrapper {
             display: inline-flex;
             align-items: center;
@@ -130,7 +128,6 @@
             accent-color: var(--accent-btn);
         }
 
-        /* CATEGORY TABS STYLES */
         .category-tabs {
             display: flex;
             gap: 10px;
@@ -184,7 +181,33 @@
 
         .filter-bar input { flex: 1; min-width: 200px; }
 
-        /* SCHEDULE TIMELINE GRID */
+        .date-group-header {
+            grid-column: 1 / -1;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-left: 4px solid var(--accent-btn);
+            padding: 10px 16px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: var(--header-text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .featured-match-badge {
+            font-size: 11px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -308,6 +331,12 @@
             color: #fef08a !important;
         }
 
+        [data-theme="light"] .market-tag-scorer {
+            background: rgba(234, 179, 8, 0.25) !important;
+            border-color: #ca8a04 !important;
+            color: #854d0e !important;
+        }
+
         .card-actions {
             display: flex;
             justify-content: space-between;
@@ -317,7 +346,6 @@
             border-top: 1px solid var(--border-color);
         }
 
-        /* MODAL STYLES */
         .modal-backdrop {
             display: none;
             position: fixed;
@@ -362,10 +390,9 @@
     <div class="header-container">
         <div class="title-group">
             <h1>AUTOMATED BIG EVENTS & OUTRIGHTS SCHEDULE</h1>
-            <span class="title-credit">kdv_2026 model</span>
+            <span class="title-credit">kdv_2026 model • Flashscore Sync Engine</span>
         </div>
         <div class="btn-controls">
-            <!-- FIXED STABLE FONT SIZE SLIDER TOOLBAR -->
             <div class="font-slider-wrapper" title="Adjust Readability Font Size">
                 <i class="fa-solid fa-font"></i>
                 <input type="range" id="fontSlider" min="11" max="20" value="14" oninput="changeFontSize(this.value)">
@@ -377,30 +404,27 @@
             <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
             
-            <!-- DIRECT DASHBOARD RETURN LINK TO index.html -->
             <a href="index.html" class="btn btn-dashboard">
                 <i class="fa-solid fa-house"></i> Dashboard
             </a>
         </div>
     </div>
 
-    <!-- MAIN CATEGORY TABS -->
     <div class="category-tabs">
         <button class="tab-btn active" id="tab-FOOTBALL" onclick="switchCategoryTab('FOOTBALL')">
-            ⚽ Football (Priority Leagues)
+            ⚽ Football (Priority & Expanded Leagues)
         </button>
         <button class="tab-btn" id="tab-TENNIS" onclick="switchCategoryTab('TENNIS')">
             🎾 Tennis (ATP & WTA Singles)
         </button>
         <button class="tab-btn" id="tab-OTHER" onclick="switchCategoryTab('OTHER')">
-            🏀 Basketball, NFL, MLB, Esports & Others
+            🏀 Basketball, MLS, NFL, MLB & Others
         </button>
         <button class="tab-btn" id="tab-OUTRIGHT" onclick="switchCategoryTab('OUTRIGHT')">
-            🏆 Outright Picks & Specials (All Sports, Horse Racing, Politics)
+            🏆 Outright Picks & Specials (All Sports, Racing, Politics)
         </button>
     </div>
 
-    <!-- FILTER & SEARCH BAR -->
     <div class="filter-bar">
         <i class="fa-solid fa-magnifying-glass" style="opacity: 0.7;"></i>
         <input type="text" id="searchInput" placeholder="Search events, teams, goalscorers, or outright selections..." oninput="renderSchedule()">
@@ -413,10 +437,8 @@
         </select>
     </div>
 
-    <!-- EVENTS SCHEDULE GRID -->
     <div class="schedule-grid" id="scheduleContainer"></div>
 
-    <!-- ADD / EDIT EVENT MODAL -->
     <div class="modal-backdrop" id="eventModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -428,7 +450,7 @@
 
             <div>
                 <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Matchup / Outright Title *</label>
-                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Aston Villa vs Arsenal or Premier League Winner 2026/27">
+                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Real Madrid vs Barcelona or Champions League Winner">
             </div>
 
             <div style="display: flex; gap: 10px;">
@@ -441,14 +463,13 @@
                         <option value="AM_FOOTBALL">American Football (NFL)</option>
                         <option value="BASEBALL">Baseball (MLB)</option>
                         <option value="HOCKEY">Ice Hockey (NHL)</option>
-                        <option value="VOLLEYBALL">Volleyball</option>
                         <option value="ESPORTS">Esports</option>
                         <option value="OUTRIGHT">Outright / Specials / Politics / Racing</option>
                     </select>
                 </div>
                 <div style="flex: 1;">
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">League / Tournament</label>
-                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., England Premier League / Outright Specials">
+                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., Europa Champions League / Scotland Premiership">
                 </div>
             </div>
 
@@ -469,7 +490,7 @@
 
             <div>
                 <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">1-2 Top Goalscorers & Featured Options (Comma Separated)</label>
-                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Bukayo Saka (Goalscorer), Ollie Watkins (Goalscorer), Shots on Target">
+                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Kylian Mbappé (Goalscorer), Shots on Target">
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
@@ -496,7 +517,6 @@
         let eventSchedule = {};
         let activeTabCategory = 'FOOTBALL';
 
-        // TEAM SPECIFIC 1-2 GOALSCORERS DATABASE LOOKUP
         const teamStarScorers = {
             "arsenal": ["Bukayo Saka", "Kai Havertz"],
             "aston villa": ["Ollie Watkins", "Leon Bailey"],
@@ -508,10 +528,31 @@
             "barcelona": ["Robert Lewandowski", "Lamine Yamal"],
             "bayern munich": ["Harry Kane", "Jamal Musiala"],
             "inter milan": ["Lautaro Martínez", "Marcus Thuram"],
-            "napoli": ["Victor Osimhen", "Khvicha Kvaratskhelia"],
             "psg": ["Ousmane Dembélé", "Randal Kolo Muani"],
-            "tottenham": ["Son Heung-min", "Dominic Solanke"]
+            "celtic": ["Kyogo Furuhashi", "Daizen Maeda"],
+            "rangers": ["Cyriel Dessers", "James Tavernier"],
+            "sporting cp": ["Viktor Gyökeres", "Pedro Gonçalves"],
+            "benfica": ["Vangelis Pavlidis", "Ángel Di María"],
+            "inter miami": ["Lionel Messi", "Luis Suárez"]
         };
+
+        const fallbackPriorityLeagues = [
+            "European Championships",
+            "Europa Champions League",
+            "England Premier League",
+            "Spain La Liga",
+            "Germany Bundesliga",
+            "Italy Serie A",
+            "France Ligue 1",
+            "Liga Portugal",
+            "Netherlands Eredivisie",
+            "Europa League",
+            "Europa League Conference",
+            "DFB Pokal",
+            "Scotland Premiership",
+            "EFL",
+            "MLS"
+        ];
 
         function changeFontSize(pxValue) {
             const numVal = parseInt(pxValue, 10);
@@ -555,7 +596,6 @@
             renderSchedule();
         }
 
-        // GENERATE DYNAMIC 1-2 GOALSCORERS & MARKETS FOR MATCHES
         function generatePopularMarketsForMatch(title, sport) {
             const teams = title.split(/ vs | v /i);
             const teamAKey = teams[0] ? teams[0].trim().toLowerCase() : '';
@@ -576,8 +616,7 @@
                 return [
                     `${teams[0] || 'Player 1'} Winner`,
                     `Set Betting 3-0 / 2-0`,
-                    `Total Games Over/Under`,
-                    `Player Aces Count`
+                    `Total Games Over/Under`
                 ];
             } else {
                 return [
@@ -586,6 +625,30 @@
                     `Total Points Over/Under`
                 ];
             }
+        }
+
+        function getBestPickForDay(dayMatches) {
+            for (const leagueName of fallbackPriorityLeagues) {
+                const found = dayMatches.find(m => m.league === leagueName && (m.tier === 'HOT_GAME' || m.tier === 'TIER_1'));
+                if (found) return found;
+            }
+            return dayMatches[0] || null;
+        }
+
+        // FEATURE INTEGRATION: TRANSFER MATCH DETAILS TO EDGE_BOOSTS.HTML
+        function sendToEdgeBoost(id) {
+            const item = eventSchedule[id];
+            if (!item) return;
+
+            const payload = {
+                title: item.title,
+                league: item.league,
+                dateTime: item.dateTime,
+                sport: item.sport
+            };
+
+            localStorage.setItem('pending_edge_boost_transfer', JSON.stringify(payload));
+            window.location.href = 'edge_boosts.html';
         }
 
         function renderSchedule() {
@@ -598,9 +661,8 @@
             const seenMatchKeys = new Set();
             const duplicatesToDelete = [];
 
-            const keys = Object.keys(eventSchedule).sort((a, b) => {
-                return new Date(eventSchedule[a].dateTime) - new Date(eventSchedule[b].dateTime);
-            });
+            const filteredItems = [];
+            const keys = Object.keys(eventSchedule);
 
             keys.forEach(id => {
                 const item = eventSchedule[id];
@@ -612,20 +674,17 @@
                 }
                 seenMatchKeys.add(normalizedTitle);
 
-                // Category Tab Logic
                 let matchesTab = false;
                 if (activeTabCategory === 'FOOTBALL' && item.sport === 'FOOTBALL') matchesTab = true;
                 else if (activeTabCategory === 'TENNIS' && item.sport === 'TENNIS') matchesTab = true;
                 else if (activeTabCategory === 'OUTRIGHT' && item.sport === 'OUTRIGHT') matchesTab = true;
                 else if (activeTabCategory === 'OTHER' && item.sport !== 'FOOTBALL' && item.sport !== 'TENNIS' && item.sport !== 'OUTRIGHT') matchesTab = true;
 
-                // Search Filter Logic
                 const marketsStr = Array.isArray(item.markets) ? item.markets.join(' ') : (item.markets || '');
                 const matchesSearch = item.title.toLowerCase().includes(searchText) || 
                                       item.league.toLowerCase().includes(searchText) ||
                                       marketsStr.toLowerCase().includes(searchText);
 
-                // Priority Highlight Filter
                 const isPopular = (item.tier === 'HOT_GAME' || item.tier === 'TIER_1');
                 let matchesTier = true;
                 if (filterTier === 'POPULAR') matchesTier = isPopular;
@@ -633,12 +692,51 @@
                 else if (filterTier === 'TIER_1') matchesTier = (item.tier === 'TIER_1');
 
                 if (matchesTab && matchesSearch && matchesTier) {
+                    filteredItems.push({ id, ...item });
+                }
+            });
+
+            if (duplicatesToDelete.length > 0) {
+                duplicatesToDelete.forEach(dupId => {
+                    db.ref(`boost_schedule/${dupId}`).remove();
+                });
+            }
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; opacity: 0.6; padding: 40px;">No upcoming selections found. Click <strong>"Manual Re-sync Feed"</strong> to update matches.</div>`;
+                return;
+            }
+
+            filteredItems.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+
+            const groupedByDay = {};
+            filteredItems.forEach(item => {
+                const dateKey = new Date(item.dateTime).toISOString().split('T')[0];
+                if (!groupedByDay[dateKey]) groupedByDay[dateKey] = [];
+                groupedByDay[dateKey].push(item);
+            });
+
+            Object.keys(groupedByDay).sort().forEach(dateKey => {
+                const dayMatches = groupedByDay[dateKey];
+                const topPickOfDay = getBestPickForDay(dayMatches);
+
+                const dayDateObj = new Date(dateKey + "T00:00:00");
+                const dayHeaderStr = dayDateObj.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+
+                const dayHeaderEl = document.createElement('div');
+                dayHeaderEl.className = 'date-group-header';
+                dayHeaderEl.innerHTML = `
+                    <span>📅 ${dayHeaderStr}</span>
+                    ${topPickOfDay ? `<span class="featured-match-badge">🔥 Featured Daily Pick: ${escapeHtml(topPickOfDay.title)}</span>` : ''}
+                `;
+                container.appendChild(dayHeaderEl);
+
+                dayMatches.forEach(item => {
+                    const isPopular = (item.tier === 'HOT_GAME' || item.tier === 'TIER_1');
                     const card = document.createElement('div');
                     card.className = `event-card ${isPopular ? 'popular-highlight' : ''}`;
 
-                    const dateFormatted = new Date(item.dateTime).toLocaleString([], {
-                        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                    });
+                    const timeFormatted = new Date(item.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                     let marketTags = [];
                     if (Array.isArray(item.markets) && item.markets.length > 0) {
@@ -663,50 +761,43 @@
                         </div>
 
                         <div class="event-meta">
-                            <span>📅 ${dateFormatted}</span>
+                            <span>⏰ Kickoff: ${timeFormatted}</span>
                         </div>
 
-                        <!-- POPULAR MARKETS & GOALSCORERS BOX -->
                         <div class="popular-markets-box">
                             <div class="market-box-title">
                                 <i class="fa-solid ${item.sport === 'OUTRIGHT' ? 'fa-trophy' : 'fa-fire-flame-curved'}" style="color:${item.sport === 'OUTRIGHT' ? '#a855f7' : '#ef4444'};"></i> 
-                                ${item.sport === 'OUTRIGHT' ? 'Top Oddschecker Favorites to Offer:' : '1-2 Pick Goalscorers & Featured Options:'}
+                                ${item.sport === 'OUTRIGHT' ? 'Top Oddschecker Favorites:' : '1-2 Goalscorers & Top Options:'}
                             </div>
                             <div class="market-tag-list">
                                 ${marketTags.map(tag => {
-                                    const isScorer = tag.toLowerCase().includes('scorer') || tag.toLowerCase().includes('goal') || tag.toLowerCase().includes('saka') || tag.toLowerCase().includes('haaland') || tag.toLowerCase().includes('salah') || tag.toLowerCase().includes('mbapp');
+                                    const isScorer = tag.toLowerCase().includes('scorer') || tag.toLowerCase().includes('goal') || tag.toLowerCase().includes('saka') || tag.toLowerCase().includes('haaland') || tag.toLowerCase().includes('mbapp');
                                     return `<span class="market-tag ${isScorer ? 'market-tag-scorer' : ''}">${escapeHtml(tag)}</span>`;
                                 }).join('')}
                             </div>
                         </div>
 
                         <div class="card-actions">
-                            <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${id}')">
-                                ✏️ Edit Details
-                            </button>
-                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="deleteEvent('${id}')">🗑️ Delete</button>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${item.id}')">
+                                    ✏️ Edit Details
+                                </button>
+                                <!-- TRANSFER BUTTON -->
+                                <button class="btn" style="padding: 4px 10px; font-size: 11px; background-color: #fbbf24; color: #0f172a; font-weight: 800;" onclick="sendToEdgeBoost('${item.id}')">
+                                    ⚡ Edge Boost
+                                </button>
+                            </div>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="deleteEvent('${item.id}')">🗑️ Delete</button>
                         </div>
                     `;
                     container.appendChild(card);
-                }
+                });
             });
 
-            // SILENT FIREBASE DUPLICATE PURGE
-            if (duplicatesToDelete.length > 0) {
-                duplicatesToDelete.forEach(dupId => {
-                    db.ref(`boost_schedule/${dupId}`).remove();
-                });
-            }
-
-            if (container.children.length === 0) {
-                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; opacity: 0.6; padding: 40px;">No upcoming selections in this tab. Click <strong>"Manual Re-sync Feed"</strong> to re-populate games & outrights.</div>`;
-            } else {
-                const currentSliderVal = document.getElementById('fontSlider').value;
-                changeFontSize(currentSliderVal);
-            }
+            const currentSliderVal = document.getElementById('fontSlider').value;
+            changeFontSize(currentSliderVal);
         }
 
-        // DYNAMIC FEED SYNC WITH 1-2 GOALSCORERS & OUTRIGHT PICKS
         function fetchFlashscore7Days(showPrompt = false) {
             const today = new Date();
 
@@ -718,27 +809,23 @@
             }
 
             const upcomingFlashscoreFeeds = [
-                // FOOTBALL - PRIORITY LEAGUES (WITH 1-2 GOALSCORERS)
-                { title: "Aston Villa vs Arsenal", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "04:00"), tier: "HOT_GAME", markets: ["Bukayo Saka (Scorer)", "Ollie Watkins (Scorer)", "Shots on Target", "Over 2.5 Goals"] },
-                { title: "Ipswich Town vs Liverpool", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "04:00"), tier: "TIER_1", markets: ["Mo Salah (Scorer)", "Darwin Núñez (Scorer)", "Liverpool Win & BTTS"] },
-                { title: "Arsenal vs Manchester City", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "09:34"), tier: "HOT_GAME", markets: ["Erling Haaland (Scorer)", "Bukayo Saka (Scorer)", "1X2 Odds", "2+ Shots on Target"] },
-                { title: "Arsenal vs Chelsea", league: "England Premier League", sport: "FOOTBALL", dateTime: "2026-09-06T00:30", tier: "HOT_GAME", markets: ["Cole Palmer (Scorer)", "Kai Havertz (Scorer)", "Cards Over 4.5"] },
-                { title: "Everton vs Manchester United", league: "England Premier League", sport: "FOOTBALL", dateTime: "2026-09-05T22:00", tier: "TIER_1", markets: ["Bruno Fernandes (Scorer)", "Rasmus Højlund (Scorer)"] },
-                { title: "Barcelona vs Rayo Vallecano", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "03:00"), tier: "TIER_1", markets: ["Lamine Yamal (Scorer)", "Robert Lewandowski (Scorer)", "Corner Handicap"] },
-                { title: "Real Madrid vs Málaga", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "03:00"), tier: "TIER_1", markets: ["Kylian Mbappé (Scorer)", "Jude Bellingham (Scorer)", "Halftime/Fulltime"] },
-                { title: "Bayern Munich vs VfL Osnabrück", league: "Germany Bundesliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "02:30"), tier: "TIER_1", markets: ["Harry Kane (Scorer)", "Jamal Musiala (Scorer)", "Asian Handicap -1.5"] },
-
-                // TENNIS (US OPEN GRAND SLAM)
-                { title: "Carlos Alcaraz vs Pavel Kotov", league: "ATP US Open Singles", sport: "TENNIS", dateTime: getRelativeDateStr(2, "02:00"), tier: "HOT_GAME", markets: ["Alcaraz 3-0 Set Betting", "Aces Over 8.5"] },
-                { title: "Aryna Sabalenka vs Iga Świątek", league: "WTA US Open Singles", sport: "TENNIS", dateTime: getRelativeDateStr(5, "01:00"), tier: "HOT_GAME", markets: ["Sabalenka Match Winner", "Tiebreak Yes"] },
-
-                // OUTRIGHT PICKS & SPECIALS (ALL SPORTS, POLITICS, HORSE RACING)
-                { title: "Premier League Winner 2026/27", league: "England Premier League Outright", sport: "OUTRIGHT", dateTime: "2026-09-15T00:00", tier: "HOT_GAME", markets: ["Man City (Favorites)", "Arsenal (2nd Fav)", "Liverpool", "Chelsea"] },
-                { title: "UEFA Champions League Winner 2026/27", league: "UEFA Outright", sport: "OUTRIGHT", dateTime: "2026-09-20T00:00", tier: "HOT_GAME", markets: ["Real Madrid (Favorites)", "Man City", "Bayern Munich", "PSG"] },
-                { title: "US Open Men's Singles Champion", league: "ATP Tennis Outright", sport: "OUTRIGHT", dateTime: "2026-09-13T23:00", tier: "TIER_1", markets: ["Carlos Alcaraz", "Jannik Sinner", "Novak Djokovic"] },
-                { title: "NFL Super Bowl LXI Champion", league: "NFL Outright", sport: "OUTRIGHT", dateTime: "2026-09-10T00:00", tier: "TIER_1", markets: ["Kansas City Chiefs", "San Francisco 49ers", "Baltimore Ravens"] },
-                { title: "Cheltenham Gold Cup Winner", league: "Horse Racing Outright", sport: "OUTRIGHT", dateTime: "2026-09-25T15:00", tier: "TIER_1", markets: ["Galopin Des Champs", "Fastorslow", "Gerri Colombe"] },
-                { title: "UK Next Prime Minister / Election", league: "Politics Outright", sport: "OUTRIGHT", dateTime: "2026-10-01T00:00", tier: "REGULAR", markets: ["Labor Party", "Conservative Party", "Reform UK"] }
+                { title: "Aston Villa vs Arsenal", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "04:00"), tier: "HOT_GAME", markets: ["Bukayo Saka (Scorer)", "Ollie Watkins (Scorer)", "Shots on Target"] },
+                { title: "Real Madrid vs Barcelona", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "21:00"), tier: "HOT_GAME", markets: ["Kylian Mbappé (Scorer)", "Lamine Yamal (Scorer)", "BTTS & Over 2.5"] },
+                { title: "Bayern Munich vs Borussia Dortmund", league: "Germany Bundesliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "18:30"), tier: "HOT_GAME", markets: ["Harry Kane (Scorer)", "Over 3.5 Goals"] },
+                { title: "Paris Saint-Germain vs Inter Milan", league: "Europa Champions League", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "21:00"), tier: "HOT_GAME", markets: ["Ousmane Dembélé (Scorer)", "Lautaro Martínez (Scorer)"] },
+                { title: "Roma vs Ajax", league: "Europa League", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "18:45"), tier: "TIER_1", markets: ["Match Winner", "Total Corners Over 9.5"] },
+                { title: "Fiorentina vs Real Betis", league: "Europa League Conference", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "21:00"), tier: "TIER_1", markets: ["Both Teams To Score", "Cards Over 4.5"] },
+                { title: "Celtic vs Rangers", league: "Scotland Premiership", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "12:30"), tier: "HOT_GAME", markets: ["Kyogo Furuhashi (Scorer)", "Cyriel Dessers (Scorer)", "Red Card Yes"] },
+                { title: "RB Leipzig vs Eintracht Frankfurt", league: "DFB Pokal", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "20:45"), tier: "TIER_1", markets: ["To Qualify Winner", "Over 2.5 Goals"] },
+                { title: "Leeds United vs Sunderland", league: "EFL", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "15:00"), tier: "TIER_1", markets: ["1X2 Odds", "Over 2.5 Goals"] },
+                { title: "Inter Miami vs LA Galaxy", league: "MLS", sport: "OTHER", dateTime: getRelativeDateStr(4, "23:30"), tier: "HOT_GAME", markets: ["Lionel Messi (Scorer)", "Luis Suárez (Scorer)"] },
+                { title: "Sporting CP vs Benfica", league: "Liga Portugal", sport: "FOOTBALL", dateTime: getRelativeDateStr(5, "20:30"), tier: "HOT_GAME", markets: ["Viktor Gyökeres (Scorer)", "Vangelis Pavlidis (Scorer)"] },
+                { title: "Malmö FF vs AIK", league: "Sweden Allsvenskan", sport: "FOOTBALL", dateTime: getRelativeDateStr(5, "15:00"), tier: "TIER_1", markets: ["Home Win", "BTTS"] },
+                { title: "Örgryte IS vs Landskrona BoIS", league: "Sweden Eliteserien", sport: "FOOTBALL", dateTime: getRelativeDateStr(6, "17:00"), tier: "REGULAR", markets: ["Over 2.5 Goals"] },
+                { title: "HJK Helsinki vs KuPS", league: "Veikkausliiga", sport: "FOOTBALL", dateTime: getRelativeDateStr(6, "18:00"), tier: "TIER_1", markets: ["Match Winner"] },
+                { title: "FC Copenhagen vs Brøndby", league: "Denmark Superliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(6, "16:00"), tier: "HOT_GAME", markets: ["Derby Winner", "Cards Over 5.5"] },
+                { title: "Carlos Alcaraz vs Jannik Sinner", league: "ATP Tennis Singles", sport: "TENNIS", dateTime: getRelativeDateStr(2, "02:00"), tier: "HOT_GAME", markets: ["Match Winner", "Over 3.5 Sets"] },
+                { title: "Premier League Winner 2026/27", league: "England Premier League Outright", sport: "OUTRIGHT", dateTime: "2026-09-15T00:00", tier: "HOT_GAME", markets: ["Man City (Favorites)", "Arsenal (2nd Fav)", "Liverpool"] }
             ];
 
             const normalize = str => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
