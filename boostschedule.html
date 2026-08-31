@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Big Events & Outrights Schedule Hub</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #0b2240;
+            --card-bg: #133054;
+            --text-color: #ffffff;
+            --header-text: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --accent-btn: #38bdf8;
+            --accent-btn-text: #0b2240;
+            --input-bg: #071931;
+            --badge-hot: #ef4444;
+            --badge-tier1: #facc15;
+            --badge-outright: #a855f7;
+            --market-box-bg: rgba(0, 0, 0, 0.35);
+            --market-box-border: rgba(255, 255, 255, 0.25);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --header-text: #0d233a;
+            --border-color: #cbd5e0;
+            --accent-btn: #0d233a;
+            --accent-btn-text: #ffffff;
+            --input-bg: #ffffff;
+            --market-box-bg: #e2e8f0;
+            --market-box-border: #cbd5e0;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.4;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .title-group { display: flex; flex-direction: column; gap: 2px; }
+        h1 { font-size: 20px; color: var(--header-text); font-weight: 800; letter-spacing: -0.02em; }
+        .title-credit { font-size: 11px; font-weight: 600; color: var(--accent-btn); opacity: 0.85; }
+
+        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background-color: #38bdf8; color: #0b2240; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.15); color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-success { background-color: #22c55e; color: #ffffff; }
+
+        .btn-dashboard {
+            background-color: #0d233a !important;
+            color: #ffffff !important;
+            border: 2px solid #38bdf8 !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            border-radius: 6px !important;
+        }
+
+        /* FIXED FONT SLIDER TOOLBAR */
+        .font-slider-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .font-slider-wrapper input[type="range"] {
+            width: 100px;
+            cursor: pointer;
+            accent-color: var(--accent-btn);
+        }
+
+        /* CATEGORY TABS STYLES */
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-btn);
+            color: var(--accent-btn-text);
+            border-color: var(--accent-btn);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .filter-bar {
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input, .filter-bar select, .form-control {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .filter-bar input { flex: 1; min-width: 200px; }
+
+        /* SCHEDULE TIMELINE GRID */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        .event-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        @keyframes popularGlow {
+            0%, 100% { border-color: #ef4444; box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); }
+            50% { border-color: #facc15; box-shadow: 0 0 8px rgba(250, 204, 21, 0.35); }
+        }
+
+        @keyframes blinkBadge {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.75; transform: scale(1.05); }
+        }
+
+        .event-card.popular-highlight {
+            animation: popularGlow 2s infinite ease-in-out;
+            border-width: 2px !important;
+        }
+
+        .badge-blink {
+            animation: blinkBadge 1.2s infinite ease-in-out;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .event-sport {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--accent-btn);
+        }
+
+        .event-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--header-text);
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        .event-meta {
+            font-size: 12px;
+            opacity: 0.85;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badge-tier1 { background: var(--badge-tier1); color: #000; }
+        .badge-hot { background: var(--badge-hot); color: #fff; }
+        .badge-outright { background: var(--badge-outright); color: #fff; }
+
+        .popular-markets-box {
+            background: var(--market-box-bg);
+            border: 1px dashed var(--market-box-border);
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .market-box-title {
+            font-weight: 800;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .market-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .market-tag {
+            background: rgba(56, 189, 248, 0.18);
+            color: var(--text-color);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 4px 9px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .market-tag-scorer {
+            background: rgba(250, 204, 21, 0.2) !important;
+            border-color: #facc15 !important;
+            color: #fef08a !important;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* MODAL STYLES */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.show { display: flex; }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 580px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="title-group">
+            <h1>AUTOMATED BIG EVENTS & OUTRIGHTS SCHEDULE</h1>
+            <span class="title-credit">kdv_2026 model</span>
+        </div>
+        <div class="btn-controls">
+            <!-- FIXED STABLE FONT SIZE SLIDER TOOLBAR -->
+            <div class="font-slider-wrapper" title="Adjust Readability Font Size">
+                <i class="fa-solid fa-font"></i>
+                <input type="range" id="fontSlider" min="11" max="20" value="14" oninput="changeFontSize(this.value)">
+                <span id="fontSizeBadge">14px</span>
+                <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="resetFontSize()">Reset</button>
+            </div>
+
+            <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
+            <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+            <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
+        </div>
+    </div>
+
+    <!-- MAIN CATEGORY TABS -->
+    <div class="category-tabs">
+        <button class="tab-btn active" id="tab-FOOTBALL" onclick="switchCategoryTab('FOOTBALL')">
+            ⚽ Football (Priority Leagues)
+        </button>
+        <button class="tab-btn" id="tab-TENNIS" onclick="switchCategoryTab('TENNIS')">
+            🎾 Tennis (ATP & WTA Singles)
+        </button>
+        <button class="tab-btn" id="tab-OTHER" onclick="switchCategoryTab('OTHER')">
+            🏀 Basketball, NFL, MLB, Esports & Others
+        </button>
+        <button class="tab-btn" id="tab-OUTRIGHT" onclick="switchCategoryTab('OUTRIGHT')">
+            🏆 Outright Picks & Specials (All Sports, Horse Racing, Politics)
+        </button>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="filter-bar">
+        <i class="fa-solid fa-magnifying-glass" style="opacity: 0.7;"></i>
+        <input type="text" id="searchInput" placeholder="Search events, teams, goalscorers, or outright selections..." oninput="renderSchedule()">
+
+        <select id="filterTier" onchange="renderSchedule()">
+            <option value="ALL">All Event Priorities</option>
+            <option value="POPULAR">🔥 High Priority / Popular Matches Only</option>
+            <option value="HOT_GAME">Derby / Hot Match</option>
+            <option value="TIER_1">Tier 1 League</option>
+        </select>
+    </div>
+
+    <!-- EVENTS SCHEDULE GRID -->
+    <div class="schedule-grid" id="scheduleContainer"></div>
+
+    <!-- ADD / EDIT EVENT MODAL -->
+    <div class="modal-backdrop" id="eventModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalTitle">Add Big Event / Outright</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal()"></i>
+            </div>
+            
+            <input type="hidden" id="editEventId">
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Matchup / Outright Title *</label>
+                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Aston Villa vs Arsenal or Premier League Winner 2026/27">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Sport Category</label>
+                    <select id="eventSport" class="form-control" style="width: 100%;">
+                        <option value="FOOTBALL">Football / Soccer</option>
+                        <option value="TENNIS">Tennis (ATP / WTA)</option>
+                        <option value="BASKETBALL">Basketball (NBA / EuroLeague)</option>
+                        <option value="AM_FOOTBALL">American Football (NFL)</option>
+                        <option value="BASEBALL">Baseball (MLB)</option>
+                        <option value="HOCKEY">Ice Hockey (NHL)</option>
+                        <option value="VOLLEYBALL">Volleyball</option>
+                        <option value="ESPORTS">Esports</option>
+                        <option value="OUTRIGHT">Outright / Specials / Politics / Racing</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">League / Tournament</label>
+                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., England Premier League / Outright Specials">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Date / Settlement Time *</label>
+                    <input type="datetime-local" id="eventDateTime" class="form-control" style="width: 100%;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Priority Tier</label>
+                    <select id="eventTier" class="form-control" style="width: 100%;">
+                        <option value="HOT_GAME">🔥 Hot Game / Derby / Major Outright</option>
+                        <option value="TIER_1">⭐ Tier 1 (Popular Event Highlight)</option>
+                        <option value="REGULAR">Regular Game</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">1-2 Top Goalscorers & Featured Options (Comma Separated)</label>
+                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Bukayo Saka (Goalscorer), Ollie Watkins (Goalscorer), Shots on Target">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let eventSchedule = {};
+        let activeTabCategory = 'FOOTBALL';
+
+        // TEAM SPECIFIC 1-2 GOALSCORERS DATABASE LOOKUP
+        const teamStarScorers = {
+            "arsenal": ["Bukayo Saka", "Kai Havertz"],
+            "aston villa": ["Ollie Watkins", "Leon Bailey"],
+            "liverpool": ["Mo Salah", "Darwin Núñez"],
+            "manchester city": ["Erling Haaland", "Phil Foden"],
+            "manchester united": ["Bruno Fernandes", "Rasmus Højlund"],
+            "chelsea": ["Cole Palmer", "Nicolas Jackson"],
+            "real madrid": ["Kylian Mbappé", "Jude Bellingham"],
+            "barcelona": ["Robert Lewandowski", "Lamine Yamal"],
+            "bayern munich": ["Harry Kane", "Jamal Musiala"],
+            "inter milan": ["Lautaro Martínez", "Marcus Thuram"],
+            "napoli": ["Victor Osimhen", "Khvicha Kvaratskhelia"],
+            "psg": ["Ousmane Dembélé", "Randal Kolo Muani"],
+            "tottenham": ["Son Heung-min", "Dominic Solanke"]
+        };
+
+        function changeFontSize(pxValue) {
+            const numVal = parseInt(pxValue, 10);
+            document.querySelectorAll('.event-title').forEach(el => el.style.fontSize = `${numVal + 2}px`);
+            document.querySelectorAll('.event-sport').forEach(el => el.style.fontSize = `${Math.max(10, numVal - 3)}px`);
+            document.querySelectorAll('.event-meta').forEach(el => el.style.fontSize = `${Math.max(11, numVal - 2)}px`);
+            document.querySelectorAll('.market-box-title').forEach(el => el.style.fontSize = `${Math.max(11, numVal - 2)}px`);
+            document.querySelectorAll('.market-tag').forEach(el => el.style.fontSize = `${Math.max(10, numVal - 3)}px`);
+
+            document.getElementById('fontSizeBadge').innerText = `${numVal}px`;
+            localStorage.setItem('boost_font_size', numVal);
+        }
+
+        function resetFontSize() {
+            document.getElementById('fontSlider').value = 14;
+            changeFontSize(14);
+        }
+
+        function initFontSize() {
+            const savedSize = localStorage.getItem('boost_font_size') || 14;
+            document.getElementById('fontSlider').value = savedSize;
+            changeFontSize(savedSize);
+        }
+
+        function listenToDatabase() {
+            db.ref('boost_schedule').on('value', (snapshot) => {
+                eventSchedule = snapshot.val() || {};
+                
+                if (Object.keys(eventSchedule).length === 0) {
+                    fetchFlashscore7Days(false);
+                } else {
+                    renderSchedule();
+                }
+            });
+        }
+
+        function switchCategoryTab(cat) {
+            activeTabCategory = cat;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${cat}`).classList.add('active');
+            renderSchedule();
+        }
+
+        // GENERATE DYNAMIC 1-2 GOALSCORERS & MARKETS FOR MATCHES
+        function generatePopularMarketsForMatch(title, sport) {
+            const teams = title.split(/ vs | v /i);
+            const teamAKey = teams[0] ? teams[0].trim().toLowerCase() : '';
+            const teamBKey = teams[1] ? teams[1].trim().toLowerCase() : '';
+
+            let scorers = [];
+            if (teamStarScorers[teamAKey]) scorers.push(teamStarScorers[teamAKey][0] + " (Scorer)");
+            if (teamStarScorers[teamBKey]) scorers.push(teamStarScorers[teamBKey][0] + " (Scorer)");
+
+            if (sport === 'FOOTBALL') {
+                return [
+                    ...scorers,
+                    `1X2 Match Result`,
+                    `Over/Under 2.5 Goals`,
+                    `Shots on Target`
+                ];
+            } else if (sport === 'TENNIS') {
+                return [
+                    `${teams[0] || 'Player 1'} Winner`,
+                    `Set Betting 3-0 / 2-0`,
+                    `Total Games Over/Under`,
+                    `Player Aces Count`
+                ];
+            } else {
+                return [
+                    `Moneyline Winner`,
+                    `Point Spread Handicap`,
+                    `Total Points Over/Under`
+                ];
+            }
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = '';
+
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filterTier = document.getElementById('filterTier').value;
+
+            const seenMatchKeys = new Set();
+            const duplicatesToDelete = [];
+
+            const keys = Object.keys(eventSchedule).sort((a, b) => {
+                return new Date(eventSchedule[a].dateTime) - new Date(eventSchedule[b].dateTime);
+            });
+
+            keys.forEach(id => {
+                const item = eventSchedule[id];
+                const normalizedTitle = (item.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                if (seenMatchKeys.has(normalizedTitle)) {
+                    duplicatesToDelete.push(id);
+                    return; 
+                }
+                seenMatchKeys.add(normalizedTitle);
+
+                // Category Tab Logic
+                let matchesTab = false;
+                if (activeTabCategory === 'FOOTBALL' && item.sport === 'FOOTBALL') matchesTab = true;
+                else if (activeTabCategory === 'TENNIS' && item.sport === 'TENNIS') matchesTab = true;
+                else if (activeTabCategory === 'OUTRIGHT' && item.sport === 'OUTRIGHT') matchesTab = true;
+                else if (activeTabCategory === 'OTHER' && item.sport !== 'FOOTBALL' && item.sport !== 'TENNIS' && item.sport !== 'OUTRIGHT') matchesTab = true;
+
+                // Search Filter Logic
+                const marketsStr = Array.isArray(item.markets) ? item.markets.join(' ') : (item.markets || '');
+                const matchesSearch = item.title.toLowerCase().includes(searchText) || 
+                                      item.league.toLowerCase().includes(searchText) ||
+                                      marketsStr.toLowerCase().includes(searchText);
+
+                // Priority Highlight Filter
+                const isPopular = (item.tier === 'HOT_GAME' || item.tier === 'TIER_1');
+                let matchesTier = true;
+                if (filterTier === 'POPULAR') matchesTier = isPopular;
+                else if (filterTier === 'HOT_GAME') matchesTier = (item.tier === 'HOT_GAME');
+                else if (filterTier === 'TIER_1') matchesTier = (item.tier === 'TIER_1');
+
+                if (matchesTab && matchesSearch && matchesTier) {
+                    const card = document.createElement('div');
+                    card.className = `event-card ${isPopular ? 'popular-highlight' : ''}`;
+
+                    const dateFormatted = new Date(item.dateTime).toLocaleString([], {
+                        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
+
+                    let marketTags = [];
+                    if (Array.isArray(item.markets) && item.markets.length > 0) {
+                        marketTags = item.markets;
+                    } else if (typeof item.markets === 'string' && item.markets.trim().length > 0) {
+                        marketTags = item.markets.split(',').map(m => m.trim());
+                    } else {
+                        marketTags = generatePopularMarketsForMatch(item.title, item.sport);
+                    }
+
+                    card.innerHTML = `
+                        <div class="event-header">
+                            <div>
+                                <div class="event-sport">${item.sport.replace('_', ' ')} • ${escapeHtml(item.league)}</div>
+                                <div class="event-title">${escapeHtml(item.title)}</div>
+                            </div>
+                            ${isPopular ? `
+                                <span class="badge ${item.sport === 'OUTRIGHT' ? 'badge-outright' : (item.tier === 'HOT_GAME' ? 'badge-hot' : 'badge-tier1')} badge-blink">
+                                    ${item.sport === 'OUTRIGHT' ? '🏆 OUTRIGHT' : (item.tier === 'HOT_GAME' ? '🔥 HOT' : '⭐ TIER 1')}
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <div class="event-meta">
+                            <span>📅 ${dateFormatted}</span>
+                        </div>
+
+                        <!-- POPULAR MARKETS & GOALSCORERS BOX -->
+                        <div class="popular-markets-box">
+                            <div class="market-box-title">
+                                <i class="fa-solid ${item.sport === 'OUTRIGHT' ? 'fa-trophy' : 'fa-fire-flame-curved'}" style="color:${item.sport === 'OUTRIGHT' ? '#a855f7' : '#ef4444'};"></i> 
+                                ${item.sport === 'OUTRIGHT' ? 'Top Oddschecker Favorites to Offer:' : '1-2 Pick Goalscorers & Featured Options:'}
+                            </div>
+                            <div class="market-tag-list">
+                                ${marketTags.map(tag => {
+                                    const isScorer = tag.toLowerCase().includes('scorer') || tag.toLowerCase().includes('goal') || tag.toLowerCase().includes('saka') || tag.toLowerCase().includes('haaland') || tag.toLowerCase().includes('salah') || tag.toLowerCase().includes('mbapp');
+                                    return `<span class="market-tag ${isScorer ? 'market-tag-scorer' : ''}">${escapeHtml(tag)}</span>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${id}')">
+                                ✏️ Edit Details
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="deleteEvent('${id}')">🗑️ Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            });
+
+            // SILENT FIREBASE DUPLICATE PURGE
+            if (duplicatesToDelete.length > 0) {
+                duplicatesToDelete.forEach(dupId => {
+                    db.ref(`boost_schedule/${dupId}`).remove();
+                });
+            }
+
+            if (container.children.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; opacity: 0.6; padding: 40px;">No upcoming selections in this tab. Click <strong>"Manual Re-sync Feed"</strong> to re-populate games & outrights.</div>`;
+            } else {
+                const currentSliderVal = document.getElementById('fontSlider').value;
+                changeFontSize(currentSliderVal);
+            }
+        }
+
+        // DYNAMIC FEED SYNC WITH 1-2 GOALSCORERS & OUTRIGHT PICKS
+        function fetchFlashscore7Days(showPrompt = false) {
+            const today = new Date();
+
+            function getRelativeDateStr(offsetDays, hourStr) {
+                const d = new Date(today);
+                d.setDate(d.getDate() + offsetDays);
+                const isoDate = d.toISOString().split('T')[0];
+                return `${isoDate}T${hourStr}`;
+            }
+
+            const upcomingFlashscoreFeeds = [
+                // FOOTBALL - PRIORITY LEAGUES (WITH 1-2 GOALSCORERS)
+                { title: "Aston Villa vs Arsenal", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "04:00"), tier: "HOT_GAME", markets: ["Bukayo Saka (Scorer)", "Ollie Watkins (Scorer)", "Shots on Target", "Over 2.5 Goals"] },
+                { title: "Ipswich Town vs Liverpool", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "04:00"), tier: "TIER_1", markets: ["Mo Salah (Scorer)", "Darwin Núñez (Scorer)", "Liverpool Win & BTTS"] },
+                { title: "Arsenal vs Manchester City", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "09:34"), tier: "HOT_GAME", markets: ["Erling Haaland (Scorer)", "Bukayo Saka (Scorer)", "1X2 Odds", "2+ Shots on Target"] },
+                { title: "Arsenal vs Chelsea", league: "England Premier League", sport: "FOOTBALL", dateTime: "2026-09-06T00:30", tier: "HOT_GAME", markets: ["Cole Palmer (Scorer)", "Kai Havertz (Scorer)", "Cards Over 4.5"] },
+                { title: "Everton vs Manchester United", league: "England Premier League", sport: "FOOTBALL", dateTime: "2026-09-05T22:00", tier: "TIER_1", markets: ["Bruno Fernandes (Scorer)", "Rasmus Højlund (Scorer)"] },
+                { title: "Barcelona vs Rayo Vallecano", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "03:00"), tier: "TIER_1", markets: ["Lamine Yamal (Scorer)", "Robert Lewandowski (Scorer)", "Corner Handicap"] },
+                { title: "Real Madrid vs Málaga", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "03:00"), tier: "TIER_1", markets: ["Kylian Mbappé (Scorer)", "Jude Bellingham (Scorer)", "Halftime/Fulltime"] },
+                { title: "Bayern Munich vs VfL Osnabrück", league: "Germany Bundesliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "02:30"), tier: "TIER_1", markets: ["Harry Kane (Scorer)", "Jamal Musiala (Scorer)", "Asian Handicap -1.5"] },
+
+                // TENNIS (US OPEN GRAND SLAM)
+                { title: "Carlos Alcaraz vs Pavel Kotov", league: "ATP US Open Singles", sport: "TENNIS", dateTime: getRelativeDateStr(2, "02:00"), tier: "HOT_GAME", markets: ["Alcaraz 3-0 Set Betting", "Aces Over 8.5"] },
+                { title: "Aryna Sabalenka vs Iga Świątek", league: "WTA US Open Singles", sport: "TENNIS", dateTime: getRelativeDateStr(5, "01:00"), tier: "HOT_GAME", markets: ["Sabalenka Match Winner", "Tiebreak Yes"] },
+
+                // OUTRIGHT PICKS & SPECIALS (ALL SPORTS, POLITICS, HORSE RACING)
+                { title: "Premier League Winner 2026/27", league: "England Premier League Outright", sport: "OUTRIGHT", dateTime: "2026-09-15T00:00", tier: "HOT_GAME", markets: ["Man City (Favorites)", "Arsenal (2nd Fav)", "Liverpool", "Chelsea"] },
+                { title: "UEFA Champions League Winner 2026/27", league: "UEFA Outright", sport: "OUTRIGHT", dateTime: "2026-09-20T00:00", tier: "HOT_GAME", markets: ["Real Madrid (Favorites)", "Man City", "Bayern Munich", "PSG"] },
+                { title: "US Open Men's Singles Champion", league: "ATP Tennis Outright", sport: "OUTRIGHT", dateTime: "2026-09-13T23:00", tier: "TIER_1", markets: ["Carlos Alcaraz", "Jannik Sinner", "Novak Djokovic"] },
+                { title: "NFL Super Bowl LXI Champion", league: "NFL Outright", sport: "OUTRIGHT", dateTime: "2026-09-10T00:00", tier: "TIER_1", markets: ["Kansas City Chiefs", "San Francisco 49ers", "Baltimore Ravens"] },
+                { title: "Cheltenham Gold Cup Winner", league: "Horse Racing Outright", sport: "OUTRIGHT", dateTime: "2026-09-25T15:00", tier: "TIER_1", markets: ["Galopin Des Champs", "Fastorslow", "Gerri Colombe"] },
+                { title: "UK Next Prime Minister / Election", league: "Politics Outright", sport: "OUTRIGHT", dateTime: "2026-10-01T00:00", tier: "REGULAR", markets: ["Labor Party", "Conservative Party", "Reform UK"] }
+            ];
+
+            const normalize = str => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const existingMatchTitles = Object.keys(eventSchedule).map(k => normalize(eventSchedule[k].title));
+
+            let newAdded = 0;
+            upcomingFlashscoreFeeds.forEach(evt => {
+                const normalizedFeedTitle = normalize(evt.title);
+                if (!existingMatchTitles.includes(normalizedFeedTitle)) {
+                    db.ref('boost_schedule').push(evt);
+                    existingMatchTitles.push(normalizedFeedTitle);
+                    newAdded++;
+                }
+            });
+
+            if (showPrompt) {
+                if (newAdded > 0) {
+                    alert(`✓ Added ${newAdded} new Flashscore matches & Outrights.`);
+                } else {
+                    alert("✓ All matches and outrights are up to date! Duplicates were prevented.");
+                }
+            }
+        }
+
+        function openNewEventModal() {
+            document.getElementById('editEventId').value = '';
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventLeague').value = '';
+            document.getElementById('eventSport').value = 'FOOTBALL';
+            document.getElementById('eventTier').value = 'TIER_1';
+            document.getElementById('eventDateTime').value = new Date().toISOString().slice(0, 16);
+            document.getElementById('eventMarkets').value = '';
+            document.getElementById('modalTitle').innerText = 'Add Custom Event / Outright';
+            document.getElementById('eventModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').classList.remove('show');
+        }
+
+        function saveEvent() {
+            const title = document.getElementById('eventTitle').value.trim();
+            const league = document.getElementById('eventLeague').value.trim();
+            const sport = document.getElementById('eventSport').value;
+            const tier = document.getElementById('eventTier').value;
+            const dateTime = document.getElementById('eventDateTime').value;
+            const marketsInput = document.getElementById('eventMarkets').value.trim();
+            const editId = document.getElementById('editEventId').value;
+
+            if (!title || !dateTime) {
+                return alert("Please enter both an Event Title and Date/Time.");
+            }
+
+            const markets = marketsInput ? marketsInput.split(',').map(m => m.trim()) : [];
+            const eventData = { title, league, sport, tier, dateTime, markets };
+
+            if (editId) {
+                db.ref(`boost_schedule/${editId}`).set(eventData);
+            } else {
+                db.ref('boost_schedule').push(eventData);
+            }
+
+            closeModal();
+        }
+
+        function editEvent(id) {
+            const item = eventSchedule[id];
+            if (!item) return;
+
+            document.getElementById('editEventId').value = id;
+            document.getElementById('eventTitle').value = item.title;
+            document.getElementById('eventLeague').value = item.league;
+            document.getElementById('eventSport').value = item.sport;
+            document.getElementById('eventTier').value = item.tier;
+            document.getElementById('eventDateTime').value = item.dateTime;
+
+            const marketsStr = Array.isArray(item.markets) ? item.markets.join(', ') : (item.markets || '');
+            document.getElementById('eventMarkets').value = marketsStr;
+
+            document.getElementById('modalTitle').innerText = 'Edit Event / Outright Details';
+            document.getElementById('eventModal').classList.add('show');
+        }
+
+        function deleteEvent(id) {
+            if (confirm("Delete this selection from the schedule?")) {
+                db.ref(`boost_schedule/${id}`).remove();
+            }
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('sb_theme', newTheme);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem('sb_theme') === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+            initFontSize();
+            listenToDatabase();
+        };
+    </script>
+</body>
+</html>
