@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handover & SOP Incident Hub</title>
+
+    <!-- Firebase Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #0b2240;
+            --card-bg: #133054;
+            --text-color: #ffffff;
+            --header-text: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --accent-btn: #38bdf8;
+            --input-bg: #071931;
+            --month-bg: #facc15;
+            --month-text: #000000;
+            --date-badge-bg: rgba(255, 255, 255, 0.1);
+            --slack-link: #38bdf8;
+            --slack-quote-bg: rgba(15, 23, 42, 0.6);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --header-text: #0d233a;
+            --border-color: #cbd5e0;
+            --accent-btn: #0d233a;
+            --input-bg: #ffffff;
+            --month-bg: #facc15;
+            --month-text: #000000;
+            --date-badge-bg: #e2e8f0;
+            --slack-link: #0284c7;
+            --slack-quote-bg: #f8fafc;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .title-group { display: flex; flex-direction: column; gap: 2px; }
+        h1 { font-size: 20px; color: var(--header-text); }
+        .title-credit { font-size: 11px; font-weight: 600; color: var(--accent-btn); opacity: 0.85; }
+
+        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background-color: #38bdf8; color: #0b2240; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.15); color: var(--text-color); border: 1px solid var(--border-color); }
+        
+        .btn-dashboard {
+            background-color: #0d233a !important;
+            color: #ffffff !important;
+            border: 2px solid #38bdf8 !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            border-radius: 6px !important;
+        }
+
+        .filter-bar {
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input, .filter-bar select, .form-control {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .filter-bar input { flex: 1; min-width: 200px; }
+
+        /* TIMELINE MONTH & DATE GROUPING STYLES */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .month-header {
+            background-color: var(--month-bg);
+            color: var(--month-text);
+            display: inline-block;
+            padding: 6px 20px;
+            font-size: 16px;
+            font-weight: 900;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .date-section {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .date-badge {
+            font-size: 14px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--date-badge-bg);
+            display: inline-block;
+            width: fit-content;
+            border-left: 3px solid var(--accent-btn);
+        }
+
+        .date-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 15px;
+        }
+
+        /* SLACK/EXCEL REF STYLE CARD */
+        .handover-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .slack-link-header {
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .slack-link-header a {
+            color: var(--slack-link);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .slack-message-box {
+            background: var(--slack-quote-bg);
+            border-left: 3px solid var(--accent-btn);
+            border-radius: 4px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .slack-user-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .slack-user-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            background: #0284c7;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .slack-timestamp {
+            font-size: 10px;
+            font-weight: normal;
+            opacity: 0.6;
+            margin-left: auto;
+        }
+
+        .slack-text-body {
+            font-size: 12.5px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .card-image-preview {
+            width: 100%;
+            max-height: 280px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            object-fit: contain;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .card-footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        /* MODALS */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.show { display: flex; }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .paste-drop-zone {
+            border: 2px dashed var(--border-color);
+            padding: 16px;
+            text-align: center;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 6px;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .lightbox-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .lightbox-backdrop.show { display: flex; }
+        .lightbox-backdrop img { max-width: 92%; max-height: 92%; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="title-group">
+            <h1>HANDOVER & SOP INCIDENT HUB</h1>
+            <span class="title-credit">kdv_2026 model</span>
+        </div>
+        <div class="btn-controls">
+            <button class="btn btn-primary" onclick="openNewLogModal()">➕ Add Handover / SOP Entry</button>
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+            <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="filter-bar">
+        <i class="fa-solid fa-magnifying-glass" style="opacity: 0.7;"></i>
+        <input type="text" id="searchInput" placeholder="Search by title, Slack link, message, or user..." oninput="renderLogs()">
+        
+        <select id="filterCategory" onchange="renderLogs()">
+            <option value="ALL">All Categories</option>
+            <option value="TECHNICAL">Technical Issue</option>
+            <option value="ESCALATION">Escalation</option>
+            <option value="VIP_CRM">CRM / VIP Tracking</option>
+            <option value="BET_MONITORING">Bet Monitoring</option>
+            <option value="SOP_PROCESS">SOP / Process</option>
+        </select>
+    </div>
+
+    <!-- TIMELINE CONTAINER -->
+    <div class="timeline-container" id="timelineContainer"></div>
+
+    <!-- NEW / EDIT ENTRY MODAL -->
+    <div class="modal-backdrop" id="logModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalTitle">Add Handover / SOP Entry</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal()"></i>
+            </div>
+            
+            <input type="hidden" id="editLogId">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Entry Date *</label>
+                    <input type="date" id="logDate" class="form-control" style="width: 100%;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Category</label>
+                    <select id="logCategory" class="form-control" style="width: 100%;">
+                        <option value="TECHNICAL">Technical Issue</option>
+                        <option value="ESCALATION">Escalation</option>
+                        <option value="VIP_CRM">CRM / VIP Tracking</option>
+                        <option value="BET_MONITORING">Bet Monitoring</option>
+                        <option value="SOP_PROCESS">SOP / Process</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Reference Link / Slack Archive URL</label>
+                <input type="text" id="logSlackUrl" class="form-control" style="width: 100%;" placeholder="https://green-work-space.slack.com/archives/...">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Sender / Poster Name</label>
+                    <input type="text" id="logPoster" class="form-control" style="width: 100%;" placeholder="e.g., Miguel / Brian Grima">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Time Posted</label>
+                    <input type="text" id="logTime" class="form-control" style="width: 100%;" placeholder="e.g., 5:04 PM">
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Message Text / SOP Definition *</label>
+                <textarea id="logDescription" class="form-control" style="width: 100%; height: 90px; resize: vertical;" placeholder="Enter message text, instruction, or SOP definition..."></textarea>
+            </div>
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Screenshot Attachment</label>
+                <div class="paste-drop-zone" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 20px; margin-bottom: 4px; opacity: 0.8;"></i>
+                    <p style="font-size: 11px;">Click to Upload OR Press <strong>Ctrl+V / Cmd+V</strong> to Paste Screenshot</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+                <img id="imagePreview" class="image-preview" alt="Attachment Preview">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveLog()">Save Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX MODAL -->
+    <div class="lightbox-backdrop" id="lightbox" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="Enlarged View">
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let handoverLogs = {};
+        let currentImageData = "";
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        function listenToDatabase() {
+            db.ref('handover_logs').on('value', (snapshot) => {
+                handoverLogs = snapshot.val() || {};
+                renderLogs();
+            });
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filterCat = document.getElementById('filterCategory').value;
+
+            // Group entries by Month -> Date
+            const grouped = {};
+
+            Object.keys(handoverLogs).forEach(id => {
+                const log = handoverLogs[id];
+                const matchesSearch = (log.description && log.description.toLowerCase().includes(searchText)) ||
+                                      (log.poster && log.poster.toLowerCase().includes(searchText)) ||
+                                      (log.slackUrl && log.slackUrl.toLowerCase().includes(searchText));
+                const matchesCat = (filterCat === 'ALL' || log.category === filterCat);
+
+                if (matchesSearch && matchesCat) {
+                    const dateObj = new Date(log.date || log.timestamp);
+                    const monthName = monthNames[dateObj.getMonth()];
+                    const dayNum = dateObj.getDate();
+                    const monthShort = monthName.substring(0, 3);
+                    const dateKey = `${dayNum}-${monthShort}`;
+
+                    if (!grouped[monthName]) grouped[monthName] = {};
+                    if (!grouped[monthName][dateKey]) grouped[monthName][dateKey] = [];
+
+                    grouped[monthName][dateKey].push({ id, ...log });
+                }
+            });
+
+            const months = Object.keys(grouped);
+
+            months.forEach(mName => {
+                const monthBlock = document.createElement('div');
+                monthBlock.innerHTML = `<div class="month-header">${mName}</div>`;
+
+                const dateKeys = Object.keys(grouped[mName]);
+
+                dateKeys.forEach(dKey => {
+                    const dateSec = document.createElement('div');
+                    dateSec.className = 'date-section';
+                    dateSec.innerHTML = `<div class="date-badge">${dKey}</div>`;
+
+                    const grid = document.createElement('div');
+                    grid.className = 'date-grid';
+
+                    grouped[mName][dKey].forEach(log => {
+                        const card = document.createElement('div');
+                        card.className = 'handover-card';
+
+                        const posterInitial = (log.poster || 'U').substring(0, 1).toUpperCase();
+
+                        card.innerHTML = `
+                            ${log.slackUrl ? `
+                                <div class="slack-link-header">
+                                    <a href="${log.slackUrl}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> ${escapeHtml(log.slackUrl)}</a>
+                                </div>
+                            ` : ''}
+
+                            <div class="slack-message-box">
+                                <div class="slack-user-meta">
+                                    <span class="slack-user-avatar">${posterInitial}</span>
+                                    <span>${escapeHtml(log.poster || 'Team Member')}</span>
+                                    <span class="slack-timestamp">${escapeHtml(log.time || '')}</span>
+                                </div>
+                                <div class="slack-text-body">${escapeHtml(log.description || '')}</div>
+                            </div>
+
+                            ${log.image ? `
+                                <img src="${log.image}" class="card-image-preview" alt="Attachment" onclick="openLightbox('${log.image}')">
+                            ` : ''}
+
+                            <div class="card-footer-actions">
+                                <span style="font-size: 11px; opacity: 0.7; font-weight: 700;">📌 ${(log.category || 'SOP').replace('_', ' ')}</span>
+                                <div>
+                                    <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="editLog('${log.id}')">✏️ Edit</button>
+                                    <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px; color: #f87171;" onclick="deleteLog('${log.id}')">🗑️ Delete</button>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    dateSec.appendChild(grid);
+                    monthBlock.appendChild(dateSec);
+                });
+
+                container.appendChild(monthBlock);
+            });
+
+            if (container.children.length === 0) {
+                container.innerHTML = `<div style="text-align: center; opacity: 0.6; padding: 40px;">No timeline entries found. Click <strong>"➕ Add Handover / SOP Entry"</strong> to log one.</div>`;
+            }
+        }
+
+        function openNewLogModal() {
+            document.getElementById('editLogId').value = '';
+            document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('logSlackUrl').value = '';
+            document.getElementById('logPoster').value = localStorage.getItem('sb_active_user') || '';
+            document.getElementById('logTime').value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('logDescription').value = '';
+            document.getElementById('logCategory').value = 'TECHNICAL';
+            currentImageData = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('modalTitle').innerText = 'Add Handover / SOP Entry';
+            document.getElementById('logModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('logModal').classList.remove('show');
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentImageData = evt.target.result;
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = currentImageData;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.addEventListener('paste', function(e) {
+            if (!document.getElementById('logModal').classList.contains('show')) return;
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file') {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        currentImageData = evt.target.result;
+                        const preview = document.getElementById('imagePreview');
+                        preview.src = currentImageData;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+
+        function saveLog() {
+            const date = document.getElementById('logDate').value;
+            const slackUrl = document.getElementById('logSlackUrl').value.trim();
+            const poster = document.getElementById('logPoster').value.trim();
+            const time = document.getElementById('logTime').value.trim();
+            const description = document.getElementById('logDescription').value.trim();
+            const category = document.getElementById('logCategory').value;
+            const editId = document.getElementById('editLogId').value;
+
+            if (!date || !description) {
+                return alert("Please enter both a Date and Message Description.");
+            }
+
+            const logData = {
+                date,
+                slackUrl,
+                poster,
+                time,
+                description,
+                category,
+                image: currentImageData,
+                timestamp: editId && handoverLogs[editId] ? handoverLogs[editId].timestamp : Date.now()
+            };
+
+            if (editId) {
+                db.ref(`handover_logs/${editId}`).set(logData);
+            } else {
+                db.ref('handover_logs').push(logData);
+            }
+
+            closeModal();
+        }
+
+        function editLog(id) {
+            const log = handoverLogs[id];
+            if (!log) return;
+
+            document.getElementById('editLogId').value = id;
+            document.getElementById('logDate').value = log.date || new Date().toISOString().split('T')[0];
+            document.getElementById('logSlackUrl').value = log.slackUrl || '';
+            document.getElementById('logPoster').value = log.poster || '';
+            document.getElementById('logTime').value = log.time || '';
+            document.getElementById('logDescription').value = log.description || '';
+            document.getElementById('logCategory').value = log.category || 'TECHNICAL';
+            currentImageData = log.image || '';
+
+            const preview = document.getElementById('imagePreview');
+            if (currentImageData) {
+                preview.src = currentImageData;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+
+            document.getElementById('modalTitle').innerText = 'Edit Timeline Entry';
+            document.getElementById('logModal').classList.add('show');
+        }
+
+        function deleteLog(id) {
+            if (confirm("Delete this entry?")) {
+                db.ref(`handover_logs/${id}`).remove();
+            }
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightbox').classList.add('show');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('show');
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('sb_theme', newTheme);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem('sb_theme') === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+            listenToDatabase();
+        };
+    </script>
+</body>
+</html>
