@@ -45,7 +45,22 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); padding: 20px; color: var(--text-color); transition: background-color 0.3s; }
         
-        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--card-bg); padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 12px; }
+        /* FROZEN / STICKY TOP HEADER PANE */
+        .header-container { 
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            background: var(--card-bg); 
+            padding: 15px 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            flex-wrap: wrap; 
+            gap: 12px; 
+        }
         .title-group { display: flex; flex-direction: column; gap: 2px; }
         h1 { font-size: 20px; color: var(--header-text); }
         
@@ -87,7 +102,8 @@
             box-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
         }
         
-        .day-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; }
+        .day-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; scroll-margin-top: 100px; }
+        .day-section.today-card { border: 2px solid #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); }
         
         .day-title-area { 
             font-size: 18px; 
@@ -113,6 +129,17 @@
 
         .date-picker-wrapper { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
         .date-picker-input { border: none; font-size: 18px; font-weight: bold; color: var(--header-text); width: 160px; outline: none; border-bottom: 1px dashed var(--border-color); background: transparent; cursor: pointer; }
+
+        .today-badge {
+            background-color: #38bdf8;
+            color: #0d233a;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
         .reminder-box-wrapper {
             display: inline-flex;
@@ -405,6 +432,9 @@
             "7A/BVB/GQBET tickers",
             "SoftSwiss Files",
             "SB Files checking (Client's Tracking/VIP files/CRM files)",
+            "Sports Events Booking Check (BR Portal)",
+            "Telegram Channel Monitoring",
+            "Friendlies Checking",
             "Handover Report AM",
             "Handover Report PM",
             "Overnight Bets",
@@ -448,6 +478,7 @@
         let masterRotaCalendar = {};
         let activeOpenDropdownId = null;
         let isMobileView = false;
+        let hasAutoScrolledToToday = false;
 
         function toggleMobileView() {
             const btn = document.getElementById('mobileToggleBtn');
@@ -685,12 +716,30 @@
             if (!container) return;
             container.innerHTML = '';
             if (!database) database = createDefaultDatabase();
+
+            const todayStr = new Date().toISOString().split('T')[0];
             
-            Object.keys(database).forEach((dayKey) => {
+            // SORT DAYS CHRONOLOGICALLY BY ISO DATE
+            const sortedDayKeys = Object.keys(database).sort((a, b) => {
+                const dateA = database[a].isoDate || '';
+                const dateB = database[b].isoDate || '';
+                return dateA.localeCompare(dateB);
+            });
+
+            let todayTargetElem = null;
+            let firstFutureElem = null;
+
+            sortedDayKeys.forEach((dayKey) => {
                 let dayData = database[dayKey];
                 let daySection = document.createElement('div');
                 daySection.className = 'day-section';
-                
+                daySection.id = `section-${dayKey}`;
+
+                const isToday = (dayData.isoDate === todayStr);
+                if (isToday) {
+                    daySection.classList.add('today-card');
+                }
+
                 let titleHTML = `
                     <div class="day-title-area">
                         <div class="day-title-left">
@@ -699,6 +748,7 @@
                                 <input type="date" class="date-picker-input" value="${dayData.isoDate || ''}" onchange="updateDayDate('${dayKey}', this.value)">
                                 SHIFT
                             </span>
+                            ${isToday ? '<span class="today-badge">Today</span>' : ''}
                             <div class="reminder-box-wrapper">
                                 <span>📌</span>
                                 <input type="text" class="reminder-box-input" placeholder="Meeting Reminders / Notes..." value="${dayData.reminder || ''}" onchange="updateReminderText('${dayKey}', this.value)">
@@ -793,7 +843,24 @@
                 tableWrapper.appendChild(table);
                 daySection.appendChild(tableWrapper);
                 container.appendChild(daySection);
+
+                if (isToday) {
+                    todayTargetElem = daySection;
+                } else if (!firstFutureElem && dayData.isoDate >= todayStr) {
+                    firstFutureElem = daySection;
+                }
             });
+
+            // AUTOMATICALLY SCROLL TO TODAY OR UPCOMING DATE
+            if (!hasAutoScrolledToToday) {
+                const targetToScroll = todayTargetElem || firstFutureElem;
+                if (targetToScroll) {
+                    setTimeout(() => {
+                        targetToScroll.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        hasAutoScrolledToToday = true;
+                    }, 300);
+                }
+            }
         }
 
         function toggleDropdown(event, id) {
@@ -911,7 +978,7 @@
             } else {
                 let dayKeys = Object.keys(database);
                 let lastKey = dayKeys[dayKeys.length - 1];
-                let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : "2026-09-01";
+                let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : new Date().toISOString().split('T')[0];
                 
                 let lastDate = new Date(lastIsoStr);
                 if (isNaN(lastDate.getTime())) lastDate = new Date();
