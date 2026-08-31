@@ -103,33 +103,46 @@
 
         .btn-dashboard:hover {
             background: linear-gradient(135deg, #ec4899, #be185d) !important;
-            border-color: #f4f7f6 !important;
+            border-color: #f472b6 !important;
             color: #ffffff !important;
             transform: translateY(-2px);
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
         }
 
-        /* TRANSFER TO EDGE BOOST ICON BUTTON STYLES */
-        .btn-edge-transfer {
+        /* BATCH IMPORT BUTTON STYLES */
+        .btn-batch-import {
             background-color: #f59e0b !important;
             color: #000000 !important;
             font-weight: 800 !important;
-            padding: 4px 10px !important;
-            font-size: 11px !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
             border: 1px solid #fbbf24 !important;
-            border-radius: 4px !important;
+            border-radius: 6px !important;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             transition: all 0.2s ease;
         }
 
-        .btn-edge-transfer:hover {
+        .btn-batch-import:hover {
             background-color: #d97706 !important;
             color: #ffffff !important;
-            transform: scale(1.04);
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+            transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+        }
+
+        /* CARD SELECT CHECKBOX STYLES */
+        .card-select-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #f59e0b;
+        }
+
+        .event-card.selected-card {
+            border-color: #f59e0b !important;
+            background: rgba(245, 158, 11, 0.08) !important;
         }
 
         .font-slider-wrapper {
@@ -416,6 +429,11 @@
             <span class="title-credit">kdv_2026 model • Flashscore Sync Engine</span>
         </div>
         <div class="btn-controls">
+            <!-- BATCH IMPORT TRIGGER BUTTON -->
+            <button class="btn-batch-import" id="importSelectedBtn" onclick="importSelectedMatchesToEdgeBoost()" style="display: none;">
+                <i class="fa-solid fa-bolt"></i> Import Selected (<span id="selectedCountBadge">0</span>)
+            </button>
+
             <div class="font-slider-wrapper" title="Adjust Readability Font Size">
                 <i class="fa-solid fa-font"></i>
                 <input type="range" id="fontSlider" min="11" max="20" value="14" oninput="changeFontSize(this.value)">
@@ -458,6 +476,9 @@
             <option value="HOT_GAME">Derby / Hot Match</option>
             <option value="TIER_1">Tier 1 League</option>
         </select>
+
+        <button class="btn btn-secondary" style="margin-left: auto; font-size: 11px;" onclick="selectAllVisibleMatches(true)">☑️ Select All</button>
+        <button class="btn btn-secondary" style="font-size: 11px;" onclick="selectAllVisibleMatches(false)">⬜ Deselect All</button>
     </div>
 
     <div class="schedule-grid" id="scheduleContainer"></div>
@@ -539,6 +560,7 @@
 
         let eventSchedule = {};
         let activeTabCategory = 'FOOTBALL';
+        let selectedMatchIds = new Set(); // TRACKS CHECKED MATCHES
 
         const teamStarScorers = {
             "arsenal": ["Bukayo Saka", "Kai Havertz"],
@@ -619,6 +641,120 @@
             renderSchedule();
         }
 
+        function toggleMatchSelection(id, isChecked) {
+            const cardEl = document.getElementById(`card-${id}`);
+            if (isChecked) {
+                selectedMatchIds.add(id);
+                if (cardEl) cardEl.classList.add('selected-card');
+            } else {
+                selectedMatchIds.delete(id);
+                if (cardEl) cardEl.classList.remove('selected-card');
+            }
+            updateImportButtonBadge();
+        }
+
+        function selectAllVisibleMatches(shouldSelect) {
+            const checkboxes = document.querySelectorAll('.card-select-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = shouldSelect;
+                const matchId = cb.getAttribute('data-id');
+                toggleMatchSelection(matchId, shouldSelect);
+            });
+        }
+
+        function updateImportButtonBadge() {
+            const badge = document.getElementById('selectedCountBadge');
+            const btn = document.getElementById('importSelectedBtn');
+            const count = selectedMatchIds.size;
+            
+            if (badge) badge.innerText = count;
+            if (btn) {
+                if (count > 0) btn.style.display = 'inline-flex';
+                else btn.style.display = 'none';
+            }
+        }
+
+        // BATCH IMPORT SELECTED MATCHES TO FIREBASE REALTIME DATABASE AT ONCE
+        function importSelectedMatchesToEdgeBoost() {
+            if (selectedMatchIds.size === 0) return;
+
+            const matchesToTransfer = Array.from(selectedMatchIds).map(id => eventSchedule[id]).filter(Boolean);
+
+            db.ref('edge_boosts_master_v22').once('value').then(snapshot => {
+                let liveData = snapshot.val() || {};
+
+                let addedCount = 0;
+
+                matchesToTransfer.forEach(item => {
+                    let targetSheet = "Edge Football";
+                    let sportVal = "Football";
+
+                    if (item.sport === "TENNIS") {
+                        targetSheet = "Edge Tennis";
+                        sportVal = "Tennis";
+                    } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
+                        targetSheet = "Edge Other Sports";
+                        sportVal = "Basketball";
+                    }
+
+                    if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
+                    if (!liveData[targetSheet].rows) liveData[targetSheet].rows = [];
+
+                    let formattedDate = "";
+                    let formattedTime = "";
+
+                    if (item.dateTime) {
+                        const dateObj = new Date(item.dateTime);
+                        if (!isNaN(dateObj.getTime())) {
+                            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const d = String(dateObj.getDate()).padStart(2, '0');
+                            const y = dateObj.getFullYear();
+                            formattedDate = `${m}.${d}.${y}`;
+
+                            const hh = String(dateObj.getHours()).padStart(2, '0');
+                            const mm = String(dateObj.getMinutes()).padStart(2, '0');
+                            const ss = String(dateObj.getSeconds()).padStart(2, '0');
+                            formattedTime = `${hh}:${mm}:${ss}`;
+                        }
+                    }
+
+                    let newRow = [];
+                    if (targetSheet === "Edge Football") {
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, formattedTime, "Football", 
+                            item.league || "", item.title || "", "Bet Builder", 
+                            "", "", "", "", "Transferred from Schedule", ""
+                        ];
+                    } else if (targetSheet === "Edge Tennis") {
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, formattedTime, "Tennis", 
+                            item.league || "", item.title || "", "Single", 
+                            "", "", "", "Transferred from Schedule", ""
+                        ];
+                    } else {
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, sportVal, 
+                            item.league || "", item.title || "", "Bet Builder", 
+                            "", "Transferred from Schedule", ""
+                        ];
+                    }
+
+                    liveData[targetSheet].rows.push(newRow);
+                    addedCount++;
+                });
+
+                db.ref('edge_boosts_master_v22').set(liveData).then(() => {
+                    alert(`⚡ Successfully imported ${addedCount} selected matches directly to Edge Boost Master!`);
+                    selectedMatchIds.clear();
+                    updateImportButtonBadge();
+                    renderSchedule();
+                });
+            });
+        }
+
         function generatePopularMarketsForMatch(title, sport) {
             const teams = title.split(/ vs | v /i);
             const teamAKey = teams[0] ? teams[0].trim().toLowerCase() : '';
@@ -656,25 +792,6 @@
                 if (found) return found;
             }
             return dayMatches[0] || null;
-        }
-
-        // FEATURE INTEGRATION: TRANSFER MATCH DETAILS TO EDGE_BOOSTS.HTML IN A NEW TAB
-        function sendToEdgeBoost(id) {
-            const item = eventSchedule[id];
-            if (!item) return;
-
-            const payload = {
-                title: item.title,
-                league: item.league,
-                dateTime: item.dateTime,
-                sport: item.sport
-            };
-
-            // Store payload in localStorage
-            localStorage.setItem('pending_edge_boost_transfer', JSON.stringify(payload));
-            
-            // OPEN IN A NEW TAB (KEEP TOP PICKS OPEN)
-            window.open('edge_boosts.html', '_blank');
         }
 
         function renderSchedule() {
@@ -759,8 +876,10 @@
 
                 dayMatches.forEach(item => {
                     const isPopular = (item.tier === 'HOT_GAME' || item.tier === 'TIER_1');
+                    const isChecked = selectedMatchIds.has(item.id);
                     const card = document.createElement('div');
-                    card.className = `event-card ${isPopular ? 'popular-highlight' : ''}`;
+                    card.id = `card-${item.id}`;
+                    card.className = `event-card ${isPopular ? 'popular-highlight' : ''} ${isChecked ? 'selected-card' : ''}`;
 
                     const timeFormatted = new Date(item.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -775,9 +894,12 @@
 
                     card.innerHTML = `
                         <div class="event-header">
-                            <div>
-                                <div class="event-sport">${item.sport.replace('_', ' ')} • ${escapeHtml(item.league)}</div>
-                                <div class="event-title">${escapeHtml(item.title)}</div>
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" class="card-select-checkbox" data-id="${item.id}" ${isChecked ? 'checked' : ''} onchange="toggleMatchSelection('${item.id}', this.checked)">
+                                <div>
+                                    <div class="event-sport">${item.sport.replace('_', ' ')} • ${escapeHtml(item.league)}</div>
+                                    <div class="event-title">${escapeHtml(item.title)}</div>
+                                </div>
                             </div>
                             ${isPopular ? `
                                 <span class="badge ${item.sport === 'OUTRIGHT' ? 'badge-outright' : (item.tier === 'HOT_GAME' ? 'badge-hot' : 'badge-tier1')} badge-blink">
@@ -808,9 +930,6 @@
                                 <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${item.id}')">
                                     ✏️ Edit Details
                                 </button>
-                                <button class="btn-edge-transfer" onclick="sendToEdgeBoost('${item.id}')" title="Send to Edge Boost Master in New Tab">
-                                    <i class="fa-solid fa-bolt"></i> Edge Boost
-                                </button>
                             </div>
                             <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="deleteEvent('${item.id}')">🗑️ Delete</button>
                         </div>
@@ -819,6 +938,7 @@
                 });
             });
 
+            updateImportButtonBadge();
             const currentSliderVal = document.getElementById('fontSlider').value;
             changeFontSize(currentSliderVal);
         }
