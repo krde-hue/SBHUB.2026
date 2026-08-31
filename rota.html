@@ -651,6 +651,8 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -671,6 +673,8 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -691,6 +695,8 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -711,6 +717,8 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -731,6 +739,8 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -751,7 +761,7 @@
             </div>
 
             <div>
-                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates</div>
+                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Cumulative 2026)</div>
                 <div class="leave-table-wrapper">
                     <table class="leave-table">
                         <thead>
@@ -853,6 +863,7 @@
         let globalTzOffset = 8;
         let rotaData = {};
         let leaveMatrixData = {};
+        let allRotaDataYear = {}; // Holds full year's data for multi-month tracking
         
         let isViewOnlyMode = true;
         let isMobileView = false;
@@ -955,14 +966,12 @@
             const presenceRef = db.ref('rota_active_sessions');
             const connectedRef = db.ref('.info/connected');
 
-            // Unique persistent device/session identifier
             let sessionToken = sessionStorage.getItem('rota_session_token');
             if (!sessionToken) {
                 sessionToken = 'session_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
                 sessionStorage.setItem('rota_session_token', sessionToken);
             }
 
-            // Only ask for name ONCE per device/browser (Saved in localStorage)
             let viewerName = localStorage.getItem('rota_viewer_name');
             if (!viewerName) {
                 viewerName = prompt("Enter your name to appear on active viewer list:", "Guest") || "Guest User";
@@ -973,7 +982,6 @@
 
             connectedRef.on('value', (snap) => {
                 if (snap.val() === true) {
-                    // Instantly remove node on connection drop/close
                     myPresenceRef.onDisconnect().remove();
 
                     myPresenceRef.set({
@@ -984,12 +992,10 @@
                 }
             });
 
-            // Instant cleanup when user closes window/tab/mobile app
             window.addEventListener('beforeunload', () => {
                 myPresenceRef.remove();
             });
 
-            // Listen for active users & eliminate duplicate names
             presenceRef.on('value', (snap) => {
                 const activeUsers = snap.val() || {};
                 const countElem = document.getElementById('activeViewersCount');
@@ -998,7 +1004,6 @@
 
                 viewerListContainer.innerHTML = '';
                 
-                // Collect unique viewer names
                 const uniqueNames = new Set();
                 Object.keys(activeUsers).forEach(key => {
                     const u = activeUsers[key];
@@ -1026,12 +1031,16 @@
         }
 
         function listenToDatabase() {
-            const monthKey = `${yearInput.value}_${parseInt(monthSelect.value) + 1}`;
+            const currentYear = yearInput.value;
+            const monthKey = `${currentYear}_${parseInt(monthSelect.value) + 1}`;
             
-            db.ref(`rota_data/${monthKey}`).on('value', (snapshot) => {
-                rotaData = snapshot.val() || {};
+            // Listen to all months for the current year
+            db.ref(`rota_data`).on('value', (snapshot) => {
+                allRotaDataYear = snapshot.val() || {};
+                rotaData = allRotaDataYear[monthKey] || {};
                 renderCalendar();
                 renderWFHTracker();
+                aggregateCumulativeLeavesAcrossMonths();
             });
 
             db.ref('leave_matrix_db').on('value', (snapshot) => {
@@ -1226,7 +1235,7 @@
                                 rotaData[d][memberIdx] = s.text;
 
                                 saveRotaToDatabase();
-                                syncLeavesFromSchedule();
+                                aggregateCumulativeLeavesAcrossMonths();
                             });
 
                             menu.appendChild(item);
@@ -1251,8 +1260,6 @@
 
                 tbody.appendChild(tr);
             }
-
-            syncLeavesFromSchedule();
         }
 
         function bulkSetShift(memberIdx, selectElem) {
@@ -1276,36 +1283,49 @@
             selectElem.value = "";
         }
 
-        function syncLeavesFromSchedule() {
+        /* DYNAMICALLY AGGREGATES LEAVES CUMULATIVELY FROM JAN 2026 UP TO THE PRESENT/SELECTED MONTH */
+        function aggregateCumulativeLeavesAcrossMonths() {
             let tempMatrix = {};
             leaveTrackedTeam.forEach(m => tempMatrix[m] = { vl: [], sl: [] });
 
+            const targetYear = parseInt(yearInput.value);
             const selectedMonth = parseInt(monthSelect.value);
-            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
 
-            Object.keys(rotaData).forEach(day => {
-                let row = rotaData[day];
-                team.forEach((member, memberIdx) => {
-                    if (member === "Miguel") return;
+            // Iterate over months from January (0) up to selectedMonth (or all 12 months for full year tracking)
+            for (let m = 0; m <= 11; m++) {
+                let mKey = `${targetYear}_${m + 1}`;
+                let mData = allRotaDataYear[mKey];
 
-                    let shiftVal = row[memberIdx];
-                    if (shiftVal === 'VL') {
-                        tempMatrix[member].vl.push(`${day}-${monthLabel}`);
-                    } else if (shiftVal === 'SL') {
-                        tempMatrix[member].sl.push(`${day}-${monthLabel}`);
-                    }
-                });
-            });
+                if (mData) {
+                    let mLabel = monthNames[m].substring(0, 3);
+                    
+                    Object.keys(mData).forEach(day => {
+                        let row = mData[day];
+                        if (row && Array.isArray(row)) {
+                            team.forEach((member, memberIdx) => {
+                                if (member === "Miguel") return;
 
+                                let shiftVal = row[memberIdx];
+                                if (shiftVal === 'VL') {
+                                    tempMatrix[member].vl.push(`${day}-${mLabel}`);
+                                } else if (shiftVal === 'SL') {
+                                    tempMatrix[member].sl.push(`${day}-${mLabel}`);
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+
+            // Pad arrays to match table slot size
             leaveTrackedTeam.forEach(m => {
                 while (tempMatrix[m].vl.length < 10) tempMatrix[m].vl.push('');
                 while (tempMatrix[m].sl.length < 5) tempMatrix[m].sl.push('');
-                tempMatrix[m].vl = tempMatrix[m].vl.slice(0, 10);
-                tempMatrix[m].sl = tempMatrix[m].sl.slice(0, 5);
             });
 
             leaveMatrixData = tempMatrix;
             saveLeaveMatrixToDatabase();
+            buildLeaveTables();
             renderWFHTracker();
             renderVLPieChart();
         }
@@ -1387,15 +1407,25 @@
 
         function renderVLPieChart() {
             let monthVLCounts = Array(12).fill(0);
+            const targetYear = parseInt(yearInput.value);
 
-            Object.keys(rotaData).forEach(day => {
-                let row = rotaData[day];
-                team.forEach((member, memberIdx) => {
-                    if (row[memberIdx] === 'VL') {
-                        monthVLCounts[parseInt(monthSelect.value)]++;
-                    }
-                });
-            });
+            for (let m = 0; m < 12; m++) {
+                let mKey = `${targetYear}_${m + 1}`;
+                let mData = allRotaDataYear[mKey];
+
+                if (mData) {
+                    Object.keys(mData).forEach(day => {
+                        let row = mData[day];
+                        if (row && Array.isArray(row)) {
+                            team.forEach((member, memberIdx) => {
+                                if (row[memberIdx] === 'VL') {
+                                    monthVLCounts[m]++;
+                                }
+                            });
+                        }
+                    });
+                }
+            }
 
             const ctx = document.getElementById('vlPieChart').getContext('2d');
             const activeTheme = document.body.getAttribute('data-theme') || 'dark';
@@ -1470,7 +1500,6 @@
             }
             setupPresenceSystem();
             listenToDatabase();
-            renderVLPieChart();
         };
     </script>
 </body>
