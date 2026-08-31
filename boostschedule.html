@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automated Big Events & Outrights Schedule Hub</title>
 
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Firebase Realtime Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -100,7 +103,7 @@
 
         .btn-dashboard:hover {
             background: linear-gradient(135deg, #ec4899, #be185d) !important;
-            border-color: #f472b6 !important;
+            border-color: #f4f7f6 !important;
             color: #ffffff !important;
             transform: translateY(-2px);
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
@@ -655,7 +658,7 @@
             return dayMatches[0] || null;
         }
 
-        // FEATURE INTEGRATION: TRANSFER MATCH DETAILS TO EDGE_BOOSTS.HTML
+        // FEATURE INTEGRATION: TRANSFER MATCH DETAILS TO EDGE_BOOSTS.HTML IN A NEW TAB
         function sendToEdgeBoost(id) {
             const item = eventSchedule[id];
             if (!item) return;
@@ -667,8 +670,11 @@
                 sport: item.sport
             };
 
+            // Store payload in localStorage
             localStorage.setItem('pending_edge_boost_transfer', JSON.stringify(payload));
-            window.location.href = 'edge_boosts.html';
+            
+            // OPEN IN A NEW TAB (KEEP TOP PICKS OPEN)
+            window.open('edge_boosts.html', '_blank');
         }
 
         function renderSchedule() {
@@ -802,7 +808,7 @@
                                 <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${item.id}')">
                                     ✏️ Edit Details
                                 </button>
-                                <button class="btn-edge-transfer" onclick="sendToEdgeBoost('${item.id}')" title="Send to Edge Boost Master">
+                                <button class="btn-edge-transfer" onclick="sendToEdgeBoost('${item.id}')" title="Send to Edge Boost Master in New Tab">
                                     <i class="fa-solid fa-bolt"></i> Edge Boost
                                 </button>
                             </div>
