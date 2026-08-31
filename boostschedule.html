@@ -109,6 +109,7 @@
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
         }
 
+        /* BATCH IMPORT BUTTON STYLES */
         .btn-batch-import {
             background-color: #f59e0b !important;
             color: #000000 !important;
@@ -131,6 +132,7 @@
             box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
         }
 
+        /* CARD SELECT CHECKBOX STYLES */
         .card-select-checkbox {
             width: 20px;
             height: 20px;
@@ -427,6 +429,7 @@
             <span class="title-credit">kdv_2026 model • Flashscore Sync Engine</span>
         </div>
         <div class="btn-controls">
+            <!-- BULK IMPORT ACTION BUTTON -->
             <button class="btn-batch-import" id="importSelectedBtn" onclick="importSelectedMatchesToEdgeBoost()" style="display: none;">
                 <i class="fa-solid fa-bolt"></i> Import Selected (<span id="selectedCountBadge">0</span>)
             </button>
@@ -678,7 +681,6 @@
 
             db.ref('edge_boosts_master_v22').once('value').then(snapshot => {
                 let liveData = snapshot.val() || {};
-
                 let addedCount = 0;
 
                 matchesToTransfer.forEach(item => {
