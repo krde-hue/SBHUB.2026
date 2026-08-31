@@ -3,1185 +3,834 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sportsbook Operations Hub - Dashboard</title>
-    
-    <!-- Google Fonts -->
+    <title>Automated Big Events & Outrights Schedule Hub</title>
+
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root[data-theme="dark"] {
-            --bg-color: #060b19;
-            --center-btn-bg: linear-gradient(145deg, #1e293b, #0f172a);
-            --item-btn-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
-            --border-color: rgba(56, 189, 248, 0.35);
-            --text-dark: #0f172a;
-            --text-light: #f8fafc;
-            --title-cyan: #38bdf8;
-            --watermark-opacity: 0.25;
-            --glow-color: rgba(56, 189, 248, 0.65);
-            --shadow-color: rgba(0, 0, 0, 0.85);
-            --canvas-opacity: 0.35;
+        :root {
+            --bg-color: #0b2240;
+            --card-bg: #133054;
+            --text-color: #ffffff;
+            --header-text: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --accent-btn: #38bdf8;
+            --accent-btn-text: #0b2240;
+            --input-bg: #071931;
+            --badge-hot: #ef4444;
+            --badge-tier1: #facc15;
+            --badge-outright: #a855f7;
+            --market-box-bg: rgba(0, 0, 0, 0.35);
+            --market-box-border: rgba(255, 255, 255, 0.25);
         }
 
-        :root[data-theme="light"] {
-            --bg-color: #f1f5f9;
-            --center-btn-bg: linear-gradient(145deg, #ffffff, #e2e8f0);
-            --item-btn-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(226, 232, 240, 0.95));
-            --border-color: rgba(2, 132, 199, 0.35);
-            --text-dark: #ffffff;
-            --text-light: #0f172a;
-            --title-cyan: #0284c7;
-            --watermark-opacity: 0.20;
-            --glow-color: rgba(2, 132, 199, 0.45);
-            --shadow-color: rgba(0, 0, 0, 0.2);
-            --canvas-opacity: 0.18;
+        [data-theme="light"] {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --header-text: #0d233a;
+            --border-color: #cbd5e0;
+            --accent-btn: #0d233a;
+            --accent-btn-text: #ffffff;
+            --input-bg: #ffffff;
+            --market-box-bg: #e2e8f0;
+            --market-box-border: #cbd5e0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            padding: 0; 
         }
 
         body {
             background-color: var(--bg-color);
-            min-height: 100vh;
+            color: var(--text-color);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.4;
+        }
+
+        .header-container {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* TRADING CANVAS BACKGROUND */
-        #trading-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-            opacity: var(--canvas-opacity);
-            pointer-events: none;
-        }
-
-        /* TOP RIGHT CONTROLS */
-        .top-controls {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .control-btn, .select-dropdown {
-            background: var(--item-btn-bg);
+            margin-bottom: 15px;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
-            color: var(--text-light);
-            padding: 9px 16px;
-            border-radius: 24px;
-            font-size: 0.88rem;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .title-group { display: flex; flex-direction: column; gap: 2px; }
+        h1 { font-size: 20px; color: var(--header-text); font-weight: 800; letter-spacing: -0.02em; }
+        .title-credit { font-size: 11px; font-weight: 600; color: var(--accent-btn); opacity: 0.85; }
+
+        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background-color: #38bdf8; color: #0b2240; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.15); color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-success { background-color: #22c55e; color: #ffffff; }
+
+        .btn-dashboard {
+            background-color: #0d233a !important;
+            color: #ffffff !important;
+            border: 2px solid #38bdf8 !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            border-radius: 6px !important;
+        }
+
+        /* FIXED FONT SLIDER TOOLBAR */
+        .font-slider-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .font-slider-wrapper input[type="range"] {
+            width: 100px;
+            cursor: pointer;
+            accent-color: var(--accent-btn);
+        }
+
+        /* CATEGORY TABS STYLES */
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: 6px;
             font-weight: 700;
+            font-size: 13px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 8px 20px var(--shadow-color), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-btn);
+            color: var(--accent-btn-text);
+            border-color: var(--accent-btn);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .filter-bar {
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input, .filter-bar select, .form-control {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 13px;
             outline: none;
         }
 
-        .select-dropdown {
-            background-color: #0284c7;
-            color: #ffffff;
-            border-color: #38bdf8;
+        .filter-bar input { flex: 1; min-width: 200px; }
+
+        /* SCHEDULE TIMELINE GRID */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
         }
 
-        .game-dropdown {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #ffffff;
-            border-color: #f87171;
-        }
-
-        .select-dropdown option {
-            background-color: #0f172a;
-            color: #ffffff;
-        }
-
-        .control-btn:hover {
-            border-color: var(--title-cyan);
-            color: var(--title-cyan);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px var(--glow-color);
-        }
-
-        .mobile-toggle-btn {
-            background: linear-gradient(135deg, #a855f7, #9333ea);
-            color: #ffffff;
-            border-color: #c084fc;
-        }
-
-        .mobile-toggle-btn.active {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            border-color: #f472b6;
-        }
-
-        /* BOTTOM-RIGHT LOGO BRANDING */
-        .bottom-right-brand {
-            position: absolute;
-            bottom: 20px;
-            right: 25px;
-            z-index: 100;
+        .event-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            user-select: none;
-        }
-
-        .brand-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
-        }
-
-        .brand-icon-svg {
-            width: 55px;
-            height: 55px;
-            margin-bottom: 4px;
-        }
-
-        .brand-title {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 0.95rem;
-            color: #ffffff;
-            letter-spacing: 0.08em;
-            text-align: center;
-            line-height: 1.1;
-        }
-
-        .brand-line {
-            width: 80%;
-            height: 1.5px;
-            background: rgba(255, 255, 255, 0.4);
-            margin: 3px 0 2px 0;
-        }
-
-        .brand-subtitle {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.75);
-            letter-spacing: 0.05em;
-        }
-
-        .dashboard-container {
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100vw;
-            height: 100vh;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        /* POSITIONED WATERMARK TITLE BELOW MENU CONSOLE */
-        .dashboard-header-bg {
-            position: absolute;
-            top: calc(50% + 280px);
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            user-select: none;
-            white-space: nowrap;
-            z-index: 2;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: top 0.3s ease;
+        @keyframes popularGlow {
+            0%, 100% { border-color: #ef4444; box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); }
+            50% { border-color: #facc15; box-shadow: 0 0 8px rgba(250, 204, 21, 0.35); }
         }
 
-        .welcome-subtitle-bg {
-            font-family: 'Orbitron', 'Rajdhani', sans-serif;
-            color: var(--text-light);
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: 0.42em;
+        @keyframes blinkBadge {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.75; transform: scale(1.05); }
+        }
+
+        .event-card.popular-highlight {
+            animation: popularGlow 2s infinite ease-in-out;
+            border-width: 2px !important;
+        }
+
+        .badge-blink {
+            animation: blinkBadge 1.2s infinite ease-in-out;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .event-sport {
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
-            margin-bottom: -10px;
-            opacity: calc(var(--watermark-opacity) * 0.85);
-            transition: font-size 0.3s ease;
-            pointer-events: none;
+            letter-spacing: 0.6px;
+            color: var(--accent-btn);
         }
 
-        .title-wrapper {
-            position: relative;
+        .event-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--header-text);
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        .event-meta {
+            font-size: 12px;
+            opacity: 0.85;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badge-tier1 { background: var(--badge-tier1); color: #000; }
+        .badge-hot { background: var(--badge-hot); color: #fff; }
+        .badge-outright { background: var(--badge-outright); color: #fff; }
+
+        .popular-markets-box {
+            background: var(--market-box-bg);
+            border: 1px dashed var(--market-box-border);
+            padding: 12px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            gap: 8px;
         }
 
-        #title-text-canvas {
-            position: relative;
-            display: block;
-            z-index: 3;
-            pointer-events: none;
-            max-width: 95vw;
-        }
-
-        /* CIRCULAR NAVIGATION MENU */
-        .circular-menu {
-            position: relative;
-            width: 720px;
-            height: 720px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            user-select: none;
-            touch-action: none;
-        }
-
-        /* MOBILE TOUCH PREVIEW BANNER */
-        .touch-preview-banner {
-            position: absolute;
-            top: -55px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0f172a;
-            border: 2px solid #38bdf8;
-            color: #38bdf8;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
+        .market-box-title {
             font-weight: 800;
-            letter-spacing: 0.08em;
-            white-space: nowrap;
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            z-index: 300;
-        }
-
-        .touch-preview-banner.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
-        }
-
-        /* STEADY 3D CENTER BUTTON */
-        .toggle-btn {
-            position: relative;
-            width: 155px;
-            height: 155px;
-            background: var(--center-btn-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
+            color: var(--text-color);
             display: flex;
-            justify-content: center;
             align-items: center;
-            color: var(--title-cyan);
-            font-size: 3.2rem;
-            cursor: pointer;
-            z-index: 60;
-            box-shadow: 0 15px 35px var(--shadow-color), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -4px 8px rgba(0, 0, 0, 0.6);
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-            pointer-events: auto !important;
-            overflow: visible;
-            backdrop-filter: blur(12px);
+            gap: 6px;
+            font-size: 12px;
         }
 
-        .toggle-btn::before {
-            content: '';
-            position: absolute;
-            top: 5%;
-            left: 15%;
-            width: 70%;
-            height: 40%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
-            border-radius: 50%;
-            pointer-events: none;
+        .market-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
-        .toggle-btn i {
-            transition: transform 0.4s ease, opacity 0.3s ease;
-            pointer-events: none;
-            position: absolute;
-            z-index: 2;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        .market-tag {
+            background: rgba(56, 189, 248, 0.18);
+            color: var(--text-color);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 4px 9px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 700;
         }
 
-        .bull-logo-svg {
-            position: absolute;
-            width: 110px;
-            height: 110px;
-            opacity: 0;
-            transform: scale(0.6);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease;
-            z-index: 1;
-            pointer-events: none;
-            filter: drop-shadow(0 6px 12px rgba(56, 189, 248, 0.6));
+        .market-tag-scorer {
+            background: rgba(250, 204, 21, 0.2) !important;
+            border-color: #facc15 !important;
+            color: #fef08a !important;
         }
 
-        .circular-menu.active .toggle-btn {
-            background: linear-gradient(145deg, #0f172a, #0284c7);
-            border-color: #38bdf8;
-            box-shadow: 0 0 60px rgba(56, 189, 248, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.4);
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
         }
 
-        .circular-menu.active .toggle-btn i {
-            opacity: 0;
-            transform: rotate(135deg) scale(0);
+        /* MODAL STYLES */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .circular-menu.active .bull-logo-svg {
-            opacity: 1;
-            transform: scale(1);
-        }
+        .modal-backdrop.show { display: flex; }
 
-        .menu-items {
-            position: absolute;
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
             width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 25;
-        }
-
-        .circular-menu.active .menu-items {
-            pointer-events: auto;
-        }
-
-        /* SLEEK GLASS MUTED BASE BUTTONS */
-        .menu-item {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100px;
-            height: 100px;
-            margin-top: -50px;
-            margin-left: -50px;
-            border-radius: 50%;
+            max-width: 580px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            color: #94a3b8 !important;
-            text-decoration: none;
-            font-size: 2.2rem;
-            opacity: 0;
-            transform: translate(0, 0) scale(0);
-            pointer-events: none;
-            cursor: pointer;
-            z-index: 35;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-            overflow: visible;
-            -webkit-tap-highlight-color: transparent;
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 
-                        inset 0 1px 2px rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+            font-size: 16px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
         }
-
-        .menu-item::before {
-            content: '';
-            position: absolute;
-            top: 4%;
-            left: 15%;
-            width: 70%;
-            height: 35%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .circular-menu.active .menu-item {
-            pointer-events: auto;
-        }
-
-        .menu-item i {
-            pointer-events: none;
-            transition: transform 0.3s ease, color 0.3s ease, filter 0.3s ease;
-            color: #94a3b8;
-        }
-
-        .menu-item .letter-icon {
-            font-family: 'Orbitron', 'Rajdhani', sans-serif;
-            font-weight: 900;
-            font-size: 2.2rem;
-            line-height: 1;
-            display: inline-block;
-            pointer-events: none;
-            transition: transform 0.3s ease, color 0.3s ease;
-            color: #94a3b8 !important;
-        }
-
-        /* ANCHORED TRANSFORMS ON HOVER - NO FLICKER */
-        .circular-menu.active .menu-item:hover, 
-        .circular-menu.active .menu-item.touch-active {
-            transform: translate(var(--tx), var(--ty)) scale(1.18) !important;
-            z-index: 100 !important;
-        }
-
-        /* INDIVIDUAL BRAND COLOR HIGHLIGHTS ON HOVER */
-        .menu-item[data-id="duties"]:hover, .menu-item[data-id="duties"].touch-active {
-            background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
-            border-color: #22d3ee;
-            box-shadow: 0 0 30px rgba(34, 211, 238, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-id="rota"]:hover, .menu-item[data-id="rota"].touch-active {
-            background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%);
-            border-color: #818cf8;
-            box-shadow: 0 0 30px rgba(129, 140, 248, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-id="handover"]:hover, .menu-item[data-id="handover"].touch-active {
-            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
-            border-color: #34d399;
-            box-shadow: 0 0 30px rgba(52, 211, 153, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-id="big-winners"]:hover, .menu-item[data-id="big-winners"].touch-active {
-            background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%);
-            border-color: #fde047;
-            box-shadow: 0 0 30px rgba(253, 224, 71, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-id="edge-boost"]:hover, .menu-item[data-id="edge-boost"].touch-active {
-            background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
-            border-color: #fcd34d;
-            box-shadow: 0 0 30px rgba(252, 211, 77, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-id="ibet-boost"]:hover, .menu-item[data-id="ibet-boost"].touch-active {
-            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
-            border-color: #7dd3fc;
-            box-shadow: 0 0 30px rgba(125, 211, 252, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-color="green"]:hover, .menu-item[data-color="green"].touch-active {
-            background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
-            border-color: #86efac;
-            box-shadow: 0 0 30px rgba(134, 239, 172, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-color="red"]:hover, .menu-item[data-color="red"].touch-active {
-            background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
-            border-color: #fca5a5;
-            box-shadow: 0 0 30px rgba(252, 165, 165, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-color="orange"]:hover, .menu-item[data-color="orange"].touch-active {
-            background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%);
-            border-color: #fdba74;
-            box-shadow: 0 0 30px rgba(253, 186, 116, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-id="confluence"]:hover, .menu-item[data-id="confluence"].touch-active {
-            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
-            border-color: #60a5fa;
-            box-shadow: 0 0 30px rgba(96, 165, 250, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item[data-id="workspace"]:hover, .menu-item[data-id="workspace"].touch-active {
-            background: linear-gradient(180deg, #64748b 0%, #334155 100%);
-            border-color: #94a3b8;
-            box-shadow: 0 0 30px rgba(148, 163, 184, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
-        .menu-item:hover i, .menu-item.touch-active i,
-        .menu-item:hover .letter-icon, .menu-item.touch-active .letter-icon {
-            color: #ffffff !important;
-            transform: scale(1.15);
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-        }
-
-        /* HOVER TOOLTIP BADGES */
-        .menu-item::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: -42px;
-            left: 50%;
-            transform: translateX(-50%) translateY(5px);
-            background: #0f172a;
-            border: 1.5px solid var(--title-cyan);
-            color: #ffffff;
-            padding: 6px 14px;
-            border-radius: 10px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease, transform 0.25s ease;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.9);
-            z-index: 200;
-        }
-
-        .menu-item:hover::after, .menu-item.touch-active::after {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* MOBILE VIEW CLEANUP MODIFICATIONS */
-        body.mobile-view-active .top-controls { 
-            top: 15px; 
-            right: 15px; 
-        }
-
-        /* HIDE UNNECESSARY WIDGETS IN MOBILE VIEW */
-        body.mobile-view-active #game-selector,
-        body.mobile-view-active #user-profile-select,
-        body.mobile-view-active #mobile-toggle,
-        body.mobile-view-active .bottom-right-brand {
-            display: none !important;
-        }
-
-        body.mobile-view-active .control-btn,
-        body.mobile-view-active .select-dropdown { 
-            padding: 8px 14px; 
-            font-size: 0.82rem; 
-            border-radius: 20px; 
-        }
-        
-        body.mobile-view-active .dashboard-header-bg {
-            top: calc(50% + 180px);
-        }
-
-        body.mobile-view-active .welcome-subtitle-bg { font-size: 1.1rem; letter-spacing: 0.20em; }
-        body.mobile-view-active .circular-menu { width: 340px; height: 340px; }
-        body.mobile-view-active .toggle-btn { width: 95px; height: 95px; font-size: 2rem; }
-        body.mobile-view-active .bull-logo-svg { width: 65px; height: 65px; }
-
-        body.mobile-view-active .menu-item {
-            width: 54px;
-            height: 54px;
-            margin-top: -27px;
-            margin-left: -27px;
-            font-size: 1.2rem;
-        }
-
-        body.mobile-view-active .menu-item .letter-icon { font-size: 1.2rem; }
-        body.mobile-view-active .menu-item::after { bottom: -30px; font-size: 0.72rem; padding: 3px 8px; }
     </style>
 </head>
 <body>
 
-    <!-- TRADING CANVAS BACKGROUND -->
-    <canvas id="trading-bg"></canvas>
+    <div class="header-container">
+        <div class="title-group">
+            <h1>AUTOMATED BIG EVENTS & OUTRIGHTS SCHEDULE</h1>
+            <span class="title-credit">kdv_2026 model</span>
+        </div>
+        <div class="btn-controls">
+            <!-- FIXED STABLE FONT SIZE SLIDER TOOLBAR -->
+            <div class="font-slider-wrapper" title="Adjust Readability Font Size">
+                <i class="fa-solid fa-font"></i>
+                <input type="range" id="fontSlider" min="11" max="20" value="14" oninput="changeFontSize(this.value)">
+                <span id="fontSizeBadge">14px</span>
+                <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="resetFontSize()">Reset</button>
+            </div>
 
-    <!-- TOP CONTROL BUTTONS -->
-    <div class="top-controls">
-        <select class="select-dropdown game-dropdown" id="game-selector" onchange="switchGame(this.value)">
-            <option value="" disabled selected>🎮 Select Game...</option>
-            <option value="mario">🎮 Game: Super Mario Arcade ↗</option>
-            <option value="flappy">🎮 Game: Flappy Bird ↗</option>
-            <option value="block">🎮 Game: Block Puzzle ↗</option>
-            <option value="solitaire">🎮 Game: Solitaire ↗</option>
-            <option value="word">🎮 Game: Word Puzzle ↗</option>
-        </select>
-
-        <select class="select-dropdown" id="user-profile-select" onchange="changeActiveUser(this.value)">
-            <option value="" disabled selected>-- Select Your Name --</option>
-            <option value="ANN">👤 Player: ANN</option>
-            <option value="DAVE">👤 Player: DAVE</option>
-            <option value="KENNETH">👤 Player: KENNETH</option>
-            <option value="KRIZTEL">👤 Player: KRIZTEL</option>
-            <option value="MIGUEL">👤 Player: MIGUEL</option>
-            <option value="CUSTOM">+ Custom Name...</option>
-        </select>
-        
-        <button class="control-btn mobile-toggle-btn" id="mobile-toggle">
-            <i class="fa-solid fa-mobile-screen-button"></i>
-            <span id="mobile-text">Mobile View: OFF</span>
-        </button>
-
-        <!-- KEPT ACTIVE IN MOBILE VIEW -->
-        <button class="control-btn" id="theme-toggle">
-            <i class="fa-solid fa-moon" id="theme-icon"></i>
-            <span id="theme-text">Night Mode</span>
-        </button>
-    </div>
-
-    <!-- BOTTOM RIGHT LOGO BRANDING -->
-    <div class="bottom-right-brand">
-        <div class="brand-card">
-            <svg class="brand-icon-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#0284c7" />
-                        <stop offset="100%" stop-color="#38bdf8" />
-                    </linearGradient>
-                    <linearGradient id="grad-orange" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#f97316" />
-                        <stop offset="100%" stop-color="#fb923c" />
-                    </linearGradient>
-                </defs>
-                <path d="M 100 20 A 80 80 0 1 0 170 140" stroke="url(#grad-blue)" stroke-width="18" stroke-linecap="round"/>
-                <path d="M 120 40 A 60 60 0 1 1 150 150" stroke="url(#grad-orange)" stroke-width="18" stroke-linecap="round"/>
-                <path d="M 50 150 Q 90 100 160 30" stroke="url(#grad-blue)" stroke-width="20" stroke-linecap="round"/>
-                <path d="M 130 25 L 175 25 L 175 70 Z" fill="url(#grad-orange)"/>
-            </svg>
-            <div class="brand-title">K HUB 2026</div>
-            <div class="brand-line"></div>
-            <div class="brand-subtitle">(kriztel)</div>
+            <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
+            <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+            <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
         </div>
     </div>
 
-    <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE WITH REAL TIME DYNAMIC SINE WAVE CHOMPING -->
-        <div class="dashboard-header-bg">
-            <div class="welcome-subtitle-bg">Welcome to</div>
-            <div class="title-wrapper">
-                <canvas id="title-text-canvas" width="1150" height="150"></canvas>
-            </div>
-        </div>
+    <!-- MAIN CATEGORY TABS -->
+    <div class="category-tabs">
+        <button class="tab-btn active" id="tab-FOOTBALL" onclick="switchCategoryTab('FOOTBALL')">
+            ⚽ Football (Priority Leagues)
+        </button>
+        <button class="tab-btn" id="tab-TENNIS" onclick="switchCategoryTab('TENNIS')">
+            🎾 Tennis (ATP & WTA Singles)
+        </button>
+        <button class="tab-btn" id="tab-OTHER" onclick="switchCategoryTab('OTHER')">
+            🏀 Basketball, NFL, MLB, Esports & Others
+        </button>
+        <button class="tab-btn" id="tab-OUTRIGHT" onclick="switchCategoryTab('OUTRIGHT')">
+            🏆 Outright Picks & Specials (All Sports, Horse Racing, Politics)
+        </button>
+    </div>
 
-        <!-- CIRCULAR NAVIGATION MENU -->
-        <div class="circular-menu" id="circular-menu">
-            <div class="touch-preview-banner" id="touch-banner">SELECT A BUTTON</div>
-            <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
-                <i class="fa-solid fa-plus"></i>
-                
-                <svg class="bull-logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="bullGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#38bdf8" />
-                            <stop offset="100%" stop-color="#22d3ee" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M 50 65 C 20 40 25 15 55 25 C 65 30 75 50 72 65 Z" fill="url(#bullGrad)"/>
-                    <path d="M 150 65 C 180 40 175 15 145 25 C 135 30 125 50 128 65 Z" fill="url(#bullGrad)"/>
-                    <path d="M 52 65 C 70 65 80 80 100 85 C 120 80 130 65 148 65 C 160 85 165 110 145 135 C 130 155 115 165 100 165 C 85 165 70 155 55 135 C 35 110 40 85 52 65 Z" stroke="url(#bullGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <line x1="82" y1="85" x2="82" y2="135" stroke="#38bdf8" stroke-width="4"/>
-                    <rect x="77" y="95" width="10" height="25" fill="#38bdf8" rx="2"/>
-                    <line x1="100" y1="75" x2="100" y2="145" stroke="#38bdf8" stroke-width="4"/>
-                    <rect x="95" y="85" width="10" height="45" fill="#38bdf8" rx="2"/>
-                    <line x1="118" y1="90" x2="118" y2="130" stroke="#38bdf8" stroke-width="4"/>
-                    <rect x="113" y="100" width="10" height="20" fill="#38bdf8" rx="2"/>
-                </svg>
+    <!-- FILTER & SEARCH BAR -->
+    <div class="filter-bar">
+        <i class="fa-solid fa-magnifying-glass" style="opacity: 0.7;"></i>
+        <input type="text" id="searchInput" placeholder="Search events, teams, goalscorers, or outright selections..." oninput="renderSchedule()">
+
+        <select id="filterTier" onchange="renderSchedule()">
+            <option value="ALL">All Event Priorities</option>
+            <option value="POPULAR">🔥 High Priority / Popular Matches Only</option>
+            <option value="HOT_GAME">Derby / Hot Match</option>
+            <option value="TIER_1">Tier 1 League</option>
+        </select>
+    </div>
+
+    <!-- EVENTS SCHEDULE GRID -->
+    <div class="schedule-grid" id="scheduleContainer"></div>
+
+    <!-- ADD / EDIT EVENT MODAL -->
+    <div class="modal-backdrop" id="eventModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalTitle">Add Big Event / Outright</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal()"></i>
             </div>
-            <div class="menu-items" id="menu-items"></div>
+            
+            <input type="hidden" id="editEventId">
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Matchup / Outright Title *</label>
+                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Aston Villa vs Arsenal or Premier League Winner 2026/27">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Sport Category</label>
+                    <select id="eventSport" class="form-control" style="width: 100%;">
+                        <option value="FOOTBALL">Football / Soccer</option>
+                        <option value="TENNIS">Tennis (ATP / WTA)</option>
+                        <option value="BASKETBALL">Basketball (NBA / EuroLeague)</option>
+                        <option value="AM_FOOTBALL">American Football (NFL)</option>
+                        <option value="BASEBALL">Baseball (MLB)</option>
+                        <option value="HOCKEY">Ice Hockey (NHL)</option>
+                        <option value="VOLLEYBALL">Volleyball</option>
+                        <option value="ESPORTS">Esports</option>
+                        <option value="OUTRIGHT">Outright / Specials / Politics / Racing</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">League / Tournament</label>
+                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., England Premier League / Outright Specials">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Date / Settlement Time *</label>
+                    <input type="datetime-local" id="eventDateTime" class="form-control" style="width: 100%;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Priority Tier</label>
+                    <select id="eventTier" class="form-control" style="width: 100%;">
+                        <option value="HOT_GAME">🔥 Hot Game / Derby / Major Outright</option>
+                        <option value="TIER_1">⭐ Tier 1 (Popular Event Highlight)</option>
+                        <option value="REGULAR">Regular Game</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">1-2 Top Goalscorers & Featured Options (Comma Separated)</label>
+                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Bukayo Saka (Goalscorer), Ollie Watkins (Goalscorer), Shots on Target">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const navMenuJSON = [
-            { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
-            { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
-            { id: "handover", icon: "fa-solid fa-clipboard-list", label: "HANDOVER & SOP", url: "handover.html" },
-            { id: "big-winners", icon: "fa-solid fa-trophy", label: "BIG WINNERS", url: "big-winners.html" },
-            { id: "edge-boost", icon: "fa-solid fa-bolt", label: "EDGE BOOST", url: "edge_boosts.html" },
-            { id: "ibet-boost", icon: "fa-solid fa-chart-line", label: "IBET BOOST", url: "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=784209986#gid=784209986" },
-            { id: "green-tracking", letter: "G", label: "GREEN TRACKING", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410", color: "green" },
-            { id: "red-tracking", letter: "R", label: "RED TRACKING", url: "https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468", color: "red" },
-            { id: "orange-tracking", letter: "O", label: "ORANGE TRACKING", url: "https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695", color: "orange" },
-            { id: "green-crm", icon: "fa-solid fa-users", label: "GREEN CRM", url: "https://docs.google.com/spreadsheets/d/11STKO4Xsj0a8iTuUXSCXC-XEE4-7qmF9/edit?pli=1&gid=1701374259#gid=1701374259", color: "green" },
-            { id: "red-crm", icon: "fa-solid fa-users-slash", label: "RED CRM", url: "https://docs.google.com/spreadsheets/d/1gPks2FdHyOOTiILvn553miz32WeEtOpx/edit?gid=1701374259#gid=1701374259", color: "red" },
-            { id: "confluence", icon: "fa-solid fa-book", label: "CONFLUENCE", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" },
-            { id: "workspace", icon: "fa-solid fa-laptop-code", label: "WORKSPACE", url: "workspace.html" }
-        ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
 
-        const circularMenu = document.getElementById('circular-menu');
-        const toggleBtn = document.getElementById('toggle-btn');
-        const menuItemsContainer = document.getElementById('menu-items');
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
-        const mobileToggleBtn = document.getElementById('mobile-toggle');
-        const mobileText = document.getElementById('mobile-text');
-        const userProfileSelect = document.getElementById('user-profile-select');
-        const touchBanner = document.getElementById('touch-banner');
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        let isMobileView = false;
-        let activeTouchedItem = null;
+        let eventSchedule = {};
+        let activeTabCategory = 'FOOTBALL';
 
-        function initActiveUser() {
-            let savedUser = localStorage.getItem('sb_active_user');
-            if (userProfileSelect && savedUser) {
-                userProfileSelect.value = savedUser;
-            }
-            return savedUser || "GUEST";
+        // TEAM SPECIFIC 1-2 GOALSCORERS DATABASE LOOKUP
+        const teamStarScorers = {
+            "arsenal": ["Bukayo Saka", "Kai Havertz"],
+            "aston villa": ["Ollie Watkins", "Leon Bailey"],
+            "liverpool": ["Mo Salah", "Darwin Núñez"],
+            "manchester city": ["Erling Haaland", "Phil Foden"],
+            "manchester united": ["Bruno Fernandes", "Rasmus Højlund"],
+            "chelsea": ["Cole Palmer", "Nicolas Jackson"],
+            "real madrid": ["Kylian Mbappé", "Jude Bellingham"],
+            "barcelona": ["Robert Lewandowski", "Lamine Yamal"],
+            "bayern munich": ["Harry Kane", "Jamal Musiala"],
+            "inter milan": ["Lautaro Martínez", "Marcus Thuram"],
+            "napoli": ["Victor Osimhen", "Khvicha Kvaratskhelia"],
+            "psg": ["Ousmane Dembélé", "Randal Kolo Muani"],
+            "tottenham": ["Son Heung-min", "Dominic Solanke"]
+        };
+
+        function changeFontSize(pxValue) {
+            const numVal = parseInt(pxValue, 10);
+            document.querySelectorAll('.event-title').forEach(el => el.style.fontSize = `${numVal + 2}px`);
+            document.querySelectorAll('.event-sport').forEach(el => el.style.fontSize = `${Math.max(10, numVal - 3)}px`);
+            document.querySelectorAll('.event-meta').forEach(el => el.style.fontSize = `${Math.max(11, numVal - 2)}px`);
+            document.querySelectorAll('.market-box-title').forEach(el => el.style.fontSize = `${Math.max(11, numVal - 2)}px`);
+            document.querySelectorAll('.market-tag').forEach(el => el.style.fontSize = `${Math.max(10, numVal - 3)}px`);
+
+            document.getElementById('fontSizeBadge').innerText = `${numVal}px`;
+            localStorage.setItem('boost_font_size', numVal);
         }
 
-        let currentUser = initActiveUser();
-
-        function changeActiveUser(val) {
-            if (val === "CUSTOM") {
-                let typedName = prompt("Enter your Name:", "KRIZTEL");
-                if (typedName) {
-                    currentUser = typedName.toUpperCase().trim();
-                    localStorage.setItem('sb_active_user', currentUser);
-                    let customOpt = document.createElement('option');
-                    customOpt.value = currentUser;
-                    customOpt.textContent = `👤 Player: ${currentUser}`;
-                    userProfileSelect.appendChild(customOpt);
-                    userProfileSelect.value = currentUser;
-                }
-            } else {
-                currentUser = val;
-                localStorage.setItem('sb_active_user', currentUser);
-            }
+        function resetFontSize() {
+            document.getElementById('fontSlider').value = 14;
+            changeFontSize(14);
         }
 
-        function switchGame(val) {
-            const selector = document.getElementById('game-selector');
-            if (val === 'mario') {
-                window.open('mario.html', '_blank');
-            } else if (val === 'flappy') {
-                window.open('flappy.html', '_blank');
-            } else if (val === 'block') {
-                window.open('block.html', '_blank');
-            } else if (val === 'solitaire') {
-                window.open('solitaire.html', '_blank');
-            } else if (val === 'word') {
-                window.open('word.html', '_blank');
-            }
-            if (selector) selector.value = '';
+        function initFontSize() {
+            const savedSize = localStorage.getItem('boost_font_size') || 14;
+            document.getElementById('fontSlider').value = savedSize;
+            changeFontSize(savedSize);
         }
 
-        function getRadius() {
-            return isMobileView ? 135 : 290;
-        }
-
-        function buildMenuFromJSON(items) {
-            if (!menuItemsContainer) return;
-            menuItemsContainer.innerHTML = '';
-            const total = items.length;
-            const radius = getRadius();
-
-            items.forEach((item, index) => {
-                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2);
-                const x = Math.round(radius * Math.cos(angle));
-                const y = Math.round(radius * Math.sin(angle));
-
-                const a = document.createElement('a');
-                a.href = item.url;
-                a.className = 'menu-item';
-                a.setAttribute('data-id', item.id);
-                a.setAttribute('data-tooltip', item.label);
-                a.setAttribute('data-index', index);
-                if (item.color) a.setAttribute('data-color', item.color);
-
-                if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
-                    a.setAttribute('target', '_blank');
-                    a.setAttribute('rel', 'noopener noreferrer');
-                }
-
-                a.style.setProperty('--tx', `${x}px`);
-                a.style.setProperty('--ty', `${y}px`);
-
-                if (item.letter) {
-                    a.innerHTML = `<span class="letter-icon">${item.letter}</span>`;
-                } else {
-                    a.innerHTML = `<i class="${item.icon}"></i>`;
-                }
+        function listenToDatabase() {
+            db.ref('boost_schedule').on('value', (snapshot) => {
+                eventSchedule = snapshot.val() || {};
                 
-                menuItemsContainer.appendChild(a);
-            });
-        }
-
-        // MOBILE TOUCH/SLIDE HOVER GESTURE ENGINE
-        function initMobileTouchGestures() {
-            if (!circularMenu) return;
-
-            function processTouchPoint(touchX, touchY) {
-                if (!circularMenu.classList.contains('active')) return;
-
-                const items = menuItemsContainer.querySelectorAll('.menu-item');
-                let foundItem = null;
-
-                items.forEach((item) => {
-                    const rect = item.getBoundingClientRect();
-                    if (
-                        touchX >= rect.left - 15 &&
-                        touchX <= rect.right + 15 &&
-                        touchY >= rect.top - 15 &&
-                        touchY <= rect.bottom + 15
-                    ) {
-                        foundItem = item;
-                    }
-                });
-
-                if (foundItem) {
-                    if (activeTouchedItem && activeTouchedItem !== foundItem) {
-                        activeTouchedItem.classList.remove('touch-active');
-                    }
-                    activeTouchedItem = foundItem;
-                    activeTouchedItem.classList.add('touch-active');
-
-                    const label = activeTouchedItem.getAttribute('data-tooltip');
-                    touchBanner.textContent = `📍 ${label}`;
-                    touchBanner.classList.add('show');
-                } else if (activeTouchedItem) {
-                    activeTouchedItem.classList.remove('touch-active');
-                    activeTouchedItem = null;
-                    touchBanner.classList.remove('show');
-                }
-            }
-
-            circularMenu.addEventListener('touchstart', (e) => {
-                if (e.touches.length > 0) {
-                    processTouchPoint(e.touches[0].clientX, e.touches[0].clientY);
-                }
-            }, { passive: true });
-
-            circularMenu.addEventListener('touchmove', (e) => {
-                if (e.touches.length > 0) {
-                    processTouchPoint(e.touches[0].clientX, e.touches[0].clientY);
-                }
-            }, { passive: true });
-
-            circularMenu.addEventListener('touchend', (e) => {
-                if (activeTouchedItem) {
-                    const targetUrl = activeTouchedItem.getAttribute('href');
-                    const isExternal = targetUrl.startsWith('http://') || targetUrl.startsWith('https://');
-
-                    setTimeout(() => {
-                        if (isExternal) {
-                            window.open(targetUrl, '_blank');
-                        } else {
-                            window.location.href = targetUrl;
-                        }
-                        if (activeTouchedItem) {
-                            activeTouchedItem.classList.remove('touch-active');
-                            activeTouchedItem = null;
-                        }
-                        touchBanner.classList.remove('show');
-                    }, 120);
-                }
-            });
-        }
-
-        if (toggleBtn && circularMenu) {
-            function handleToggleMenu(e) {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                const isActive = circularMenu.classList.toggle('active');
-                const items = menuItemsContainer.querySelectorAll('.menu-item');
-
-                items.forEach((item, index) => {
-                    const tx = item.style.getPropertyValue('--tx');
-                    const ty = item.style.getPropertyValue('--ty');
-                    if (isActive) {
-                        setTimeout(() => {
-                            item.style.opacity = '1';
-                            item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
-                        }, index * 25);
-                    } else {
-                        item.style.opacity = '0';
-                        item.style.transform = 'translate(0, 0) scale(0)';
-                    }
-                });
-            }
-
-            toggleBtn.addEventListener('click', handleToggleMenu);
-        }
-
-        function toggleMobileView() {
-            isMobileView = !isMobileView;
-            if (isMobileView) {
-                document.body.classList.add('mobile-view-active');
-                mobileText.textContent = 'Mobile View: ON';
-                mobileToggleBtn.classList.add('active');
-            } else {
-                document.body.classList.remove('mobile-view-active');
-                mobileText.textContent = 'Mobile View: OFF';
-                mobileToggleBtn.classList.remove('active');
-            }
-            localStorage.setItem('dashboard_mobile_view', isMobileView ? 'true' : 'false');
-            buildMenuFromJSON(navMenuJSON);
-            fitTitleCanvasScale();
-        }
-
-        if (mobileToggleBtn) {
-            mobileToggleBtn.addEventListener('click', toggleMobileView);
-        }
-
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            if (themeIcon && themeText) {
-                if (theme === 'dark') {
-                    themeIcon.className = 'fa-solid fa-moon';
-                    themeText.textContent = 'Night Mode';
+                if (Object.keys(eventSchedule).length === 0) {
+                    fetchFlashscore7Days(false);
                 } else {
-                    themeIcon.className = 'fa-solid fa-sun';
-                    themeText.textContent = 'Daylight Mode';
+                    renderSchedule();
                 }
-            }
-            localStorage.setItem('dashboard_theme', theme);
-        }
-
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
             });
         }
 
-        function fitTitleCanvasScale() {
-            const canvas = document.getElementById('title-text-canvas');
-            if (!canvas) return;
-            const screenWidth = window.innerWidth;
-            if (screenWidth < 1150 || isMobileView) {
-                const targetWidth = isMobileView ? Math.min(screenWidth * 0.90, 360) : Math.min(screenWidth * 0.95, 1150);
-                const scale = targetWidth / 1150;
-                canvas.style.transform = `scale(${scale})`;
+        function switchCategoryTab(cat) {
+            activeTabCategory = cat;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${cat}`).classList.add('active');
+            renderSchedule();
+        }
+
+        // GENERATE DYNAMIC 1-2 GOALSCORERS & MARKETS FOR MATCHES
+        function generatePopularMarketsForMatch(title, sport) {
+            const teams = title.split(/ vs | v /i);
+            const teamAKey = teams[0] ? teams[0].trim().toLowerCase() : '';
+            const teamBKey = teams[1] ? teams[1].trim().toLowerCase() : '';
+
+            let scorers = [];
+            if (teamStarScorers[teamAKey]) scorers.push(teamStarScorers[teamAKey][0] + " (Scorer)");
+            if (teamStarScorers[teamBKey]) scorers.push(teamStarScorers[teamBKey][0] + " (Scorer)");
+
+            if (sport === 'FOOTBALL') {
+                return [
+                    ...scorers,
+                    `1X2 Match Result`,
+                    `Over/Under 2.5 Goals`,
+                    `Shots on Target`
+                ];
+            } else if (sport === 'TENNIS') {
+                return [
+                    `${teams[0] || 'Player 1'} Winner`,
+                    `Set Betting 3-0 / 2-0`,
+                    `Total Games Over/Under`,
+                    `Player Aces Count`
+                ];
             } else {
-                canvas.style.transform = `scale(1)`;
+                return [
+                    `Moneyline Winner`,
+                    `Point Spread Handicap`,
+                    `Total Points Over/Under`
+                ];
             }
         }
 
-        // PERFECT DIRECTIONAL ROTATION PAC-MAN ENGINE (NO BLACK SHADOW, 100% FORWARD FACING)
-        function initTitleWatermarkEngine() {
-            const canvas = document.getElementById('title-text-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = '';
 
-            // OFF-SCREEN BUFFER CANVAS FOR MASKING WITHOUT BLACK TRAILS
-            const textCanvas = document.createElement('canvas');
-            textCanvas.width = canvas.width;
-            textCanvas.height = canvas.height;
-            const textCtx = textCanvas.getContext('2d');
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filterTier = document.getElementById('filterTier').value;
 
-            const text = "SPORTSBOOK HUB";
-            textCtx.font = '900 96px Orbitron, sans-serif';
-            const totalWidth = textCtx.measureText(text).width;
-            const startX = (canvas.width - totalWidth) / 2;
+            const seenMatchKeys = new Set();
+            const duplicatesToDelete = [];
 
-            let activeBites = [];
+            const keys = Object.keys(eventSchedule).sort((a, b) => {
+                return new Date(eventSchedule[a].dateTime) - new Date(eventSchedule[b].dateTime);
+            });
 
-            let pacmanX = startX - 40; 
-            let pacmanDirection = 1; // 1 = MOVING RIGHT, -1 = MOVING LEFT
-            let pacmanSpeed = 0.15; // 3X SLOWER SPEED
-            let mouthAngle = 0.2;
-            let mouthSpeed = 0.015;
+            keys.forEach(id => {
+                const item = eventSchedule[id];
+                const normalizedTitle = (item.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-            // SINE WAVE PATH CONSTANTS
-            const centerY = canvas.height / 2;
-            const waveAmplitude = 32; 
-            const waveFrequency = 0.012; 
-
-            function getPacmanY(x) {
-                return centerY + Math.sin(x * waveFrequency) * waveAmplitude;
-            }
-
-            function render() {
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                const mainColor = isDark ? '#38bdf8' : '#0284c7';
-
-                const currentPacmanY = getPacmanY(pacmanX);
-
-                // 1. RENDER CLEAN BASE TEXT TO OFF-SCREEN CANVAS
-                textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-
-                textCtx.font = '900 96px Orbitron, sans-serif';
-                textCtx.textAlign = 'center';
-                textCtx.textBaseline = 'middle';
-
-                textCtx.save();
-                textCtx.fillStyle = mainColor;
-                textCtx.globalAlpha = isDark ? 0.25 : 0.20;
-                textCtx.shadowColor = mainColor;
-                textCtx.shadowBlur = isDark ? 20 : 8;
-
-                let currentX = startX;
-                for (let i = 0; i < text.length; i++) {
-                    const char = text[i];
-                    const charWidth = textCtx.measureText(char).width;
-                    const charCenterX = currentX + charWidth / 2;
-                    textCtx.fillText(char, charCenterX, centerY);
-                    currentX += charWidth;
+                if (seenMatchKeys.has(normalizedTitle)) {
+                    duplicatesToDelete.push(id);
+                    return; 
                 }
-                textCtx.restore();
+                seenMatchKeys.add(normalizedTitle);
 
-                // 2. LOG CIRCULAR CHOMP DAMAGE
-                if (pacmanX >= startX - 20 && pacmanX <= startX + totalWidth + 20) {
-                    activeBites.push({
-                        x: pacmanX,
-                        y: currentPacmanY,
-                        radius: 16,
-                        healTimer: 600
+                // Category Tab Logic
+                let matchesTab = false;
+                if (activeTabCategory === 'FOOTBALL' && item.sport === 'FOOTBALL') matchesTab = true;
+                else if (activeTabCategory === 'TENNIS' && item.sport === 'TENNIS') matchesTab = true;
+                else if (activeTabCategory === 'OUTRIGHT' && item.sport === 'OUTRIGHT') matchesTab = true;
+                else if (activeTabCategory === 'OTHER' && item.sport !== 'FOOTBALL' && item.sport !== 'TENNIS' && item.sport !== 'OUTRIGHT') matchesTab = true;
+
+                // Search Filter Logic
+                const marketsStr = Array.isArray(item.markets) ? item.markets.join(' ') : (item.markets || '');
+                const matchesSearch = item.title.toLowerCase().includes(searchText) || 
+                                      item.league.toLowerCase().includes(searchText) ||
+                                      marketsStr.toLowerCase().includes(searchText);
+
+                // Priority Highlight Filter
+                const isPopular = (item.tier === 'HOT_GAME' || item.tier === 'TIER_1');
+                let matchesTier = true;
+                if (filterTier === 'POPULAR') matchesTier = isPopular;
+                else if (filterTier === 'HOT_GAME') matchesTier = (item.tier === 'HOT_GAME');
+                else if (filterTier === 'TIER_1') matchesTier = (item.tier === 'TIER_1');
+
+                if (matchesTab && matchesSearch && matchesTier) {
+                    const card = document.createElement('div');
+                    card.className = `event-card ${isPopular ? 'popular-highlight' : ''}`;
+
+                    const dateFormatted = new Date(item.dateTime).toLocaleString([], {
+                        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                     });
-                }
 
-                // 3. MASK BITE HOLES CLEANLY ON TEXT LAYER ONLY
-                textCtx.save();
-                textCtx.globalCompositeOperation = 'destination-out';
-
-                for (let j = activeBites.length - 1; j >= 0; j--) {
-                    let bite = activeBites[j];
-                    
-                    if (bite.healTimer > 0) {
-                        bite.healTimer--;
+                    let marketTags = [];
+                    if (Array.isArray(item.markets) && item.markets.length > 0) {
+                        marketTags = item.markets;
+                    } else if (typeof item.markets === 'string' && item.markets.trim().length > 0) {
+                        marketTags = item.markets.split(',').map(m => m.trim());
                     } else {
-                        bite.radius -= 0.04; // SLOW REGENERATION
+                        marketTags = generatePopularMarketsForMatch(item.title, item.sport);
                     }
 
-                    if (bite.radius <= 0) {
-                        activeBites.splice(j, 1);
-                    } else {
-                        textCtx.beginPath();
-                        textCtx.arc(bite.x, bite.y, bite.radius, 0, Math.PI * 2);
-                        textCtx.fill();
-                    }
+                    card.innerHTML = `
+                        <div class="event-header">
+                            <div>
+                                <div class="event-sport">${item.sport.replace('_', ' ')} • ${escapeHtml(item.league)}</div>
+                                <div class="event-title">${escapeHtml(item.title)}</div>
+                            </div>
+                            ${isPopular ? `
+                                <span class="badge ${item.sport === 'OUTRIGHT' ? 'badge-outright' : (item.tier === 'HOT_GAME' ? 'badge-hot' : 'badge-tier1')} badge-blink">
+                                    ${item.sport === 'OUTRIGHT' ? '🏆 OUTRIGHT' : (item.tier === 'HOT_GAME' ? '🔥 HOT' : '⭐ TIER 1')}
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <div class="event-meta">
+                            <span>📅 ${dateFormatted}</span>
+                        </div>
+
+                        <!-- POPULAR MARKETS & GOALSCORERS BOX -->
+                        <div class="popular-markets-box">
+                            <div class="market-box-title">
+                                <i class="fa-solid ${item.sport === 'OUTRIGHT' ? 'fa-trophy' : 'fa-fire-flame-curved'}" style="color:${item.sport === 'OUTRIGHT' ? '#a855f7' : '#ef4444'};"></i> 
+                                ${item.sport === 'OUTRIGHT' ? 'Top Oddschecker Favorites to Offer:' : '1-2 Pick Goalscorers & Featured Options:'}
+                            </div>
+                            <div class="market-tag-list">
+                                ${marketTags.map(tag => {
+                                    const isScorer = tag.toLowerCase().includes('scorer') || tag.toLowerCase().includes('goal') || tag.toLowerCase().includes('saka') || tag.toLowerCase().includes('haaland') || tag.toLowerCase().includes('salah') || tag.toLowerCase().includes('mbapp');
+                                    return `<span class="market-tag ${isScorer ? 'market-tag-scorer' : ''}">${escapeHtml(tag)}</span>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${id}')">
+                                ✏️ Edit Details
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="deleteEvent('${id}')">🗑️ Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
                 }
-                textCtx.restore();
+            });
 
-                // 4. CLEAR MAIN DISPLAY CANVAS AND DRAW MASKED TEXT
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(textCanvas, 0, 0);
-
-                // 5. UPDATE PAC-MAN POSITION & PING-PONG DIRECTION
-                pacmanX += pacmanSpeed * pacmanDirection;
-
-                const rightLimit = startX + totalWidth + 50;
-                const leftLimit = startX - 50;
-
-                if (pacmanX >= rightLimit) {
-                    pacmanX = rightLimit;
-                    pacmanDirection = -1; // TURN AROUND TO MOVE LEFT
-                } else if (pacmanX <= leftLimit) {
-                    pacmanX = leftLimit;
-                    pacmanDirection = 1; // TURN AROUND TO MOVE RIGHT
-                }
-
-                mouthAngle += mouthSpeed;
-                if (mouthAngle > 0.42 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
-
-                // 6. DRAW PAC-MAN (ROTATED TANGENT TO WAVE & FULLY REVERSED WHEN MOVING LEFT)
-                ctx.save();
-                ctx.translate(pacmanX, currentPacmanY);
-
-                const deltaX = 1;
-                const deltaY = getPacmanY(pacmanX + deltaX) - currentPacmanY;
-                let slopeAngle = Math.atan2(deltaY, deltaX);
-
-                if (pacmanDirection === -1) {
-                    // FLIP 180 DEGREES SO MOUTH FACES LEFT TOWARDS DIRECTION OF TRAVEL
-                    slopeAngle += Math.PI; 
-                }
-
-                ctx.rotate(slopeAngle);
-
-                ctx.beginPath();
-                ctx.arc(0, 0, 15, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
-                ctx.lineTo(0, 0);
-                ctx.fillStyle = '#facc15';
-                ctx.shadowColor = '#facc15';
-                ctx.shadowBlur = 12;
-                ctx.fill();
-                ctx.restore();
-
-                requestAnimationFrame(render);
-            }
-
-            render();
-        }
-
-        function initTradingBackground() {
-            const canvas = document.getElementById('trading-bg');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                fitTitleCanvasScale();
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            class DepthParticle {
-                constructor() { this.reset(); }
-                reset() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 3 + 1.5;
-                    this.speedX = (Math.random() - 0.5) * 1.2;
-                    this.speedY = (Math.random() - 0.5) * 1.2;
-                    this.isBuy = Math.random() > 0.5;
-                    this.color = this.isBuy ? '34, 197, 94' : '239, 68, 68';
-                }
-                update() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-
-                    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-                        this.reset();
-                    }
-                }
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(${this.color}, 0.65)`;
-                    ctx.fill();
-                }
-            }
-
-            const particles = Array.from({ length: 60 }, () => new DepthParticle());
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
+            // SILENT FIREBASE DUPLICATE PURGE
+            if (duplicatesToDelete.length > 0) {
+                duplicatesToDelete.forEach(dupId => {
+                    db.ref(`boost_schedule/${dupId}`).remove();
                 });
-                requestAnimationFrame(animate);
             }
 
-            animate();
+            if (container.children.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; opacity: 0.6; padding: 40px;">No upcoming selections in this tab. Click <strong>"Manual Re-sync Feed"</strong> to re-populate games & outrights.</div>`;
+            } else {
+                const currentSliderVal = document.getElementById('fontSlider').value;
+                changeFontSize(currentSliderVal);
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
-            setTheme(savedTheme);
+        // DYNAMIC FEED SYNC WITH 1-2 GOALSCORERS & OUTRIGHT PICKS
+        function fetchFlashscore7Days(showPrompt = false) {
+            const today = new Date();
 
-            if (localStorage.getItem('dashboard_mobile_view') === 'true' || window.innerWidth < 768) {
-                isMobileView = false;
-                toggleMobileView();
-            } else {
-                buildMenuFromJSON(navMenuJSON);
+            function getRelativeDateStr(offsetDays, hourStr) {
+                const d = new Date(today);
+                d.setDate(d.getDate() + offsetDays);
+                const isoDate = d.toISOString().split('T')[0];
+                return `${isoDate}T${hourStr}`;
             }
 
-            initTradingBackground();
-            initTitleWatermarkEngine();
-            initMobileTouchGestures();
-            fitTitleCanvasScale();
-        });
+            const upcomingFlashscoreFeeds = [
+                // FOOTBALL - PRIORITY LEAGUES (WITH 1-2 GOALSCORERS)
+                { title: "Aston Villa vs Arsenal", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "04:00"), tier: "HOT_GAME", markets: ["Bukayo Saka (Scorer)", "Ollie Watkins (Scorer)", "Shots on Target", "Over 2.5 Goals"] },
+                { title: "Ipswich Town vs Liverpool", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "04:00"), tier: "TIER_1", markets: ["Mo Salah (Scorer)", "Darwin Núñez (Scorer)", "Liverpool Win & BTTS"] },
+                { title: "Arsenal vs Manchester City", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "09:34"), tier: "HOT_GAME", markets: ["Erling Haaland (Scorer)", "Bukayo Saka (Scorer)", "1X2 Odds", "2+ Shots on Target"] },
+                { title: "Arsenal vs Chelsea", league: "England Premier League", sport: "FOOTBALL", dateTime: "2026-09-06T00:30", tier: "HOT_GAME", markets: ["Cole Palmer (Scorer)", "Kai Havertz (Scorer)", "Cards Over 4.5"] },
+                { title: "Everton vs Manchester United", league: "England Premier League", sport: "FOOTBALL", dateTime: "2026-09-05T22:00", tier: "TIER_1", markets: ["Bruno Fernandes (Scorer)", "Rasmus Højlund (Scorer)"] },
+                { title: "Barcelona vs Rayo Vallecano", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "03:00"), tier: "TIER_1", markets: ["Lamine Yamal (Scorer)", "Robert Lewandowski (Scorer)", "Corner Handicap"] },
+                { title: "Real Madrid vs Málaga", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "03:00"), tier: "TIER_1", markets: ["Kylian Mbappé (Scorer)", "Jude Bellingham (Scorer)", "Halftime/Fulltime"] },
+                { title: "Bayern Munich vs VfL Osnabrück", league: "Germany Bundesliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "02:30"), tier: "TIER_1", markets: ["Harry Kane (Scorer)", "Jamal Musiala (Scorer)", "Asian Handicap -1.5"] },
+
+                // TENNIS (US OPEN GRAND SLAM)
+                { title: "Carlos Alcaraz vs Pavel Kotov", league: "ATP US Open Singles", sport: "TENNIS", dateTime: getRelativeDateStr(2, "02:00"), tier: "HOT_GAME", markets: ["Alcaraz 3-0 Set Betting", "Aces Over 8.5"] },
+                { title: "Aryna Sabalenka vs Iga Świątek", league: "WTA US Open Singles", sport: "TENNIS", dateTime: getRelativeDateStr(5, "01:00"), tier: "HOT_GAME", markets: ["Sabalenka Match Winner", "Tiebreak Yes"] },
+
+                // OUTRIGHT PICKS & SPECIALS (ALL SPORTS, POLITICS, HORSE RACING)
+                { title: "Premier League Winner 2026/27", league: "England Premier League Outright", sport: "OUTRIGHT", dateTime: "2026-09-15T00:00", tier: "HOT_GAME", markets: ["Man City (Favorites)", "Arsenal (2nd Fav)", "Liverpool", "Chelsea"] },
+                { title: "UEFA Champions League Winner 2026/27", league: "UEFA Outright", sport: "OUTRIGHT", dateTime: "2026-09-20T00:00", tier: "HOT_GAME", markets: ["Real Madrid (Favorites)", "Man City", "Bayern Munich", "PSG"] },
+                { title: "US Open Men's Singles Champion", league: "ATP Tennis Outright", sport: "OUTRIGHT", dateTime: "2026-09-13T23:00", tier: "TIER_1", markets: ["Carlos Alcaraz", "Jannik Sinner", "Novak Djokovic"] },
+                { title: "NFL Super Bowl LXI Champion", league: "NFL Outright", sport: "OUTRIGHT", dateTime: "2026-09-10T00:00", tier: "TIER_1", markets: ["Kansas City Chiefs", "San Francisco 49ers", "Baltimore Ravens"] },
+                { title: "Cheltenham Gold Cup Winner", league: "Horse Racing Outright", sport: "OUTRIGHT", dateTime: "2026-09-25T15:00", tier: "TIER_1", markets: ["Galopin Des Champs", "Fastorslow", "Gerri Colombe"] },
+                { title: "UK Next Prime Minister / Election", league: "Politics Outright", sport: "OUTRIGHT", dateTime: "2026-10-01T00:00", tier: "REGULAR", markets: ["Labor Party", "Conservative Party", "Reform UK"] }
+            ];
+
+            const normalize = str => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const existingMatchTitles = Object.keys(eventSchedule).map(k => normalize(eventSchedule[k].title));
+
+            let newAdded = 0;
+            upcomingFlashscoreFeeds.forEach(evt => {
+                const normalizedFeedTitle = normalize(evt.title);
+                if (!existingMatchTitles.includes(normalizedFeedTitle)) {
+                    db.ref('boost_schedule').push(evt);
+                    existingMatchTitles.push(normalizedFeedTitle);
+                    newAdded++;
+                }
+            });
+
+            if (showPrompt) {
+                if (newAdded > 0) {
+                    alert(`✓ Added ${newAdded} new Flashscore matches & Outrights.`);
+                } else {
+                    alert("✓ All matches and outrights are up to date! Duplicates were prevented.");
+                }
+            }
+        }
+
+        function openNewEventModal() {
+            document.getElementById('editEventId').value = '';
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventLeague').value = '';
+            document.getElementById('eventSport').value = 'FOOTBALL';
+            document.getElementById('eventTier').value = 'TIER_1';
+            document.getElementById('eventDateTime').value = new Date().toISOString().slice(0, 16);
+            document.getElementById('eventMarkets').value = '';
+            document.getElementById('modalTitle').innerText = 'Add Custom Event / Outright';
+            document.getElementById('eventModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').classList.remove('show');
+        }
+
+        function saveEvent() {
+            const title = document.getElementById('eventTitle').value.trim();
+            const league = document.getElementById('eventLeague').value.trim();
+            const sport = document.getElementById('eventSport').value;
+            const tier = document.getElementById('eventTier').value;
+            const dateTime = document.getElementById('eventDateTime').value;
+            const marketsInput = document.getElementById('eventMarkets').value.trim();
+            const editId = document.getElementById('editEventId').value;
+
+            if (!title || !dateTime) {
+                return alert("Please enter both an Event Title and Date/Time.");
+            }
+
+            const markets = marketsInput ? marketsInput.split(',').map(m => m.trim()) : [];
+            const eventData = { title, league, sport, tier, dateTime, markets };
+
+            if (editId) {
+                db.ref(`boost_schedule/${editId}`).set(eventData);
+            } else {
+                db.ref('boost_schedule').push(eventData);
+            }
+
+            closeModal();
+        }
+
+        function editEvent(id) {
+            const item = eventSchedule[id];
+            if (!item) return;
+
+            document.getElementById('editEventId').value = id;
+            document.getElementById('eventTitle').value = item.title;
+            document.getElementById('eventLeague').value = item.league;
+            document.getElementById('eventSport').value = item.sport;
+            document.getElementById('eventTier').value = item.tier;
+            document.getElementById('eventDateTime').value = item.dateTime;
+
+            const marketsStr = Array.isArray(item.markets) ? item.markets.join(', ') : (item.markets || '');
+            document.getElementById('eventMarkets').value = marketsStr;
+
+            document.getElementById('modalTitle').innerText = 'Edit Event / Outright Details';
+            document.getElementById('eventModal').classList.add('show');
+        }
+
+        function deleteEvent(id) {
+            if (confirm("Delete this selection from the schedule?")) {
+                db.ref(`boost_schedule/${id}`).remove();
+            }
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('sb_theme', newTheme);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem('sb_theme') === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+            initFontSize();
+            listenToDatabase();
+        };
     </script>
 </body>
 </html>
