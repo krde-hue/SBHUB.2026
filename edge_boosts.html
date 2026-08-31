@@ -789,19 +789,23 @@
             return null;
         }
 
+        // FIXED SORTING ENGINE: Pins blank/new rows at the absolute top regardless of limit filters
         function getSortedAndLimitedRows(allRows) {
             const dateColIdx = currentSheet === "EDGE Banners" ? 1 : 3;
             const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
 
             const mappedRows = allRows.map((row, index) => {
                 const dateObj = parseRowDate(row[dateColIdx]);
+                // Assign infinite timestamp to blank/new rows so they pin to position #1
+                const timestamp = dateObj ? dateObj.getTime() : Number.MAX_SAFE_INTEGER;
                 return {
                     originalIndex: index,
                     row: row,
-                    date: dateObj ? dateObj.getTime() : 0
+                    date: timestamp
                 };
             });
 
+            // Sort descending (Newest dates & new blank rows FIRST)
             mappedRows.sort((a, b) => b.date - a.date);
 
             let resultMapped = mappedRows;
@@ -1210,12 +1214,11 @@
             debouncedSaveToFirebase();
         }
 
-        // ADD NEW ROW DIRECTLY TO THE TOP OF THE TABLE
+        // ADD NEW ROW DIRECTLY TO THE TOP OF THE TABLE (WORKS WITH ALL LIMIT FILTERS)
         function addNewRow() {
             pushState();
             const sheet = workbookData[currentSheet];
             
-            // Format today's date into MM.DD.YYYY
             const todayObj = new Date();
             const m = String(todayObj.getMonth() + 1).padStart(2, '0');
             const d = String(todayObj.getDate()).padStart(2, '0');
@@ -1236,7 +1239,7 @@
             saveToFirebaseNow();
             renderActiveSheet();
 
-            // Scroll to top of table
+            // Scroll to top of table wrapper
             setTimeout(() => {
                 const wrapper = document.getElementById('tableWrapper');
                 if (wrapper) wrapper.scrollTop = 0;
