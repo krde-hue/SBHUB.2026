@@ -455,6 +455,13 @@
             color: #ffffff !important;
         }
 
+        .menu-item[data-id="handover"]:hover, .menu-item[data-id="handover"].touch-active {
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+            border-color: #34d399;
+            box-shadow: 0 0 30px rgba(52, 211, 153, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
         .menu-item[data-id="big-winners"]:hover, .menu-item[data-id="big-winners"].touch-active {
             background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%);
             border-color: #fde047;
@@ -693,6 +700,7 @@
         const navMenuJSON = [
             { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
+            { id: "handover", icon: "fa-solid fa-clipboard-list", label: "HANDOVER & SOP", url: "handover.html" },
             { id: "big-winners", icon: "fa-solid fa-trophy", label: "BIG WINNERS", url: "big-winners.html" },
             { id: "edge-boost", icon: "fa-solid fa-bolt", label: "EDGE BOOST", url: "edge_boosts.html" },
             { id: "ibet-boost", icon: "fa-solid fa-chart-line", label: "IBET BOOST", url: "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=784209986#gid=784209986" },
