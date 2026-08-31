@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDGE Boosted Odds & Banners Dashboard</title>
+
+    <!-- Firebase Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --header-text: #0f172a;
+            --credit-text: #64748b;
+            --border-color: #cbd5e0;
+            --table-border: #cbd5e0;
+            --accent-btn: #e2e8f0;
+            --accent-btn-text: #334155;
+            --th-bg: #f1f5f9;
+            --th-text: #0f172a;
+            --hover-row: #f8fafc;
+            --active-tab-bg: #0d233a;
+            --active-tab-text: #ffffff;
+            --input-bg: #ffffff;
+            --dropdown-bg: #ffffff;
+            --excel-green-bg: #dcfce7;
+            --excel-green-text: #166534;
+            --excel-yellow-bg: #fef9c3;
+            --excel-yellow-text: #854d0e;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --header-text: #38bdf8;
+            --credit-text: #94a3b8;
+            --border-color: #334155;
+            --table-border: #334155;
+            --accent-btn: #334155;
+            --accent-btn-text: #f8fafc;
+            --th-bg: #0f172a;
+            --th-text: #94a3b8;
+            --hover-row: #1e293b;
+            --active-tab-bg: #38bdf8;
+            --active-tab-text: #0f172a;
+            --input-bg: #0f172a;
+            --dropdown-bg: #1e293b;
+            --excel-green-bg: #064e3b;
+            --excel-green-text: #a7f3d0;
+            --excel-yellow-bg: #713f12;
+            --excel-yellow-text: #fef08a;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); padding: 15px; color: var(--text-color); transition: background-color 0.3s; }
+
+        /* STICKY FROZEN TOP MENU BAR */
+        .sticky-top-panel {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--bg-color);
+            padding-bottom: 5px;
+        }
+
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--card-bg); padding: 12px 18px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 12px; border: 1px solid var(--border-color); }
+        .title-group { display: flex; flex-direction: column; gap: 2px; }
+        h1 { font-size: 20px; color: var(--header-text); }
+
+        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-primary { background-color: #0d233a; color: white; }
+        .btn-primary:hover { background-color: #173b61; }
+        .btn-secondary { background-color: var(--accent-btn); color: var(--accent-btn-text); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { opacity: 0.85; }
+        .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-danger { background-color: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+        .btn-danger:hover { background-color: #fed7d7; }
+        .btn-success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .btn-success:hover { background-color: #dcfce7; }
+        .btn-filter { background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+        .btn-filter.active { background-color: #0284c7; color: #ffffff; }
+
+        .autosave-badge { font-size: 11px; color: #15803d; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #dcfce7; padding: 4px 10px; border-radius: 12px; display: inline-block; }
+
+        .tabs-nav { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; background: var(--card-bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .tab-btn { padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; transition: all 0.2s; }
+        .tab-btn.active { background-color: var(--active-tab-bg); color: var(--active-tab-text); border-color: var(--active-tab-bg); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--card-bg); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 12px; }
+        .toolbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .search-input, .select-filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); font-size: 13px; outline: none; }
+
+        .table-card { background: var(--card-bg); padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+        .table-wrapper { width: 100%; overflow-x: auto; max-height: 72vh; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
+        
+        th { position: sticky; top: 0; background-color: var(--th-bg); color: var(--th-text); padding: 10px 12px; text-align: left; font-weight: 700; border: 1px solid var(--border-color); white-space: nowrap; z-index: 10; }
+        td { padding: 6px 8px; border: 1px solid var(--table-border); vertical-align: middle; white-space: normal; word-break: break-word; position: relative; }
+        tr:hover { background-color: var(--hover-row); }
+
+        .row-number-cell { text-align: center; font-weight: bold; color: var(--credit-text); min-width: 55px; max-width: 65px; white-space: nowrap !important; word-break: normal !important; padding: 6px 8px; }
+
+        /* TEXTAREA CONVERSION FOR AUTO WRAPPING MARKETS */
+        .editable-cell { width: 100%; min-width: 170px; border: 1px solid transparent; background: transparent; color: var(--text-color); font-size: 12px; padding: 4px 6px; border-radius: 4px; outline: none; transition: border 0.2s; white-space: pre-wrap; word-break: break-word; resize: vertical; min-height: 32px; height: auto; font-family: inherit; line-height: 1.35; }
+        .editable-cell:focus { border-color: #38bdf8; background-color: var(--input-bg); box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
+        .checkbox-cell { width: 18px; height: 18px; cursor: pointer; accent-color: #0d233a; }
+
+        .delete-btn { background: none; border: none; cursor: pointer; font-size: 15px; opacity: 0.7; transition: opacity 0.2s, transform 0.2s; padding: 4px; }
+        .delete-btn:hover { opacity: 1; transform: scale(1.2); }
+
+        .pill-badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 11px; text-align: center; white-space: nowrap; cursor: pointer; border: 1px solid transparent; transition: transform 0.15s; }
+        .pill-badge:hover { transform: scale(1.04); }
+
+        .sport-football { background-color: #fef08a; color: #854d0e; border-color: #fde047; }
+        .sport-tennis { background-color: #fecdd3; color: #9f1239; border-color: #fda4af; }
+        .sport-basketball { background-color: #991b1b; color: #ffffff; border-color: #7f1d1d; }
+        .sport-ice-hockey { background-color: #dcfce7; color: #166534; border-color: #86efac; }
+        .sport-baseball { background-color: #e2e8f0; color: #334155; border-color: #cbd5e0; }
+        .sport-american-football { background-color: #e9d5ff; color: #6b21a8; border-color: #c084fc; }
+        .sport-mma-boxing { background-color: #334155; color: #ffffff; border-color: #1e293b; }
+        .sport-formula-1 { background-color: #713f12; color: #ffffff; border-color: #451a03; }
+
+        .type-bet-builder { background-color: #e9d5ff; color: #6b21a8; border-color: #c084fc; }
+        .type-single { background-color: #ccfbf1; color: #115e59; border-color: #5eead4; }
+        .type-combo-boost { background-color: #ffedd5; color: #9a3412; border-color: #fdba74; }
+
+        .dropdown-container { display: inline-block; width: 100%; }
+        .dropdown-menu { display: none; position: fixed; z-index: 99999; background-color: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 8px; min-width: 170px; max-height: none !important; overflow: visible !important; }
+        .dropdown-menu.show { display: flex; flex-direction: column; gap: 6px; }
+        .dropdown-option { padding: 4px; border-radius: 4px; cursor: pointer; }
+
+        .meta-bar { display: flex; gap: 15px; font-size: 12px; font-weight: bold; color: var(--credit-text); background: var(--th-bg); padding: 8px 12px; border-radius: 6px; flex-wrap: wrap; border: 1px dashed var(--border-color); }
+        .meta-item { display: flex; align-items: center; gap: 4px; }
+        .record-count { font-size: 12px; font-weight: bold; color: var(--header-text); }
+
+        .guidelines-container { display: flex; flex-direction: column; gap: 24px; padding: 10px; }
+        .guidelines-header-badge { background-color: var(--excel-green-bg); color: var(--excel-green-text); padding: 6px 14px; font-weight: 800; border-radius: 4px; display: inline-block; font-size: 13px; letter-spacing: 0.5px; border: 1px solid var(--border-color); width: fit-content; }
+        .guidelines-section-title { font-weight: 800; font-size: 14px; margin-bottom: 8px; text-align: center; color: var(--header-text); letter-spacing: 0.5px; }
+        
+        .guidelines-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; }
+        .guidelines-table th { text-align: center; background-color: var(--th-bg); border: 1px solid var(--border-color); padding: 8px 10px; }
+        .guidelines-table td { border: 1px solid var(--table-border); padding: 8px 10px; }
+        .guidelines-table td.col-rank { text-align: center; font-weight: bold; width: 60px; background-color: var(--th-bg); }
+        .guidelines-table td.col-league { font-weight: bold; min-width: 180px; }
+
+        .rules-card { background-color: var(--excel-yellow-bg); color: var(--excel-yellow-text); padding: 12px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; line-height: 1.6; border: 1px solid var(--border-color); }
+        .rules-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+        .rules-item { display: flex; align-items: flex-start; gap: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- STICKY FROZEN HEADER PANEL -->
+    <div class="sticky-top-panel">
+        <div class="header-container">
+            <div class="title-group">
+                <h1>EDGE Boosted Odds & Banners Master</h1>
+            </div>
+            <div class="btn-controls">
+                <span id="saveStatus" class="autosave-badge">✓ Live Synced</span>
+                <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled title="Undo (Ctrl+Z)">↩️ Undo</button>
+                <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled title="Redo (Ctrl+Y)">↪️ Redo</button>
+                <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+                <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Bottom)</button>
+                <button class="btn btn-danger" id="clearTabBtn" onclick="clearCurrentSheet()">🗑️ Clear Tab</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
+                <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
+            </div>
+        </div>
+
+        <div class="tabs-nav" id="tabsNav"></div>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div id="metaSummary" class="meta-bar"></div>
+                <button id="viewFilterBtn" class="btn btn-filter" onclick="toggle7DayFilter()">📅 View: ALL RECORDS</button>
+                <select id="sportsFilter" class="select-filter" style="display: none;" onchange="filterTable()">
+                    <option value="">🏅 All Sports (Filter)</option>
+                    <option value="Football">Football</option>
+                    <option value="Tennis">Tennis</option>
+                    <option value="Basketball">Basketball</option>
+                    <option value="Ice Hockey">Ice Hockey</option>
+                    <option value="Baseball">Baseball</option>
+                    <option value="American Football">American Football</option>
+                    <option value="MMA/Boxing">MMA/Boxing</option>
+                    <option value="Formula 1">Formula 1</option>
+                </select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="recordCounter" class="record-count">Records: 0</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search active tab..." oninput="filterTable()">
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card" id="mainCard">
+        <div class="table-wrapper" id="tableWrapper" onscroll="closeAllDropdowns()">
+            <table id="dataTable">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div id="guidelinesView" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Firebase Setup
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            } else if (typeof firebase !== 'undefined') {
+                db = firebase.database();
+            }
+        } catch(e) {
+            console.error("Firebase Fallback:", e);
+        }
+
+        let is7DayFilterActive = false;
+
+        // UNDO / REDO HISTORY STACKS
+        let undoStack = [];
+        let redoStack = [];
+
+        const sportsOptions = [
+            { name: "Football", class: "sport-football" },
+            { name: "Tennis", class: "sport-tennis" },
+            { name: "Basketball", class: "sport-basketball" },
+            { name: "Ice Hockey", class: "sport-ice-hockey" },
+            { name: "Baseball", class: "sport-baseball" },
+            { name: "American Football", class: "sport-american-football" },
+            { name: "MMA/Boxing", class: "sport-mma-boxing" },
+            { name: "Formula 1", class: "sport-formula-1" }
+        ];
+
+        const typeOptions = [
+            { name: "Bet Builder", class: "type-bet-builder" },
+            { name: "Single", class: "type-single" },
+            { name: "Combo Boost", class: "type-combo-boost" }
+        ];
+
+        function getSportClass(sportName) {
+            const found = sportsOptions.find(s => s.name.toLowerCase() === String(sportName).toLowerCase());
+            return found ? found.class : "sport-football";
+        }
+
+        function getTypeClass(typeName) {
+            const found = typeOptions.find(t => t.name.toLowerCase() === String(typeName).toLowerCase());
+            return found ? found.class : "type-single";
+        }
+
+        // FOOTBALL DATASET (143 RECORDS)
+        const footballDataset = [
+            [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Football", "Veikkausliiga", "TPS - Marienhamn", "Bet Builder", "TPS to win", "Corner over 10.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.01.2026", "23:00:00", "Football", "Veikkausliiga", "Lahti - Jaro", "Single", "1st HT result - Lahti", "", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "00:00:00", "Football", "Eliteserien", "Start - Viking", "Bet Builder", "Vikings to win", "Total goals over 3.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "23:00:00", "Football", "Eliteserien", "Molde - Sarpsborg 08", "Bet Builder", "both team to score - yes", "Corners over 10.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "00:00:00", "Football", "Veikkausliiga", "Gnistan - KuPS", "Bet Builder", "Double chance 1x", "Total goals over 2.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "22:00:00", "Football", "Veikkausliiga", "AC Oulu - Ilves", "Bet Builder", "HT/FT 1/1", "Total goals over 2.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "20:00:00", "Football", "Veikkausliiga", "VPS - Inter Turku", "Bet Builder", "VPS To win", "BTS - yes", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "09:45:00", "Football", "MLS", "FC Cincinnati - San Jose Earthquakes", "Bet Builder", "Cincinnati to win", "Corners over 9.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "07:30:00", "Football", "MLS", "Philadelphia Union - Atlanta Utd", "Bet Builder", "BTS - yes", "Totals over 3.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "01:15:00", "Football", "Eliteserien", "Brann - Rosenborg", "Bet Builder", "Brann to win", "HT Total Over 1.5", "", "", "Activated August 1", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "01:15:00", "Football", "PL Summer Series", "Liverpool F.C. - Leeds United F.C.", "Bet Builder", "HT/FT 1/1", "Totals over 3.5", "", "", "Activated August 1", ""],
+            [true, true, "7Abet/BVBet", "08.04.2026", "00:00:00", "Football", "Veikkausliiga", "SJK - HJK", "Bet Builder", "HJK to win", "BTTS - yes", "", "", "Activated August 2", ""],
+            [true, true, "7Abet/BVBet", "08.05.2026", "02:00:00", "Football", "Champions League", "Sparta - Lyon", "Bet Builder", "Lyon to Win", "BTTS - yes", "Over 2.5 goals", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.05.2026", "02:00:00", "Football", "Champions League", "Royale Union - Bodo/Glimt", "Bet Builder", "Total over 2.5", "BTTS in 2nd halves - YES", "", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.05.2026", "02:00:00", "Football", "Champions League", "Din. Zagreb - Zalgiris", "Bet Builder", "Zagreb to win", "Totals over 3.5", "", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.06.2026", "23:00:00", "Football", "Europa League", "kuPs - Craiova", "Bet Builder", "HT/FT 2/2", "Totals over 2.5", "", "", "Activated August 4", ""],
+            [true, true, "7Abet/BVBet", "08.06.2026", "02:00:00", "Football", "Champions League", "Fenerbahce - Sturm Graz", "Bet Builder", "Fenerbahce to win", "BTTS - yes", "", "", "Activated August 4", ""],
+            [true, true, "7Abet/BVBet", "08.07.2026", "01:45:00", "Football", "Europa League", "PAOK FC - RSC Anderlecht", "Bet Builder", "Paok to Win", "BTTS - yes", "Over 2.5 Goals", "", "Activated August 5", ""],
+            [true, true, "7Abet/BVBet", "08.07.2026", "03:00:00", "Football", "Europa League", "SL Benfica - Heart of Midlothian FC", "Bet Builder", "Benfica HT/FT & o3.5 team goals", "Benfica Over 1.5 Team Goals", "Over 2.5 Goals", "Benfica to Win", "Activated August 5", ""],
+            [true, true, "7Abet/BVBet", "08.07.2026", "01:00:00", "Football", "Europa League", "Red Bull Salzburg - Pafos FC", "Bet Builder", "Salzburg to Win", "BTTS - yes", "Over 2.5 goals", "", "Activated August 5", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "00:00:00", "Football", "Veikkausliiga", "SJK vs Gnistan", "Bet Builder", "SJK to Win", "BTTS - yes", "", "", "Activated August 5", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "01:00:00", "Football", "Eliteserien", "Sandefjord vs. KFUM Oslo", "Bet Builder", "BTTS - yes", "Over 2.5 Goals", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "02:00:00", "Football", "Eredivisie", "Cambuur vs Excelsior", "Bet Builder", "BTTS - yes", "Over 3.5 Goals", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "22:30:00", "Football", "Eredivisie", "NEC Nijmegen vs Telstar", "Bet Builder", "NEC Nijmegen to Win", "Over 3.5 Goals", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "02:30:00", "Football", "2. Bundesliga", "Bochum vs Hertha Berlin", "Bet Builder", "Bochum to Win", "BTTS - yes", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "19:00:00", "Football", "2. Bundesliga", "Magdeburg vs Eintracht Braunschweig", "Bet Builder", "Magdeburg to Win", "Over 2.5 Goals", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "22:00:00", "Football", "Carabao Cup", "West Ham vs Portsmouth", "Bet Builder", "West Ham to Win", "West Ham Over 2.5 Team Goals", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "21:00:00", "Football", "Carabao Cup", "QPR vs Millwall", "Bet Builder", "BTTS - yes", "Over 2.5 Goals", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "00:00:00", "Football", "Eliteserien", "Start vs Fredrikstad", "Bet Builder", "Fredrikstad to Win", "Over 2.5 Goals", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "02:30:00", "Football", "2. Bundesliga", "Wolfsburg vs Kaiserslautern", "Bet Builder", "Wolfsburg to Win", "Wolfsburg Over 1.5 Team Goals", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "00:30:00", "Football", "Carabao Cup", "Colchester vs Southampton", "Bet Builder", "Southampton to Win", "Southampton Over 2.5 Team Goals", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "20:00:00", "Football", "Veikkausliiga", "KuPS vs TPS", "Bet Builder", "KuPS to win", "BTTS - yes", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "00:00:00", "Football", "Veikkausliiga", "Jaro vs VPS", "Bet Builder", "VPS Double Chance (X2)", "Over 2.5 Goals", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "22:00:00", "Football", "Veikkausliiga", "Inter Turku vs Lahti", "Bet Builder", "Inter Turku to Win", "Over 2.5 Goals", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "20:30:00", "Football", "Eliteserien", "Lillestr\u00f8m vs Rosenborg", "Bet Builder", "BTTS - yes", "Over 2.5 Goals", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "18:15:00", "Football", "Eredivisie", "Sparta Rotterdam vs Feyenoord", "Bet Builder", "Feyenoord to Win", "BTTS - yes", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "20:30:00", "Football", "Eredivisie", "PEC Zwolle vs Ajax", "Bet Builder", "Ajax to Win", "BTTS - yes", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "19:30:00", "Football", "2. Bundesliga", "N\u00fcrnberg vs Dynamo Dresden", "Bet Builder", "N\u00fcrnberg to Win", "BTTS - yes", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "23:00:00", "Football", "Carabao Cup", "Mansfield vs Sheffield United", "Bet Builder", "Sheffield United to Win", "Over 2.5 Goals", "", "", "Activated august 7", ""],
+            [true, true, "7Abet/BVBet", "08.10.2026", "01:15:00", "Football", "Eliteserien", "Kristiansund vs Molde", "Bet Builder", "Molde to Win", "BTTS - yes", "", "", "Activated august 8", ""],
+            [true, true, "7Abet/BVBet", "08.10.2026", "00:00:00", "Football", "Veikkausliiga", "Oulu - HJK", "Bet Builder", "Double chance 1x", "Over 2.5 Goals", "", "", "Activated august 8", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "23:00:00", "Football", "Champions League", "Kairat Almaty - Levski Sofia", "Bet Builder", "Kairat to win", "BTTS - yes", "", "", "Activated august 9", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "03:00:00", "Football", "EFL Cup", "Plymouth - Exeter", "Bet Builder", "Plymouth to win", "Corner total over 9.5", "", "", "Activated august 9", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "01:00:00", "Football", "Allsvenkan", "Sirius - Brommapojkarna", "Bet Builder", "Sirius to win", "BTTS - yes", "", "", "Activated august 9", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "01:00:00", "Football", "Allsvenkan", "Vasteras SK - Djurgarden", "Bet Builder", "Double chance x2", "Corner total over 9.5", "", "", "Activated august 9", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "00:00:00", "Football", "Champions League", "Bodo/Glimt - Royale Union SG", "Bet Builder", "Double chance 1X", "BTTS - yes", "Over 3.5 totals", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "01:30:00", "Football", "Champions League", "NEC Nijmege - Olympiacos", "Bet Builder", "Olympiacos  to win", "HT Total Over 0.5", "", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "01:00:00", "Football", "Champions League", "Kauno \u017dalgiris - Dinamo Zagreb", "Bet Builder", "HT/FT 2/2", "Over 2.5 Goals", "", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "02:00:00", "Football", "Champions League", "Crvena zvezda - Hapoel Beer Sheva", "Bet Builder", "Crvena zvezda to win", "Over 3.5 Goals", "", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "UEFA Super Cup", "PSG - Aston Villa", "Bet Builder", "PSG to Win", "Over 2.5 Goals", "BTTS - yes", "", "Activated August 11", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Bet Builder", "Most Corners - PSG", "PSG to Win", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Bet Builder", "Halftime/Fulltime - 1/1", "Both teams to score - YES", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Bet Builder", "Kvaratskhelia - player will score a goal- YES", "Doue - player will score a goal - YES", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Single", "Correct score 2-0", "", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "08:30:00", "Football", "Copa Libertadores", "Cruzeiro - Flamengo RJ", "Bet Builder", "Halftime Win Flamengo", "Halftime Total Goals Over 1.5", "", "", "Activated August 11", ""],
+            [true, true, "7Abet/BVBet", "08.14.2026", "02:45:00", "Football", "Europa League - Qualification", "Hearts - Benfica", "Bet Builder", "Benfica to Win", "Over 3.5 Goals", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.14.2026", "02:30:00", "Football", "Europa League - Qualification", "Rangers - Jagiellonia", "Bet Builder", "Halftime Win Rangers", "Halftime Total Goals Over 1.5", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.14.2026", "00:00:00", "Football", "Conference League - Qualification", "Qarabag - Dynamo Kyiv", "Bet Builder", "HT/FT 1/1", "BTTS - yes", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.14.2026", "02:30:00", "Football", "Europa League - Qualification", "Anderlecht - PAOK", "Bet Builder", "PAOK to Win", "Over 2.5 Goals", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.14.2026", "02:45:00", "Football", "Conference League - Qualification", "Shelbourne - Ajax", "Bet Builder", "Halftime Win Ajax", "Halftime Total Goals Over 1.5", "BTTS - yes", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.15.2026", "03:15:00", "Football", "Liga Portugal", "Sporting CP - Vitoria Guimaraes", "Bet Builder", "Sporting to win", "BTTS - yes", "", "", "Activated August 13", ""],
+            [true, true, "7Abet/BVBet", "08.15.2026", "01:00:00", "Football", "Eliteserien", "Rosenborg - Viking", "Bet Builder", "Most corners - Rosenborg", "Corners over 10.5", "", "", "Activated August 13", ""],
+            [true, true, "7Abet/BVBet", "08.15.2026", "22:00:00", "Football", "ENG Champions League", "Norwich - West Brom", "Bet Builder", "Total goals Over 2.5", "BTTS - yes", "", "", "Activated August 13", ""],
+            [true, true, "7Abet/BVBet", "08.16.2026", "22:00:00", "Football", "FA Cup", "Arsenal - Manchester City", "Bet Builder", "Arsenal to win", "Corners over 9.5", "", "", "Activated August 14", ""],
+            [true, true, "7Abet/BVBet", "08.16.2026", "03:30:00", "Football", "Laliga", "Sevilla - Rayo Vallecano", "Bet Builder", "DC 1X", "BTTS - yes", "", "", "Activated August 14", ""],
+            [true, true, "7Abet/BVBet", "08.16.2026", "08:30:00", "Football", "MLS", "Nashville SC - Inter Miami", "Bet Builder", "Inter Miami to win", "Messi to score a goal - YES", "", "", "Activated August 14", ""],
+            [true, true, "7Abet/BVBet", "08.17.2026", "01:00:00", "Football", "Laliga", "Espanyol - Levante", "Bet Builder", "DC 1X", "BTTS - yes", "", "", "Activated August 15", ""],
+            [true, true, "7Abet/BVBet", "08.17.2026", "02:45:00", "Football", "Super Cup", "Lens - PSG", "Bet Builder", "PSG to Win", "Over 2.5 Goals", "", "", "Activated August 15", ""],
+            [true, true, "7Abet/BVBet", "08.18.2026", "03:00:00", "Football", "Laliga", "Dep Coruna - Elche", "Bet Builder", "Deportivo Coruna to win", "Over 2.5 Goals", "", "", "Activated August 16", ""],
+            [true, true, "7Abet/BVBet", "08.18.2026", "03:00:00", "Football", "ENG Champions League", "Cardiff - Wrexham", "Bet Builder", "Halftime win Cardiff", "Halftime Total Goals Over 1.5", "", "", "Activated August 16", ""],
+            [true, true, "7Abet/BVBet", "08.19.2026", "03:00:00", "Football", "Europa Champions League", "Fenerbahce - Lyon", "Bet Builder", "Fenerbahce to Win", "BTTS - yes", "", "", "Activated August 17", ""],
+            [true, true, "7Abet/BVBet", "08.19.2026", "21:00:00", "Football", "Europa Champions League", "Zagreb - Viking", "Bet Builder", "DC 1X", "Over 2.5 Goals", "", "", "Activated August 17", ""],
+            [true, true, "7Abet/BVBet", "08.20.2026", "03:00:00", "Football", "Laliga", "Madrid - Malaga", "Bet Builder", "Madrid to win", "over 9.5 total corners", "", "", "Activated August 18", ""],
+            [true, true, "7Abet/BVBet", "08.20.2026", "07:30:00", "Football", "MLS", "Philadelphia - Inter Miami", "Bet Builder", "DC X2", "BTTS - yes", "", "", "Activated August 18", ""],
+            [true, true, "7Abet/BVBet", "08.21.2026", "03:00:00", "Football", "Laliga", "Rayo Vallecano - Alaves", "Bet Builder", "DC 1X", "BTTS - yes", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.21.2026", "03:00:00", "Football", "Conference League - Qualification", "Egnatia- Lillestrom", "Bet Builder", "Lillestrom to win", "Over 2.5 Goals", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "03:00:00", "Football", "EPL", "Arsenal - Coventry", "Bet Builder", "Arsenal o2.5 goals", "Arsenal Ht/FT", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "03:00:00", "Football", "EPL", "Arsenal - Coventry", "Single", "Kai Havertz First Goalscorer", "", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Inter - Monza", "Bet Builder", "Inter HT/FT", "Over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Inter - Monza", "Single", "Pio Esposito First Goalscorer", "", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Frosinone - Juventus", "Bet Builder", "Juve win both halves", "Kolo Muani to score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Frosinone - Juventus", "Bet Builder", "Both Team to score - yes", "Over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Torino - Milan", "Bet Builder", "Milan win", "over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Torino - Milan", "Bet Builder", "Milan Halftime", "Both Team to score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Laliga", "Ath Bilbao - Sevilla", "Bet Builder", "Ath Bilbao to win", "Over 2.5", "", "", "Activated August 20", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "Laliga", "Espanyol - Real Madrid", "Bet Builder", "Real Madrid HT/FT", "Vini to score anytime", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "Laliga", "Espanyol - Real Madrid", "Bet Builder", "Both Team To Score - YES", "Over 3.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "21:00:00", "Football", "Super Cup", "Dortmund - Bayern Munich", "Bet Builder", "Both Team To Score - YES", "Over 3.5", "", "", "Activated August 20", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "23:00:00", "Football", "EPL", "Hull - Man united", "Bet Builder", "Man Utd -1", "Over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Hull - Man united", "Bet Builder", "Fernandes goal", "Fernandes assist", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Man City - Bournemouth", "Bet Builder", "Man City Ht/FT", "Both Teams to Score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Man City - Bournemouth", "Single", "Halaand First Goalscorer", "", "0.25", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Newcastle - Liverpool", "Bet Builder", "Liverpool win both halves", "over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Newcastle - Liverpool", "Bet Builder", "Isak to score", "Woltemade to score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "03:30:00", "Football", "Spain La Liga", "Elche - Barcelona", "Bet Builder", "Barcelona 1st half", "over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "03:30:00", "Football", "Spain La Liga", "Elche - Barcelona", "Bet Builder", "Yamal 1st goalscorer", "Raphina to score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "02:45:00", "Football", "Ligue 1", "PSG - Rennes", "Bet Builder", "PSG HT/FT", "1st Half o1.5", "", "", "Activated August 20", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "02:45:00", "Football", "Ligue 1", "PSG - Rennes", "Bet Builder", "Dembele to score a goal - YES", "F. Torres to score a goal - YES", "", "", "Activated August 20", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "02:45:00", "Football", "Ligue 1", "Rennes - PSG", "Bet Builder", "PSG HT/FT", "1st Half o1.5", "", "", "Activated August 21", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "02:45:00", "Football", "Ligue 1", "Rennes - PSG", "Bet Builder", "Dembele to score a goal - YES", "F. Torres to score a goal - YES", "", "", "Activated August 21", ""],
+            [true, true, "7Abet/BVBet", "08.25.2026", "01:30:00", "Football", "Spain La Liga", "Osasuna vs. Levante", "Bet Builder", "Osasuna to win", "Over 2.5 goals", "", "", "Activated August 23", ""],
+            [true, true, "7Abet/BVBet", "08.25.2026", "03:00:00", "Football", "EPL", "Fulham - Chelsea", "Bet Builder", "Chelsea Win", "Over 2.5", "", "", "Activated August 22", ""],
+            [true, true, "7Abet/BVBet", "08.25.2026", "02:45:00", "Football", "Italy Serie A", "Roma - Fiorentina", "Bet Builder", "Both team to score", "o2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.25.2026", "02:45:00", "Football", "Italy Serie A", "Roma - Fiorentina", "Bet Builder", "Roma HT/FT", "1st Half o1.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.26.2026", "03:00:00", "Football", "Spain La Liga", "Valencia - Real Betis", "Bet Builder", "Valencia Halftime Win", "Halftime Over 1.5", "", "", "Activated August 22", ""],
+            [true, true, "7Abet/BVBet", "08.26.2026", "03:00:00", "Football", "UEFA Champions League", "LASK Linz vs. Celtic", "Bet Builder", "LASK Linz to win", "Both Teams to Score", "", "", "Activated August 23", ""],
+            [true, true, "7Abet/BVBet", "08.26.2026", "02:45:00", "Football", "Carabao Cup", "Southampton vs West Ham", "Bet Builder", "Southampton to win", "Total Over 2.5", "", "", "Activated August 24", ""],
+            [true, true, "7Abet/BVBet", "08.27.2026", "03:00:00", "Football", "Champions League", "Lyon - Fenerbahce", "Bet Builder", "Lyon to Win", "Total Over 2.5", "", "", "Activated August 25", ""],
+            [true, true, "7Abet/BVBet", "08.27.2026", "03:00:00", "Football", "Champions League", "Lyon - Fenerbahce", "Bet Builder", "Openda 1st goal scorer", "Greenwood anytime goal scorer", "", "", "Activated August 25", ""],
+            [true, true, "7Abet/BVBet", "08.28.2026", "03:00:00", "Football", "LaLiga", "Barcelona - Athletic", "Bet Builder", "Barcelona to Win", "Both Teams to Score", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.28.2026", "01:00:00", "Football", "Europa League", "Lillestrom - Egnatia", "Bet Builder", "DC 1X", "Total Over 2.5", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.28.2026", "02:00:00", "Football", "Europa League", "AGF - Benfica", "Bet Builder", "Benfica HT/FT", "Total Over 2.5", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.28.2026", "02:30:00", "Football", "Europa League Conf", "Brighton - Tromso", "Bet Builder", "Total Over 3.5", "Kostoulas to score a goal", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "03:00:00", "Football", "England Premier League", "Crystal Palace - Man City", "Bet Builder", "Haaland to score a goal", "Doku to score a goal", "Phil Foden to score a goal", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "02:45:00", "Football", "Italy Serie A", "Milan - Venezia", "Bet Builder", "Milan  to Win", "Both Teams to Score", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "02:45:00", "Football", "France Ligue 1", "Lille - PSG", "Bet Builder", "PSG to Win", "Kvaratskhelia to score a goal", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "02:30:00", "Football", "Germany Bundesliga", "Bayern - Stuttgart", "Bet Builder", "1st half result - Bayern", "Both Teams to Score", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "02:30:00", "Football", "Germany Bundesliga", "Bayern - Stuttgart", "Bet Builder", "Total Corners over 9.5", "Harry Kane to score a goal", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Liverpool - Forest", "Bet Builder", "Liverpool (-1.5)", "Total OVER 3.5", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Spurs - Newcastle", "Bet Builder", "(Both Teams to Score) Both teams to score - YES", "(Totals) Total OVER 3.5", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "Italy Serie A", "Juventus - Parma", "Bet Builder", "Halftime result - Juventus", "Total Corners over 9.5", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "LaLiga", "Sevilla - Atl Madrid", "Bet Builder", "Both Teams to Score", "Ortiz to score a goal", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "Germany Bundesliga", "Dortmund - HSV", "Bet Builder", "HT/FT 1/1", "Total Over 3.5", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Chelsea - Brighton", "Bet Builder", "(Halftime/Fulltime) Halftime/Fulltime - 1/1", "(1st Goalscorer) Joao Pedro - 1st goalscorer", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "Manchester City to Win", "Over 2.5 Goals", "", "20% / 25e max stake", "", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "Haaland to Score", "Manchester City to Win", "", "20% / 25e max stake", "", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "BTS - yes", "Over 2.5 Goals", "", "20% / 25e max stake", "", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "England Premier League", "Man Utd - Ipswich", "Bet Builder", "(Halftime/Fulltime) Halftime/Fulltime - 1/1", "Matheus Cunha - player will score a goal", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "Italy Serie A", "Cagliari - Inter", "Bet Builder", "Inter to win", "Both Teams to Score", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "Italy Serie A", "Napoli - Como", "Single", "HT/FT 1/1", "", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "LaLiga", "Real Madrid - Malaga", "Bet Builder", "Total Over 3.5", "Jude Bellingham to score a goal", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "", "Football", "England Premier League", "Aston Villa - Arsenal", "Single", "Arsenal will win to nil - YES", "", "", "20% / 25e max stake", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "", "Football", "Italy Serie A", "Lecce - Roma", "Bet Builder", "Roma to score 1st goal", "Total Over 2.5", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "", "Football", "LaLiga", "Barcelona - Rayo Vallecano", "Bet Builder", "Total Corners over 10.5", "Raphina to score a goal", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "09.01.2026", "", "Football", "Italy Serie A", "Parma - Cremonese", "Bet Builder", "Over 3.5 total goals", "Bonazzoli to score a goal", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.01.2026", "", "Football", "Italy Serie A", "Torino - Monza", "Bet Builder", "Torino to win", "Both team to Score - YES", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.01.2026", "", "Football", "England Championship", "West Ham - Wolves", "Bet Builder", "HT/FT 1/1", "Both team to Score - YES", "", "", "Activated August 30", ""],
+            [true, true, "7Abet/BVBet", "09.02.2026", "", "Football", "Scotland Premiership", "Celtic - Aberdeen", "Bet Builder", "HT/FT 1/1", "Total Over 3.5", "", "", "Activated August 30", ""],
+            [false, false, "7Abet/BVBet", "09.02.2026", "", "Football", "DFB Pokal", "Osnabruck - Bayern Munich", "", "not yet available on SBX (Checked 08.31)", "", "", "", "", ""],
+            [true, true, "7Abet/BVBet", "09.02.2026", "", "Football", "Coppa Italia", "Sassuolo - Frosinone", "Bet Builder", "DC 1X", "Total Over 2.5", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.03.2026", "", "Football", "France Ligue 1", "Toulouse - Lille", "Bet Builder", "Both Teams to Score", "Giroud to score a goal", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.03.2026", "", "Football", "Coppa Italia", "Cagliari - Verona", "Bet Builder", "DC 1X", "Total Over 2.5", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.03.2026", "", "Football", "Scotland Premiership", "Hibernian - Hearts", "Bet Builder", "Total Over 2.5", "Both team to Score - YES", "", "", "Activated August 31", ""]
+        ];
+
+        // TENNIS DATASET (105 RECORDS)
+        const tennisDataset = [
+            [true, true, "7Abet/BVBet", "08.01.2026", "", "Tennis", "ATP Washington", "De Minaur - Nakashima", "Single", "De Minaur 1st set winner", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.01.2026", "", "Tennis", "ATP Washington", "Fritz - Michelsen", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.01.2026", "", "Tennis", "WTA Washington", "Pegula - Kalinskaya", "Single", "Total games over 20.5", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "ATP Washington", "Nakashima - Fritz", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 1", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "WTA Washington", "Pegula - Shnaider", "Single", "Pegula Sets Handicap -1.5", "", "", "Activated August 1", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "WTA Washington", "Osaka - Eala", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 1", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Popyrin - Kokkinakis", "Single", "Total Sets Over 2.5", "", "", "Activated August 1", "Changed participant"],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Sonego - Griekspoor", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 1", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Tararudee - Zheng", "Single", "Zheng Sets Handicap -1.5", "", "", "Activated August 1", "Changed participant"],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Volynets - Stephens", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 1", "Changed participant"],
+            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "ATP Washington", "Fritz - Jodar", "Single", "Total Sets Over 2.5", "", "", "Activated August 2", ""],
+            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "WTA Washington", "Pegula - Eala", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 2", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Rakhimova - Williams", "Bet Builder", "Williams 1st Set Winner", "Williams +4.5 Games Handicap", "", "Activated August 2", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Wang - Kasatkina", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 2", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Atmane - Draper", "Bet Builder", "Draper 1st Set Winner", "Draper -2.5 Games Handicap", "", "Activated August 2", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Berrettini - Navone", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 2", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Bartunkova - Andreescu", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Tjen - Samsonova", "Bet Builder", "Samsonova Match Winner", "Samsonova -2.5 Games Handicap", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "ATP Montreal", "Munar - Blockx", "Bet Builder", "Blockx Match Winner", "Blockx -2.5 Games Handicap", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "ATP Montreal", "Shang - Rublev", "Bet Builder", "Rublev Match Winner", "Rublev -4.5 Games Handicap", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "WTA Toronto", "Bejlek - Swiatek", "Bet Builder", "Swiatek 1st Set Winner", "Swiatek -6.5 Games Handicap", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "WTA Toronto", "Sabalenka - Uchijima", "Bet Builder", "Sabalenka 1st Set Winner", "Sabalenka -7.5 Games Handicap", "", "Activated August 3", ""],
+            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "ATP Montreal", "Borges - Etcheverry", "Bet Builder", "Borges 1st Set Winner", "Borges -2.5 Games Handicap", "", "Activated August 4", "Moved KO 05.08.2026"],
+            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "ATP Montreal", "Michelsen - Cerundolo", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 4", ""],
+            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "WTA Toronto", "Andreeva - Pliskova", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 4", ""],
+            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "WTA Toronto", "Rakhimova - Siniakova", "Bet Builder", "Siniakova Match Winner", "Siniakova -3.5 Games Handicap", "", "Activated August 4", "Moved KO 05.08.2026 05:50 (retired)"],
+            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "WTA Toronto", "Sabalenka - Shuai", "Bet Builder", "Sabalenka to win", "1st set total over 8.5", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "WTA Toronto", "Swiatek - Golubic", "Bet Builder", "Swiatek to win", "total sets played over 2.5", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "ATP Montreal", "De Minaur - Norrie", "Bet Builder", "De Minaur to win", "total games over 22.5", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "WTA Toronto", "Pegula - Rakhimova", "Bet Builder", "Pegula to win", "total games over 17.5", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "ATP Montreal", "Fils - Navone", "Single", "Correct score 0-2 - YES", "", "", "Activated August 6", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "WTA Toronto", "Andreeva - Fernandez", "Bet Builder", "Andreeva 1st Set Winner", "total sets played over 2.5", "", "Activated August 7", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "ATP Montreal", "Ruud - Fonseca", "Bet Builder", "Fonseca to win", "total games over 22.5", "", "Activated August 7", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "ATP Montreal", "Shelton - Bergs", "Single", "total games over 23.5", "", "", "Activated August 7", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "WTA Toronto", "Osaka - Mertens", "Bet Builder", "Osaka to win", "total sets played over 2.5", "", "Activated August 7", ""],
+            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "WTA Toronto", "Gauff - Sakkari", "Bet Builder", "Gauff  to win", "total sets played over 2.5", "", "Activated August 7", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "ATP Montreal", "Lehecka - Jodar", "Bet Builder", "Jodar to win", "total games over 22.5", "", "Activated August 8", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "ATP Montreal", "Nakashima - Rinderknech", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 8", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "WTA Toronto", "Gauff - Korneeva", "Bet Builder", "Gauff  to win", "total sets played over 2.5", "", "Activated August 8", ""],
+            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "WTA Toronto", "Sabalenka - Alexandrova", "Bet Builder", "Sabalenka  to win", "Total games won by Sabalenka OVER 12.5", "", "Activated August 8", ""],
+            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "ATP Montreal", "Fonseca - Shelton", "Single", "Correct score 0-2 - YES", "", "", "Activated August 9", ""],
+            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "ATP Montreal", "Mensik - Van De Zandschulp", "Bet Builder", "Mensik to win", "total games over 22.5", "", "Activated August 9", ""],
+            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "WTA Toronto", "Eala - Bencic", "Bet Builder", "Bencic to win", "total sets played over 2.5", "", "Activated August 9", ""],
+            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "WTA Toronto", "Rybakina - Samsonova", "Bet Builder", "Rybakina 1st Set Winner", "total games over 21.5", "", "Activated August 9", ""],
+            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "WTA Toronto", "Osaka - Fernandez", "Single", "Total games won by Fernandez over 10.5", "", "", "Activated August 9", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Jodar - Fils", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Darderi - Nakashima", "Bet Builder", "Nakashima to win", "total sets played over 2.5", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Mensik - Shelton", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Merida Aguilar - Tien", "Bet Builder", "Tien to win", "total sets played over 2.5", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Shnaider - Swiatek", "Bet Builder", "Swiatek to win", "total games over 20.5", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Alexandrova - Svitolina", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Bencic - Gauff", "Bet Builder", "Gauff to win", "total games over 21.5", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Osaka - Rybakina", "Bet Builder", "(Correct score) Will the score be 0:2? YES", "Rybakina to Win", "total sets played over 2.5", "Activated August 10", "Previous market dropped"],
+            [true, true, "7Abet/BVBet", "08.13.2026", "", "Tennis", "WTA Toronto", "Svitolina - Swiatek", "Bet Builder", "Swiatek to win", "total games over 21.5", "", "Activated August 11", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "ATP Cincinnati", "Lajovic - Bonzi", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 11", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "ATP Cincinnati", "Popyrin - Droguet", "Bet Builder", "Popyrin to win", "total sets played over 2.5", "", "Activated August 11", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "WTA Cincinnati", "Wang - Andreescu", "Bet Builder", "Wang to win", "total games over 21.5", "", "Activated August 11", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "WTA Cincinnati", "Lys - Kawa", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 11", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "23:30:00", "Tennis", "ATP Cincinnati", "Shevchenko - O'Connell", "Bet Builder", "O'Connell to win", "total sets played over 2.5", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "06:00:00", "Tennis", "ATP Montreal", "Jodar - Nakashima", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "08:30:00", "Tennis", "ATP Montreal", "Tien - Shelton", "Bet Builder", "Shelton to win", "total games over 22.5", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "08:30:00", "Tennis", "WTA Toronto", "Gauff - Rybakina", "Bet Builder", "Gauff to win", "total sets played over 2.5", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Shapovalov \u2013 Mannarino", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Van de Zandschulp \u2013 Griekspoor", "Bet Builder", "Griekspoor to win", "total games over 22.5", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Maria - Yastremska", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Kasatkina \u2013 Sonmez", "Bet Builder", "Kasatkina to win", "total sets played over 2.5", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.14.2026", "08:00:00", "Tennis", "ATP Montreal", "Shelton - Nakashima", "Single", "Correct score 2-1 YES", "", "", "Activated August 13", ""],
+            [true, true, "7Abet/BVBet", "08.14.2026", "06:00:00", "Tennis", "WTA Toronto", "Swiatek - Rybakina", "Bet Builder", "Swiatek to win", "over 22.5 total games", "", "Activated August 13", ""],
+            [true, true, "7Abet/BVBet", "08.15.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Djokovic - Tirante", "Bet Builder", "Djokovic 1st Set Winner", "total sets played over 2.5", "", "Activated August 14", ""],
+            [true, true, "7Abet/BVBet", "08.15.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Townsend - Rybakina", "Bet Builder", "Rybakina to win", "over 21.5 total games", "", "Activated August 14", ""],
+            [true, true, "7Abet/BVBet", "08.16.2026", "08:30:00", "Tennis", "ATP Cincinnati", "Zverev - Norrie", "Bet Builder", "Zverev 1st Set Winner", "over 22.5 total games", "", "Activated August 15", ""],
+            [true, true, "7Abet/BVBet", "08.17.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Tsitsipas - Auger-Aliassime", "Bet Builder", "Auger-Aliassime to win", "total sets played over 2.5", "", "Activated August 16", ""],
+            [true, true, "7Abet/BVBet", "08.17.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Sonego - Tiafoe", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 16", ""],
+            [true, true, "7Abet/BVBet", "08.17.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Gauff - Samsonova", "Bet Builder", "Gauff to win", "over 20.5 total games", "", "Activated August 16", ""],
+            [true, true, "7Abet/BVBet", "08.17.2026", "23:00:00", "Tennis", "WTA Cincinnati", "Eala - Anisimova", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 16", ""],
+            [true, true, "7Abet/BVBet", "08.18.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Nakashima - Medvedev", "Bet Builder", "Medvedev 1st Set Winner", "over 22.5 total games", "", "Activated August 17", ">KO moved 8.19"],
+            [true, true, "7Abet/BVBet", "08.18.2026", "03:00:00", "Tennis", "WTA Cincinnati", "Navarro - Pegula", "Bet Builder", "Pegul to win", "total sets played over 2.5", "", "Activated August 17", ""],
+            [true, true, "7Abet/BVBet", "08.19.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Swiatek - Parry", "Bet Builder", "Swiatek 1st Set Winner", "over 16.5 total games", "", "Activated August 18", ""],
+            [true, true, "7Abet/BVBet", "08.20.2026", "01:00:00", "Tennis", "ATP Cincinnati", "Zverev - Paul", "Bet Builder", "Zverev 1st Set Winner", "total sets played over 2.5", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.20.2026", "08:30:00", "Tennis", "WTA Cincinnati", "Sabalenka - Bejlek", "Single", "Aryna Sabalenka will win and Games total OVER 18.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.21.2026", "23:00:00", "Tennis", "ATP Cincinnati", "Fritz - Nakashima", "Bet Builder", "Fritz to win", "total sets played over 2.5", "", "Activated August 20", ">KO moved 8.21"],
+            [true, true, "7Abet/BVBet", "08.21.2026", "07:00:00", "Tennis", "WTA Cincinnati", "Swiatek - Rybakina", "Bet Builder", "Swiatek 1st Set Winner", "over 22.5 total games", "", "Activated August 20", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "08:30:00", "Tennis", "WTA Cincinnati", "Gauff - Kostyuk", "Bet Builder", "Gauff 1st Set Winner", "over 21.5 total games", "", "Activated August 21", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "01:30:00", "Tennis", "ATP Cincinnati", "Cobolli - Fils", "Bet Builder", "Fils to Win", "total sets played over 2.5", "", "Activated August 22", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "03:00:00", "Tennis", "ATP Cincinnati", "Nakashima - Tiafoe", "Bet Builder", "Nakashima to win", "over 24.5 total games", "", "Activated August 22", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "06:00:00", "Tennis", "WTA Cincinnati", "Pegula - Swiatek", "Bet Builder", "Swiatek to Win", "total sets played over 2.5", "", "Activated August 22", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "07:30:00", "Tennis", "WTA Cincinnati", "Bejlek - Gauff", "Bet Builder", "Gauff to Win", "over 20.5 total games", "", "Activated August 22", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "04:30:00", "Tennis", "ATP Cincinnati", "Arthur Fils vs. Frances Tiafoe", "Single", "Arthur Fils will win and Games total Over 22.5", "", "", "Activated August 23", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "07:00:00", "Tennis", "WTA Cincinnati", "Coco Gauff vs. Jessica Pegula", "Single", "Coco Gauff will win and Games total Over 21.5", "", "", "Activated August 23", ""],
+            [true, true, "7Abet/BVBet", "08.24.2026", "23:00:00", "Tennis", "WTA US Open", "Zheng - You", "Bet Builder", "Zheng 1st Set Winner", "total sets played over 2.5", "", "Activated August 24", ""],
+            [true, true, "7Abet/BVBet", "08.25.2026", "06:30:00", "Tennis", "ATP Winston-Salem", "Sonego - Kopriva", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 24", ""],
+            [true, true, "7Abet/BVBet", "08.26.2026", "00:00:00", "Tennis", "ATP Winston-Salem", "Bellucci - Darderi", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 25", ""],
+            [true, true, "7Abet/BVBet", "08.26.2026", "02:00:00", "Tennis", "WTA Monterrey", "Bartunkova - Potapova", "Bet Builder", "Bartunkova to win", "total sets played over 2.5", "", "Activated August 25", ""],
+            [true, true, "7Abet/BVBet", "08.27.2026", "00:30:00", "Tennis", "ATP USA Open", "Skatov - Dimitrov", "Bet Builder", "Dimitrov to win", "total sets played over 2.5", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.27.2026", "02:00:00", "Tennis", "WTA US Open", "Uchijima - Havlikova", "Bet Builder", "Uchijima 1st set winner", "1st set total over 9.5", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.28.2026", "02:00:00", "Tennis", "ATP Winston-Salem", "Bonzi - Van De Zandschulp", "Bet Builder", "Van De Zandschulp to win", "over 22.5 total games", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.28.2026", "11:00:00", "Tennis", "WTA Monterrey", "Starodutseva - Mertens", "Bet Builder", "Mertens 1st set winner", "total sets played over 2.5", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "00:30:00", "Tennis", "ATP USA Open", "Gaston - Smith", "Bet Builder", "Gaston to win", "over 22.5 total games", "", "Activated August 28", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "00:30:00", "Tennis", "WTA US Open", "Jones - Garland", "Bet Builder", "Jones to win", "over 21.5 total games", "", "Activated August 28", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "", "Tennis", "ATP USA Open", "Zverev - Sonego", "Single", "Total Sets Over 3.5", "", "", "Activated August 29", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "", "Tennis", "WTA US Open", "Sabalenka - Osorio", "Single", "Total games won by Sabalenka over 12.5", "", "", "Activated August 29", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "07:00:00", "Tennis", "ATP USA Open", "Navone - Djokovic", "Bet Builder", "Djokovi to win", "over 32.5 total games", "", "Activated August 30", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "00:00:00", "Tennis", "WTA US Open", "Pegula - Ruse", "Single", "Total games won by Pegula over 12.5", "", "", "Activated August 30", ""],
+            [true, true, "7Abet/BVBet", "09.01.2026", "01:00:00", "Tennis", "ATP USA Open", "Safiullin - Alcaraz", "Bet Builder", "Alcaraz to win", "over 37.5 total games", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.01.2026", "07:00:00", "Tennis", "WTA US Open", "Swiatek - Wang Xiy", "Bet Builder", "Swiatek to win 1st set", "total sets played over 2.5", "", "Activated August 31", ""]
+        ];
+
+        const embeddedData = {
+            "EDGE Banners": {
+                headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"],
+                rows: [
+                    [true, "08.08.2026", "SJK vs Gnistan", "QPR vs Millwall", "", "Andreeva - Fernandez", "Ruud - Fonseca", "", ""],
+                    [true, "08.09.2026", "PEC Zwolle vs Ajax", "Mansfield vs Sheffield United", "", "Lehecka - Jodar", "Sabalenka - Alexandrova", "", ""],
+                    [true, "08.10.2026", "Kristiansund vs Molde", "Oulu - HJK", "", "", "", "", ""],
+                    [true, "08.11.2026", "Kairat Almaty - Levski Sofia", "Plymouth - Exeter", "", "Mensik - Shelton", "Shnaider - Swiatek", "", ""],
+                    [true, "08.12.2026", "Bodo/Glimt - Royale Union SG", "Olympiacos - NEC Nijmegen", "", "Svitolina - Swiatek", "", "", ""],
+                    [true, "08.13.2026", "PSG - Aston Villa", "Cruzeiro - Flamengo RJ", "", "", "", "", ""],
+                    [true, "08.14.2026", "Qarabag - Dynamo Kyiv", "Rangers - Jagiellonia", "", "", "", "", ""],
+                    [true, "08.15.2026", "Alaves - Getafe", "Excelsior - PSV", "", "", "", "", ""],
+                    [true, "08.16.2026", "Arsenal - Man City", "Celta Vigo - Osasuna", "", "Tsitsipas - Auger-Aliassime", "Townsend - Rybakina", "", ""],
+                    [true, "08.17.2026", "Dep Coruna - Elche", "Cardiff - Wrexham", "", "Nakashima - Medvedev", "", "", ""],
+                    [true, "08.18.2026", "Thailand - Singapore", "Fenerbahce - Lyon", "", "Zverev - Paul", "", "", ""],
+                    [true, "08.19.2026", "Atl Madrid - Malaga", "Celtic - Lask", "", "", "", "", ""],
+                    [true, "08.20.2026", "Rayo Vallecano - Alaves", "Egnatia - Lillestrom", "", "", "", "", ""],
+                    [true, "08.21.2026", "Arsenal - Coventry", "Real Betis - Real Sociedad", "", "", "", "", ""],
+                    [true, "08.22.2026", "Dortmund - Bayern", "Hull - Man United", "Espanyol - Real Madrid", "Pegula - Swiatek", "", "", ""],
+                    [true, "08.23.2026", "Man City - Bournemouth", "Elche - Barcelona", "Torino - Milan", "", "", "", ""],
+                    [true, "08.24.2026", "Fulham - Chelsea", "Roma - Fiorentina", "Bologna - Lazio", "", "", "", ""],
+                    [true, "08.25.2026", "Lask - Celtic", "Bodo/Glimt - NEC", "Valencia - Real Betis", "", "", "", ""],
+                    [true, "08.26.2026", "Real Madrid - Real Sociedad", "Lyon - Fenerbahce", "AEK - Levski Sofia", "", "", "", ""],
+                    [true, "08.27.2026", "Barcelona - Athletic Club", "AGF - Benfica", "Brighton - Tromso", "", "", "", ""],
+                    [true, "08.28.2026", "Crystal Palace - Man City", "Bayern - Stuttgart", "Lille - PSG", "", "", "CS: paiN vs. Natus Vincere", ""],
+                    [true, "08.29.2026", "Tottenham - Newcastle", "Sevilla - Atl Madrid", "Juventus - Parma", "", "", "", ""],
+                    [true, "08.30.2026", "Man Utd - Ipswich", "Real Madrid - Malaga", "Cagliari - Inter", "", "", "", ""],
+                    [true, "08.31.2026", "Aston Villa - Arsenal", "Barcelona - Rayo Vallecano", "Lecce - Roma", "", "", "", ""]
+                ]
+            },
+            "Edge Football": {
+                headers: ["BO", "PUB", "Brands", "KO Date", "KO Time", "Sports", "League", "Event", "Type", "Market 1", "Market 2", "Market 3", "Market 4", "Notes", "Other Ideas"],
+                meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
+                rows: footballDataset
+            },
+            "Edge Tennis": {
+                headers: ["BO", "PUB", "Brands", "Event Date", "KO Time", "Sports", "League", "Event", "Type", "Market 1", "Market 2", "Market 3", "Notes", "Other Ideas"],
+                meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
+                rows: tennisDataset
+            },
+            "Edge Other Sports": {
+                headers: ["BO", "PUB", "Brands", "Event Date", "Sports", "League", "Event", "Type", "Markets", "Notes", "Other Ideas"],
+                meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
+                rows: [
+                    [false, false, "7Abet/BVBet", "08.07.2026", "American Football", "NFL Preseason", "Arizona Cardinals vs. Carolina Panthers", "Single", "New Orleans Saints are the best in the WORLD", "Few markets so far", ""]
+                ]
+            },
+            "Guideliness": {
+                headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"],
+                rows: []
+            }
+        };
+
+        const guidelinesData = {
+            hero: [
+                { rank: 1, league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] },
+                { rank: 2, league: "England Premier League", options: ["Man Utd", "Liverpool", "Arsenal", "Man City", "Chelsea", "Tottenham", "Aston Villa", "Leeds", "Everton", "Newcastle", "-"] },
+                { rank: 3, league: "Spain La Liga", options: ["Real Madrid", "Barcelona", "Atl Madrid", "Athletic Club", "Sevilla", "Real Betis", "Valencia", "Real Sociedad", "Vallarreal", "Espanyol", "-"] },
+                { rank: 4, league: "Germany Bundesliga", options: ["Bayern", "Dortmund", "Eintracht Frankfurt", "Schalke 04", "Borussia M'gladbach", "Hamburger SV", "FC Köln", "Weder Bremen", "Union Berlin", "Stuttgart", "-"] },
+                { rank: 5, league: "Italy Serie A", options: ["Inter", "Juventus", "Milan", "Napoli", "Roma", "Lazio", "Fiorentina", "Como", "Atalanta", "Cagliari", "-"] },
+                { rank: 6, league: "France Ligue 1", options: ["PSG", "Marseille", "Lyon", "Saint Etienne", "Lens", "Lille", "Monaco", "Nantes", "Rennes", "Strasbourg", "-"] },
+                { rank: 7, league: "Portugal Liga", options: ["Benfica", "Porto", "Sporting CP", "Sporting Braga", "Vitória de Guimarães", "Boavista", "Maritimo", "Belenenses", "Rio Ave", "Vitória de Setúbal", "-"] },
+                { rank: 8, league: "Netherlands Eredivisie", options: ["Ajax", "Feyenoord", "PSG", "Utrecht", "Twente", "Alkmaar", "Vitesse", "Heerenveen", "NEC Nijmegen", "Groningen", "-"] }
+            ],
+            normalBoosts: [
+                { type: "Betbuilder", maxStake: "25e max bet", odds1: "10%", odds2: "8%" },
+                { type: "Single", maxStake: "25e max bet", odds1: "10%", odds2: "8%" }
+            ],
+            specialBoosts: [
+                { type: "Single", maxStake: "10e max bet", odds1: "40-50%" },
+                { type: "Betbuilder", maxStake: "10e max bet", odds1: "20-25%" }
+            ],
+            instructions: [
+                "Release boosts around 3PM Manila Time - double check if any line moves (we can launch with the new lines - update boost and toggle active)",
+                "If a total line or a player prop line moves, we can take the next main line available when creating boosts (example if 217.5 is listed on schedule but it moves to 218.5, we can take the 218.5)",
+                "Double check website from time to time - Markets tend to change all the time, in cases were a total line moves, we can toggle inactive the existing boost, and relaunch with the new line (update schedule)",
+                "Get into the habit to double checking boosts are all showing accordingly on site",
+                "If you spot any other markets which we cant combine - pls let Miguel know"
+            ]
+        };
+
+        let currentSheet = "EDGE Banners";
+        let workbookData = JSON.parse(JSON.stringify(embeddedData));
+
+        function initApp() {
+            if (localStorage.getItem('theme_7a') === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+            }
+            renderTabs();
+            listenToFirebase();
+
+            window.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown-container')) {
+                    closeAllDropdowns();
+                }
+            });
+
+            // KEYBOARD SHORTCUTS FOR UNDO / REDO
+            window.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                    if (e.shiftKey) redo();
+                    else undo();
+                } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+                    redo();
+                }
+            });
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+        }
+
+        // UNDO / REDO STATE MANAGEMENT
+        function pushState() {
+            undoStack.push(JSON.parse(JSON.stringify(workbookData)));
+            redoStack = []; // Clear redo stack on new action
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            redoStack.push(JSON.parse(JSON.stringify(workbookData)));
+            workbookData = undoStack.pop();
+            saveToFirebase();
+            renderActiveSheet();
+            updateUndoRedoButtons();
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            undoStack.push(JSON.parse(JSON.stringify(workbookData)));
+            workbookData = redoStack.pop();
+            saveToFirebase();
+            renderActiveSheet();
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+            if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+        }
+
+        function listenToFirebase() {
+            if (!db) {
+                renderActiveSheet();
+                return;
+            }
+
+            db.ref('edge_boosts_master_v20').on('value', (snapshot) => {
+                const liveData = snapshot.val();
+                if (liveData && typeof liveData === 'object' && liveData["Edge Football"] && liveData["Edge Football"].rows && liveData["Edge Football"].rows.length >= 100) {
+                    workbookData = liveData;
+                } else {
+                    saveToFirebase();
+                }
+                renderActiveSheet();
+            });
+        }
+
+        function saveToFirebase() {
+            if (db) {
+                db.ref('edge_boosts_master_v20').set(workbookData);
+            }
+            const statusBadge = document.getElementById('saveStatus');
+            if (statusBadge) {
+                statusBadge.style.opacity = '1';
+                setTimeout(() => { statusBadge.style.opacity = '0'; }, 1000);
+            }
+        }
+
+        function renderTabs() {
+            const tabsNav = document.getElementById('tabsNav');
+            tabsNav.innerHTML = '';
+            Object.keys(workbookData).forEach(sheetName => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
+                btn.innerText = sheetName;
+                btn.onclick = () => {
+                    currentSheet = sheetName;
+                    renderTabs();
+                    renderActiveSheet();
+                };
+                tabsNav.appendChild(btn);
+            });
+        }
+
+        function toggle7DayFilter() {
+            is7DayFilterActive = !is7DayFilterActive;
+            const btn = document.getElementById('viewFilterBtn');
+            if (is7DayFilterActive) {
+                btn.innerText = "📅 View: LAST 7 DAYS";
+                btn.classList.add('active');
+            } else {
+                btn.innerText = "📅 View: ALL RECORDS";
+                btn.classList.remove('active');
+            }
+            renderActiveSheet();
+        }
+
+        function renderActiveSheet() {
+            closeAllDropdowns();
+            const tableWrapper = document.getElementById('tableWrapper');
+            const guidelinesView = document.getElementById('guidelinesView');
+            const metaSummary = document.getElementById('metaSummary');
+            const addRowBtn = document.getElementById('addRowBtn');
+            const clearTabBtn = document.getElementById('clearTabBtn');
+            const searchInput = document.getElementById('searchInput');
+            const viewFilterBtn = document.getElementById('viewFilterBtn');
+            const sportsFilter = document.getElementById('sportsFilter');
+
+            if (currentSheet === "Guideliness") {
+                tableWrapper.style.display = 'none';
+                guidelinesView.style.display = 'block';
+                metaSummary.style.display = 'none';
+                addRowBtn.style.display = 'none';
+                clearTabBtn.style.display = 'none';
+                searchInput.style.display = 'none';
+                viewFilterBtn.style.display = 'none';
+                sportsFilter.style.display = 'none';
+                document.getElementById('recordCounter').innerText = "Guidelines Manual";
+
+                renderGuidelinesView();
+                return;
+            }
+
+            tableWrapper.style.display = 'block';
+            guidelinesView.style.display = 'none';
+            addRowBtn.style.display = 'inline-flex';
+            clearTabBtn.style.display = 'inline-flex';
+            searchInput.style.display = 'inline-block';
+            viewFilterBtn.style.display = 'inline-flex';
+
+            if (currentSheet === "Edge Other Sports") {
+                sportsFilter.style.display = 'inline-block';
+            } else {
+                sportsFilter.style.display = 'none';
+            }
+
+            const sheet = workbookData[currentSheet];
+            if (!sheet) return;
+
+            const thead = document.getElementById('tableHead');
+
+            if (sheet.meta) {
+                metaSummary.style.display = 'flex';
+                metaSummary.innerHTML = `
+                    <div class="meta-item"><span>⚡ Max Stake:</span> <strong>${sheet.meta.max_stake || '25'}</strong></div>
+                    <div class="meta-item"><span>📊 Percent:</span> <strong>${sheet.meta.percent || '10%'}</strong></div>
+                    <div class="meta-item"><span>💰 MBL:</span> <strong>${sheet.meta.mbl || '2500'}</strong></div>
+                    <div class="meta-item"><span>🌐 Showing In:</span> <strong>${sheet.meta.showing_in || 'All'}</strong></div>
+                `;
+            } else {
+                metaSummary.style.display = 'none';
+            }
+
+            // ACTION COLUMN (DELETE) IS NOW MOVED RIGHT AFTER # TO AVOID HORIZONTAL SCROLLING
+            let headHTML = '<tr><th class="row-number-cell">#</th><th style="width: 50px; text-align: center;">Action</th>';
+            sheet.headers.forEach(h => {
+                headHTML += `<th>${h}</th>`;
+            });
+            headHTML += '</tr>';
+            thead.innerHTML = headHTML;
+
+            let displayRows = sheet.rows;
+
+            if (is7DayFilterActive) {
+                displayRows = filterRowsLast7Days(displayRows);
+            }
+
+            if (currentSheet === "Edge Other Sports" && sportsFilter.value !== "") {
+                displayRows = displayRows.filter(row => String(row[4]).toLowerCase() === sportsFilter.value.toLowerCase());
+            }
+
+            renderTableRows(displayRows);
+        }
+
+        function parseRowDate(val) {
+            if (!val || typeof val !== 'string' || val.trim() === "") return null;
+            let clean = val.split(' ')[0].replace(/-/g, '.');
+            let parts = clean.split('.');
+            if (parts.length === 3) {
+                let day, month, year;
+                if (parts[0].length === 4) {
+                    year = parseInt(parts[0], 10);
+                    month = parseInt(parts[1], 10) - 1;
+                    day = parseInt(parts[2], 10);
+                } else {
+                    month = parseInt(parts[0], 10) - 1;
+                    day = parseInt(parts[1], 10);
+                    year = parseInt(parts[2], 10);
+                }
+                return new Date(year, month, day);
+            }
+            return null;
+        }
+
+        function filterRowsLast7Days(allRows) {
+            const dateColIdx = currentSheet === "EDGE Banners" ? 1 : 3;
+
+            const fullyPublishedRows = allRows.filter(row => {
+                if (currentSheet === "EDGE Banners") {
+                    return row[0] === true;
+                }
+                return row[0] === true && row[1] === true;
+            });
+
+            let maxDate = null;
+            fullyPublishedRows.forEach(row => {
+                const d = parseRowDate(row[dateColIdx]);
+                if (d && (!maxDate || d > maxDate)) {
+                    maxDate = d;
+                }
+            });
+
+            if (!maxDate) {
+                maxDate = new Date(2026, 8, 3);
+            }
+
+            const minDate = new Date(maxDate);
+            minDate.setDate(minDate.getDate() - 6);
+
+            return fullyPublishedRows.filter(row => {
+                const d = parseRowDate(row[dateColIdx]);
+                if (!d) return true;
+                return d >= minDate && d <= maxDate;
+            });
+        }
+
+        function renderTableRows(rows) {
+            const tbody = document.getElementById('tableBody');
+            const sheet = workbookData[currentSheet];
+            const recordCounter = document.getElementById('recordCounter');
+            
+            if (recordCounter) {
+                recordCounter.innerText = `Records: ${rows.length}`;
+            }
+
+            tbody.innerHTML = '';
+
+            rows.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                
+                // ACTION COLUMN IS MOVED FRONT (AFTER #)
+                let rowHTML = `
+                    <td class="row-number-cell">${rowIndex + 1}</td>
+                    <td style="text-align: center; width: 50px;">
+                        <button class="delete-btn" onclick="deleteRow(${rowIndex})" title="Delete Row">🗑️</button>
+                    </td>
+                `;
+
+                sheet.headers.forEach((headerName, colIndex) => {
+                    const cellVal = row[colIndex];
+
+                    if (typeof cellVal === 'boolean') {
+                        rowHTML += `
+                            <td style="text-align: center; width: 45px;">
+                                <input type="checkbox" class="checkbox-cell" ${cellVal ? 'checked' : ''} onchange="updateCell(${rowIndex}, ${colIndex}, this.checked)">
+                            </td>
+                        `;
+                    } else if (headerName === "Sports") {
+                        if (currentSheet === "Edge Football") {
+                            rowHTML += `<td><span class="pill-badge sport-football">Football</span></td>`;
+                        } else if (currentSheet === "Edge Tennis") {
+                            rowHTML += `<td><span class="pill-badge sport-tennis">Tennis</span></td>`;
+                        } else {
+                            const sClass = getSportClass(cellVal || "Football");
+                            rowHTML += `
+                                <td>
+                                    <div class="dropdown-container">
+                                        <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${rowIndex}')">${escapeHtml(cellVal || 'Football')} ▼</span>
+                                        <div id="sport-${rowIndex}" class="dropdown-menu">
+                                            ${sportsOptions.map(s => `
+                                                <div class="dropdown-option" onclick="selectSportOption(${rowIndex}, ${colIndex}, '${s.name}')">
+                                                    <span class="pill-badge ${s.class}">${s.name}</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                        }
+                    } else if (headerName === "Type") {
+                        const tClass = getTypeClass(cellVal || "Bet Builder");
+                        rowHTML += `
+                            <td>
+                                <div class="dropdown-container">
+                                    <span class="pill-badge ${tClass}" onclick="toggleFloatingDropdown(event, 'type-${rowIndex}')">${escapeHtml(cellVal || 'Bet Builder')} ▼</span>
+                                    <div id="type-${rowIndex}" class="dropdown-menu">
+                                        ${typeOptions.map(t => `
+                                            <div class="dropdown-option" onclick="selectTypeOption(${rowIndex}, ${colIndex}, '${t.name}')">
+                                                <span class="pill-badge ${t.class}">${t.name}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                    } else {
+                        rowHTML += `
+                            <td>
+                                <textarea class="editable-cell" oninput="autoResizeTextarea(this)" onchange="updateCell(${rowIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
+                            </td>
+                        `;
+                    }
+                });
+
+                tr.innerHTML = rowHTML;
+                tbody.appendChild(tr);
+            });
+
+            // Adjust heights of textareas for auto-expansion
+            setTimeout(() => {
+                document.querySelectorAll('.editable-cell').forEach(el => autoResizeTextarea(el));
+            }, 50);
+        }
+
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        }
+
+        function toggleFloatingDropdown(e, id) {
+            e.stopPropagation();
+            const badge = e.currentTarget;
+            const menu = document.getElementById(id);
+            if (!menu) return;
+
+            const isAlreadyOpen = menu.classList.contains('show');
+            closeAllDropdowns();
+
+            if (!isAlreadyOpen) {
+                const rect = badge.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+                menu.classList.add('show');
+            }
+        }
+
+        function selectSportOption(rowIndex, colIndex, sportName) {
+            pushState();
+            updateCell(rowIndex, colIndex, sportName);
+            renderActiveSheet();
+        }
+
+        function selectTypeOption(rowIndex, colIndex, typeName) {
+            pushState();
+            updateCell(rowIndex, colIndex, typeName);
+            renderActiveSheet();
+        }
+
+        function renderGuidelinesView() {
+            const container = document.getElementById('guidelinesView');
+            let html = `
+                <div class="guidelines-container">
+                    <div>
+                        <div class="guidelines-header-badge">HERO BANNERS</div>
+                        <div class="guidelines-section-title">WHICH TEAM TO PICK? WHO'S PLAYING?</div>
+                        <div style="overflow-x: auto;">
+                            <table class="guidelines-table">
+                                <thead>
+                                    <tr>
+                                        <th>Leagues / Competition</th>
+                                        <th>Rank</th>
+                                        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                                        <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            guidelinesData.hero.forEach(row => {
+                html += `
+                    <tr>
+                        <td class="col-league">${row.league}</td>
+                        <td class="col-rank">${row.rank}</td>
+                `;
+                row.options.forEach(opt => {
+                    html += `<td style="text-align: center; font-weight: 500;">${opt}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 300px;">
+                            <div class="guidelines-section-title">Normal Boosts</div>
+                            <table class="guidelines-table">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Max Stake</th>
+                                        <th>Odds 1.50 - 11.0</th>
+                                        <th>Odds 11.0 +</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            guidelinesData.normalBoosts.forEach(b => {
+                html += `
+                    <tr>
+                        <td style="font-weight: bold;">${b.type}</td>
+                        <td style="text-align: center;">${b.maxStake}</td>
+                        <td style="text-align: center; font-weight: bold; color: #166534;">${b.odds1}</td>
+                        <td style="text-align: center; font-weight: bold; color: #166534;">${b.odds2}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="flex: 1; min-width: 300px;">
+                            <div class="guidelines-section-title">Specials Boosts (Finals, Region Specials etc)</div>
+                            <table class="guidelines-table">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Max Stake</th>
+                                        <th>Boost Ratio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            guidelinesData.specialBoosts.forEach(b => {
+                html += `
+                    <tr>
+                        <td style="font-weight: bold;">${b.type}</td>
+                        <td style="text-align: center;">${b.maxStake}</td>
+                        <td style="text-align: center; font-weight: bold; color: #166534;">${b.odds1}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="rules-card">
+                        <div style="font-size: 13px; font-weight: 800; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px; margin-bottom: 8px;">
+                            📌 OPERATIONAL DUTY RULES & GUIDELINES
+                        </div>
+                        <div class="rules-list">
+            `;
+
+            guidelinesData.instructions.forEach(ins => {
+                html += `
+                    <div class="rules-item">
+                        <span>•</span>
+                        <span>${ins}</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function updateCell(rowIndex, colIndex, value) {
+            pushState();
+            workbookData[currentSheet].rows[rowIndex][colIndex] = value;
+            saveToFirebase();
+        }
+
+        function addNewRow() {
+            pushState();
+            if (is7DayFilterActive) {
+                toggle7DayFilter(); // Automatically turn off 7-day filter so new row is visible
+            }
+
+            const sheet = workbookData[currentSheet];
+            const newRow = sheet.headers.map((h, idx) => {
+                if ((idx === 0 || idx === 1) && typeof sheet.rows[0]?.[idx] === 'boolean') return false;
+                if (h === "Sports") return currentSheet === "Edge Tennis" ? "Tennis" : "Football";
+                if (h === "Type") return "Bet Builder";
+                return "";
+            });
+
+            sheet.rows.push(newRow); // APPEND AT BOTTOM
+            saveToFirebase();
+            renderActiveSheet();
+
+            const wrapper = document.getElementById('tableWrapper');
+            if (wrapper) {
+                setTimeout(() => { wrapper.scrollTop = wrapper.scrollHeight; }, 100);
+            }
+        }
+
+        function deleteRow(rowIndex) {
+            if (confirm("Are you sure you want to delete this record?")) {
+                pushState();
+                workbookData[currentSheet].rows.splice(rowIndex, 1);
+                saveToFirebase();
+                renderActiveSheet();
+            }
+        }
+
+        function clearCurrentSheet() {
+            if (confirm(`Are you sure you want to CLEAR ALL records in "${currentSheet}"?`)) {
+                pushState();
+                workbookData[currentSheet].rows = [];
+                saveToFirebase();
+                renderActiveSheet();
+            }
+        }
+
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const allRows = workbookData[currentSheet].rows;
+            const filtered = allRows.filter(row => 
+                row.some(cell => String(cell).toLowerCase().includes(query))
+            );
+            renderTableRows(filtered);
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme_7a', newTheme);
+        }
+
+        function escapeHtml(text) {
+            return String(text).replace(/"/g, "&quot;");
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
