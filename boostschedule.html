@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automated Big Events & Outrights Schedule Hub</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Firebase Realtime Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -107,6 +104,29 @@
             color: #ffffff !important;
             transform: translateY(-2px);
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
+        }
+
+        /* TRANSFER TO EDGE BOOST ICON BUTTON STYLES */
+        .btn-edge-transfer {
+            background-color: #f59e0b !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+            padding: 4px 10px !important;
+            font-size: 11px !important;
+            border: 1px solid #fbbf24 !important;
+            border-radius: 4px !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edge-transfer:hover {
+            background-color: #d97706 !important;
+            color: #ffffff !important;
+            transform: scale(1.04);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
         }
 
         .font-slider-wrapper {
@@ -782,9 +802,8 @@
                                 <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${item.id}')">
                                     ✏️ Edit Details
                                 </button>
-                                <!-- TRANSFER BUTTON -->
-                                <button class="btn" style="padding: 4px 10px; font-size: 11px; background-color: #fbbf24; color: #0f172a; font-weight: 800;" onclick="sendToEdgeBoost('${item.id}')">
-                                    ⚡ Edge Boost
+                                <button class="btn-edge-transfer" onclick="sendToEdgeBoost('${item.id}')" title="Send to Edge Boost Master">
+                                    <i class="fa-solid fa-bolt"></i> Edge Boost
                                 </button>
                             </div>
                             <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="deleteEvent('${item.id}')">🗑️ Delete</button>
