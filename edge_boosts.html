@@ -39,7 +39,7 @@
             --text-color: #f8fafc;
             --header-text: #38bdf8;
             --credit-text: #94a3b8;
-            --border-color: #334155;
+            --border-color: #374151;
             --table-border: #334155;
             --accent-btn: #334155;
             --accent-btn-text: #f8fafc;
@@ -97,7 +97,7 @@
         .search-input, .select-filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); font-size: 13px; outline: none; }
 
         .table-card { background: var(--card-bg); padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
-        .table-wrapper { width: 100%; overflow-x: auto; max-height: 72vh; }
+        .table-wrapper { width: 100%; overflow-x: auto; max-height: 72vh; scroll-behavior: smooth; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
         
         th { position: sticky; top: 0; background-color: var(--th-bg); color: var(--th-text); padding: 10px 12px; text-align: left; font-weight: 700; border: 1px solid var(--border-color); white-space: nowrap; z-index: 10; }
@@ -106,8 +106,7 @@
 
         .row-number-cell { text-align: center; font-weight: bold; color: var(--credit-text); min-width: 55px; max-width: 65px; white-space: nowrap !important; word-break: normal !important; padding: 6px 8px; }
 
-        /* TEXTAREA CONVERSION FOR AUTO WRAPPING MARKETS */
-        .editable-cell { width: 100%; min-width: 170px; border: 1px solid transparent; background: transparent; color: var(--text-color); font-size: 12px; padding: 4px 6px; border-radius: 4px; outline: none; transition: border 0.2s; white-space: pre-wrap; word-break: break-word; resize: vertical; min-height: 32px; height: auto; font-family: inherit; line-height: 1.35; }
+        .editable-cell { width: 100%; min-width: 140px; border: 1px solid transparent; background: transparent; color: var(--text-color); font-size: 12px; padding: 4px 6px; border-radius: 4px; outline: none; transition: border 0.2s; white-space: pre-wrap; word-break: break-word; resize: vertical; min-height: 32px; height: auto; font-family: inherit; line-height: 1.35; }
         .editable-cell:focus { border-color: #38bdf8; background-color: var(--input-bg); box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
         .checkbox-cell { width: 18px; height: 18px; cursor: pointer; accent-color: #0d233a; }
 
@@ -145,13 +144,18 @@
         
         .guidelines-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; }
         .guidelines-table th { text-align: center; background-color: var(--th-bg); border: 1px solid var(--border-color); padding: 8px 10px; }
-        .guidelines-table td { border: 1px solid var(--table-border); padding: 8px 10px; }
-        .guidelines-table td.col-rank { text-align: center; font-weight: bold; width: 60px; background-color: var(--th-bg); }
-        .guidelines-table td.col-league { font-weight: bold; min-width: 180px; }
+        .guidelines-table td { border: 1px solid var(--table-border); padding: 4px 6px; }
+        
+        .guidelines-cell-input { width: 100%; border: 1px solid transparent; background: transparent; color: var(--text-color); font-size: 12px; padding: 4px; border-radius: 4px; outline: none; text-align: center; font-weight: 500; }
+        .guidelines-cell-input:focus { border-color: #38bdf8; background-color: var(--input-bg); box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
+        .guidelines-cell-input.left-align { text-align: left; font-weight: bold; }
 
-        .rules-card { background-color: var(--excel-yellow-bg); color: var(--excel-yellow-text); padding: 12px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; line-height: 1.6; border: 1px solid var(--border-color); }
+        .rules-card { background-color: var(--excel-yellow-bg); color: var(--excel-yellow-text); padding: 14px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; line-height: 1.6; border: 1px solid var(--border-color); }
         .rules-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
         .rules-item { display: flex; align-items: flex-start; gap: 8px; }
+        .rule-textarea { flex: 1; border: 1px solid transparent; background: rgba(255, 255, 255, 0.4); color: var(--excel-yellow-text); font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 6px; outline: none; resize: vertical; min-height: 36px; line-height: 1.35; }
+        [data-theme="dark"] .rule-textarea { background: rgba(0, 0, 0, 0.25); color: var(--excel-yellow-text); }
+        .rule-textarea:focus { border-color: #38bdf8; background: var(--input-bg); color: var(--text-color); }
     </style>
 </head>
 <body>
@@ -234,8 +238,6 @@
         }
 
         let is7DayFilterActive = false;
-
-        // UNDO / REDO HISTORY STACKS
         let undoStack = [];
         let redoStack = [];
 
@@ -522,6 +524,34 @@
             [true, true, "7Abet/BVBet", "09.01.2026", "07:00:00", "Tennis", "WTA US Open", "Swiatek - Wang Xiy", "Bet Builder", "Swiatek to win 1st set", "total sets played over 2.5", "", "Activated August 31", ""]
         ];
 
+        const guidelinesData = {
+            hero: [
+                { rank: 1, league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] },
+                { rank: 2, league: "England Premier League", options: ["Man Utd", "Liverpool", "Arsenal", "Man City", "Chelsea", "Tottenham", "Aston Villa", "Leeds", "Everton", "Newcastle", ""] },
+                { rank: 3, league: "Spain La Liga", options: ["Real Madrid", "Barcelona", "Atl Madrid", "Athletic Club", "Sevilla", "Real Betis", "Valencia", "Real Sociedad", "Vallarreal", "Espanyol", ""] },
+                { rank: 4, league: "Germany Bundesliga", options: ["Bayern", "Dortmund", "Eintracht Frankfurt", "Schalke 04", "Borussia M'gladbach", "Hamburger SV", "FC Köln", "Weder Bremen", "Union Berlin", "Stuttgart", ""] },
+                { rank: 5, league: "Italy Serie A", options: ["Inter", "Juventus", "Milan", "Napoli", "Roma", "Lazio", "Fiorentina", "Como", "Atalanta", "Cagliari", ""] },
+                { rank: 6, league: "France Ligue 1", options: ["PSG", "Marseille", "Lyon", "Saint Etienne", "Lens", "Lille", "Monaco", "Nantes", "Rennes", "Strasbourg", ""] },
+                { rank: 7, league: "Portugal Liga", options: ["Benfica", "Porto", "Sporting CP", "Sporting Braga", "Vitória de Guimarães", "Boavista", "Maritimo", "Belenenses", "Rio Ave", "Vitória de Setúbal", ""] },
+                { rank: 8, league: "Netherlands Eredivisie", options: ["Ajax", "Feyenoord", "PSG", "Utrecht", "Twente", "Alkmaar", "Vitesse", "Heerenveen", "NEC Nijmegen", "Groningen", ""] }
+            ],
+            normalBoosts: [
+                { type: "Betbuilder", maxStake: "25e max bet", odds1: "10%", odds2: "8%" },
+                { type: "Single", maxStake: "25e max bet", odds1: "10%", odds2: "8%" }
+            ],
+            specialBoosts: [
+                { type: "Single", maxStake: "10e max bet", odds1: "40-50%" },
+                { type: "Betbuilder", maxStake: "10e max bet", odds1: "20-25%" }
+            ],
+            instructions: [
+                "Release boosts around 3PM Manila Time - double check if any line moves (we can launch with the new lines - update boost and toggle active)",
+                "If a total line or a player prop line moves, we can take the next main line available when creating boosts (example if 217.5 is listed on schedule but it moves to 218.5, we can take the 218.5)",
+                "Double check website from time to time - Markets tend to change all the time, in cases were a total line moves, we can toggle inactive the existing boost, and relaunch with the new line (update schedule)",
+                "Get into the habit to double checking boosts are all showing accordingly on site",
+                "if you spot any other markets which we cant combine - pls let Miguel know"
+            ]
+        };
+
         const embeddedData = {
             "EDGE Banners": {
                 headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"],
@@ -571,36 +601,9 @@
             },
             "Guideliness": {
                 headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"],
-                rows: []
+                rows: [],
+                data: guidelinesData
             }
-        };
-
-        const guidelinesData = {
-            hero: [
-                { rank: 1, league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] },
-                { rank: 2, league: "England Premier League", options: ["Man Utd", "Liverpool", "Arsenal", "Man City", "Chelsea", "Tottenham", "Aston Villa", "Leeds", "Everton", "Newcastle", "-"] },
-                { rank: 3, league: "Spain La Liga", options: ["Real Madrid", "Barcelona", "Atl Madrid", "Athletic Club", "Sevilla", "Real Betis", "Valencia", "Real Sociedad", "Vallarreal", "Espanyol", "-"] },
-                { rank: 4, league: "Germany Bundesliga", options: ["Bayern", "Dortmund", "Eintracht Frankfurt", "Schalke 04", "Borussia M'gladbach", "Hamburger SV", "FC Köln", "Weder Bremen", "Union Berlin", "Stuttgart", "-"] },
-                { rank: 5, league: "Italy Serie A", options: ["Inter", "Juventus", "Milan", "Napoli", "Roma", "Lazio", "Fiorentina", "Como", "Atalanta", "Cagliari", "-"] },
-                { rank: 6, league: "France Ligue 1", options: ["PSG", "Marseille", "Lyon", "Saint Etienne", "Lens", "Lille", "Monaco", "Nantes", "Rennes", "Strasbourg", "-"] },
-                { rank: 7, league: "Portugal Liga", options: ["Benfica", "Porto", "Sporting CP", "Sporting Braga", "Vitória de Guimarães", "Boavista", "Maritimo", "Belenenses", "Rio Ave", "Vitória de Setúbal", "-"] },
-                { rank: 8, league: "Netherlands Eredivisie", options: ["Ajax", "Feyenoord", "PSG", "Utrecht", "Twente", "Alkmaar", "Vitesse", "Heerenveen", "NEC Nijmegen", "Groningen", "-"] }
-            ],
-            normalBoosts: [
-                { type: "Betbuilder", maxStake: "25e max bet", odds1: "10%", odds2: "8%" },
-                { type: "Single", maxStake: "25e max bet", odds1: "10%", odds2: "8%" }
-            ],
-            specialBoosts: [
-                { type: "Single", maxStake: "10e max bet", odds1: "40-50%" },
-                { type: "Betbuilder", maxStake: "10e max bet", odds1: "20-25%" }
-            ],
-            instructions: [
-                "Release boosts around 3PM Manila Time - double check if any line moves (we can launch with the new lines - update boost and toggle active)",
-                "If a total line or a player prop line moves, we can take the next main line available when creating boosts (example if 217.5 is listed on schedule but it moves to 218.5, we can take the 218.5)",
-                "Double check website from time to time - Markets tend to change all the time, in cases were a total line moves, we can toggle inactive the existing boost, and relaunch with the new line (update schedule)",
-                "Get into the habit to double checking boosts are all showing accordingly on site",
-                "If you spot any other markets which we cant combine - pls let Miguel know"
-            ]
         };
 
         let currentSheet = "EDGE Banners";
@@ -619,7 +622,6 @@
                 }
             });
 
-            // KEYBOARD SHORTCUTS FOR UNDO / REDO
             window.addEventListener('keydown', function(e) {
                 if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
                     if (e.shiftKey) redo();
@@ -634,10 +636,9 @@
             document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
         }
 
-        // UNDO / REDO STATE MANAGEMENT
         function pushState() {
             undoStack.push(JSON.parse(JSON.stringify(workbookData)));
-            redoStack = []; // Clear redo stack on new action
+            redoStack = [];
             updateUndoRedoButtons();
         }
 
@@ -672,7 +673,7 @@
                 return;
             }
 
-            db.ref('edge_boosts_master_v20').on('value', (snapshot) => {
+            db.ref('edge_boosts_master_v21').on('value', (snapshot) => {
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object' && liveData["Edge Football"] && liveData["Edge Football"].rows && liveData["Edge Football"].rows.length >= 100) {
                     workbookData = liveData;
@@ -685,7 +686,7 @@
 
         function saveToFirebase() {
             if (db) {
-                db.ref('edge_boosts_master_v20').set(workbookData);
+                db.ref('edge_boosts_master_v21').set(workbookData);
             }
             const statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
@@ -779,7 +780,6 @@
                 metaSummary.style.display = 'none';
             }
 
-            // ACTION COLUMN (DELETE) IS NOW MOVED RIGHT AFTER # TO AVOID HORIZONTAL SCROLLING
             let headHTML = '<tr><th class="row-number-cell">#</th><th style="width: 50px; text-align: center;">Action</th>';
             sheet.headers.forEach(h => {
                 headHTML += `<th>${h}</th>`;
@@ -864,80 +864,83 @@
             tbody.innerHTML = '';
 
             rows.forEach((row, rowIndex) => {
-                const tr = document.createElement('tr');
-                
-                // ACTION COLUMN IS MOVED FRONT (AFTER #)
-                let rowHTML = `
-                    <td class="row-number-cell">${rowIndex + 1}</td>
-                    <td style="text-align: center; width: 50px;">
-                        <button class="delete-btn" onclick="deleteRow(${rowIndex})" title="Delete Row">🗑️</button>
-                    </td>
-                `;
+                const tr = createTableRowElement(row, rowIndex);
+                tbody.appendChild(tr);
+            });
 
-                sheet.headers.forEach((headerName, colIndex) => {
-                    const cellVal = row[colIndex];
+            setTimeout(() => {
+                document.querySelectorAll('.editable-cell').forEach(el => autoResizeTextarea(el));
+            }, 50);
+        }
 
-                    if (typeof cellVal === 'boolean') {
-                        rowHTML += `
-                            <td style="text-align: center; width: 45px;">
-                                <input type="checkbox" class="checkbox-cell" ${cellVal ? 'checked' : ''} onchange="updateCell(${rowIndex}, ${colIndex}, this.checked)">
-                            </td>
-                        `;
-                    } else if (headerName === "Sports") {
-                        if (currentSheet === "Edge Football") {
-                            rowHTML += `<td><span class="pill-badge sport-football">Football</span></td>`;
-                        } else if (currentSheet === "Edge Tennis") {
-                            rowHTML += `<td><span class="pill-badge sport-tennis">Tennis</span></td>`;
-                        } else {
-                            const sClass = getSportClass(cellVal || "Football");
-                            rowHTML += `
-                                <td>
-                                    <div class="dropdown-container">
-                                        <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${rowIndex}')">${escapeHtml(cellVal || 'Football')} ▼</span>
-                                        <div id="sport-${rowIndex}" class="dropdown-menu">
-                                            ${sportsOptions.map(s => `
-                                                <div class="dropdown-option" onclick="selectSportOption(${rowIndex}, ${colIndex}, '${s.name}')">
-                                                    <span class="pill-badge ${s.class}">${s.name}</span>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                </td>
-                            `;
-                        }
-                    } else if (headerName === "Type") {
-                        const tClass = getTypeClass(cellVal || "Bet Builder");
+        function createTableRowElement(row, rowIndex) {
+            const sheet = workbookData[currentSheet];
+            const tr = document.createElement('tr');
+            
+            let rowHTML = `
+                <td class="row-number-cell">${rowIndex + 1}</td>
+                <td style="text-align: center; width: 50px;">
+                    <button class="delete-btn" onclick="deleteRow(${rowIndex})" title="Delete Row">🗑️</button>
+                </td>
+            `;
+
+            sheet.headers.forEach((headerName, colIndex) => {
+                const cellVal = row[colIndex];
+
+                if (typeof cellVal === 'boolean') {
+                    rowHTML += `
+                        <td style="text-align: center; width: 45px;">
+                            <input type="checkbox" class="checkbox-cell" ${cellVal ? 'checked' : ''} onchange="updateCell(${rowIndex}, ${colIndex}, this.checked)">
+                        </td>
+                    `;
+                } else if (headerName === "Sports") {
+                    if (currentSheet === "Edge Football") {
+                        rowHTML += `<td><span class="pill-badge sport-football">Football</span></td>`;
+                    } else if (currentSheet === "Edge Tennis") {
+                        rowHTML += `<td><span class="pill-badge sport-tennis">Tennis</span></td>`;
+                    } else {
+                        const sClass = getSportClass(cellVal || "Football");
                         rowHTML += `
                             <td>
                                 <div class="dropdown-container">
-                                    <span class="pill-badge ${tClass}" onclick="toggleFloatingDropdown(event, 'type-${rowIndex}')">${escapeHtml(cellVal || 'Bet Builder')} ▼</span>
-                                    <div id="type-${rowIndex}" class="dropdown-menu">
-                                        ${typeOptions.map(t => `
-                                            <div class="dropdown-option" onclick="selectTypeOption(${rowIndex}, ${colIndex}, '${t.name}')">
-                                                <span class="pill-badge ${t.class}">${t.name}</span>
+                                    <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${rowIndex}')">${escapeHtml(cellVal || 'Football')} ▼</span>
+                                    <div id="sport-${rowIndex}" class="dropdown-menu">
+                                        ${sportsOptions.map(s => `
+                                            <div class="dropdown-option" onclick="selectSportOption(${rowIndex}, ${colIndex}, '${s.name}')">
+                                                <span class="pill-badge ${s.class}">${s.name}</span>
                                             </div>
                                         `).join('')}
                                     </div>
                                 </div>
                             </td>
                         `;
-                    } else {
-                        rowHTML += `
-                            <td>
-                                <textarea class="editable-cell" oninput="autoResizeTextarea(this)" onchange="updateCell(${rowIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
+                    }
+                } else if (headerName === "Type") {
+                    const tClass = getTypeClass(cellVal || "Bet Builder");
+                    rowHTML += `
+                        <td>
+                            <div class="dropdown-container">
+                                <span class="pill-badge ${tClass}" onclick="toggleFloatingDropdown(event, 'type-${rowIndex}')">${escapeHtml(cellVal || 'Bet Builder')} ▼</span>
+                                <div id="type-${rowIndex}" class="dropdown-menu">
+                                    ${typeOptions.map(t => `
+                                        <div class="dropdown-option" onclick="selectTypeOption(${rowIndex}, ${colIndex}, '${t.name}')">
+                                            <span class="pill-badge ${t.class}">${t.name}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
                             </td>
                         `;
-                    }
-                });
-
-                tr.innerHTML = rowHTML;
-                tbody.appendChild(tr);
+                } else {
+                    rowHTML += `
+                        <td>
+                            <textarea class="editable-cell" oninput="autoResizeTextarea(this)" onchange="updateCell(${rowIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
+                        </td>
+                    `;
+                }
             });
 
-            // Adjust heights of textareas for auto-expansion
-            setTimeout(() => {
-                document.querySelectorAll('.editable-cell').forEach(el => autoResizeTextarea(el));
-            }, 50);
+            tr.innerHTML = rowHTML;
+            return tr;
         }
 
         function autoResizeTextarea(el) {
@@ -976,6 +979,8 @@
 
         function renderGuidelinesView() {
             const container = document.getElementById('guidelinesView');
+            const gData = workbookData["Guideliness"].data || guidelinesData;
+
             let html = `
                 <div class="guidelines-container">
                     <div>
@@ -994,15 +999,24 @@
                                 <tbody>
             `;
 
-            guidelinesData.hero.forEach(row => {
+            gData.hero.forEach((row, rIdx) => {
                 html += `
                     <tr>
-                        <td class="col-league">${row.league}</td>
-                        <td class="col-rank">${row.rank}</td>
+                        <td class="col-league">
+                            <input type="text" class="guidelines-cell-input left-align" value="${escapeHtml(row.league)}" onchange="updateHeroGuideline(${rIdx}, 'league', this.value)">
+                        </td>
+                        <td class="col-rank">
+                            <input type="text" class="guidelines-cell-input" value="${escapeHtml(row.rank)}" onchange="updateHeroGuideline(${rIdx}, 'rank', this.value)">
+                        </td>
                 `;
-                row.options.forEach(opt => {
-                    html += `<td style="text-align: center; font-weight: 500;">${opt}</td>`;
-                });
+                for (let oIdx = 0; oIdx < 11; oIdx++) {
+                    const optVal = row.options[oIdx] !== undefined ? row.options[oIdx] : "";
+                    html += `
+                        <td>
+                            <input type="text" class="guidelines-cell-input" value="${escapeHtml(optVal)}" onchange="updateHeroOption(${rIdx}, ${oIdx}, this.value)">
+                        </td>
+                    `;
+                }
                 html += `</tr>`;
             });
 
@@ -1027,13 +1041,13 @@
                                 <tbody>
             `;
 
-            guidelinesData.normalBoosts.forEach(b => {
+            gData.normalBoosts.forEach((b, nbIdx) => {
                 html += `
                     <tr>
-                        <td style="font-weight: bold;">${b.type}</td>
-                        <td style="text-align: center;">${b.maxStake}</td>
-                        <td style="text-align: center; font-weight: bold; color: #166534;">${b.odds1}</td>
-                        <td style="text-align: center; font-weight: bold; color: #166534;">${b.odds2}</td>
+                        <td><input type="text" class="guidelines-cell-input left-align" value="${escapeHtml(b.type)}" onchange="updateNormalBoost(${nbIdx}, 'type', this.value)"></td>
+                        <td><input type="text" class="guidelines-cell-input" value="${escapeHtml(b.maxStake)}" onchange="updateNormalBoost(${nbIdx}, 'maxStake', this.value)"></td>
+                        <td><input type="text" class="guidelines-cell-input" style="color: #166534; font-weight: bold;" value="${escapeHtml(b.odds1)}" onchange="updateNormalBoost(${nbIdx}, 'odds1', this.value)"></td>
+                        <td><input type="text" class="guidelines-cell-input" style="color: #166534; font-weight: bold;" value="${escapeHtml(b.odds2)}" onchange="updateNormalBoost(${nbIdx}, 'odds2', this.value)"></td>
                     </tr>
                 `;
             });
@@ -1056,12 +1070,12 @@
                                 <tbody>
             `;
 
-            guidelinesData.specialBoosts.forEach(b => {
+            gData.specialBoosts.forEach((b, sbIdx) => {
                 html += `
                     <tr>
-                        <td style="font-weight: bold;">${b.type}</td>
-                        <td style="text-align: center;">${b.maxStake}</td>
-                        <td style="text-align: center; font-weight: bold; color: #166534;">${b.odds1}</td>
+                        <td><input type="text" class="guidelines-cell-input left-align" value="${escapeHtml(b.type)}" onchange="updateSpecialBoost(${sbIdx}, 'type', this.value)"></td>
+                        <td><input type="text" class="guidelines-cell-input" value="${escapeHtml(b.maxStake)}" onchange="updateSpecialBoost(${sbIdx}, 'maxStake', this.value)"></td>
+                        <td><input type="text" class="guidelines-cell-input" style="color: #166534; font-weight: bold;" value="${escapeHtml(b.odds1)}" onchange="updateSpecialBoost(${sbIdx}, 'odds1', this.value)"></td>
                     </tr>
                 `;
             });
@@ -1073,17 +1087,19 @@
                     </div>
 
                     <div class="rules-card">
-                        <div style="font-size: 13px; font-weight: 800; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px; margin-bottom: 8px;">
-                            📌 OPERATIONAL DUTY RULES & GUIDELINES
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px; margin-bottom: 8px;">
+                            <span style="font-size: 13px; font-weight: 800;">📌 OPERATIONAL DUTY RULES & GUIDELINES</span>
+                            <button class="btn btn-success" style="padding: 4px 10px; font-size: 11px;" onclick="addRuleInstruction()">➕ Add Rule</button>
                         </div>
                         <div class="rules-list">
             `;
 
-            guidelinesData.instructions.forEach(ins => {
+            gData.instructions.forEach((ins, insIdx) => {
                 html += `
                     <div class="rules-item">
-                        <span>•</span>
-                        <span>${ins}</span>
+                        <span style="font-weight: bold;">•</span>
+                        <textarea class="rule-textarea" oninput="autoResizeTextarea(this)" onchange="updateInstructionRule(${insIdx}, this.value)">${escapeHtml(ins)}</textarea>
+                        <button class="delete-btn" onclick="deleteInstructionRule(${insIdx})" title="Delete Rule">🗑️</button>
                     </div>
                 `;
             });
@@ -1095,6 +1111,62 @@
             `;
 
             container.innerHTML = html;
+            setTimeout(() => {
+                container.querySelectorAll('.rule-textarea').forEach(el => autoResizeTextarea(el));
+            }, 50);
+        }
+
+        function updateHeroGuideline(rIdx, prop, val) {
+            pushState();
+            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+            workbookData["Guideliness"].data.hero[rIdx][prop] = val;
+            saveToFirebase();
+        }
+
+        function updateHeroOption(rIdx, oIdx, val) {
+            pushState();
+            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+            workbookData["Guideliness"].data.hero[rIdx].options[oIdx] = val;
+            saveToFirebase();
+        }
+
+        function updateNormalBoost(nbIdx, prop, val) {
+            pushState();
+            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+            workbookData["Guideliness"].data.normalBoosts[nbIdx][prop] = val;
+            saveToFirebase();
+        }
+
+        function updateSpecialBoost(sbIdx, prop, val) {
+            pushState();
+            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+            workbookData["Guideliness"].data.specialBoosts[sbIdx][prop] = val;
+            saveToFirebase();
+        }
+
+        function updateInstructionRule(insIdx, val) {
+            pushState();
+            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+            workbookData["Guideliness"].data.instructions[insIdx] = val;
+            saveToFirebase();
+        }
+
+        function addRuleInstruction() {
+            pushState();
+            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+            workbookData["Guideliness"].data.instructions.push("New operational rule/instruction...");
+            saveToFirebase();
+            renderGuidelinesView();
+        }
+
+        function deleteInstructionRule(insIdx) {
+            if (confirm("Are you sure you want to delete this rule?")) {
+                pushState();
+                if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+                workbookData["Guideliness"].data.instructions.splice(insIdx, 1);
+                saveToFirebase();
+                renderGuidelinesView();
+            }
         }
 
         function updateCell(rowIndex, colIndex, value) {
@@ -1103,10 +1175,16 @@
             saveToFirebase();
         }
 
+        // HIGH-SPEED ADD-ROW WITH DIRECT DOM APPEND & INSTANT SCROLL
         function addNewRow() {
             pushState();
             if (is7DayFilterActive) {
-                toggle7DayFilter(); // Automatically turn off 7-day filter so new row is visible
+                is7DayFilterActive = false; // Auto turn off filter
+                const btn = document.getElementById('viewFilterBtn');
+                if (btn) {
+                    btn.innerText = "📅 View: ALL RECORDS";
+                    btn.classList.remove('active');
+                }
             }
 
             const sheet = workbookData[currentSheet];
@@ -1119,11 +1197,23 @@
 
             sheet.rows.push(newRow); // APPEND AT BOTTOM
             saveToFirebase();
-            renderActiveSheet();
 
+            // Direct DOM Append (No full-page re-rendering lag)
+            const tbody = document.getElementById('tableBody');
+            const newRowIndex = sheet.rows.length - 1;
+            const tr = createTableRowElement(newRow, newRowIndex);
+            tbody.appendChild(tr);
+
+            // Update record counter
+            const recordCounter = document.getElementById('recordCounter');
+            if (recordCounter) {
+                recordCounter.innerText = `Records: ${sheet.rows.length}`;
+            }
+
+            // Scroll directly to the bottom row
             const wrapper = document.getElementById('tableWrapper');
             if (wrapper) {
-                setTimeout(() => { wrapper.scrollTop = wrapper.scrollHeight; }, 100);
+                wrapper.scrollTop = wrapper.scrollHeight;
             }
         }
 
