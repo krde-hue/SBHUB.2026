@@ -89,14 +89,25 @@
         .btn-secondary { background-color: rgba(255, 255, 255, 0.15); color: var(--text-color); border: 1px solid var(--border-color); }
         .btn-success { background-color: #22c55e; color: #ffffff; }
 
+        /* RETURN TO DASHBOARD BUTTON STYLES */
         .btn-dashboard {
-            background-color: #0d233a !important;
+            background: linear-gradient(135deg, #1e293b, #0f172a) !important;
             color: #ffffff !important;
-            border: 2px solid #38bdf8 !important;
+            border: 1.5px solid #ec4899 !important;
             padding: 8px 16px !important;
             font-size: 13px !important;
             font-weight: 800 !important;
             border-radius: 6px !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        }
+
+        .btn-dashboard:hover {
+            background: linear-gradient(135deg, #ec4899, #be185d) !important;
+            border-color: #f472b6 !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
         }
 
         /* FIXED FONT SLIDER TOOLBAR */
@@ -365,7 +376,11 @@
             <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
             <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-            <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
+            
+            <!-- DIRECT DASHBOARD RETURN LINK TO index.html -->
+            <a href="index.html" class="btn btn-dashboard">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
         </div>
     </div>
 
