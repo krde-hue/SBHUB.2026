@@ -59,6 +59,7 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); padding: 15px; color: var(--text-color); transition: background-color 0.3s; }
 
+        /* STICKY FROZEN TOP MENU BAR */
         .sticky-top-panel {
             position: sticky;
             top: 0;
@@ -82,8 +83,6 @@
         .btn-danger:hover { background-color: #fed7d7; }
         .btn-success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
         .btn-success:hover { background-color: #dcfce7; }
-        .btn-filter { background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
-        .btn-filter.active { background-color: #0284c7; color: #ffffff; }
 
         .autosave-badge { font-size: 11px; color: #15803d; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #dcfce7; padding: 4px 10px; border-radius: 12px; display: inline-block; }
 
@@ -94,6 +93,15 @@
         .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--card-bg); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 12px; }
         .toolbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .search-input, .select-filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); font-size: 13px; outline: none; }
+
+        .limit-select-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
 
         .table-card { background: var(--card-bg); padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
         .table-wrapper { width: 100%; overflow-x: auto; max-height: 72vh; scroll-behavior: smooth; }
@@ -193,6 +201,7 @@
 </head>
 <body>
 
+    <!-- STICKY FROZEN HEADER PANEL -->
     <div class="sticky-top-panel">
         <div class="header-container">
             <div class="title-group">
@@ -203,7 +212,7 @@
                 <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled title="Undo (Ctrl+Z)">↩️ Undo</button>
                 <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled title="Redo (Ctrl+Y)">↪️ Redo</button>
                 <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-                <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Bottom)</button>
+                <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Top)</button>
                 <button class="btn btn-danger" id="clearTabBtn" onclick="clearCurrentSheet()">🗑️ Clear Tab</button>
                 <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
                 <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
@@ -215,7 +224,19 @@
         <div class="toolbar">
             <div class="toolbar-left">
                 <div id="metaSummary" class="meta-bar"></div>
-                <button id="viewFilterBtn" class="btn btn-filter" onclick="toggle7DayFilter()">📅 View: ALL RECORDS</button>
+                
+                <!-- REPLACED 7-DAY BUTTON WITH A LIMIT DROPDOWN -->
+                <div class="limit-select-wrapper">
+                    <span>📅 Show Latest:</span>
+                    <select id="recordLimitSelect" class="select-filter" onchange="renderActiveSheet()">
+                        <option value="10">10 Rows</option>
+                        <option value="20">20 Rows</option>
+                        <option value="30" selected>30 Rows</option>
+                        <option value="40">40 Rows</option>
+                        <option value="ALL">All Records (Legacy)</option>
+                    </select>
+                </div>
+
                 <select id="sportsFilter" class="select-filter" style="display: none;" onchange="filterTable()">
                     <option value="">🏅 All Sports (Filter)</option>
                     <option value="Football">Football</option>
@@ -268,7 +289,6 @@
             console.error("Firebase Fallback:", e);
         }
 
-        let is7DayFilterActive = false;
         let undoStack = [];
         let redoStack = [];
         let saveDebounceTimer = null;
@@ -479,17 +499,51 @@
             });
         }
 
-        function toggle7DayFilter() {
-            is7DayFilterActive = !is7DayFilterActive;
-            const btn = document.getElementById('viewFilterBtn');
-            if (is7DayFilterActive) {
-                btn.innerText = "📅 View: LAST 7 DAYS";
-                btn.classList.add('active');
-            } else {
-                btn.innerText = "📅 View: ALL RECORDS";
-                btn.classList.remove('active');
+        function parseRowDate(val) {
+            if (!val || typeof val !== 'string' || val.trim() === "") return null;
+            let clean = val.split(' ')[0].replace(/-/g, '.');
+            let parts = clean.split('.');
+            if (parts.length === 3) {
+                let day, month, year;
+                if (parts[0].length === 4) {
+                    year = parseInt(parts[0], 10);
+                    month = parseInt(parts[1], 10) - 1;
+                    day = parseInt(parts[2], 10);
+                } else {
+                    month = parseInt(parts[0], 10) - 1;
+                    day = parseInt(parts[1], 10);
+                    year = parseInt(parts[2], 10);
+                }
+                return new Date(year, month, day);
             }
-            renderActiveSheet();
+            return null;
+        }
+
+        // BACKWARDS DATE SORTING (NEWEST DATES FIRST) & QUANTITY LIMITING
+        function getSortedAndLimitedRows(allRows) {
+            const dateColIdx = currentSheet === "EDGE Banners" ? 1 : 3;
+            const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
+
+            // Map rows with parsed date objects
+            const mappedRows = allRows.map((row, index) => {
+                const dateObj = parseRowDate(row[dateColIdx]);
+                return {
+                    originalIndex: index,
+                    row: row,
+                    date: dateObj ? dateObj.getTime() : 0
+                };
+            });
+
+            // Sort backwards by date (Newest First)
+            mappedRows.sort((a, b) => b.date - a.date);
+
+            let resultMapped = mappedRows;
+            if (limitVal !== "ALL") {
+                const count = parseInt(limitVal, 10);
+                resultMapped = mappedRows.slice(0, count);
+            }
+
+            return resultMapped;
         }
 
         function renderActiveSheet() {
@@ -500,7 +554,6 @@
             const addRowBtn = document.getElementById('addRowBtn');
             const clearTabBtn = document.getElementById('clearTabBtn');
             const searchInput = document.getElementById('searchInput');
-            const viewFilterBtn = document.getElementById('viewFilterBtn');
             const sportsFilter = document.getElementById('sportsFilter');
 
             if (currentSheet === "Guideliness") {
@@ -510,7 +563,6 @@
                 addRowBtn.style.display = 'none';
                 clearTabBtn.style.display = 'none';
                 searchInput.style.display = 'none';
-                viewFilterBtn.style.display = 'none';
                 sportsFilter.style.display = 'none';
                 document.getElementById('recordCounter').innerText = "Guidelines Manual";
 
@@ -523,7 +575,6 @@
             addRowBtn.style.display = 'inline-flex';
             clearTabBtn.style.display = 'inline-flex';
             searchInput.style.display = 'inline-block';
-            viewFilterBtn.style.display = 'inline-flex';
 
             if (currentSheet === "Edge Other Sports") {
                 sportsFilter.style.display = 'inline-block';
@@ -555,84 +606,28 @@
             headHTML += '</tr>';
             thead.innerHTML = headHTML;
 
-            let displayRows = sheet.rows;
-
-            if (is7DayFilterActive) {
-                displayRows = filterRowsLast7Days(displayRows);
-            }
+            let mappedRows = getSortedAndLimitedRows(sheet.rows);
 
             if (currentSheet === "Edge Other Sports" && sportsFilter.value !== "") {
-                displayRows = displayRows.filter(row => String(row[4]).toLowerCase() === sportsFilter.value.toLowerCase());
+                mappedRows = mappedRows.filter(item => String(item.row[4]).toLowerCase() === sportsFilter.value.toLowerCase());
             }
 
-            renderTableRows(displayRows);
+            renderTableRows(mappedRows);
         }
 
-        function parseRowDate(val) {
-            if (!val || typeof val !== 'string' || val.trim() === "") return null;
-            let clean = val.split(' ')[0].replace(/-/g, '.');
-            let parts = clean.split('.');
-            if (parts.length === 3) {
-                let day, month, year;
-                if (parts[0].length === 4) {
-                    year = parseInt(parts[0], 10);
-                    month = parseInt(parts[1], 10) - 1;
-                    day = parseInt(parts[2], 10);
-                } else {
-                    month = parseInt(parts[0], 10) - 1;
-                    day = parseInt(parts[1], 10);
-                    year = parseInt(parts[2], 10);
-                }
-                return new Date(year, month, day);
-            }
-            return null;
-        }
-
-        function filterRowsLast7Days(allRows) {
-            const dateColIdx = currentSheet === "EDGE Banners" ? 1 : 3;
-
-            const fullyPublishedRows = allRows.filter(row => {
-                if (currentSheet === "EDGE Banners") {
-                    return row[0] === true;
-                }
-                return row[0] === true && row[1] === true;
-            });
-
-            let maxDate = null;
-            fullyPublishedRows.forEach(row => {
-                const d = parseRowDate(row[dateColIdx]);
-                if (d && (!maxDate || d > maxDate)) {
-                    maxDate = d;
-                }
-            });
-
-            if (!maxDate) {
-                maxDate = new Date(2026, 8, 3);
-            }
-
-            const minDate = new Date(maxDate);
-            minDate.setDate(minDate.getDate() - 6);
-
-            return fullyPublishedRows.filter(row => {
-                const d = parseRowDate(row[dateColIdx]);
-                if (!d) return true;
-                return d >= minDate && d <= maxDate;
-            });
-        }
-
-        function renderTableRows(rows) {
+        function renderTableRows(mappedRows) {
             const tbody = document.getElementById('tableBody');
             const sheet = workbookData[currentSheet];
             const recordCounter = document.getElementById('recordCounter');
             
             if (recordCounter) {
-                recordCounter.innerText = `Records: ${rows.length}`;
+                recordCounter.innerText = `Showing ${mappedRows.length} of ${sheet.rows.length}`;
             }
 
             tbody.innerHTML = '';
 
-            rows.forEach((row, rowIndex) => {
-                const tr = createTableRowElement(row, rowIndex);
+            mappedRows.forEach((item) => {
+                const tr = createTableRowElement(item.row, item.originalIndex);
                 tbody.appendChild(tr);
             });
 
@@ -641,14 +636,14 @@
             }, 50);
         }
 
-        function createTableRowElement(row, rowIndex) {
+        function createTableRowElement(row, originalIndex) {
             const sheet = workbookData[currentSheet];
             const tr = document.createElement('tr');
             
             let rowHTML = `
-                <td class="row-number-cell">${rowIndex + 1}</td>
+                <td class="row-number-cell">${originalIndex + 1}</td>
                 <td style="text-align: center; width: 50px;">
-                    <button class="delete-btn" onclick="deleteRow(${rowIndex})" title="Delete Row">🗑️</button>
+                    <button class="delete-btn" onclick="deleteRow(${originalIndex})" title="Delete Row">🗑️</button>
                 </td>
             `;
 
@@ -658,7 +653,7 @@
                 if (typeof cellVal === 'boolean') {
                     rowHTML += `
                         <td style="text-align: center; width: 45px;">
-                            <input type="checkbox" class="checkbox-cell" ${cellVal ? 'checked' : ''} onchange="updateCell(${rowIndex}, ${colIndex}, this.checked)">
+                            <input type="checkbox" class="checkbox-cell" ${cellVal ? 'checked' : ''} onchange="updateCell(${originalIndex}, ${colIndex}, this.checked)">
                         </td>
                     `;
                 } else if (headerName === "Sports") {
@@ -671,10 +666,10 @@
                         rowHTML += `
                             <td>
                                 <div class="dropdown-container">
-                                    <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${rowIndex}')">${escapeHtml(cellVal || 'Football')} ▼</span>
-                                    <div id="sport-${rowIndex}" class="dropdown-menu">
+                                    <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${originalIndex}')">${escapeHtml(cellVal || 'Football')} ▼</span>
+                                    <div id="sport-${originalIndex}" class="dropdown-menu">
                                         ${sportsOptions.map(s => `
-                                            <div class="dropdown-option" onclick="selectSportOption(${rowIndex}, ${colIndex}, '${s.name}')">
+                                            <div class="dropdown-option" onclick="selectSportOption(${originalIndex}, ${colIndex}, '${s.name}')">
                                                 <span class="pill-badge ${s.class}">${s.name}</span>
                                             </div>
                                         `).join('')}
@@ -688,10 +683,10 @@
                     rowHTML += `
                         <td>
                             <div class="dropdown-container">
-                                <span class="pill-badge ${tClass}" onclick="toggleFloatingDropdown(event, 'type-${rowIndex}')">${escapeHtml(cellVal || 'Bet Builder')} ▼</span>
-                                <div id="type-${rowIndex}" class="dropdown-menu">
+                                <span class="pill-badge ${tClass}" onclick="toggleFloatingDropdown(event, 'type-${originalIndex}')">${escapeHtml(cellVal || 'Bet Builder')} ▼</span>
+                                <div id="type-${originalIndex}" class="dropdown-menu">
                                     ${typeOptions.map(t => `
-                                        <div class="dropdown-option" onclick="selectTypeOption(${rowIndex}, ${colIndex}, '${t.name}')">
+                                        <div class="dropdown-option" onclick="selectTypeOption(${originalIndex}, ${colIndex}, '${t.name}')">
                                             <span class="pill-badge ${t.class}">${t.name}</span>
                                         </div>
                                     `).join('')}
@@ -702,7 +697,7 @@
                 } else {
                     rowHTML += `
                         <td>
-                            <textarea class="editable-cell" oninput="autoResizeTextarea(this); updateCellDirectly(${rowIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
+                            <textarea class="editable-cell" oninput="autoResizeTextarea(this); updateCellDirectly(${originalIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
                         </td>
                     `;
                 }
@@ -950,15 +945,6 @@
 
         function addNewRow() {
             pushState();
-            if (is7DayFilterActive) {
-                is7DayFilterActive = false;
-                const btn = document.getElementById('viewFilterBtn');
-                if (btn) {
-                    btn.innerText = "📅 View: ALL RECORDS";
-                    btn.classList.remove('active');
-                }
-            }
-
             const sheet = workbookData[currentSheet];
             const newRow = sheet.headers.map((h, idx) => {
                 if ((idx === 0 || idx === 1) && typeof sheet.rows[0]?.[idx] === 'boolean') return false;
@@ -967,23 +953,10 @@
                 return "";
             });
 
-            sheet.rows.push(newRow);
+            // Inserts new rows at the TOP so latest edits are immediately visible
+            sheet.rows.unshift(newRow);
             saveToFirebaseNow();
-
-            const tbody = document.getElementById('tableBody');
-            const newRowIndex = sheet.rows.length - 1;
-            const tr = createTableRowElement(newRow, newRowIndex);
-            tbody.appendChild(tr);
-
-            const recordCounter = document.getElementById('recordCounter');
-            if (recordCounter) {
-                recordCounter.innerText = `Records: ${sheet.rows.length}`;
-            }
-
-            const wrapper = document.getElementById('tableWrapper');
-            if (wrapper) {
-                wrapper.scrollTop = wrapper.scrollHeight;
-            }
+            renderActiveSheet();
         }
 
         function deleteRow(rowIndex) {
@@ -1007,8 +980,9 @@
         function filterTable() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const allRows = workbookData[currentSheet].rows;
-            const filtered = allRows.filter(row => 
-                row.some(cell => String(cell).toLowerCase().includes(query))
+            const mappedRows = getSortedAndLimitedRows(allRows);
+            const filtered = mappedRows.filter(item => 
+                item.row.some(cell => String(cell).toLowerCase().includes(query))
             );
             renderTableRows(filtered);
         }
