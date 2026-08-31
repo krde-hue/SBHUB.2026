@@ -10,8 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Three.js for 3D Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -52,7 +56,6 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
         }
 
-        /* FULL EXPANDED CONTAINER MATCHING THE YELLOW BOX AREA */
         .game-card {
             background: #0f172a;
             border: 2px solid #38bdf8;
@@ -69,14 +72,18 @@
             position: relative;
         }
 
-        canvas {
-            background: #070e1d;
-            border-radius: 8px;
-            border: 1.5px solid #334155;
-            cursor: pointer;
-            touch-action: none;
+        #game-container {
             width: 100%;
             height: calc(100% - 60px);
+            border-radius: 8px;
+            border: 1.5px solid #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
             display: block;
         }
 
@@ -88,6 +95,35 @@
             font-size: 1rem;
             color: #facc15;
             padding: 0 10px;
+        }
+
+        .hud-score {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 2rem;
+            color: #38bdf8;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.92);
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 25px 40px;
+            text-align: center;
+            z-index: 20;
+            display: none;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
         }
 
         .instructions-hint {
@@ -112,7 +148,14 @@
             <span id="stage-display">STAGE: 1 (EASY)</span>
         </div>
         
-        <canvas id="flappyCanvas" width="1200" height="650"></canvas>
+        <div id="game-container">
+            <div id="score-hud" class="hud-score">SCORE: 0</div>
+            <div id="game-over-box" class="game-over-overlay">
+                <h2 id="go-title" style="color: #ef4444; font-family: 'Orbitron'; margin-bottom: 10px;">GAME OVER</h2>
+                <div id="go-score" style="color: #facc15; font-family: 'Rajdhani'; font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;">FINAL SCORE: 0</div>
+                <div style="color: #ffffff; font-family: 'Rajdhani'; font-size: 1rem;">Click or Tap to Retry</div>
+            </div>
+        </div>
 
         <div class="instructions-hint">
             💡 Tap screen or Press Spacebar to flap wings & climb altitude
@@ -135,117 +178,228 @@
         let currentUser = localStorage.getItem('sb_active_user') || 'GUEST';
         document.getElementById('player-display').textContent = `PLAYER: ${currentUser}`;
 
-        const canvas = document.getElementById('flappyCanvas');
-        const ctx = canvas.getContext('2d');
-
         let score = 0;
         let stage = 1;
         let gameOver = false;
-        let speed = 2.8;
-        let gapSize = 170;
+        let speed = 0.08;
+        let gapSize = 4.2;
 
-        const bird = { x: 180, y: 300, radius: 18, dy: 0, gravity: 0.45, jump: -9.0 };
+        // Bird collision radius reduced to match smaller model
+        const bird = { x: -3.5, y: 0, dy: 0, gravity: -0.012, jump: 0.22, radius: 0.3 };
         let pipes = [];
         let frame = 0;
 
+        // --- THREE.JS SCENE SETUP ---
+        const container = document.getElementById('game-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x38bdf8);
+
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 0, 10);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // --- LIGHTS ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(5, 10, 7);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // --- 3D BIRD MODEL ---
+        const birdGroup = new THREE.Group();
+
+        // Body
+        const bodyGeo = new THREE.SphereGeometry(0.5, 32, 32);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.3, metalness: 0.1 });
+        const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+        birdGroup.add(bodyMesh);
+
+        // Beak
+        const beakGeo = new THREE.ConeGeometry(0.2, 0.4, 16);
+        const beakMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
+        const beakMesh = new THREE.Mesh(beakGeo, beakMat);
+        beakMesh.rotation.z = -Math.PI / 2;
+        beakMesh.position.set(0.5, -0.05, 0);
+        birdGroup.add(beakMesh);
+
+        // Eyes
+        const eyeGeo = new THREE.SphereGeometry(0.12, 16, 16);
+        const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const pupilGeo = new THREE.SphereGeometry(0.06, 16, 16);
+        const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+
+        const eyeLeft = new THREE.Mesh(eyeGeo, eyeMat);
+        eyeLeft.position.set(0.3, 0.2, 0.35);
+        const pupilLeft = new THREE.Mesh(pupilGeo, pupilMat);
+        pupilLeft.position.set(0.38, 0.2, 0.42);
+        birdGroup.add(eyeLeft, pupilLeft);
+
+        // Scaled down bird model
+        birdGroup.scale.set(0.6, 0.6, 0.6);
+
+        scene.add(birdGroup);
+
+        // --- 3D PIPE FACTORY ---
+        function createPipeGroup(topY, bottomY) {
+            const pipeGroup = new THREE.Group();
+            const pipeMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.3, metalness: 0.2 });
+            const spikeMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.8, roughness: 0.2 });
+
+            const pipeRadius = 0.8;
+            
+            // Top Pipe
+            const topHeight = 10 - topY;
+            const topGeo = new THREE.CylinderGeometry(pipeRadius, pipeRadius, topHeight, 32);
+            const topPipe = new THREE.Mesh(topGeo, pipeMat);
+            topPipe.position.set(0, topY + topHeight / 2, 0);
+            pipeGroup.add(topPipe);
+
+            // Top Cap
+            const capGeo = new THREE.CylinderGeometry(pipeRadius + 0.1, pipeRadius + 0.1, 0.5, 32);
+            const topCap = new THREE.Mesh(capGeo, pipeMat);
+            topCap.position.set(0, topY + 0.25, 0);
+            pipeGroup.add(topCap);
+
+            // Bottom Pipe
+            const bottomHeight = bottomY - (-10);
+            const bottomGeo = new THREE.CylinderGeometry(pipeRadius, pipeRadius, bottomHeight, 32);
+            const bottomPipe = new THREE.Mesh(bottomGeo, pipeMat);
+            bottomPipe.position.set(0, bottomY - bottomHeight / 2, 0);
+            pipeGroup.add(bottomPipe);
+
+            // Bottom Cap
+            const bottomCap = new THREE.Mesh(capGeo, pipeMat);
+            bottomCap.position.set(0, bottomY - 0.25, 0);
+            pipeGroup.add(bottomCap);
+
+            // 3D Metal Spikes
+            const numSpikes = 4;
+            for (let i = 0; i < numSpikes; i++) {
+                const spikeGeo = new THREE.ConeGeometry(0.2, 0.6, 16);
+                const xOffset = (i - (numSpikes - 1) / 2) * 0.38;
+
+                // Top Spikes
+                const topSpike = new THREE.Mesh(spikeGeo, spikeMat);
+                topSpike.position.set(xOffset, topY - 0.3, 0);
+                topSpike.rotation.z = Math.PI;
+                pipeGroup.add(topSpike);
+
+                // Bottom Spikes
+                const bottomSpike = new THREE.Mesh(spikeGeo, spikeMat);
+                bottomSpike.position.set(xOffset, bottomY + 0.3, 0);
+                pipeGroup.add(bottomSpike);
+            }
+
+            return pipeGroup;
+        }
+
+        // --- GAME LOGIC ---
         function flap() {
             if (gameOver) {
-                score = 0; stage = 1; speed = 2.8; gapSize = 170; gameOver = false;
-                pipes = []; bird.y = 300; bird.dy = 0;
+                score = 0; stage = 1; speed = 0.08; gapSize = 4.2; gameOver = false;
+                pipes.forEach(p => scene.remove(p.mesh));
+                pipes = []; 
+                bird.y = 0; bird.dy = 0;
+                document.getElementById('game-over-box').style.display = 'none';
                 return;
             }
             bird.dy = bird.jump;
         }
 
-        canvas.onclick = flap;
-        canvas.ontouchstart = (e) => { e.preventDefault(); flap(); };
-        window.onkeydown = (e) => { if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) flap(); };
+        window.addEventListener('keydown', (e) => { if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) flap(); });
+        container.addEventListener('touchstart', (e) => { e.preventDefault(); flap(); });
+        container.addEventListener('click', flap);
 
         function updateStage() {
-            if (score >= 3000) { stage = 5; speed = 4.8; gapSize = 120; }
-            else if (score >= 2000) { stage = 4; speed = 4.2; gapSize = 130; }
-            else if (score >= 1200) { stage = 3; speed = 3.6; gapSize = 140; }
-            else if (score >= 500) { stage = 2; speed = 3.2; gapSize = 155; }
+            if (score >= 3000) { stage = 5; speed = 0.14; gapSize = 3.2; }
+            else if (score >= 2000) { stage = 4; speed = 0.12; gapSize = 3.4; }
+            else if (score >= 1200) { stage = 3; speed = 0.10; gapSize = 3.6; }
+            else if (score >= 500) { stage = 2; speed = 0.09; gapSize = 3.8; }
 
             const stageNames = ["EASY", "NORMAL", "MEDIUM", "HARD", "EXPERT"];
             document.getElementById('stage-display').textContent = `STAGE: ${stage} (${stageNames[stage-1]})`;
         }
 
-        function loop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function triggerGameOver() {
+            gameOver = true;
+            db.ref(`flappy_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+            document.getElementById('go-title').textContent = `GAME OVER ${currentUser}!`;
+            document.getElementById('go-score').textContent = `FINAL SCORE: ${score}`;
+            document.getElementById('game-over-box').style.display = 'block';
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
 
             if (!gameOver) {
                 frame++;
                 bird.dy += bird.gravity;
                 bird.y += bird.dy;
+                birdGroup.position.set(bird.x, bird.y, 0);
+                birdGroup.rotation.z = Math.max(-0.5, Math.min(0.5, bird.dy * 2));
 
-                if (bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
-                    gameOver = true;
-                    db.ref(`flappy_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                // Screen Boundary Collisions
+                if (bird.y > 4.5 || bird.y < -4.5) {
+                    triggerGameOver();
                 }
 
-                if (frame % Math.floor(110 / (speed * 0.45)) === 0) {
-                    let topH = Math.floor(Math.random() * (canvas.height - gapSize - 120)) + 40;
-                    pipes.push({ x: canvas.width, top: topH, bottom: topH + gapSize, passed: false });
+                // Spawn Pipes
+                if (frame % Math.floor(100 / (speed * 10)) === 0) {
+                    let topY = (Math.random() * 2) + 0.5;
+                    let bottomY = topY - gapSize;
+                    let pipeMesh = createPipeGroup(topY, bottomY);
+                    pipeMesh.position.x = 8;
+                    scene.add(pipeMesh);
+                    pipes.push({ x: 8, top: topY, bottom: bottomY, passed: false, mesh: pipeMesh });
                 }
 
+                // Pipe Movement & Collision
                 for (let i = pipes.length - 1; i >= 0; i--) {
-                    let p = pipes[i]; p.x -= speed;
+                    let p = pipes[i];
+                    p.x -= speed;
+                    p.mesh.position.x = p.x;
 
-                    // Draw Pipe Obstacles with End Caps
-                    ctx.fillStyle = '#22c55e';
-                    ctx.fillRect(p.x, 0, 60, p.top);
-                    ctx.fillRect(p.x - 4, p.top - 20, 68, 20); // Top Cap
-
-                    ctx.fillRect(p.x, p.bottom, 60, canvas.height - p.bottom);
-                    ctx.fillRect(p.x - 4, p.bottom, 68, 20); // Bottom Cap
-
-                    // Collision Check
-                    if (bird.x + bird.radius > p.x - 4 && bird.x - bird.radius < p.x + 64) {
-                        if (bird.y - bird.radius < p.top || bird.y + bird.radius > p.bottom) {
-                            gameOver = true;
-                            db.ref(`flappy_leaderboard/${currentUser}`).transaction(curr => Math.max(curr || 0, score));
+                    // Collision Box Detection
+                    if (bird.x + bird.radius > p.x - 0.8 && bird.x - bird.radius < p.x + 0.8) {
+                        if (bird.y + bird.radius > p.top - 0.6 || bird.y - bird.radius < p.bottom + 0.6) {
+                            triggerGameOver();
                         }
                     }
 
+                    // Score Update
                     if (!p.passed && p.x < bird.x) {
                         p.passed = true;
                         score += 100;
+                        document.getElementById('score-hud').textContent = `SCORE: ${score}`;
                         updateStage();
                     }
 
-                    if (p.x < -80) pipes.splice(i, 1);
+                    // Cleanup Out-of-bounds Pipes
+                    if (p.x < -10) {
+                        scene.remove(p.mesh);
+                        pipes.splice(i, 1);
+                    }
                 }
             }
 
-            // Draw Flappy Bird
-            ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#ef4444'; ctx.fillRect(bird.x + 6, bird.y - 4, 12, 8); // Beak
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(bird.x + 5, bird.y - 6, 5, 0, Math.PI * 2); ctx.fill(); // Eye
-            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(bird.x + 7, bird.y - 6, 2, 0, Math.PI * 2); ctx.fill();
-
-            // Draw Realtime Score HUD
-            ctx.font = '900 28px Orbitron, sans-serif'; ctx.fillStyle = '#38bdf8'; ctx.textAlign = 'center';
-            ctx.fillText(`SCORE: ${score}`, canvas.width / 2, 50);
-
-            if (gameOver) {
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.88)'; ctx.fillRect(canvas.width / 2 - 250, canvas.height / 2 - 80, 500, 160);
-                ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.strokeRect(canvas.width / 2 - 250, canvas.height / 2 - 80, 500, 160);
-                
-                ctx.fillStyle = '#ef4444'; ctx.font = '900 26px Orbitron, sans-serif';
-                ctx.fillText(`GAME OVER ${currentUser}!`, canvas.width / 2, canvas.height / 2 - 20);
-                
-                ctx.fillStyle = '#facc15'; ctx.font = '700 18px Rajdhani, sans-serif';
-                ctx.fillText(`FINAL SCORE: ${score}`, canvas.width / 2, canvas.height / 2 + 15);
-
-                ctx.fillStyle = '#ffffff'; ctx.font = '600 15px Rajdhani, sans-serif';
-                ctx.fillText('Click or Tap to Retry', canvas.width / 2, canvas.height / 2 + 45);
-            }
-
-            requestAnimationFrame(loop);
+            renderer.render(scene, camera);
         }
 
-        loop();
+        // Handle Responsive Canvas
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        animate();
     </script>
 </body>
 </html>
