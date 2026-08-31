@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -474,17 +476,18 @@
             color: #ffffff !important;
         }
 
-        .menu-item[data-id="top-pick-boost"]:hover, .menu-item[data-id="top-pick-boost"].touch-active {
-            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
-            border-color: #fbbf24;
-            box-shadow: 0 0 30px rgba(251, 191, 36, 0.85), 0 12px 25px rgba(0, 0, 0, 0.6);
-            color: #ffffff !important;
-        }
-
         .menu-item[data-id="ibet-boost"]:hover, .menu-item[data-id="ibet-boost"].touch-active {
             background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
             border-color: #7dd3fc;
             box-shadow: 0 0 30px rgba(125, 211, 252, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        /* TOP PICKS BUTTON HIGHLIGHT STYLING */
+        .menu-item[data-id="top-picks"]:hover, .menu-item[data-id="top-picks"].touch-active {
+            background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
+            border-color: #f472b6;
+            box-shadow: 0 0 30px rgba(244, 114, 182, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
             color: #ffffff !important;
         }
 
@@ -603,8 +606,10 @@
 </head>
 <body>
 
+    <!-- TRADING CANVAS BACKGROUND -->
     <canvas id="trading-bg"></canvas>
 
+    <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
         <select class="select-dropdown game-dropdown" id="game-selector" onchange="switchGame(this.value)">
             <option value="" disabled selected>🎮 Select Game...</option>
@@ -630,12 +635,14 @@
             <span id="mobile-text">Mobile View: OFF</span>
         </button>
 
+        <!-- KEPT ACTIVE IN MOBILE VIEW -->
         <button class="control-btn" id="theme-toggle">
             <i class="fa-solid fa-moon" id="theme-icon"></i>
             <span id="theme-text">Night Mode</span>
         </button>
     </div>
 
+    <!-- BOTTOM RIGHT LOGO BRANDING -->
     <div class="bottom-right-brand">
         <div class="brand-card">
             <svg class="brand-icon-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -661,6 +668,7 @@
     </div>
 
     <div class="dashboard-container">
+        <!-- BACKGROUND WATERMARK TITLE WITH REAL TIME DYNAMIC SINE WAVE CHOMPING -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
@@ -668,6 +676,7 @@
             </div>
         </div>
 
+        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="touch-preview-banner" id="touch-banner">SELECT A BUTTON</div>
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
@@ -696,14 +705,14 @@
     </div>
 
     <script>
-        // ADDED TOP PICK BOOST ROUTING TO BOOSTSCHEDULE.HTML
+        // Updated JSON array with "TOP PICKS" pointing to boostschedule.html
         const navMenuJSON = [
             { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
             { id: "handover", icon: "fa-solid fa-clipboard-list", label: "HANDOVER & SOP", url: "handover.html" },
             { id: "big-winners", icon: "fa-solid fa-trophy", label: "BIG WINNERS", url: "big-winners.html" },
+            { id: "top-picks", icon: "fa-solid fa-fire", label: "TOP PICKS", url: "boostschedule.html" },
             { id: "edge-boost", icon: "fa-solid fa-bolt", label: "EDGE BOOST", url: "edge_boosts.html" },
-            { id: "top-pick-boost", icon: "fa-solid fa-star", label: "TOP PICK BOOST", url: "boostschedule.html" },
             { id: "ibet-boost", icon: "fa-solid fa-chart-line", label: "IBET BOOST", url: "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=784209986#gid=784209986" },
             { id: "green-tracking", letter: "G", label: "GREEN TRACKING", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410", color: "green" },
             { id: "red-tracking", letter: "R", label: "RED TRACKING", url: "https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468", color: "red" },
@@ -726,7 +735,6 @@
         const touchBanner = document.getElementById('touch-banner');
 
         let isMobileView = false;
-        let activeTouchedItem = null;
 
         function initActiveUser() {
             let savedUser = localStorage.getItem('sb_active_user');
@@ -803,377 +811,78 @@
                 a.style.setProperty('--tx', `${x}px`);
                 a.style.setProperty('--ty', `${y}px`);
 
-                if (item.letter) {
-                    a.innerHTML = `<span class="letter-icon">${item.letter}</span>`;
-                } else {
-                    a.innerHTML = `<i class="${item.icon}"></i>`;
+                if (item.icon) {
+                    const i = document.createElement('i');
+                    i.className = item.icon;
+                    a.appendChild(i);
+                } else if (item.letter) {
+                    const span = document.createElement('span');
+                    span.className = 'letter-icon';
+                    span.textContent = item.letter;
+                    a.appendChild(span);
                 }
-                
+
                 menuItemsContainer.appendChild(a);
             });
         }
 
-        // MOBILE TOUCH/SLIDE HOVER GESTURE ENGINE
-        function initMobileTouchGestures() {
-            if (!circularMenu) return;
+        function toggleMenu() {
+            circularMenu.classList.toggle('active');
+            const isActive = circularMenu.classList.contains('active');
+            const items = menuItemsContainer.querySelectorAll('.menu-item');
 
-            function processTouchPoint(touchX, touchY) {
-                if (!circularMenu.classList.contains('active')) return;
-
-                const items = menuItemsContainer.querySelectorAll('.menu-item');
-                let foundItem = null;
-
-                items.forEach((item) => {
-                    const rect = item.getBoundingClientRect();
-                    if (
-                        touchX >= rect.left - 15 &&
-                        touchX <= rect.right + 15 &&
-                        touchY >= rect.top - 15 &&
-                        touchY <= rect.bottom + 15
-                    ) {
-                        foundItem = item;
-                    }
-                });
-
-                if (foundItem) {
-                    if (activeTouchedItem && activeTouchedItem !== foundItem) {
-                        activeTouchedItem.classList.remove('touch-active');
-                    }
-                    activeTouchedItem = foundItem;
-                    activeTouchedItem.classList.add('touch-active');
-
-                    const label = activeTouchedItem.getAttribute('data-tooltip');
-                    touchBanner.textContent = `📍 ${label}`;
-                    touchBanner.classList.add('show');
-                } else if (activeTouchedItem) {
-                    activeTouchedItem.classList.remove('touch-active');
-                    activeTouchedItem = null;
-                    touchBanner.classList.remove('show');
-                }
-            }
-
-            circularMenu.addEventListener('touchstart', (e) => {
-                if (e.touches.length > 0) {
-                    processTouchPoint(e.touches[0].clientX, e.touches[0].clientY);
-                }
-            }, { passive: true });
-
-            circularMenu.addEventListener('touchmove', (e) => {
-                if (e.touches.length > 0) {
-                    processTouchPoint(e.touches[0].clientX, e.touches[0].clientY);
-                }
-            }, { passive: true });
-
-            circularMenu.addEventListener('touchend', (e) => {
-                if (activeTouchedItem) {
-                    const targetUrl = activeTouchedItem.getAttribute('href');
-                    const isExternal = targetUrl.startsWith('http://') || targetUrl.startsWith('https://');
-
-                    setTimeout(() => {
-                        if (isExternal) {
-                            window.open(targetUrl, '_blank');
-                        } else {
-                            window.location.href = targetUrl;
-                        }
-                        if (activeTouchedItem) {
-                            activeTouchedItem.classList.remove('touch-active');
-                            activeTouchedItem = null;
-                        }
-                        touchBanner.classList.remove('show');
-                    }, 120);
-                }
-            });
-        }
-
-        if (toggleBtn && circularMenu) {
-            function handleToggleMenu(e) {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                const isActive = circularMenu.classList.toggle('active');
-                const items = menuItemsContainer.querySelectorAll('.menu-item');
-
-                items.forEach((item, index) => {
+            items.forEach((item) => {
+                if (isActive) {
                     const tx = item.style.getPropertyValue('--tx');
                     const ty = item.style.getPropertyValue('--ty');
-                    if (isActive) {
-                        setTimeout(() => {
-                            item.style.opacity = '1';
-                            item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
-                        }, index * 25);
-                    } else {
-                        item.style.opacity = '0';
-                        item.style.transform = 'translate(0, 0) scale(0)';
-                    }
-                });
-            }
-
-            toggleBtn.addEventListener('click', handleToggleMenu);
-        }
-
-        function toggleMobileView() {
-            isMobileView = !isMobileView;
-            if (isMobileView) {
-                document.body.classList.add('mobile-view-active');
-                mobileText.textContent = 'Mobile View: ON';
-                mobileToggleBtn.classList.add('active');
-            } else {
-                document.body.classList.remove('mobile-view-active');
-                mobileText.textContent = 'Mobile View: OFF';
-                mobileToggleBtn.classList.remove('active');
-            }
-            localStorage.setItem('dashboard_mobile_view', isMobileView ? 'true' : 'false');
-            buildMenuFromJSON(navMenuJSON);
-            fitTitleCanvasScale();
-        }
-
-        if (mobileToggleBtn) {
-            mobileToggleBtn.addEventListener('click', toggleMobileView);
-        }
-
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            if (themeIcon && themeText) {
-                if (theme === 'dark') {
-                    themeIcon.className = 'fa-solid fa-moon';
-                    themeText.textContent = 'Night Mode';
+                    item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
+                    item.style.opacity = '1';
                 } else {
-                    themeIcon.className = 'fa-solid fa-sun';
-                    themeText.textContent = 'Daylight Mode';
+                    item.style.transform = 'translate(0, 0) scale(0)';
+                    item.style.opacity = '0';
                 }
-            }
-            localStorage.setItem('dashboard_theme', theme);
-        }
-
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
             });
         }
 
-        function fitTitleCanvasScale() {
-            const canvas = document.getElementById('title-text-canvas');
-            if (!canvas) return;
-            const screenWidth = window.innerWidth;
-            if (screenWidth < 1150 || isMobileView) {
-                const targetWidth = isMobileView ? Math.min(screenWidth * 0.90, 360) : Math.min(screenWidth * 0.95, 1150);
-                const scale = targetWidth / 1150;
-                canvas.style.transform = `scale(${scale})`;
-            } else {
-                canvas.style.transform = `scale(1)`;
-            }
-        }
+        toggleBtn.addEventListener('click', toggleMenu);
 
-        // PERFECT DIRECTIONAL ROTATION PAC-MAN ENGINE
-        function initTitleWatermarkEngine() {
-            const canvas = document.getElementById('title-text-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
+        // Mobile View Toggle Logic
+        mobileToggleBtn.addEventListener('click', () => {
+            isMobileView = !isMobileView;
+            document.body.classList.toggle('mobile-view-active', isMobileView);
+            mobileToggleBtn.classList.toggle('active', isMobileView);
+            mobileText.textContent = isMobileView ? "Mobile View: ON" : "Mobile View: OFF";
 
-            const textCanvas = document.createElement('canvas');
-            textCanvas.width = canvas.width;
-            textCanvas.height = canvas.height;
-            const textCtx = textCanvas.getContext('2d');
+            buildMenuFromJSON(navMenuJSON);
 
-            const text = "SPORTSBOOK HUB";
-            textCtx.font = '900 96px Orbitron, sans-serif';
-            const totalWidth = textCtx.measureText(text).width;
-            const startX = (canvas.width - totalWidth) / 2;
-
-            let activeBites = [];
-
-            let pacmanX = startX - 40; 
-            let pacmanDirection = 1;
-            let pacmanSpeed = 0.15;
-            let mouthAngle = 0.2;
-            let mouthSpeed = 0.015;
-
-            const centerY = canvas.height / 2;
-            const waveAmplitude = 32; 
-            const waveFrequency = 0.012; 
-
-            function getPacmanY(x) {
-                return centerY + Math.sin(x * waveFrequency) * waveAmplitude;
-            }
-
-            function render() {
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                const mainColor = isDark ? '#38bdf8' : '#0284c7';
-
-                const currentPacmanY = getPacmanY(pacmanX);
-
-                textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-
-                textCtx.font = '900 96px Orbitron, sans-serif';
-                textCtx.textAlign = 'center';
-                textCtx.textBaseline = 'middle';
-
-                textCtx.save();
-                textCtx.fillStyle = mainColor;
-                textCtx.globalAlpha = isDark ? 0.25 : 0.20;
-                textCtx.shadowColor = mainColor;
-                textCtx.shadowBlur = isDark ? 20 : 8;
-
-                let currentX = startX;
-                for (let i = 0; i < text.length; i++) {
-                    const char = text[i];
-                    const charWidth = textCtx.measureText(char).width;
-                    const charCenterX = currentX + charWidth / 2;
-                    textCtx.fillText(char, charCenterX, centerY);
-                    currentX += charWidth;
-                }
-                textCtx.restore();
-
-                if (pacmanX >= startX - 20 && pacmanX <= startX + totalWidth + 20) {
-                    activeBites.push({
-                        x: pacmanX,
-                        y: currentPacmanY,
-                        radius: 16,
-                        healTimer: 600
-                    });
-                }
-
-                textCtx.save();
-                textCtx.globalCompositeOperation = 'destination-out';
-
-                for (let j = activeBites.length - 1; j >= 0; j--) {
-                    let bite = activeBites[j];
-                    
-                    if (bite.healTimer > 0) {
-                        bite.healTimer--;
-                    } else {
-                        bite.radius -= 0.04;
-                    }
-
-                    if (bite.radius <= 0) {
-                        activeBites.splice(j, 1);
-                    } else {
-                        textCtx.beginPath();
-                        textCtx.arc(bite.x, bite.y, bite.radius, 0, Math.PI * 2);
-                        textCtx.fill();
-                    }
-                }
-                textCtx.restore();
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(textCanvas, 0, 0);
-
-                pacmanX += pacmanSpeed * pacmanDirection;
-
-                const rightLimit = startX + totalWidth + 50;
-                const leftLimit = startX - 50;
-
-                if (pacmanX >= rightLimit) {
-                    pacmanX = rightLimit;
-                    pacmanDirection = -1;
-                } else if (pacmanX <= leftLimit) {
-                    pacmanX = leftLimit;
-                    pacmanDirection = 1;
-                }
-
-                mouthAngle += mouthSpeed;
-                if (mouthAngle > 0.42 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
-
-                ctx.save();
-                ctx.translate(pacmanX, currentPacmanY);
-
-                const deltaX = 1;
-                const deltaY = getPacmanY(pacmanX + deltaX) - currentPacmanY;
-                let slopeAngle = Math.atan2(deltaY, deltaX);
-
-                if (pacmanDirection === -1) {
-                    slopeAngle += Math.PI; 
-                }
-
-                ctx.rotate(slopeAngle);
-
-                ctx.beginPath();
-                ctx.arc(0, 0, 15, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
-                ctx.lineTo(0, 0);
-                ctx.fillStyle = '#facc15';
-                ctx.shadowColor = '#facc15';
-                ctx.shadowBlur = 12;
-                ctx.fill();
-                ctx.restore();
-
-                requestAnimationFrame(render);
-            }
-
-            render();
-        }
-
-        function initTradingBackground() {
-            const canvas = document.getElementById('trading-bg');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                fitTitleCanvasScale();
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            class DepthParticle {
-                constructor() { this.reset(); }
-                reset() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 3 + 1.5;
-                    this.speedX = (Math.random() - 0.5) * 1.2;
-                    this.speedY = (Math.random() - 0.5) * 1.2;
-                    this.isBuy = Math.random() > 0.5;
-                    this.color = this.isBuy ? '34, 197, 94' : '239, 68, 68';
-                }
-                update() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-
-                    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-                        this.reset();
-                    }
-                }
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(${this.color}, 0.65)`;
-                    ctx.fill();
-                }
-            }
-
-            const particles = Array.from({ length: 60 }, () => new DepthParticle());
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
+            if (circularMenu.classList.contains('active')) {
+                const items = menuItemsContainer.querySelectorAll('.menu-item');
+                items.forEach((item) => {
+                    const tx = item.style.getPropertyValue('--tx');
+                    const ty = item.style.getPropertyValue('--ty');
+                    item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
+                    item.style.opacity = '1';
                 });
-                requestAnimationFrame(animate);
             }
-
-            animate();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
-            setTheme(savedTheme);
-
-            if (localStorage.getItem('dashboard_mobile_view') === 'true' || window.innerWidth < 768) {
-                isMobileView = false;
-                toggleMobileView();
-            } else {
-                buildMenuFromJSON(navMenuJSON);
-            }
-
-            initTradingBackground();
-            initTitleWatermarkEngine();
-            initMobileTouchGestures();
-            fitTitleCanvasScale();
         });
+
+        // Theme Toggle Logic
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+
+            if (newTheme === 'dark') {
+                themeIcon.className = 'fa-solid fa-moon';
+                themeText.textContent = 'Night Mode';
+            } else {
+                themeIcon.className = 'fa-solid fa-sun';
+                themeText.textContent = 'Day Mode';
+            }
+        });
+
+        // Initialize Menu Build
+        buildMenuFromJSON(navMenuJSON);
     </script>
 </body>
 </html>
