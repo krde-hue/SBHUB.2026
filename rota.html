@@ -22,6 +22,10 @@
             --table-header-bg: #0b2240;
             --accent-btn: #38bdf8;
             --accent-btn-text: #0b2240;
+            --holiday-banner-bg: rgba(56, 189, 248, 0.12);
+            --holiday-banner-border: rgba(56, 189, 248, 0.4);
+            --holiday-badge-bg: #facc15;
+            --holiday-badge-text: #000000;
         }
 
         [data-theme="light"] {
@@ -33,6 +37,10 @@
             --table-header-bg: #0d233a;
             --accent-btn: #0d233a;
             --accent-btn-text: #ffffff;
+            --holiday-banner-bg: #e0f2fe;
+            --holiday-banner-border: #0284c7;
+            --holiday-badge-bg: #d97706;
+            --holiday-badge-text: #ffffff;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
@@ -50,7 +58,7 @@
             align-items: center;
             margin-bottom: 15px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
 
         .title-group {
@@ -65,6 +73,53 @@
             color: var(--accent-btn);
             letter-spacing: 0.2px;
             opacity: 0.85;
+        }
+
+        /* HOLIDAY DISPLAY BANNER IN HEADER */
+        .ph-holiday-banner {
+            flex: 1 1 380px;
+            max-width: 580px;
+            background: var(--holiday-banner-bg);
+            border: 1.5px dashed var(--holiday-banner-border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            line-height: 1.35;
+            backdrop-filter: blur(8px);
+        }
+
+        .ph-holiday-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .ph-holiday-text-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .ph-holiday-title {
+            font-weight: 800;
+            font-size: 12px;
+            color: var(--accent-btn);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ph-holiday-list-item {
+            display: inline-block;
+            background: var(--holiday-badge-bg);
+            color: var(--holiday-badge-text);
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-right: 4px;
         }
 
         .header-top-controls {
@@ -486,6 +541,10 @@
             gap: 10px;
         }
 
+        body.mobile-view-active .ph-holiday-banner {
+            max-width: 100%;
+        }
+
         body.mobile-view-active .header-top-controls {
             justify-content: flex-start;
             gap: 6px;
@@ -573,6 +632,16 @@
             <h2>Team Monthly Rota Schedule</h2>
             <span class="title-credit">kr!ztel_2026 model</span>
         </div>
+
+        <!-- PHILIPPINES HOLIDAY TRACKER BANNER (RED BOX REFERENCE AREA) -->
+        <div class="ph-holiday-banner" id="phHolidayBanner">
+            <span class="ph-holiday-icon">🇵🇭</span>
+            <div class="ph-holiday-text-area">
+                <div class="ph-holiday-title" id="phHolidayTitle">PH Holidays — September 2026</div>
+                <div id="phHolidayDetails" style="font-size: 11px; opacity: 0.9;">Loading holiday calendar...</div>
+            </div>
+        </div>
+
         <div class="header-top-controls">
             <span class="viewer-badge" title="Click to view online members" onclick="toggleViewerModal()">
                 👁️ <span id="activeViewersCount">1</span>
@@ -827,6 +896,55 @@
         const team = ["Ann", "Dave", "Kenneth", "Kriztel", "Miguel"];
         const leaveTrackedTeam = ["Ann", "Dave", "Kenneth", "Kriztel"];
 
+        // OFFICIAL PHILIPPINES 2026 HOLIDAYS LOOKUP DATABASE
+        const phHolidays2026 = {
+            0: [
+                { date: "Jan 1", name: "New Year's Day (Regular)" },
+                { date: "Jan 23", name: "First Philippine Republic Day" }
+            ],
+            1: [
+                { date: "Feb 17", name: "Chinese New Year (Special Non-Working)" },
+                { date: "Feb 25", name: "EDSA People Power Revolution Anniversary" }
+            ],
+            2: [
+                { date: "Mar 20", name: "Eid'l Fitr (Feast of Ramadhan - Tentative)" }
+            ],
+            3: [
+                { date: "Apr 2", name: "Maundy Thursday (Regular)" },
+                { date: "Apr 3", name: "Good Friday (Regular)" },
+                { date: "Apr 4", name: "Black Saturday (Special Non-Working)" },
+                { date: "Apr 9", name: "Araw ng Kagitingan / Day of Valor (Regular)" }
+            ],
+            4: [
+                { date: "May 1", name: "Labor Day (Regular)" },
+                { date: "May 27", name: "Eid'l Adha (Feast of Sacrifice - Tentative)" }
+            ],
+            5: [
+                { date: "Jun 12", name: "Independence Day (Regular)" }
+            ],
+            6: [], // July
+            7: [
+                { date: "Aug 21", name: "Ninoy Aquino Day (Special Non-Working)" },
+                { date: "Aug 31", name: "National Heroes Day (Regular)" }
+            ],
+            8: [], // September - No National Holidays
+            9: [
+                { date: "Oct 31", name: "All Saints' Day Eve (Special Non-Working)" }
+            ],
+            10: [
+                { date: "Nov 1", name: "All Saints' Day (Special Non-Working)" },
+                { date: "Nov 2", name: "All Souls' Day (Special Non-Working)" },
+                { date: "Nov 30", name: "Bonifacio Day (Regular)" }
+            ],
+            11: [
+                { date: "Dec 8", name: "Feast of the Immaculate Conception (Special Non-Working)" },
+                { date: "Dec 24", name: "Christmas Eve (Special Non-Working)" },
+                { date: "Dec 25", name: "Christmas Day (Regular)" },
+                { date: "Dec 30", name: "Rizal Day (Regular)" },
+                { date: "Dec 31", name: "Last Day of the Year (Special Non-Working)" }
+            ]
+        };
+
         const shiftList = [
             { text: "", bgClass: "", itemClass: "", start: null, end: null },
             { text: "7:00 - 16:00", bgClass: "shift-bg-7-16", itemClass: "item-7-16", start: 7, end: 16 },
@@ -863,11 +981,36 @@
         let globalTzOffset = 8;
         let rotaData = {};
         let leaveMatrixData = {};
-        let allRotaDataYear = {}; // Holds full year's data for multi-month tracking
+        let allRotaDataYear = {};
         
         let isViewOnlyMode = true;
         let isMobileView = false;
         const ADMIN_PASSWORD = "sportsbook2026";
+
+        function updatePhilippineHolidaysDisplay() {
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+            const titleElem = document.getElementById('phHolidayTitle');
+            const detailsElem = document.getElementById('phHolidayDetails');
+
+            if (!titleElem || !detailsElem) return;
+
+            const monthName = monthNames[selectedMonth];
+            titleElem.innerText = `PH Holidays — ${monthName} ${selectedYear}`;
+
+            if (selectedYear === 2026 && phHolidays2026[selectedMonth]) {
+                const holidays = phHolidays2026[selectedMonth];
+                if (holidays.length > 0) {
+                    detailsElem.innerHTML = holidays.map(h => 
+                        `<div><span class="ph-holiday-list-item">${h.date}</span> ${h.name}</div>`
+                    ).join('');
+                } else {
+                    detailsElem.innerHTML = `There are no national regular or nationwide special non-working holidays in the Philippines for ${monthName} ${selectedYear}.`;
+                }
+            } else {
+                detailsElem.innerHTML = `No specific holiday records logged for ${monthName} ${selectedYear}.`;
+            }
+        }
 
         function toggleMobileView() {
             isMobileView = !isMobileView;
@@ -1034,7 +1177,8 @@
             const currentYear = yearInput.value;
             const monthKey = `${currentYear}_${parseInt(monthSelect.value) + 1}`;
             
-            // Listen to ALL rota entries across all months & years in real-time
+            updatePhilippineHolidaysDisplay();
+
             db.ref(`rota_data`).on('value', (snapshot) => {
                 allRotaDataYear = snapshot.val() || {};
                 rotaData = allRotaDataYear[monthKey] || {};
@@ -1280,7 +1424,6 @@
 
             const targetYear = parseInt(yearInput.value);
 
-            // Scan all 12 months (0 = Jan, 11 = Dec) for the selected year
             for (let m = 0; m < 12; m++) {
                 let mKey = `${targetYear}_${m + 1}`;
                 let mData = allRotaDataYear[mKey];
@@ -1288,7 +1431,6 @@
                 if (mData) {
                     let mLabel = monthNames[m].substring(0, 3);
                     
-                    // Sort days chronologically (1 to 31)
                     let sortedDays = Object.keys(mData).map(Number).sort((a, b) => a - b);
 
                     sortedDays.forEach(day => {
@@ -1309,7 +1451,6 @@
                 }
             }
 
-            // Pad arrays up to maximum row count (10 for VL, 5 for SL)
             leaveTrackedTeam.forEach(m => {
                 while (tempMatrix[m].vl.length < 10) tempMatrix[m].vl.push('');
                 while (tempMatrix[m].sl.length < 5) tempMatrix[m].sl.push('');
@@ -1339,7 +1480,7 @@
                     let input = document.createElement('input');
                     input.type = 'text';
                     input.className = 'date-input-cell';
-                    input.readOnly = true; // Auto-calculated from schedule entries
+                    input.readOnly = true;
 
                     let val = (leaveMatrixData[member] && leaveMatrixData[member][leaveType] && leaveMatrixData[member][leaveType][arrayIdx]) ? leaveMatrixData[member][leaveType][arrayIdx] : '';
                     input.value = val;
