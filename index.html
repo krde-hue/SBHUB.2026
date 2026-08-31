@@ -957,7 +957,7 @@
             }
         }
 
-        // PAC-MAN ENGINE: NO BLACK SHADOWS, PING-PONG CONTINUOUS LOOP, 3X SLOWER SPEED
+        // PERFECT DIRECTIONAL ROTATION PAC-MAN ENGINE (NO BLACK SHADOW, 100% FORWARD FACING)
         function initTitleWatermarkEngine() {
             const canvas = document.getElementById('title-text-canvas');
             if (!canvas) return;
@@ -1074,22 +1074,23 @@
                 mouthAngle += mouthSpeed;
                 if (mouthAngle > 0.42 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
 
-                // 6. DRAW PAC-MAN (ROTATED ALONG WAVE & FLIPPED IF MOVING LEFT)
+                // 6. DRAW PAC-MAN (ROTATED TANGENT TO WAVE & FULLY REVERSED WHEN MOVING LEFT)
                 ctx.save();
                 ctx.translate(pacmanX, currentPacmanY);
 
-                const deltaX = 1 * pacmanDirection;
+                const deltaX = 1;
                 const deltaY = getPacmanY(pacmanX + deltaX) - currentPacmanY;
                 let slopeAngle = Math.atan2(deltaY, deltaX);
+
+                if (pacmanDirection === -1) {
+                    // FLIP 180 DEGREES SO MOUTH FACES LEFT TOWARDS DIRECTION OF TRAVEL
+                    slopeAngle += Math.PI; 
+                }
 
                 ctx.rotate(slopeAngle);
 
                 ctx.beginPath();
-                if (pacmanDirection === 1) {
-                    ctx.arc(0, 0, 15, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
-                } else {
-                    ctx.arc(0, 0, 15, (1 + mouthAngle) * Math.PI, (1 - mouthAngle) * Math.PI);
-                }
+                ctx.arc(0, 0, 15, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
                 ctx.lineTo(0, 0);
                 ctx.fillStyle = '#facc15';
                 ctx.shadowColor = '#facc15';
