@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EDGE Boosted Odds & Banners Dashboard</title>
 
-    <!-- Firebase Realtime Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -120,8 +119,8 @@
             transition: border 0.2s; 
             white-space: pre-wrap; 
             word-break: break-word; 
-            resize: none !important; /* REMOVED RESIZE HANDLE */
-            overflow: hidden !important; /* REMOVED SCROLLBAR */
+            resize: none !important;
+            overflow: hidden !important;
             min-height: 28px; 
             height: auto; 
             font-family: inherit; 
@@ -184,8 +183,8 @@
             padding: 6px 10px; 
             border-radius: 6px; 
             outline: none; 
-            resize: none !important; /* REMOVED RESIZE HANDLE */
-            overflow: hidden !important; /* REMOVED SCROLLBAR */
+            resize: none !important;
+            overflow: hidden !important;
             min-height: 32px; 
             line-height: 1.35; 
         }
@@ -195,7 +194,6 @@
 </head>
 <body>
 
-    <!-- STICKY FROZEN HEADER PANEL -->
     <div class="sticky-top-panel">
         <div class="header-container">
             <div class="title-group">
@@ -273,6 +271,7 @@
         }
 
         let is7DayFilterActive = false;
+        let isLocalChange = false; // FLAG TO PREVENT REALTIME SYNC DUPES AND LAG
         let undoStack = [];
         let redoStack = [];
 
@@ -710,19 +709,25 @@
             }
 
             db.ref('edge_boosts_master_v21').on('value', (snapshot) => {
+                if (isLocalChange) return; // Prevent re-rendering loops caused by local actions
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object' && liveData["Edge Football"] && liveData["Edge Football"].rows && liveData["Edge Football"].rows.length >= 100) {
                     workbookData = liveData;
+                    renderActiveSheet();
                 } else {
                     saveToFirebase();
                 }
-                renderActiveSheet();
             });
         }
 
         function saveToFirebase() {
             if (db) {
-                db.ref('edge_boosts_master_v21').set(workbookData);
+                isLocalChange = true;
+                db.ref('edge_boosts_master_v21').set(workbookData).then(() => {
+                    setTimeout(() => { isLocalChange = false; }, 300);
+                }).catch(() => {
+                    isLocalChange = false;
+                });
             }
             const statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
@@ -906,7 +911,7 @@
 
             setTimeout(() => {
                 document.querySelectorAll('.editable-cell').forEach(el => autoResizeTextarea(el));
-            }, 50);
+            }, 30);
         }
 
         function createTableRowElement(row, rowIndex) {
@@ -980,7 +985,7 @@
             return tr;
         }
 
-        // DYNAMIC EXPANSION WITHOUT SCROLLBAR
+        // FULL EXPANSION WITHOUT SCROLLBAR
         function autoResizeTextarea(el) {
             el.style.height = 'auto';
             el.style.height = (el.scrollHeight) + 'px';
@@ -1151,7 +1156,7 @@
             container.innerHTML = html;
             setTimeout(() => {
                 container.querySelectorAll('.rule-textarea').forEach(el => autoResizeTextarea(el));
-            }, 50);
+            }, 30);
         }
 
         function updateHeroGuideline(rIdx, prop, val) {
@@ -1205,94 +1210,3 @@
                 saveToFirebase();
                 renderGuidelinesView();
             }
-        }
-
-        function updateCell(rowIndex, colIndex, value) {
-            pushState();
-            workbookData[currentSheet].rows[rowIndex][colIndex] = value;
-            saveToFirebase();
-        }
-
-        // HIGH-SPEED INSTANT ADD-ROW WITH SCROLL-TO-BOTTOM
-        function addNewRow() {
-            pushState();
-            if (is7DayFilterActive) {
-                is7DayFilterActive = false;
-                const btn = document.getElementById('viewFilterBtn');
-                if (btn) {
-                    btn.innerText = "📅 View: ALL RECORDS";
-                    btn.classList.remove('active');
-                }
-            }
-
-            const sheet = workbookData[currentSheet];
-            const newRow = sheet.headers.map((h, idx) => {
-                if ((idx === 0 || idx === 1) && typeof sheet.rows[0]?.[idx] === 'boolean') return false;
-                if (h === "Sports") return currentSheet === "Edge Tennis" ? "Tennis" : "Football";
-                if (h === "Type") return "Bet Builder";
-                return "";
-            });
-
-            sheet.rows.push(newRow); // APPEND AT BOTTOM
-            saveToFirebase();
-
-            // Direct DOM Append (No lag, instant execution)
-            const tbody = document.getElementById('tableBody');
-            const newRowIndex = sheet.rows.length - 1;
-            const tr = createTableRowElement(newRow, newRowIndex);
-            tbody.appendChild(tr);
-
-            const recordCounter = document.getElementById('recordCounter');
-            if (recordCounter) {
-                recordCounter.innerText = `Records: ${sheet.rows.length}`;
-            }
-
-            // Smooth scroll directly to the newly added row
-            const wrapper = document.getElementById('tableWrapper');
-            if (wrapper) {
-                wrapper.scrollTop = wrapper.scrollHeight;
-            }
-        }
-
-        function deleteRow(rowIndex) {
-            if (confirm("Are you sure you want to delete this record?")) {
-                pushState();
-                workbookData[currentSheet].rows.splice(rowIndex, 1);
-                saveToFirebase();
-                renderActiveSheet();
-            }
-        }
-
-        function clearCurrentSheet() {
-            if (confirm(`Are you sure you want to CLEAR ALL records in "${currentSheet}"?`)) {
-                pushState();
-                workbookData[currentSheet].rows = [];
-                saveToFirebase();
-                renderActiveSheet();
-            }
-        }
-
-        function filterTable() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const allRows = workbookData[currentSheet].rows;
-            const filtered = allRows.filter(row => 
-                row.some(cell => String(cell).toLowerCase().includes(query))
-            );
-            renderTableRows(filtered);
-        }
-
-        function toggleDarkMode() {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme_7a', newTheme);
-        }
-
-        function escapeHtml(text) {
-            return String(text).replace(/"/g, "&quot;");
-        }
-
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
-</body>
-</html>
