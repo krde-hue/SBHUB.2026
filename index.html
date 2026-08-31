@@ -17,7 +17,7 @@
         :root[data-theme="dark"] {
             --bg-color: #060b19;
             --center-btn-bg: linear-gradient(145deg, #1e293b, #0f172a);
-            --item-btn-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+            --item-btn-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
             --border-color: rgba(56, 189, 248, 0.35);
             --text-dark: #0f172a;
             --text-light: #f8fafc;
@@ -199,9 +199,10 @@
             height: 100vh;
         }
 
+        /* POSITIONED WATERMARK TITLE BELOW MENU CONSOLE */
         .dashboard-header-bg {
             position: absolute;
-            top: 50%;
+            top: calc(50% + 280px);
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
@@ -213,16 +214,17 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: top 0.3s ease;
         }
 
         .welcome-subtitle-bg {
             font-family: 'Orbitron', 'Rajdhani', sans-serif;
             color: var(--text-light);
-            font-size: 2.8rem;
+            font-size: 1.8rem;
             font-weight: 700;
             letter-spacing: 0.42em;
             text-transform: uppercase;
-            margin-bottom: -15px;
+            margin-bottom: -10px;
             opacity: calc(var(--watermark-opacity) * 0.85);
             transition: font-size 0.3s ease;
             pointer-events: none;
@@ -314,7 +316,7 @@
             left: 15%;
             width: 70%;
             height: 40%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
             border-radius: 50%;
             pointer-events: none;
         }
@@ -367,47 +369,46 @@
             pointer-events: auto;
         }
 
-        /* iOS-STYLE 3D VIBRANT CIRCULAR BUTTONS */
+        /* SLEEK GLASS MUTED BASE BUTTONS */
         .menu-item {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 110px;
-            height: 110px;
-            margin-top: -55px;
-            margin-left: -55px;
+            width: 100px;
+            height: 100px;
+            margin-top: -50px;
+            margin-left: -50px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #ffffff !important;
+            color: #94a3b8 !important;
             text-decoration: none;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             opacity: 0;
             transform: translate(0, 0) scale(0);
             pointer-events: none;
             cursor: pointer;
             z-index: 35;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
             overflow: visible;
             -webkit-tap-highlight-color: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            
-            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4), 
-                        inset 0 3px 6px rgba(255, 255, 255, 0.6), 
-                        inset 0 -6px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 
+                        inset 0 1px 2px rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
         }
 
         .menu-item::before {
             content: '';
             position: absolute;
-            top: 3%;
-            left: 12%;
-            width: 76%;
-            height: 42%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 100%);
-            border-radius: 50% 50% 40% 40%;
+            top: 4%;
+            left: 15%;
+            width: 70%;
+            height: 35%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 50%;
             pointer-events: none;
         }
 
@@ -417,48 +418,104 @@
 
         .menu-item i {
             pointer-events: none;
-            transition: transform 0.3s ease, filter 0.3s ease;
-            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
-            color: #ffffff;
+            transition: transform 0.3s ease, color 0.3s ease, filter 0.3s ease;
+            color: #94a3b8;
         }
 
         .menu-item .letter-icon {
             font-family: 'Orbitron', 'Rajdhani', sans-serif;
             font-weight: 900;
-            font-size: 2.6rem;
+            font-size: 2.2rem;
             line-height: 1;
             display: inline-block;
             pointer-events: none;
-            transition: transform 0.3s ease;
-            color: #ffffff !important;
-            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+            transition: transform 0.3s ease, color 0.3s ease;
+            color: #94a3b8 !important;
         }
 
-        /* VIBRANT iOS THEMES PER BUTTON TYPE */
-        .menu-item[data-id="duties"] { background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%); }
-        .menu-item[data-id="rota"] { background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); }
-        .menu-item[data-id="big-winners"] { background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%); }
-        .menu-item[data-id="edge-boost"] { background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%); }
-        .menu-item[data-id="ibet-boost"] { background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%); }
-        .menu-item[data-color="green"], .menu-item[data-id="green-crm"] { background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); }
-        .menu-item[data-color="red"], .menu-item[data-id="red-crm"] { background: linear-gradient(180deg, #f87171 0%, #dc2626 100%); }
-        .menu-item[data-color="orange"] { background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%); }
-        .menu-item[data-id="confluence"] { background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%); }
-        .menu-item[data-id="workspace"] { background: linear-gradient(180deg, #64748b 0%, #334155 100%); }
-
-        .menu-item:hover, .menu-item.touch-active {
-            filter: brightness(1.12);
-            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.6), 
-                        0 0 25px rgba(255, 255, 255, 0.4),
-                        inset 0 4px 8px rgba(255, 255, 255, 0.8), 
-                        inset 0 -6px 10px rgba(0, 0, 0, 0.3) !important;
+        /* ANCHORED TRANSFORMS ON HOVER - NO FLICKER */
+        .circular-menu.active .menu-item:hover, 
+        .circular-menu.active .menu-item.touch-active {
+            transform: translate(var(--tx), var(--ty)) scale(1.18) !important;
             z-index: 100 !important;
+        }
+
+        /* INDIVIDUAL BRAND COLOR HIGHLIGHTS ON HOVER */
+        .menu-item[data-id="duties"]:hover, .menu-item[data-id="duties"].touch-active {
+            background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+            border-color: #22d3ee;
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-id="rota"]:hover, .menu-item[data-id="rota"].touch-active {
+            background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%);
+            border-color: #818cf8;
+            box-shadow: 0 0 30px rgba(129, 140, 248, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-id="big-winners"]:hover, .menu-item[data-id="big-winners"].touch-active {
+            background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%);
+            border-color: #fde047;
+            box-shadow: 0 0 30px rgba(253, 224, 71, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-id="edge-boost"]:hover, .menu-item[data-id="edge-boost"].touch-active {
+            background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+            border-color: #fcd34d;
+            box-shadow: 0 0 30px rgba(252, 211, 77, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-id="ibet-boost"]:hover, .menu-item[data-id="ibet-boost"].touch-active {
+            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+            border-color: #7dd3fc;
+            box-shadow: 0 0 30px rgba(125, 211, 252, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-color="green"]:hover, .menu-item[data-color="green"].touch-active {
+            background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+            border-color: #86efac;
+            box-shadow: 0 0 30px rgba(134, 239, 172, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-color="red"]:hover, .menu-item[data-color="red"].touch-active {
+            background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
+            border-color: #fca5a5;
+            box-shadow: 0 0 30px rgba(252, 165, 165, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-color="orange"]:hover, .menu-item[data-color="orange"].touch-active {
+            background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%);
+            border-color: #fdba74;
+            box-shadow: 0 0 30px rgba(253, 186, 116, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-id="confluence"]:hover, .menu-item[data-id="confluence"].touch-active {
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #60a5fa;
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
+        }
+
+        .menu-item[data-id="workspace"]:hover, .menu-item[data-id="workspace"].touch-active {
+            background: linear-gradient(180deg, #64748b 0%, #334155 100%);
+            border-color: #94a3b8;
+            box-shadow: 0 0 30px rgba(148, 163, 184, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
+            color: #ffffff !important;
         }
 
         .menu-item:hover i, .menu-item.touch-active i,
         .menu-item:hover .letter-icon, .menu-item.touch-active .letter-icon {
-            transform: scale(1.18);
-            filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.6));
+            color: #ffffff !important;
+            transform: scale(1.15);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
         }
 
         /* HOVER TOOLTIP BADGES */
@@ -511,20 +568,24 @@
             border-radius: 20px; 
         }
         
-        body.mobile-view-active .welcome-subtitle-bg { font-size: 1.4rem; letter-spacing: 0.25em; }
+        body.mobile-view-active .dashboard-header-bg {
+            top: calc(50% + 180px);
+        }
+
+        body.mobile-view-active .welcome-subtitle-bg { font-size: 1.1rem; letter-spacing: 0.20em; }
         body.mobile-view-active .circular-menu { width: 340px; height: 340px; }
         body.mobile-view-active .toggle-btn { width: 95px; height: 95px; font-size: 2rem; }
         body.mobile-view-active .bull-logo-svg { width: 65px; height: 65px; }
 
         body.mobile-view-active .menu-item {
-            width: 58px;
-            height: 58px;
-            margin-top: -29px;
-            margin-left: -29px;
-            font-size: 1.3rem;
+            width: 54px;
+            height: 54px;
+            margin-top: -27px;
+            margin-left: -27px;
+            font-size: 1.2rem;
         }
 
-        body.mobile-view-active .menu-item .letter-icon { font-size: 1.3rem; }
+        body.mobile-view-active .menu-item .letter-icon { font-size: 1.2rem; }
         body.mobile-view-active .menu-item::after { bottom: -30px; font-size: 0.72rem; padding: 3px 8px; }
     </style>
 </head>
@@ -592,7 +653,7 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE WITH REAL TIME DYNAMIC FOOT-LEG CHOMPING -->
+        <!-- BACKGROUND WATERMARK TITLE WITH REAL TIME DYNAMIC SINE WAVE CHOMPING -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
@@ -629,7 +690,6 @@
     </div>
 
     <script>
-        // UPDATED EDGE BOOST URL TO DIRECT TO YOUR EDGE_BOOSTS.HTML WEB APP
         const navMenuJSON = [
             { id: "duties", icon: "fa-solid fa-list-check", label: "DAILY DUTIES", url: "duties.html" },
             { id: "rota", icon: "fa-solid fa-calendar-days", label: "ROTA 2026", url: "rota.html" },
@@ -897,12 +957,13 @@
             }
         }
 
-        // DYNAMIC PAC-MAN LEG-CHOMP & SLOW SELF-HEALING ENGINE
+        // PAC-MAN ENGINE: NO BLACK SHADOWS, PING-PONG CONTINUOUS LOOP, 3X SLOWER SPEED
         function initTitleWatermarkEngine() {
             const canvas = document.getElementById('title-text-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
+            // OFF-SCREEN BUFFER CANVAS FOR MASKING WITHOUT BLACK TRAILS
             const textCanvas = document.createElement('canvas');
             textCanvas.width = canvas.width;
             textCanvas.height = canvas.height;
@@ -915,23 +976,33 @@
 
             let activeBites = [];
 
-            let pacmanX = startX - 30; 
-            let pacmanSpeed = 0.08;
+            let pacmanX = startX - 40; 
+            let pacmanDirection = 1; // 1 = MOVING RIGHT, -1 = MOVING LEFT
+            let pacmanSpeed = 0.15; // 3X SLOWER SPEED
             let mouthAngle = 0.2;
             let mouthSpeed = 0.015;
+
+            // SINE WAVE PATH CONSTANTS
+            const centerY = canvas.height / 2;
+            const waveAmplitude = 32; 
+            const waveFrequency = 0.012; 
+
+            function getPacmanY(x) {
+                return centerY + Math.sin(x * waveFrequency) * waveAmplitude;
+            }
 
             function render() {
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
                 const mainColor = isDark ? '#38bdf8' : '#0284c7';
 
+                const currentPacmanY = getPacmanY(pacmanX);
+
+                // 1. RENDER CLEAN BASE TEXT TO OFF-SCREEN CANVAS
                 textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
 
                 textCtx.font = '900 96px Orbitron, sans-serif';
                 textCtx.textAlign = 'center';
                 textCtx.textBaseline = 'middle';
-
-                const centerY = textCanvas.height / 2;
-                const footY = centerY + 28; 
 
                 textCtx.save();
                 textCtx.fillStyle = mainColor;
@@ -949,16 +1020,17 @@
                 }
                 textCtx.restore();
 
-                if (pacmanX >= startX - 10 && pacmanX <= startX + totalWidth + 10) {
+                // 2. LOG CIRCULAR CHOMP DAMAGE
+                if (pacmanX >= startX - 20 && pacmanX <= startX + totalWidth + 20) {
                     activeBites.push({
-                        x: pacmanX - 6,
-                        y: footY - 14,
-                        width: 12,
-                        height: 28,
-                        healTimer: 350
+                        x: pacmanX,
+                        y: currentPacmanY,
+                        radius: 16,
+                        healTimer: 600
                     });
                 }
 
+                // 3. MASK BITE HOLES CLEANLY ON TEXT LAYER ONLY
                 textCtx.save();
                 textCtx.globalCompositeOperation = 'destination-out';
 
@@ -968,34 +1040,57 @@
                     if (bite.healTimer > 0) {
                         bite.healTimer--;
                     } else {
-                        bite.height -= 0.12; 
-                        bite.y += 0.12;
+                        bite.radius -= 0.04; // SLOW REGENERATION
                     }
 
-                    if (bite.height <= 0) {
+                    if (bite.radius <= 0) {
                         activeBites.splice(j, 1);
                     } else {
-                        textCtx.fillRect(bite.x, bite.y, bite.width, bite.height);
+                        textCtx.beginPath();
+                        textCtx.arc(bite.x, bite.y, bite.radius, 0, Math.PI * 2);
+                        textCtx.fill();
                     }
                 }
                 textCtx.restore();
 
+                // 4. CLEAR MAIN DISPLAY CANVAS AND DRAW MASKED TEXT
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(textCanvas, 0, 0);
 
-                pacmanX += pacmanSpeed;
-                if (pacmanX > startX + totalWidth + 50) {
-                    pacmanX = startX - 50;
-                    activeBites = [];
+                // 5. UPDATE PAC-MAN POSITION & PING-PONG DIRECTION
+                pacmanX += pacmanSpeed * pacmanDirection;
+
+                const rightLimit = startX + totalWidth + 50;
+                const leftLimit = startX - 50;
+
+                if (pacmanX >= rightLimit) {
+                    pacmanX = rightLimit;
+                    pacmanDirection = -1; // TURN AROUND TO MOVE LEFT
+                } else if (pacmanX <= leftLimit) {
+                    pacmanX = leftLimit;
+                    pacmanDirection = 1; // TURN AROUND TO MOVE RIGHT
                 }
 
                 mouthAngle += mouthSpeed;
-                if (mouthAngle > 0.4 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
+                if (mouthAngle > 0.42 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
 
+                // 6. DRAW PAC-MAN (ROTATED ALONG WAVE & FLIPPED IF MOVING LEFT)
                 ctx.save();
+                ctx.translate(pacmanX, currentPacmanY);
+
+                const deltaX = 1 * pacmanDirection;
+                const deltaY = getPacmanY(pacmanX + deltaX) - currentPacmanY;
+                let slopeAngle = Math.atan2(deltaY, deltaX);
+
+                ctx.rotate(slopeAngle);
+
                 ctx.beginPath();
-                ctx.arc(pacmanX, footY, 13, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
-                ctx.lineTo(pacmanX, footY);
+                if (pacmanDirection === 1) {
+                    ctx.arc(0, 0, 15, mouthAngle * Math.PI, (2 - mouthAngle) * Math.PI);
+                } else {
+                    ctx.arc(0, 0, 15, (1 + mouthAngle) * Math.PI, (1 - mouthAngle) * Math.PI);
+                }
+                ctx.lineTo(0, 0);
                 ctx.fillStyle = '#facc15';
                 ctx.shadowColor = '#facc15';
                 ctx.shadowBlur = 12;
