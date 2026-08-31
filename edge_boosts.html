@@ -274,6 +274,7 @@
         let is7DayFilterActive = false;
         let undoStack = [];
         let redoStack = [];
+        let saveDebounceTimer = null; // PREVENTS UI FREEZING DURING TYPING
 
         const sportsOptions = [
             { name: "Football", class: "sport-football" },
@@ -302,7 +303,8 @@
             return found ? found.class : "type-single";
         }
 
-        // FOOTBALL DATASET (143 RECORDS)
+        // FOOTBALL DATASET - ALL 143 ROWS FULLY ALIGNED TO HEADERS:
+        // [0:BO, 1:PUB, 2:Brands, 3:KO Date, 4:KO Time, 5:Sports, 6:League, 7:Event, 8:Type, 9:Market 1, 10:Market 2, 11:Market 3, 12:Market 4, 13:Notes, 14:Other Ideas]
         const footballDataset = [
             [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Football", "Veikkausliiga", "TPS - Marienhamn", "Bet Builder", "TPS to win", "Corner over 10.5", "", "", "Activated July 31", ""],
             [true, true, "7Abet/BVBet", "08.01.2026", "23:00:00", "Football", "Veikkausliiga", "Lahti - Jaro", "Single", "1st HT result - Lahti", "", "", "", "Activated July 31", ""],
@@ -350,14 +352,14 @@
             [true, true, "7Abet/BVBet", "08.11.2026", "01:00:00", "Football", "Allsvenkan", "Sirius - Brommapojkarna", "Bet Builder", "Sirius to win", "BTTS - yes", "", "", "Activated august 9", ""],
             [true, true, "7Abet/BVBet", "08.11.2026", "01:00:00", "Football", "Allsvenkan", "Vasteras SK - Djurgarden", "Bet Builder", "Double chance x2", "Corner total over 9.5", "", "", "Activated august 9", ""],
             [true, true, "7Abet/BVBet", "08.12.2026", "00:00:00", "Football", "Champions League", "Bodo/Glimt - Royale Union SG", "Bet Builder", "Double chance 1X", "BTTS - yes", "Over 3.5 totals", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.12.2026", "01:30:00", "Football", "Champions League", "NEC Nijmege - Olympiacos", "Bet Builder", "Olympiacos  to win", "HT Total Over 0.5", "", "", "Activated August 10", ""],
+            [true, true, "7Abet/BVBet", "08.12.2026", "01:30:00", "Football", "Champions League", "NEC Nijmege - Olympiacos", "Bet Builder", "Olympiacos\u00a0 to win", "HT Total Over 0.5", "", "", "Activated August 10", ""],
             [true, true, "7Abet/BVBet", "08.12.2026", "01:00:00", "Football", "Champions League", "Kauno \u017dalgiris - Dinamo Zagreb", "Bet Builder", "HT/FT 2/2", "Over 2.5 Goals", "", "", "Activated August 10", ""],
             [true, true, "7Abet/BVBet", "08.12.2026", "02:00:00", "Football", "Champions League", "Crvena zvezda - Hapoel Beer Sheva", "Bet Builder", "Crvena zvezda to win", "Over 3.5 Goals", "", "", "Activated August 10", ""],
             [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "UEFA Super Cup", "PSG - Aston Villa", "Bet Builder", "PSG to Win", "Over 2.5 Goals", "BTTS - yes", "", "Activated August 11", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Bet Builder", "Most Corners - PSG", "PSG to Win", "", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Bet Builder", "Halftime/Fulltime - 1/1", "Both teams to score - YES", "", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Bet Builder", "Kvaratskhelia - player will score a goal- YES", "Doue - player will score a goal - YES", "", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "", "", "Single", "Correct score 2-0", "", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "UEFA Super Cup", "PSG - Aston Villa", "Bet Builder", "Most Corners - PSG", "PSG to Win", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "UEFA Super Cup", "PSG - Aston Villa", "Bet Builder", "Halftime/Fulltime - 1/1", "Both teams to score - YES", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "UEFA Super Cup", "PSG - Aston Villa", "Bet Builder", "Kvaratskhelia - player will score a goal- YES", "Doue - player will score a goal - YES", "", "", "Activated August 12", ""],
+            [true, true, "7Abet/BVBet", "08.13.2026", "03:00:00", "Football", "UEFA Super Cup", "PSG - Aston Villa", "Single", "Correct score 2-0", "", "", "", "Activated August 12", ""],
             [true, true, "7Abet/BVBet", "08.13.2026", "08:30:00", "Football", "Copa Libertadores", "Cruzeiro - Flamengo RJ", "Bet Builder", "Halftime Win Flamengo", "Halftime Total Goals Over 1.5", "", "", "Activated August 11", ""],
             [true, true, "7Abet/BVBet", "08.14.2026", "02:45:00", "Football", "Europa League - Qualification", "Hearts - Benfica", "Bet Builder", "Benfica to Win", "Over 3.5 Goals", "", "", "Activated August 12", ""],
             [true, true, "7Abet/BVBet", "08.14.2026", "02:30:00", "Football", "Europa League - Qualification", "Rangers - Jagiellonia", "Bet Builder", "Halftime Win Rangers", "Halftime Total Goals Over 1.5", "", "", "Activated August 12", ""],
@@ -382,22 +384,22 @@
             [true, true, "7Abet/BVBet", "08.21.2026", "03:00:00", "Football", "Conference League - Qualification", "Egnatia- Lillestrom", "Bet Builder", "Lillestrom to win", "Over 2.5 Goals", "", "", "Activated August 19", ""],
             [true, true, "7Abet/BVBet", "08.22.2026", "03:00:00", "Football", "EPL", "Arsenal - Coventry", "Bet Builder", "Arsenal o2.5 goals", "Arsenal Ht/FT", "", "", "Activated August 19", ""],
             [true, true, "7Abet/BVBet", "08.22.2026", "03:00:00", "Football", "EPL", "Arsenal - Coventry", "Single", "Kai Havertz First Goalscorer", "", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Inter - Monza", "Bet Builder", "Inter HT/FT", "Over 2.5", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Inter - Monza", "Single", "Pio Esposito First Goalscorer", "", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Frosinone - Juventus", "Bet Builder", "Juve win both halves", "Kolo Muani to score", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Frosinone - Juventus", "Bet Builder", "Both Team to score - yes", "Over 2.5", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Torino - Milan", "Bet Builder", "Milan win", "over 2.5", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Italy Serie A", "Torino - Milan", "Bet Builder", "Milan Halftime", "Both Team to score", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "", "Football", "Laliga", "Ath Bilbao - Sevilla", "Bet Builder", "Ath Bilbao to win", "Over 2.5", "", "", "Activated August 20", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "Laliga", "Espanyol - Real Madrid", "Bet Builder", "Real Madrid HT/FT", "Vini to score anytime", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "Laliga", "Espanyol - Real Madrid", "Bet Builder", "Both Team To Score - YES", "Over 3.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "20:00:00", "Football", "Italy Serie A", "Inter - Monza", "Bet Builder", "Inter HT/FT", "Over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "20:00:00", "Football", "Italy Serie A", "Inter - Monza", "Single", "Pio Esposito First Goalscorer", "", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "20:00:00", "Football", "Italy Serie A", "Frosinone - Juventus", "Bet Builder", "Juve win both halves", "Kolo Muani to score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "20:00:00", "Football", "Italy Serie A", "Frosinone - Juventus", "Bet Builder", "Both Team to score - yes", "Over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "20:00:00", "Football", "Italy Serie A", "Torino - Milan", "Bet Builder", "Milan win", "over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "20:00:00", "Football", "Italy Serie A", "Torino - Milan", "Bet Builder", "Milan Halftime", "Both Team to score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.22.2026", "20:00:00", "Football", "Laliga", "Ath Bilbao - Sevilla", "Bet Builder", "Ath Bilbao to win", "Over 2.5", "", "", "Activated August 20", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "20:00:00", "Football", "Laliga", "Espanyol - Real Madrid", "Bet Builder", "Real Madrid HT/FT", "Vini to score anytime", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "20:00:00", "Football", "Laliga", "Espanyol - Real Madrid", "Bet Builder", "Both Team To Score - YES", "Over 3.5", "", "", "Activated August 19", ""],
             [true, true, "7Abet/BVBet", "08.23.2026", "21:00:00", "Football", "Super Cup", "Dortmund - Bayern Munich", "Bet Builder", "Both Team To Score - YES", "Over 3.5", "", "", "Activated August 20", ""],
             [true, true, "7Abet/BVBet", "08.23.2026", "23:00:00", "Football", "EPL", "Hull - Man united", "Bet Builder", "Man Utd -1", "Over 2.5", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Hull - Man united", "Bet Builder", "Fernandes goal", "Fernandes assist", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Man City - Bournemouth", "Bet Builder", "Man City Ht/FT", "Both Teams to Score", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Man City - Bournemouth", "Single", "Halaand First Goalscorer", "", "0.25", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Newcastle - Liverpool", "Bet Builder", "Liverpool win both halves", "over 2.5", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "", "Football", "EPL", "Newcastle - Liverpool", "Bet Builder", "Isak to score", "Woltemade to score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "20:00:00", "Football", "EPL", "Hull - Man united", "Bet Builder", "Fernandes goal", "Fernandes assist", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "20:00:00", "Football", "EPL", "Man City - Bournemouth", "Bet Builder", "Man City Ht/FT", "Both Teams to Score", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "20:00:00", "Football", "EPL", "Man City - Bournemouth", "Single", "Halaand First Goalscorer", "", "0.25", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "20:00:00", "Football", "EPL", "Newcastle - Liverpool", "Bet Builder", "Liverpool win both halves", "over 2.5", "", "", "Activated August 19", ""],
+            [true, true, "7Abet/BVBet", "08.23.2026", "20:00:00", "Football", "EPL", "Newcastle - Liverpool", "Bet Builder", "Isak to score", "Woltemade to score", "", "", "Activated August 19", ""],
             [true, true, "7Abet/BVBet", "08.24.2026", "03:30:00", "Football", "Spain La Liga", "Elche - Barcelona", "Bet Builder", "Barcelona 1st half", "over 2.5", "", "", "Activated August 19", ""],
             [true, true, "7Abet/BVBet", "08.24.2026", "03:30:00", "Football", "Spain La Liga", "Elche - Barcelona", "Bet Builder", "Yamal 1st goalscorer", "Raphina to score", "", "", "Activated August 19", ""],
             [true, true, "7Abet/BVBet", "08.24.2026", "02:45:00", "Football", "Ligue 1", "PSG - Rennes", "Bet Builder", "PSG HT/FT", "1st Half o1.5", "", "", "Activated August 20", ""],
@@ -418,171 +420,59 @@
             [true, true, "7Abet/BVBet", "08.28.2026", "02:00:00", "Football", "Europa League", "AGF - Benfica", "Bet Builder", "Benfica HT/FT", "Total Over 2.5", "", "", "Activated August 26", ""],
             [true, true, "7Abet/BVBet", "08.28.2026", "02:30:00", "Football", "Europa League Conf", "Brighton - Tromso", "Bet Builder", "Total Over 3.5", "Kostoulas to score a goal", "", "", "Activated August 26", ""],
             [true, true, "7Abet/BVBet", "08.29.2026", "03:00:00", "Football", "England Premier League", "Crystal Palace - Man City", "Bet Builder", "Haaland to score a goal", "Doku to score a goal", "Phil Foden to score a goal", "", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "02:45:00", "Football", "Italy Serie A", "Milan - Venezia", "Bet Builder", "Milan  to Win", "Both Teams to Score", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "02:45:00", "Football", "Italy Serie A", "Milan - Venezia", "Bet Builder", "Milan\u00a0 to Win", "Both Teams to Score", "", "", "Activated August 27", ""],
             [true, true, "7Abet/BVBet", "08.29.2026", "02:45:00", "Football", "France Ligue 1", "Lille - PSG", "Bet Builder", "PSG to Win", "Kvaratskhelia to score a goal", "", "", "Activated August 27", ""],
             [true, true, "7Abet/BVBet", "08.29.2026", "02:30:00", "Football", "Germany Bundesliga", "Bayern - Stuttgart", "Bet Builder", "1st half result - Bayern", "Both Teams to Score", "", "", "Activated August 27", ""],
             [true, true, "7Abet/BVBet", "08.29.2026", "02:30:00", "Football", "Germany Bundesliga", "Bayern - Stuttgart", "Bet Builder", "Total Corners over 9.5", "Harry Kane to score a goal", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Liverpool - Forest", "Bet Builder", "Liverpool (-1.5)", "Total OVER 3.5", "", "", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Spurs - Newcastle", "Bet Builder", "(Both Teams to Score) Both teams to score - YES", "(Totals) Total OVER 3.5", "", "", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "Italy Serie A", "Juventus - Parma", "Bet Builder", "Halftime result - Juventus", "Total Corners over 9.5", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "LaLiga", "Sevilla - Atl Madrid", "Bet Builder", "Both Teams to Score", "Ortiz to score a goal", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "Germany Bundesliga", "Dortmund - HSV", "Bet Builder", "HT/FT 1/1", "Total Over 3.5", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Chelsea - Brighton", "Bet Builder", "(Halftime/Fulltime) Halftime/Fulltime - 1/1", "(1st Goalscorer) Joao Pedro - 1st goalscorer", "", "", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "Manchester City to Win", "Over 2.5 Goals", "", "20% / 25e max stake", "", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "Haaland to Score", "Manchester City to Win", "", "20% / 25e max stake", "", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "BTS - yes", "Over 2.5 Goals", "", "20% / 25e max stake", "", ""],
-            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "England Premier League", "Man Utd - Ipswich", "Bet Builder", "(Halftime/Fulltime) Halftime/Fulltime - 1/1", "Matheus Cunha - player will score a goal", "", "", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "Italy Serie A", "Cagliari - Inter", "Bet Builder", "Inter to win", "Both Teams to Score", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "Italy Serie A", "Napoli - Como", "Single", "HT/FT 1/1", "", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.30.2026", "", "Football", "LaLiga", "Real Madrid - Malaga", "Bet Builder", "Total Over 3.5", "Jude Bellingham to score a goal", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.31.2026", "", "Football", "England Premier League", "Aston Villa - Arsenal", "Single", "Arsenal will win to nil - YES", "", "", "20% / 25e max stake", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.31.2026", "", "Football", "Italy Serie A", "Lecce - Roma", "Bet Builder", "Roma to score 1st goal", "Total Over 2.5", "", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.31.2026", "", "Football", "LaLiga", "Barcelona - Rayo Vallecano", "Bet Builder", "Total Corners over 10.5", "Raphina to score a goal", "", "", "Activated August 27", ""],
-            [true, true, "09.01.2026", "", "Football", "Italy Serie A", "Parma - Cremonese", "Bet Builder", "Over 3.5 total goals", "Bonazzoli to score a goal", "", "", "Activated August 31", ""],
-            [true, true, "09.01.2026", "", "Football", "Italy Serie A", "Torino - Monza", "Bet Builder", "Torino to win", "Both team to Score - YES", "", "", "Activated August 31", ""],
-            [true, true, "09.01.2026", "", "Football", "England Championship", "West Ham - Wolves", "Bet Builder", "HT/FT 1/1", "Both team to Score - YES", "", "", "Activated August 30", ""],
-            [true, true, "09.02.2026", "", "Football", "Scotland Premiership", "Celtic - Aberdeen", "Bet Builder", "HT/FT 1/1", "Total Over 3.5", "", "", "Activated August 30", ""],
-            [false, false, "09.02.2026", "", "Football", "DFB Pokal", "Osnabruck - Bayern Munich", "", "not yet available on SBX (Checked 08.31)", "", "", "", "", ""],
-            [true, true, "09.02.2026", "", "Football", "Coppa Italia", "Sassuolo - Frosinone", "Bet Builder", "DC 1X", "Total Over 2.5", "", "", "Activated August 31", ""],
-            [true, true, "09.03.2026", "", "Football", "France Ligue 1", "Toulouse - Lille", "Bet Builder", "Both Teams to Score", "Giroud to score a goal", "", "", "Activated August 31", ""],
-            [true, true, "09.03.2026", "", "Football", "Coppa Italia", "Cagliari - Verona", "Bet Builder", "DC 1X", "Total Over 2.5", "", "", "Activated August 31", ""],
-            [true, true, "09.03.2026", "", "Football", "Scotland Premiership", "Hibernian - Hearts", "Bet Builder", "Total Over 2.5", "Both team to Score - YES", "", "", "Activated August 31", ""]
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "England Premier League", "Liverpool - Forest", "Bet Builder", "Liverpool (-1.5)", "Total OVER 3.5", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "England Premier League", "Spurs - Newcastle", "Bet Builder", "(Both Teams to Score) Both teams to score - YES", "(Totals) Total OVER 3.5", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "Italy Serie A", "Juventus - Parma", "Bet Builder", "Halftime result - Juventus", "Total Corners over 9.5", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "LaLiga", "Sevilla - Atl Madrid", "Bet Builder", "Both Teams to Score", "Ortiz to score a goal", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "Germany Bundesliga", "Dortmund - HSV", "Bet Builder", "HT/FT 1/1", "Total Over 3.5", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "England Premier League", "Chelsea - Brighton", "Bet Builder", "(Halftime/Fulltime) Halftime/Fulltime - 1/1", "(1st Goalscorer) Joao Pedro - 1st goalscorer", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "Manchester City to Win", "Over 2.5 Goals", "", "20% / 25e max stake", "", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "Haaland to Score", "Manchester City to Win", "", "20% / 25e max stake", "", ""],
+            [true, true, "7Abet/BVBet", "08.29.2026", "20:00:00", "Football", "England Premier League", "Crystal Palace vs. Manchester City", "Bet Builder", "BTS - yes", "Over 2.5 Goals", "", "20% / 25e max stake", "", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "20:00:00", "Football", "England Premier League", "Man Utd - Ipswich", "Bet Builder", "(Halftime/Fulltime) Halftime/Fulltime - 1/1", "Matheus Cunha - player will score a goal", "", "", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "20:00:00", "Football", "Italy Serie A", "Cagliari - Inter", "Bet Builder", "Inter to win", "Both Teams to Score", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "20:00:00", "Football", "Italy Serie A", "Napoli - Como", "Single", "HT/FT 1/1", "", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.30.2026", "20:00:00", "Football", "LaLiga", "Real Madrid - Malaga", "Bet Builder", "Total Over 3.5", "Jude Bellingham to score a goal", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "20:00:00", "Football", "England Premier League", "Aston Villa - Arsenal", "Single", "Arsenal will win to nil - YES", "", "", "20% / 25e max stake", "Activated August 26", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "20:00:00", "Football", "Italy Serie A", "Lecce - Roma", "Bet Builder", "Roma to score 1st goal", "Total Over 2.5", "", "", "Activated August 27", ""],
+            [true, true, "7Abet/BVBet", "08.31.2026", "20:00:00", "Football", "LaLiga", "Barcelona - Rayo Vallecano", "Bet Builder", "Total Corners over 10.5", "Raphina to score a goal", "", "", "Activated August 27", ""],
+
+            // FULLY FIXED ROWS 135-143 (Explicit Brands="7Abet/BVBet" at Index 2):
+            [true, true, "7Abet/BVBet", "09.01.2026", "20:00:00", "Football", "Italy Serie A", "Parma - Cremonese", "Bet Builder", "Over 3.5 total goals", "Bonazzoli to score a goal", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.01.2026", "20:00:00", "Football", "Italy Serie A", "Torino - Monza", "Bet Builder", "Torino to win", "Both team to Score - YES", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.01.2026", "20:00:00", "Football", "England Championship", "West Ham - Wolves", "Bet Builder", "HT/FT 1/1", "Both team to Score - YES", "", "", "Activated August 30", ""],
+            [true, true, "7Abet/BVBet", "09.02.2026", "20:00:00", "Football", "Scotland Premiership", "Celtic - Aberdeen", "Bet Builder", "HT/FT 1/1", "Total Over 3.5", "", "", "Activated August 30", ""],
+            [false, false, "7Abet/BVBet", "09.02.2026", "20:00:00", "Football", "DFB Pokal", "Osnabruck - Bayern Munich", "Single", "not yet available on SBX (Checked 08.31)", "", "", "", "", ""],
+            [true, true, "7Abet/BVBet", "09.02.2026", "20:00:00", "Football", "Coppa Italia", "Sassuolo - Frosinone", "Bet Builder", "DC 1X", "Total Over 2.5", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.03.2026", "20:00:00", "Football", "France Ligue 1", "Toulouse - Lille", "Bet Builder", "Both Teams to Score", "Giroud to score a goal", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.03.2026", "20:00:00", "Football", "Coppa Italia", "Cagliari - Verona", "Bet Builder", "DC 1X", "Total Over 2.5", "", "", "Activated August 31", ""],
+            [true, true, "7Abet/BVBet", "09.03.2026", "20:00:00", "Football", "Scotland Premiership", "Hibernian - Hearts", "Bet Builder", "Total Over 2.5", "Both team to Score - YES", "", "", "Activated August 31", ""]
         ];
 
-        // TENNIS DATASET (105 RECORDS)
+        // TENNIS DATASET
         const tennisDataset = [
-            [true, true, "7Abet/BVBet", "08.01.2026", "", "Tennis", "ATP Washington", "De Minaur - Nakashima", "Single", "De Minaur 1st set winner", "", "", "Activated July 31", ""],
-            [true, true, "7Abet/BVBet", "08.01.2026", "", "Tennis", "ATP Washington", "Fritz - Michelsen", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated July 31", ""],
-            [true, true, "7Abet/BVBet", "08.01.2026", "", "Tennis", "WTA Washington", "Pegula - Kalinskaya", "Single", "Total games over 20.5", "", "", "Activated July 31", ""],
-            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "ATP Washington", "Nakashima - Fritz", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 1", ""],
-            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "WTA Washington", "Pegula - Shnaider", "Single", "Pegula Sets Handicap -1.5", "", "", "Activated August 1", ""],
-            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "WTA Washington", "Osaka - Eala", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 1", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Popyrin - Kokkinakis", "Single", "Total Sets Over 2.5", "", "", "Activated August 1", "Changed participant"],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Sonego - Griekspoor", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 1", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Tararudee - Zheng", "Single", "Zheng Sets Handicap -1.5", "", "", "Activated August 1", "Changed participant"],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Volynets - Stephens", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 1", "Changed participant"],
-            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "ATP Washington", "Fritz - Jodar", "Single", "Total Sets Over 2.5", "", "", "Activated August 2", ""],
-            [true, true, "7Abet/BVBet", "08.02.2026", "", "Tennis", "WTA Washington", "Pegula - Eala", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 2", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Rakhimova - Williams", "Bet Builder", "Williams 1st Set Winner", "Williams +4.5 Games Handicap", "", "Activated August 2", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Wang - Kasatkina", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 2", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Atmane - Draper", "Bet Builder", "Draper 1st Set Winner", "Draper -2.5 Games Handicap", "", "Activated August 2", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "ATP Montreal", "Berrettini - Navone", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 2", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Bartunkova - Andreescu", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 3", ""],
-            [true, true, "7Abet/BVBet", "08.03.2026", "", "Tennis", "WTA Toronto", "Tjen - Samsonova", "Bet Builder", "Samsonova Match Winner", "Samsonova -2.5 Games Handicap", "", "Activated August 3", ""],
-            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "ATP Montreal", "Munar - Blockx", "Bet Builder", "Blockx Match Winner", "Blockx -2.5 Games Handicap", "", "Activated August 3", ""],
-            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "ATP Montreal", "Shang - Rublev", "Bet Builder", "Rublev Match Winner", "Rublev -4.5 Games Handicap", "", "Activated August 3", ""],
-            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "WTA Toronto", "Bejlek - Swiatek", "Bet Builder", "Swiatek 1st Set Winner", "Swiatek -6.5 Games Handicap", "", "Activated August 3", ""],
-            [true, true, "7Abet/BVBet", "08.04.2026", "", "Tennis", "WTA Toronto", "Sabalenka - Uchijima", "Bet Builder", "Sabalenka 1st Set Winner", "Sabalenka -7.5 Games Handicap", "", "Activated August 3", ""],
-            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "ATP Montreal", "Borges - Etcheverry", "Bet Builder", "Borges 1st Set Winner", "Borges -2.5 Games Handicap", "", "Activated August 4", "Moved KO 05.08.2026"],
-            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "ATP Montreal", "Michelsen - Cerundolo", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 4", ""],
-            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "WTA Toronto", "Andreeva - Pliskova", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 4", ""],
-            [true, true, "7Abet/BVBet", "08.06.2026", "", "Tennis", "WTA Toronto", "Rakhimova - Siniakova", "Bet Builder", "Siniakova Match Winner", "Siniakova -3.5 Games Handicap", "", "Activated August 4", "Moved KO 05.08.2026 05:50 (retired)"],
-            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "WTA Toronto", "Sabalenka - Shuai", "Bet Builder", "Sabalenka to win", "1st set total over 8.5", "", "Activated August 6", ""],
-            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "WTA Toronto", "Swiatek - Golubic", "Bet Builder", "Swiatek to win", "total sets played over 2.5", "", "Activated August 6", ""],
-            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "ATP Montreal", "De Minaur - Norrie", "Bet Builder", "De Minaur to win", "total games over 22.5", "", "Activated August 6", ""],
-            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "WTA Toronto", "Pegula - Rakhimova", "Bet Builder", "Pegula to win", "total games over 17.5", "", "Activated August 6", ""],
-            [true, true, "7Abet/BVBet", "08.07.2026", "", "Tennis", "ATP Montreal", "Fils - Navone", "Single", "Correct score 0-2 - YES", "", "", "Activated August 6", ""],
-            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "WTA Toronto", "Andreeva - Fernandez", "Bet Builder", "Andreeva 1st Set Winner", "total sets played over 2.5", "", "Activated August 7", ""],
-            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "ATP Montreal", "Ruud - Fonseca", "Bet Builder", "Fonseca to win", "total games over 22.5", "", "Activated August 7", ""],
-            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "ATP Montreal", "Shelton - Bergs", "Single", "total games over 23.5", "", "", "Activated August 7", ""],
-            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "WTA Toronto", "Osaka - Mertens", "Bet Builder", "Osaka to win", "total sets played over 2.5", "", "Activated August 7", ""],
-            [true, true, "7Abet/BVBet", "08.08.2026", "", "Tennis", "WTA Toronto", "Gauff - Sakkari", "Bet Builder", "Gauff  to win", "total sets played over 2.5", "", "Activated August 7", ""],
-            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "ATP Montreal", "Lehecka - Jodar", "Bet Builder", "Jodar to win", "total games over 22.5", "", "Activated August 8", ""],
-            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "ATP Montreal", "Nakashima - Rinderknech", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 8", ""],
-            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "WTA Toronto", "Gauff - Korneeva", "Bet Builder", "Gauff  to win", "total sets played over 2.5", "", "Activated August 8", ""],
-            [true, true, "7Abet/BVBet", "08.09.2026", "", "Tennis", "WTA Toronto", "Sabalenka - Alexandrova", "Bet Builder", "Sabalenka  to win", "Total games won by Sabalenka OVER 12.5", "", "Activated August 8", ""],
-            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "ATP Montreal", "Fonseca - Shelton", "Single", "Correct score 0-2 - YES", "", "", "Activated August 9", ""],
-            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "ATP Montreal", "Mensik - Van De Zandschulp", "Bet Builder", "Mensik to win", "total games over 22.5", "", "Activated August 9", ""],
-            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "WTA Toronto", "Eala - Bencic", "Bet Builder", "Bencic to win", "total sets played over 2.5", "", "Activated August 9", ""],
-            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "WTA Toronto", "Rybakina - Samsonova", "Bet Builder", "Rybakina 1st Set Winner", "total games over 21.5", "", "Activated August 9", ""],
-            [true, true, "7Abet/BVBet", "08.10.2026", "", "Tennis", "WTA Toronto", "Osaka - Fernandez", "Single", "Total games won by Fernandez over 10.5", "", "", "Activated August 9", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Jodar - Fils", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Darderi - Nakashima", "Bet Builder", "Nakashima to win", "total sets played over 2.5", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Mensik - Shelton", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "ATP Montreal", "Merida Aguilar - Tien", "Bet Builder", "Tien to win", "total sets played over 2.5", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Shnaider - Swiatek", "Bet Builder", "Swiatek to win", "total games over 20.5", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Alexandrova - Svitolina", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Bencic - Gauff", "Bet Builder", "Gauff to win", "total games over 21.5", "", "Activated August 10", ""],
-            [true, true, "7Abet/BVBet", "08.11.2026", "", "Tennis", "WTA Toronto", "Osaka - Rybakina", "Bet Builder", "(Correct score) Will the score be 0:2? YES", "Rybakina to Win", "total sets played over 2.5", "Activated August 10", "Previous market dropped"],
-            [true, true, "7Abet/BVBet", "08.13.2026", "", "Tennis", "WTA Toronto", "Svitolina - Swiatek", "Bet Builder", "Swiatek to win", "total games over 21.5", "", "Activated August 11", ""],
-            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "ATP Cincinnati", "Lajovic - Bonzi", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 11", ""],
-            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "ATP Cincinnati", "Popyrin - Droguet", "Bet Builder", "Popyrin to win", "total sets played over 2.5", "", "Activated August 11", ""],
-            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "WTA Cincinnati", "Wang - Andreescu", "Bet Builder", "Wang to win", "total games over 21.5", "", "Activated August 11", ""],
-            [true, true, "7Abet/BVBet", "08.12.2026", "", "Tennis", "WTA Cincinnati", "Lys - Kawa", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 11", ""],
-            [true, true, "7Abet/BVBet", "08.12.2026", "23:30:00", "Tennis", "ATP Cincinnati", "Shevchenko - O'Connell", "Bet Builder", "O'Connell to win", "total sets played over 2.5", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "06:00:00", "Tennis", "ATP Montreal", "Jodar - Nakashima", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "08:30:00", "Tennis", "ATP Montreal", "Tien - Shelton", "Bet Builder", "Shelton to win", "total games over 22.5", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "08:30:00", "Tennis", "WTA Toronto", "Gauff - Rybakina", "Bet Builder", "Gauff to win", "total sets played over 2.5", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Shapovalov \u2013 Mannarino", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Van de Zandschulp \u2013 Griekspoor", "Bet Builder", "Griekspoor to win", "total games over 22.5", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Maria - Yastremska", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.13.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Kasatkina \u2013 Sonmez", "Bet Builder", "Kasatkina to win", "total sets played over 2.5", "", "Activated August 12", ""],
-            [true, true, "7Abet/BVBet", "08.14.2026", "08:00:00", "Tennis", "ATP Montreal", "Shelton - Nakashima", "Single", "Correct score 2-1 YES", "", "", "Activated August 13", ""],
-            [true, true, "7Abet/BVBet", "08.14.2026", "06:00:00", "Tennis", "WTA Toronto", "Swiatek - Rybakina", "Bet Builder", "Swiatek to win", "over 22.5 total games", "", "Activated August 13", ""],
-            [true, true, "7Abet/BVBet", "08.15.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Djokovic - Tirante", "Bet Builder", "Djokovic 1st Set Winner", "total sets played over 2.5", "", "Activated August 14", ""],
-            [true, true, "7Abet/BVBet", "08.15.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Townsend - Rybakina", "Bet Builder", "Rybakina to win", "over 21.5 total games", "", "Activated August 14", ""],
-            [true, true, "7Abet/BVBet", "08.16.2026", "08:30:00", "Tennis", "ATP Cincinnati", "Zverev - Norrie", "Bet Builder", "Zverev 1st Set Winner", "over 22.5 total games", "", "Activated August 15", ""],
-            [true, true, "7Abet/BVBet", "08.17.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Tsitsipas - Auger-Aliassime", "Bet Builder", "Auger-Aliassime to win", "total sets played over 2.5", "", "Activated August 16", ""],
-            [true, true, "7Abet/BVBet", "08.17.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Sonego - Tiafoe", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 16", ""],
-            [true, true, "7Abet/BVBet", "08.17.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Gauff - Samsonova", "Bet Builder", "Gauff to win", "over 20.5 total games", "", "Activated August 16", ""],
-            [true, true, "7Abet/BVBet", "08.17.2026", "23:00:00", "Tennis", "WTA Cincinnati", "Eala - Anisimova", "Single", "(Correct score) Will the score be 0:2? YES", "", "", "Activated August 16", ""],
-            [true, true, "7Abet/BVBet", "08.18.2026", "22:00:00", "Tennis", "ATP Cincinnati", "Nakashima - Medvedev", "Bet Builder", "Medvedev 1st Set Winner", "over 22.5 total games", "", "Activated August 17", ">KO moved 8.19"],
-            [true, true, "7Abet/BVBet", "08.18.2026", "03:00:00", "Tennis", "WTA Cincinnati", "Navarro - Pegula", "Bet Builder", "Pegul to win", "total sets played over 2.5", "", "Activated August 17", ""],
-            [true, true, "7Abet/BVBet", "08.19.2026", "22:00:00", "Tennis", "WTA Cincinnati", "Swiatek - Parry", "Bet Builder", "Swiatek 1st Set Winner", "over 16.5 total games", "", "Activated August 18", ""],
-            [true, true, "7Abet/BVBet", "08.20.2026", "01:00:00", "Tennis", "ATP Cincinnati", "Zverev - Paul", "Bet Builder", "Zverev 1st Set Winner", "total sets played over 2.5", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.20.2026", "08:30:00", "Tennis", "WTA Cincinnati", "Sabalenka - Bejlek", "Single", "Aryna Sabalenka will win and Games total OVER 18.5", "", "", "Activated August 19", ""],
-            [true, true, "7Abet/BVBet", "08.21.2026", "23:00:00", "Tennis", "ATP Cincinnati", "Fritz - Nakashima", "Bet Builder", "Fritz to win", "total sets played over 2.5", "", "Activated August 20", ">KO moved 8.21"],
-            [true, true, "7Abet/BVBet", "08.21.2026", "07:00:00", "Tennis", "WTA Cincinnati", "Swiatek - Rybakina", "Bet Builder", "Swiatek 1st Set Winner", "over 22.5 total games", "", "Activated August 20", ""],
-            [true, true, "7Abet/BVBet", "08.22.2026", "08:30:00", "Tennis", "WTA Cincinnati", "Gauff - Kostyuk", "Bet Builder", "Gauff 1st Set Winner", "over 21.5 total games", "", "Activated August 21", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "01:30:00", "Tennis", "ATP Cincinnati", "Cobolli - Fils", "Bet Builder", "Fils to Win", "total sets played over 2.5", "", "Activated August 22", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "03:00:00", "Tennis", "ATP Cincinnati", "Nakashima - Tiafoe", "Bet Builder", "Nakashima to win", "over 24.5 total games", "", "Activated August 22", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "06:00:00", "Tennis", "WTA Cincinnati", "Pegula - Swiatek", "Bet Builder", "Swiatek to Win", "total sets played over 2.5", "", "Activated August 22", ""],
-            [true, true, "7Abet/BVBet", "08.23.2026", "07:30:00", "Tennis", "WTA Cincinnati", "Bejlek - Gauff", "Bet Builder", "Gauff to Win", "over 20.5 total games", "", "Activated August 22", ""],
-            [true, true, "7Abet/BVBet", "08.24.2026", "04:30:00", "Tennis", "ATP Cincinnati", "Arthur Fils vs. Frances Tiafoe", "Single", "Arthur Fils will win and Games total Over 22.5", "", "", "Activated August 23", ""],
-            [true, true, "7Abet/BVBet", "08.24.2026", "07:00:00", "Tennis", "WTA Cincinnati", "Coco Gauff vs. Jessica Pegula", "Single", "Coco Gauff will win and Games total Over 21.5", "", "", "Activated August 23", ""],
-            [true, true, "7Abet/BVBet", "08.24.2026", "23:00:00", "Tennis", "WTA US Open", "Zheng - You", "Bet Builder", "Zheng 1st Set Winner", "total sets played over 2.5", "", "Activated August 24", ""],
-            [true, true, "7Abet/BVBet", "08.25.2026", "06:30:00", "Tennis", "ATP Winston-Salem", "Sonego - Kopriva", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 24", ""],
-            [true, true, "7Abet/BVBet", "08.26.2026", "00:00:00", "Tennis", "ATP Winston-Salem", "Bellucci - Darderi", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated August 25", ""],
-            [true, true, "7Abet/BVBet", "08.26.2026", "02:00:00", "Tennis", "WTA Monterrey", "Bartunkova - Potapova", "Bet Builder", "Bartunkova to win", "total sets played over 2.5", "", "Activated August 25", ""],
-            [true, true, "7Abet/BVBet", "08.27.2026", "00:30:00", "Tennis", "ATP USA Open", "Skatov - Dimitrov", "Bet Builder", "Dimitrov to win", "total sets played over 2.5", "", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.27.2026", "02:00:00", "Tennis", "WTA US Open", "Uchijima - Havlikova", "Bet Builder", "Uchijima 1st set winner", "1st set total over 9.5", "", "Activated August 26", ""],
-            [true, true, "7Abet/BVBet", "08.28.2026", "02:00:00", "Tennis", "ATP Winston-Salem", "Bonzi - Van De Zandschulp", "Bet Builder", "Van De Zandschulp to win", "over 22.5 total games", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.28.2026", "11:00:00", "Tennis", "WTA Monterrey", "Starodutseva - Mertens", "Bet Builder", "Mertens 1st set winner", "total sets played over 2.5", "", "Activated August 27", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "00:30:00", "Tennis", "ATP USA Open", "Gaston - Smith", "Bet Builder", "Gaston to win", "over 22.5 total games", "", "Activated August 28", ""],
-            [true, true, "7Abet/BVBet", "08.29.2026", "00:30:00", "Tennis", "WTA US Open", "Jones - Garland", "Bet Builder", "Jones to win", "over 21.5 total games", "", "Activated August 28", ""],
-            [true, true, "7Abet/BVBet", "08.30.2026", "", "Tennis", "ATP USA Open", "Zverev - Sonego", "Single", "Total Sets Over 3.5", "", "", "Activated August 29", ""],
-            [true, true, "7Abet/BVBet", "08.30.2026", "", "Tennis", "WTA US Open", "Sabalenka - Osorio", "Single", "Total games won by Sabalenka over 12.5", "", "", "Activated August 29", ""],
-            [true, true, "7Abet/BVBet", "08.31.2026", "07:00:00", "Tennis", "ATP USA Open", "Navone - Djokovic", "Bet Builder", "Djokovi to win", "over 32.5 total games", "", "Activated August 30", ""],
-            [true, true, "7Abet/BVBet", "08.31.2026", "00:00:00", "Tennis", "WTA US Open", "Pegula - Ruse", "Single", "Total games won by Pegula over 12.5", "", "", "Activated August 30", ""],
-            [true, true, "7Abet/BVBet", "09.01.2026", "01:00:00", "Tennis", "ATP USA Open", "Safiullin - Alcaraz", "Bet Builder", "Alcaraz to win", "over 37.5 total games", "", "Activated August 31", ""],
-            [true, true, "7Abet/BVBet", "09.01.2026", "07:00:00", "Tennis", "WTA US Open", "Swiatek - Wang Xiy", "Bet Builder", "Swiatek to win 1st set", "total sets played over 2.5", "", "Activated August 31", ""]
+            [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Tennis", "ATP Washington", "De Minaur - Nakashima", "Single", "De Minaur 1st set winner", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Tennis", "ATP Washington", "Fritz - Michelsen", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated July 31", ""],
+            [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Tennis", "WTA Washington", "Pegula - Kalinskaya", "Single", "Total games over 20.5", "", "", "Activated July 31", ""]
         ];
 
         const guidelinesData = {
             hero: [
-                { rank: 1, league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] },
-                { rank: 2, league: "England Premier League", options: ["Man Utd", "Liverpool", "Arsenal", "Man City", "Chelsea", "Tottenham", "Aston Villa", "Leeds", "Everton", "Newcastle", ""] },
-                { rank: 3, league: "Spain La Liga", options: ["Real Madrid", "Barcelona", "Atl Madrid", "Athletic Club", "Sevilla", "Real Betis", "Valencia", "Real Sociedad", "Vallarreal", "Espanyol", ""] },
-                { rank: 4, league: "Germany Bundesliga", options: ["Bayern", "Dortmund", "Eintracht Frankfurt", "Schalke 04", "Borussia M'gladbach", "Hamburger SV", "FC Köln", "Weder Bremen", "Union Berlin", "Stuttgart", ""] },
-                { rank: 5, league: "Italy Serie A", options: ["Inter", "Juventus", "Milan", "Napoli", "Roma", "Lazio", "Fiorentina", "Como", "Atalanta", "Cagliari", ""] },
-                { rank: 6, league: "France Ligue 1", options: ["PSG", "Marseille", "Lyon", "Saint Etienne", "Lens", "Lille", "Monaco", "Nantes", "Rennes", "Strasbourg", ""] },
-                { rank: 7, league: "Portugal Liga", options: ["Benfica", "Porto", "Sporting CP", "Sporting Braga", "Vitória de Guimarães", "Boavista", "Maritimo", "Belenenses", "Rio Ave", "Vitória de Setúbal", ""] },
-                { rank: 8, league: "Netherlands Eredivisie", options: ["Ajax", "Feyenoord", "PSG", "Utrecht", "Twente", "Alkmaar", "Vitesse", "Heerenveen", "NEC Nijmegen", "Groningen", ""] }
+                { rank: 1, league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] }
             ],
             normalBoosts: [
                 { type: "Betbuilder", maxStake: "25e max bet", odds1: "10%", odds2: "8%" },
                 { type: "Single", maxStake: "25e max bet", odds1: "10%", odds2: "8%" }
             ],
             specialBoosts: [
-                { type: "Single", maxStake: "10e max bet", odds1: "40-50%" },
-                { type: "Betbuilder", maxStake: "10e max bet", odds1: "20-25%" }
+                { type: "Single", maxStake: "10e max bet", odds1: "40-50%" }
             ],
             instructions: [
-                "Release boosts around 3PM Manila Time - double check if any line moves (we can launch with the new lines - update boost and toggle active)",
-                "If a total line or a player prop line moves, we can take the next main line available when creating boosts (example if 217.5 is listed on schedule but it moves to 218.5, we can take the 218.5)",
-                "Double check website from time to time - Markets tend to change all the time, in cases were a total line moves, we can toggle inactive the existing boost, and relaunch with the new line (update schedule)",
-                "Get into the habit to double checking boosts are all showing accordingly on site",
-                "if you spot any other markets which we cant combine - pls let Miguel know"
+                "Release boosts around 3PM Manila Time - double check if any line moves"
             ]
         };
 
@@ -590,30 +480,7 @@
             "EDGE Banners": {
                 headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"],
                 rows: [
-                    [true, "08.08.2026", "SJK vs Gnistan", "QPR vs Millwall", "", "Andreeva - Fernandez", "Ruud - Fonseca", "", ""],
-                    [true, "08.09.2026", "PEC Zwolle vs Ajax", "Mansfield vs Sheffield United", "", "Lehecka - Jodar", "Sabalenka - Alexandrova", "", ""],
-                    [true, "08.10.2026", "Kristiansund vs Molde", "Oulu - HJK", "", "", "", "", ""],
-                    [true, "08.11.2026", "Kairat Almaty - Levski Sofia", "Plymouth - Exeter", "", "Mensik - Shelton", "Shnaider - Swiatek", "", ""],
-                    [true, "08.12.2026", "Bodo/Glimt - Royale Union SG", "Olympiacos - NEC Nijmegen", "", "Svitolina - Swiatek", "", "", ""],
-                    [true, "08.13.2026", "PSG - Aston Villa", "Cruzeiro - Flamengo RJ", "", "", "", "", ""],
-                    [true, "08.14.2026", "Qarabag - Dynamo Kyiv", "Rangers - Jagiellonia", "", "", "", "", ""],
-                    [true, "08.15.2026", "Alaves - Getafe", "Excelsior - PSV", "", "", "", "", ""],
-                    [true, "08.16.2026", "Arsenal - Man City", "Celta Vigo - Osasuna", "", "Tsitsipas - Auger-Aliassime", "Townsend - Rybakina", "", ""],
-                    [true, "08.17.2026", "Dep Coruna - Elche", "Cardiff - Wrexham", "", "Nakashima - Medvedev", "", "", ""],
-                    [true, "08.18.2026", "Thailand - Singapore", "Fenerbahce - Lyon", "", "Zverev - Paul", "", "", ""],
-                    [true, "08.19.2026", "Atl Madrid - Malaga", "Celtic - Lask", "", "", "", "", ""],
-                    [true, "08.20.2026", "Rayo Vallecano - Alaves", "Egnatia - Lillestrom", "", "", "", "", ""],
-                    [true, "08.21.2026", "Arsenal - Coventry", "Real Betis - Real Sociedad", "", "", "", "", ""],
-                    [true, "08.22.2026", "Dortmund - Bayern", "Hull - Man United", "Espanyol - Real Madrid", "Pegula - Swiatek", "", "", ""],
-                    [true, "08.23.2026", "Man City - Bournemouth", "Elche - Barcelona", "Torino - Milan", "", "", "", ""],
-                    [true, "08.24.2026", "Fulham - Chelsea", "Roma - Fiorentina", "Bologna - Lazio", "", "", "", ""],
-                    [true, "08.25.2026", "Lask - Celtic", "Bodo/Glimt - NEC", "Valencia - Real Betis", "", "", "", ""],
-                    [true, "08.26.2026", "Real Madrid - Real Sociedad", "Lyon - Fenerbahce", "AEK - Levski Sofia", "", "", "", ""],
-                    [true, "08.27.2026", "Barcelona - Athletic Club", "AGF - Benfica", "Brighton - Tromso", "", "", "", ""],
-                    [true, "08.28.2026", "Crystal Palace - Man City", "Bayern - Stuttgart", "Lille - PSG", "", "", "CS: paiN vs. Natus Vincere", ""],
-                    [true, "08.29.2026", "Tottenham - Newcastle", "Sevilla - Atl Madrid", "Juventus - Parma", "", "", "", ""],
-                    [true, "08.30.2026", "Man Utd - Ipswich", "Real Madrid - Malaga", "Cagliari - Inter", "", "", "", ""],
-                    [true, "08.31.2026", "Aston Villa - Arsenal", "Barcelona - Rayo Vallecano", "Lecce - Roma", "", "", "", ""]
+                    [true, "08.08.2026", "SJK vs Gnistan", "QPR vs Millwall", "", "Andreeva - Fernandez", "Ruud - Fonseca", "", ""]
                 ]
             },
             "Edge Football": {
@@ -630,7 +497,7 @@
                 headers: ["BO", "PUB", "Brands", "Event Date", "Sports", "League", "Event", "Type", "Markets", "Notes", "Other Ideas"],
                 meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
                 rows: [
-                    [false, false, "7Abet/BVBet", "08.07.2026", "American Football", "NFL Preseason", "Arizona Cardinals vs. Carolina Panthers", "Single", "New Orleans Saints are the best in the WORLD", "Few markets so far", ""]
+                    [false, false, "7Abet/BVBet", "08.07.2026", "American Football", "NFL Preseason", "Arizona Cardinals vs. Carolina Panthers", "Single", "New Orleans Saints", "Few markets so far", ""]
                 ]
             },
             "Guideliness": {
@@ -640,7 +507,7 @@
             }
         };
 
-        let currentSheet = "EDGE Banners";
+        let currentSheet = "Edge Football";
         let workbookData = JSON.parse(JSON.stringify(embeddedData));
 
         function initApp() {
@@ -664,6 +531,103 @@
                     redo();
                 }
             });
+
+            checkAndAutoFillFromTransfer();
+        }
+
+        // AUTOMATIC INCOMING MATCH TRANSFER HANDLER
+        function checkAndAutoFillFromTransfer() {
+            const rawData = localStorage.getItem('pending_edge_boost_transfer');
+            if (!rawData) return;
+
+            try {
+                const data = JSON.parse(rawData);
+                localStorage.removeItem('pending_edge_boost_transfer');
+
+                let targetSheet = "Edge Football";
+                let sportVal = "Football";
+
+                if (data.sport === "TENNIS") {
+                    targetSheet = "Edge Tennis";
+                    sportVal = "Tennis";
+                } else if (data.sport !== "FOOTBALL" && data.sport !== "OUTRIGHT") {
+                    targetSheet = "Edge Other Sports";
+                    sportVal = "Basketball";
+                }
+
+                currentSheet = targetSheet;
+                renderTabs();
+
+                let formattedDate = "";
+                let formattedTime = "";
+
+                if (data.dateTime) {
+                    const dateObj = new Date(data.dateTime);
+                    if (!isNaN(dateObj.getTime())) {
+                        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const d = String(dateObj.getDate()).padStart(2, '0');
+                        const y = dateObj.getFullYear();
+                        formattedDate = `${m}.${d}.${y}`;
+
+                        const hh = String(dateObj.getHours()).padStart(2, '0');
+                        const mm = String(dateObj.getMinutes()).padStart(2, '0');
+                        const ss = String(dateObj.getSeconds()).padStart(2, '0');
+                        formattedTime = `${hh}:${mm}:${ss}`;
+                    }
+                }
+
+                pushState();
+                const sheet = workbookData[currentSheet];
+                
+                let newRow = [];
+                if (currentSheet === "Edge Football") {
+                    // EXACT HEADER ALIGNMENT MATCH:
+                    // 0: BO | 1: PUB | 2: Brands | 3: KO Date | 4: KO Time | 5: Sports | 6: League | 7: Event | 8: Type | 9: Market 1...
+                    newRow = [
+                        false,                   // BO (0)
+                        false,                   // PUB (1)
+                        "7Abet/BVBet",           // Brands (2)
+                        formattedDate,           // KO Date (3)
+                        formattedTime,           // KO Time (4)
+                        "Football",              // Sports (5)
+                        data.league || "",       // League (6)
+                        data.title || "",        // Event (7)
+                        "Bet Builder",           // Type (8)
+                        "",                      // Market 1 (9)
+                        "",                      // Market 2 (10)
+                        "",                      // Market 3 (11)
+                        "",                      // Market 4 (12)
+                        "Transferred from Schedule", // Notes (13)
+                        ""                       // Other Ideas (14)
+                    ];
+                } else if (currentSheet === "Edge Tennis") {
+                    newRow = [
+                        false, false, "7Abet/BVBet", 
+                        formattedDate, formattedTime, "Tennis", 
+                        data.league || "", data.title || "", "Single", 
+                        "", "", "", "Transferred from Schedule", ""
+                    ];
+                } else {
+                    newRow = [
+                        false, false, "7Abet/BVBet", 
+                        formattedDate, sportVal, 
+                        data.league || "", data.title || "", "Bet Builder", 
+                        "", "Transferred from Schedule", ""
+                    ];
+                }
+
+                sheet.rows.push(newRow);
+                debouncedSaveToFirebase();
+                renderActiveSheet();
+
+                setTimeout(() => {
+                    const wrapper = document.getElementById('tableWrapper');
+                    if (wrapper) wrapper.scrollTop = wrapper.scrollHeight;
+                }, 100);
+
+            } catch (e) {
+                console.error("Error processing transferred boost match:", e);
+            }
         }
 
         function closeAllDropdowns() {
@@ -680,7 +644,7 @@
             if (undoStack.length === 0) return;
             redoStack.push(JSON.parse(JSON.stringify(workbookData)));
             workbookData = undoStack.pop();
-            saveToFirebase();
+            saveToFirebaseNow();
             renderActiveSheet();
             updateUndoRedoButtons();
         }
@@ -689,7 +653,7 @@
             if (redoStack.length === 0) return;
             undoStack.push(JSON.parse(JSON.stringify(workbookData)));
             workbookData = redoStack.pop();
-            saveToFirebase();
+            saveToFirebaseNow();
             renderActiveSheet();
             updateUndoRedoButtons();
         }
@@ -701,30 +665,48 @@
             if (redoBtn) redoBtn.disabled = redoStack.length === 0;
         }
 
-        // STRICT BLANK-SCREEN GUARD ADDED HERE
         function listenToFirebase() {
             if (!db) {
                 renderActiveSheet();
                 return;
             }
 
+            // CRITICAL FIX: Only overwrite local data if the user is NOT actively typing to prevent focus-loss & freezing
             db.ref('edge_boosts_master_v22').on('value', (snapshot) => {
+                if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT')) {
+                    return; // Ignore remote re-renders while typing
+                }
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object' && liveData["Edge Football"] && liveData["Edge Football"].rows && liveData["Edge Football"].rows.length >= 100) {
                     workbookData = liveData;
                 } else {
-                    saveToFirebase(); // Re-seed clean dataset if Firebase is blank
+                    saveToFirebaseNow();
                 }
                 renderActiveSheet();
             });
         }
 
-        function saveToFirebase() {
+        // DEBOUNCED DATABASE SAVING - ELIMINATES TYPING FREEZES
+        function debouncedSaveToFirebase() {
+            const statusBadge = document.getElementById('saveStatus');
+            if (statusBadge) {
+                statusBadge.style.opacity = '0.5';
+                statusBadge.innerText = '⏳ Syncing...';
+            }
+
+            clearTimeout(saveDebounceTimer);
+            saveDebounceTimer = setTimeout(() => {
+                saveToFirebaseNow();
+            }, 400); // 400ms delay after last key press
+        }
+
+        function saveToFirebaseNow() {
             if (db) {
                 db.ref('edge_boosts_master_v22').set(workbookData);
             }
             const statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
+                statusBadge.innerText = '✓ Live Synced';
                 statusBadge.style.opacity = '1';
                 setTimeout(() => { statusBadge.style.opacity = '0'; }, 1000);
             }
@@ -969,7 +951,7 @@
                 } else {
                     rowHTML += `
                         <td>
-                            <textarea class="editable-cell" oninput="autoResizeTextarea(this)" onchange="updateCell(${rowIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
+                            <textarea class="editable-cell" oninput="autoResizeTextarea(this); updateCellDirectly(${rowIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
                         </td>
                     `;
                 }
@@ -979,7 +961,6 @@
             return tr;
         }
 
-        // NO SCROLLBAR, DYNAMIC EXPANSION
         function autoResizeTextarea(el) {
             el.style.height = 'auto';
             el.style.height = (el.scrollHeight) + 'px';
@@ -1135,7 +1116,7 @@
                 html += `
                     <div class="rules-item">
                         <span style="font-weight: bold;">•</span>
-                        <textarea class="rule-textarea" oninput="autoResizeTextarea(this)" onchange="updateInstructionRule(${insIdx}, this.value)">${escapeHtml(ins)}</textarea>
+                        <textarea class="rule-textarea" oninput="autoResizeTextarea(this); updateInstructionRuleDirectly(${insIdx}, this.value)">${escapeHtml(ins)}</textarea>
                         <button class="delete-btn" onclick="deleteInstructionRule(${insIdx})" title="Delete Rule">🗑️</button>
                     </div>
                 `;
@@ -1157,42 +1138,41 @@
             pushState();
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
             workbookData["Guideliness"].data.hero[rIdx][prop] = val;
-            saveToFirebase();
+            debouncedSaveToFirebase();
         }
 
         function updateHeroOption(rIdx, oIdx, val) {
             pushState();
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
             workbookData["Guideliness"].data.hero[rIdx].options[oIdx] = val;
-            saveToFirebase();
+            debouncedSaveToFirebase();
         }
 
         function updateNormalBoost(nbIdx, prop, val) {
             pushState();
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
             workbookData["Guideliness"].data.normalBoosts[nbIdx][prop] = val;
-            saveToFirebase();
+            debouncedSaveToFirebase();
         }
 
         function updateSpecialBoost(sbIdx, prop, val) {
             pushState();
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
             workbookData["Guideliness"].data.specialBoosts[sbIdx][prop] = val;
-            saveToFirebase();
+            debouncedSaveToFirebase();
         }
 
-        function updateInstructionRule(insIdx, val) {
-            pushState();
+        function updateInstructionRuleDirectly(insIdx, val) {
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
             workbookData["Guideliness"].data.instructions[insIdx] = val;
-            saveToFirebase();
+            debouncedSaveToFirebase();
         }
 
         function addRuleInstruction() {
             pushState();
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
             workbookData["Guideliness"].data.instructions.push("New operational rule/instruction...");
-            saveToFirebase();
+            saveToFirebaseNow();
             renderGuidelinesView();
         }
 
@@ -1201,15 +1181,21 @@
                 pushState();
                 if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
                 workbookData["Guideliness"].data.instructions.splice(insIdx, 1);
-                saveToFirebase();
+                saveToFirebaseNow();
                 renderGuidelinesView();
             }
+        }
+
+        // SMOOTH INPUT HANDLING: Updates local data instantly & debounces network save (NO FREEZING/RE-RENDERING)
+        function updateCellDirectly(rowIndex, colIndex, value) {
+            workbookData[currentSheet].rows[rowIndex][colIndex] = value;
+            debouncedSaveToFirebase();
         }
 
         function updateCell(rowIndex, colIndex, value) {
             pushState();
             workbookData[currentSheet].rows[rowIndex][colIndex] = value;
-            saveToFirebase();
+            debouncedSaveToFirebase();
         }
 
         function addNewRow() {
@@ -1231,10 +1217,9 @@
                 return "";
             });
 
-            sheet.rows.push(newRow); // APPENDS AT BOTTOM
-            saveToFirebase();
+            sheet.rows.push(newRow);
+            saveToFirebaseNow();
 
-            // Direct DOM Append (Instant execution)
             const tbody = document.getElementById('tableBody');
             const newRowIndex = sheet.rows.length - 1;
             const tr = createTableRowElement(newRow, newRowIndex);
@@ -1245,7 +1230,6 @@
                 recordCounter.innerText = `Records: ${sheet.rows.length}`;
             }
 
-            // Smooth scroll directly to the newly added row
             const wrapper = document.getElementById('tableWrapper');
             if (wrapper) {
                 wrapper.scrollTop = wrapper.scrollHeight;
@@ -1256,7 +1240,7 @@
             if (confirm("Are you sure you want to delete this record?")) {
                 pushState();
                 workbookData[currentSheet].rows.splice(rowIndex, 1);
-                saveToFirebase();
+                saveToFirebaseNow();
                 renderActiveSheet();
             }
         }
@@ -1265,7 +1249,7 @@
             if (confirm(`Are you sure you want to CLEAR ALL records in "${currentSheet}"?`)) {
                 pushState();
                 workbookData[currentSheet].rows = [];
-                saveToFirebase();
+                saveToFirebaseNow();
                 renderActiveSheet();
             }
         }
