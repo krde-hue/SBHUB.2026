@@ -100,7 +100,6 @@
     td { padding: 6px 10px; border-bottom: 1px solid var(--card-border); color: var(--text-main); position: relative; }
     tr:hover { background-color: rgba(0, 180, 216, 0.03); }
 
-    /* Invisible Editable Input Field */
     .invisible-input {
       width: 100%;
       background: transparent;
@@ -123,7 +122,6 @@
       box-shadow: 0 0 6px rgba(0, 180, 216, 0.3);
     }
 
-    /* Checkbox Styling */
     .checkbox-container { display: flex; align-items: center; justify-content: center; height: 100%; }
     .track-checkbox {
       width: 18px;
@@ -135,7 +133,6 @@
     .btn-delete { background: rgba(239, 68, 68, 0.15); color: var(--danger-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; transition: 0.2s; }
     .btn-delete:hover { background: var(--danger-red); color: #fff; }
 
-    /* Guidelines Layout Styling */
     .guidelines-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
     .guidelines-title { font-size: 1.1em; color: var(--accent-blue); font-weight: 700; margin-bottom: 12px; }
     .guidelines-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 20px; }
@@ -148,7 +145,6 @@
       ⚡ IBET<span>BOOST</span>
     </div>
     <div class="action-toolbar">
-      <!-- Theme Daylight / Night Mode Toggle -->
       <button class="btn" id="btnThemeToggle" onclick="toggleDaylightNightMode()">☀️ Daylight Mode</button>
       <button class="btn btn-primary" onclick="pushToFirebase()">Sync Firebase</button>
       <button class="btn" onclick="exportExcelCurrentTab()">Export Tab Excel</button>
@@ -160,26 +156,21 @@
     </div>
   </header>
 
-  <!-- Top Picks Section connected to Firebase -->
   <section class="top-picks-section">
     <div class="section-header">🔥 UPCOMING TOP PICKS (WEEKLY SCHEDULE)</div>
     <div class="top-picks-grid" id="topPicksContainer"></div>
   </section>
 
-  <!-- Category Navigation Tabs -->
   <nav class="sports-tabs" id="sportsTabsNav"></nav>
 
-  <!-- Filters & Controls Bar -->
   <div class="filter-bar">
     <div class="controls-group">
       <input type="text" id="searchInput" class="search-box" placeholder="Filter current view..." oninput="renderActiveTab()">
       
-      <!-- Month Filter Dropdown -->
       <select id="monthFilter" class="select-control" onchange="renderActiveTab()">
         <option value="ALL">All Months</option>
       </select>
 
-      <!-- Row View Limit Selector -->
       <select id="rowLimitFilter" class="select-control" onchange="renderActiveTab()">
         <option value="10">Show 10 Rows</option>
         <option value="20">Show 20 Rows</option>
@@ -187,7 +178,6 @@
         <option value="ALL" selected>Show All Rows</option>
       </select>
 
-      <!-- Font Size Slider -->
       <div class="font-slider-container">
         <span>Font Size:</span>
         <input type="range" id="fontSizeSlider" class="font-slider" min="11" max="18" value="14" oninput="adjustFontSize(this.value)">
@@ -201,7 +191,6 @@
     </div>
   </div>
 
-  <!-- Main Display -->
   <main id="mainContainer" class="table-wrapper">
     <table>
       <thead id="tableHead"></thead>
@@ -211,7 +200,7 @@
 
   <script>
     // -------------------------------------------------------------
-    // 1. FIREBASE REALTIME SETUP (SYNCHRONIZED CREDENTIALS)
+    // 1. FIREBASE REALTIME SETUP
     // -------------------------------------------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
@@ -244,88 +233,200 @@
       console.warn("Offline Mode Active.");
     }
 
+    const defaultGuidelines = {
+      "leaguesRank": [
+        { "rank": "1", "league": "European Championships", "teams": "Real Madrid, Barcelona, Man Utd, Liverpool, Bayern, Juventus, Dortmund, Arsenal, PSG, Benfica, Inter/Milan" },
+        { "rank": "2", "league": "England Premier League", "teams": "Man Utd, Liverpool, Arsenal, Man City, Chelsea, Tottenham, Aston Villa, Leeds, Everton, Newcastle" },
+        { "rank": "3", "league": "Spain La Liga", "teams": "Real Madrid, Barcelona, Atl Madrid, Athletic Club, Sevilla, Real Betis, Valencia, Real Sociedad, Villarreal, Espanyol" },
+        { "rank": "4", "league": "Germany Bundesliga", "teams": "Bayern, Dortmund, Eintracht Frankfurt, Schalke 04, Borussia M'gladbach, Hamburger SV, FC Köln, Werder Bremen, Union Berlin, Stuttgart" },
+        { "rank": "5", "league": "Italy Serie A", "teams": "Inter, Juventus, Milan, Napoli, Roma, Lazio, Fiorentina, Como, Atalanta, Cagliari" },
+        { "rank": "6", "league": "France Ligue 1", "teams": "PSG, Marseille, Lyon, Saint Etienne, Lens, Lille, Monaco, Nantes, Rennes, Strasbourg" },
+        { "rank": "7", "league": "Portugal Liga", "teams": "Benfica, Porto, Sporting CP, Sporting Braga, Vitória de Guimarães, Boavista, Maritimo, Belenenses, Rio Ave, Vitória de Setúbal" },
+        { "rank": "8", "league": "Netherlands Eredivisie", "teams": "Ajax, Feyenoord, PSV, Utrecht, Twente, Alkmaar, Vitesse, Heerenveen, NEC Nijmegen, Groningen" }
+      ],
+      "targetMarkets": [
+        "Favourites (2.20 or less: 1x2): Team -1 handicap, Main Scorer 1st Goalscorer, Team HT/FT, Team Win to Nil, Main Scorer to Score, Team + o2.5 goals, Team + BTTS + o3.5, Team Over X Corners (7.5+)",
+        "On Less Favored Team (2.50 or more): Team to win either half, BTTS + o2.5, BTTS 1st Half, Main Scorer to Score, Team o1.5 goals"
+      ],
+      "boostSettings": [
+        { "type": "General Boosts", "minStake": "1€", "maxStake": "25€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "10%" },
+        { "type": "Game Super Boosts", "minStake": "1€", "maxStake": "20€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "25%" },
+        { "type": "Outright Super Boosts", "minStake": "1€", "maxStake": "10€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "25% to 100%" }
+      ]
+    };
+
     // -------------------------------------------------------------
-    // 2. MASTER DATASET (FULL FOOTBALL, TENNIS & GUIDELINES DATA)
+    // 2. MASTER DATASET WITH FULL IMAGE DATA
     // -------------------------------------------------------------
     let masterDataset = {
       "Football": [
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "Italy Serie A", "Event": "Parma - Cremonese", "Type": "Single", "Market": "Parma to win and BTTS yes", "Notes": "Activated September 1" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "Italy Serie A", "Event": "Torino - Monza", "Type": "Single", "Market": "Torino to win and Over 2.5 goals", "Notes": "Activated September 1" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "DFB Pokal", "Event": "Homburg - Dortmund", "Type": "", "Market": "not yet available no win & boost options", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "Italy Serie A", "Event": "Parma - Cremonese", "Type": "Single", "Market": "Parma to win and BTTS yes", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "Italy Serie A", "Event": "Torino - Monza", "Type": "Single", "Market": "Torino to win and Over 2.5 goals", "Notes": "" },
         { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "England Championship", "Event": "West Ham - Wolves", "Type": "Single", "Market": "West Ham + BTTS", "Notes": "" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Football", "League": "Scotland Premiership", "Event": "Celtic - Aberdeen", "Type": "Single", "Market": "Celtic + o3.5", "Notes": "Activated August 29" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Football", "League": "Scotland Premiership", "Event": "Celtic - Aberdeen", "Type": "Single", "Market": "Celtic + o3.5", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Football", "League": "DFB Pokal", "Event": "Oberneuland - Bayern Munich", "Type": "", "Market": "not yet available no win & boost options", "Notes": "" },
         { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Football", "League": "Coppa Italia", "Event": "Sassuolo - Frosinone", "Type": "Single", "Market": "Sassuolo to win and BTTS yes", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "France Ligue 1", "Event": "Toulouse - Lille", "Type": "Single", "Market": "Lille Match Winner + o2.5", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "Coppa Italia", "Event": "Cagliari - Verona", "Type": "Single", "Market": "BTTS + o2.5", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "Scotland Premiership", "Event": "Hibernian - Hearts", "Type": "Single", "Market": "Hearts Win Either Half", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "England Premier League", "Event": "Ipswich - Liverpool", "Type": "Single", "Market": "Liverpool Win to Nil", "Notes": "superboost 25% / 20e max stake" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "Italy Serie A", "Event": "Genoa - Como", "Type": "Single", "Market": "Both Teams to Score Yes", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "LaLiga", "Event": "Real Betis - Real Madrid", "Type": "Single", "Market": "Real Madrid HT/FT", "Notes": "superboost 25% / 20e max stake" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "France Ligue 1", "Event": "PSG - Monaco", "Type": "Single", "Market": "PSG + o2.5", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "England Premier League", "Event": "Man City - Coventry", "Type": "Single", "Market": "Man City -1 handicap", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Italy Serie A", "Event": "Inter - Napoli", "Type": "Single", "Market": "Inter Win + BTTS", "Notes": "superboost 25% / 20e max stake" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "LaLiga", "Event": "Athletic - Atl Madrid", "Type": "Single", "Market": "BTTS + o2.5", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Schalke - Bayern", "Type": "Single", "Market": "Kane to score first", "Notes": "superboost 25% / 20e max stake" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Everton - Man Utd", "Type": "Single", "Market": "Fernandes anytime goalscorer", "Notes": "superboost 25% / 20e max stake" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Arsenal - Chelsea", "Type": "Single", "Market": "Havertz to score first", "Notes": "superboost 25% / 20e max stake" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "Italy Serie A", "Event": "Juventus - Milan", "Type": "Single", "Market": "Milan + o2.5", "Notes": "" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "LaLiga", "Event": "Valencia - Barcelona", "Type": "Single", "Market": "Barcelona + o3.5", "Notes": "superboost 25% / 20e max stake" },
-        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-17", "Sport": "Football", "League": "UEFA Europa League", "Event": "Matchday 1 Fixtures", "Type": "Single", "Market": "BTTS + o2.5 Multi", "Notes": "Highlighted Event" }
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "France Ligue 1", "Event": "Toulouse - Lille", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "Coppa Italia", "Event": "Cagliari - Verona", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "Scotland Premiership", "Event": "Hibernian - Hearts", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "England Premier League", "Event": "Ipswich - Liverpool", "Type": "", "Market": "", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "England Premier League", "Event": "Ipswich - Liverpool", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "Italy Serie A", "Event": "Genoa - Como", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "Italy Serie A", "Event": "Genoa - Como", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "LaLiga", "Event": "Real Betis - Real Madrid", "Type": "", "Market": "", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "LaLiga", "Event": "Real Betis - Real Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "France Ligue 1", "Event": "PSG - Monaco", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "England Premier League", "Event": "Man City - Coventry", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "England Premier League", "Event": "Man City - Coventry", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "England Premier League", "Event": "M Forest - Tottenham", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Italy Serie A", "Event": "Inter - Napoli", "Type": "", "Market": "", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Italy Serie A", "Event": "Inter - Napoli", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "LaLiga", "Event": "Athletic - Atl Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "LaLiga", "Event": "Athletic - Atl Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Hoffenheim - Dortmund", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Schalke - Bayern", "Type": "", "Market": "", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Schalke - Bayern", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "Italy Serie A", "Event": "Roma - Atalanta", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Everton - Man Utd", "Type": "", "Market": "", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Everton - Man Utd", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Arsenal - Chelsea", "Type": "", "Market": "", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Arsenal - Chelsea", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "Italy Serie A", "Event": "Juventus - Milan", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "Italy Serie A", "Event": "Juventus - Milan", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "LaLiga", "Event": "Valencia - Barcelona", "Type": "", "Market": "", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "LaLiga", "Event": "Valencia - Barcelona", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Frankfurt - Augsburg", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-07", "Sport": "Football", "League": "Italy Serie A", "Event": "Cagliari - Lecce", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-07", "Sport": "Football", "League": "Italy Serie A", "Event": "Udinese - Lazio", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-07", "Sport": "Football", "League": "LaLiga", "Event": "Getafe - Celta", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-07", "Sport": "Football", "League": "LaLiga", "Event": "Real Sociedad - Real Sociedad", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-08", "Sport": "Football", "League": "Eng Championship", "Event": "Wrexham - Burnley", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-08", "Sport": "Football", "League": "Eng Championship", "Event": "Bolton - West Ham", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-09", "Sport": "Football", "League": "Liga Portugal", "Event": "Moreirense - Benfica", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-09", "Sport": "Football", "League": "NED Eredivisie", "Event": "Twente - Telstar", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-09", "Sport": "Football", "League": "Eng Championship", "Event": "Norwich - Birmingham", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-09", "Sport": "Football", "League": "Eng Championship", "Event": "Wigan - Portsmouth", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-09", "Sport": "Football", "League": "USA MLS", "Event": "Chicago - Inter Miami", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-09", "Sport": "Football", "League": "USA MLS", "Event": "NY City - New England", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-10", "Sport": "Football", "League": "Liga Portugal", "Event": "Ermis - Braga", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-11", "Sport": "Football", "League": "Italy Serie A", "Event": "Venezia - Fiorentina", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-11", "Sport": "Football", "League": "France Ligue 1", "Event": "Rennes - Marseille", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-11", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Union Berlin - Schalke", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-11", "Sport": "Football", "League": "Eng Championship", "Event": "West Ham - Wrexham", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-12", "Sport": "Football", "League": "England Premier League", "Event": "Chelsea - Hull", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-12", "Sport": "Football", "League": "England Premier League", "Event": "Liverpool - Fulham", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-12", "Sport": "Football", "League": "England Premier League", "Event": "Sunderland - Arsenal", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-12", "Sport": "Football", "League": "England Premier League", "Event": "Sunderland - Arsenal", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-12", "Sport": "Football", "League": "England Premier League", "Event": "Tottenham - Everton", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-12", "Sport": "Football", "League": "Italy Serie A", "Event": "Sassuolo - Juventus", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-12", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Dortmund - Paderborn", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "England Premier League", "Event": "Man Utd - Van City", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "England Premier League", "Event": "Man Utd - Van City", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "England Premier League", "Event": "Man Utd - Van City", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "England Premier League", "Event": "Coventry - Brighton", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "Italy Serie A", "Event": "Napoli - Bologna", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "Italy Serie A", "Event": "Lazio - Milan", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "Italy Serie A", "Event": "Lazio - Milan", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "LaLiga", "Event": "Real Madrid - Rayo Vallecano", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "LaLiga", "Event": "Real Madrid - Rayo Vallecano", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "LaLiga", "Event": "Levante - Barcelona", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "LaLiga", "Event": "Levante - Barcelona", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "France Ligue 1", "Event": "Brest - PSG", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "France Ligue 1", "Event": "Brest - PSG", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Eversberg - Bayern Munich", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-13", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Eversberg - Bayern Munich", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-14", "Sport": "Football", "League": "England Premier League", "Event": "Leeds - Newcastle", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-14", "Sport": "Football", "League": "England Premier League", "Event": "Leeds - Newcastle", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-14", "Sport": "Football", "League": "Italy Serie A", "Event": "Inter - Udinese", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-14", "Sport": "Football", "League": "Italy Serie A", "Event": "Inter - Udinese", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-15", "Sport": "Football", "League": "NED Eredivisie", "Event": "Ajax - Willem II", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-15", "Sport": "Football", "League": "Italy Serie A", "Event": "Genoa - Roma", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-15", "Sport": "Football", "League": "Italy Serie A", "Event": "Fiorentina - Pisa", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-16", "Sport": "Football", "League": "LaLiga", "Event": "Atl Madrid - Osasuna", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-16", "Sport": "Football", "League": "LaLiga", "Event": "Elche - Real Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-16", "Sport": "Football", "League": "LaLiga", "Event": "Elche - Real Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-16", "Sport": "Football", "League": "LaLiga", "Event": "Elche - Real Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-16", "Sport": "Football", "League": "LaLiga", "Event": "Barcelona - Racing Csp", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-16", "Sport": "Football", "League": "LaLiga", "Event": "Barcelona - Racing Csp", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "16-17 Sept", "Sport": "Football", "League": "UEFA Europa League", "Event": "", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-18", "Sport": "Football", "League": "England Premier League", "Event": "Brentford - Chelsea", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-18", "Sport": "Football", "League": "England Premier League", "Event": "Brentford - Chelsea", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-18", "Sport": "Football", "League": "Italy Serie A", "Event": "Monza - Sassuolo", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-18", "Sport": "Football", "League": "Italy Serie A", "Event": "Monza - Sassuolo", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-18", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Bayern Munich - Union Berlin", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-18", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Bayern Munich - Union Berlin", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-18", "Sport": "Football", "League": "ENG Championship", "Event": "Exeter - Norwich", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "England Premier League", "Event": "Tottenham - Aston Villa", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "England Premier League", "Event": "Tottenham - Aston Villa", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "England Premier League", "Event": "Brighton - Arsenal", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "England Premier League", "Event": "Brighton - Arsenal", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "England Premier League", "Event": "Man City - Sunderland", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "England Premier League", "Event": "Man City - Sunderland", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "Italy Serie A", "Event": "Roma - Inter", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "Italy Serie A", "Event": "Roma - Inter", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "France Ligue 1", "Event": "Lyon - Rennes", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Stuttgart - Dortmund", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-19", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Stuttgart - Dortmund", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "England Premier League", "Event": "Bournemouth - Liverpool", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "England Premier League", "Event": "Bournemouth - Liverpool", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "England Premier League", "Event": "Fulham - Man Utd", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "England Premier League", "Event": "Fulham - Man Utd", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "Italy Serie A", "Event": "Fiorentina - Napoli", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "Italy Serie A", "Event": "Fiorentina - Napoli", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "Italy Serie A", "Event": "Juventus - Atalanta", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "Italy Serie A", "Event": "Juventus - Atalanta", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "Italy Serie A", "Event": "Milan - Lecce", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "Italy Serie A", "Event": "Milan - Lecce", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "LaLiga", "Event": "Athletic - Real Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "LaLiga", "Event": "Athletic - Real Madrid", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "LaLiga", "Event": "Sevilla - Barcelona", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "LaLiga", "Event": "Sevilla - Barcelona", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "France Ligue 1", "Event": "Marseille - PSG", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-20", "Sport": "Football", "League": "France Ligue 1", "Event": "Marseille - PSG", "Type": "", "Market": "", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-21", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Leverkusen - Leipzig", "Type": "", "Market": "", "Notes": "" }
       ],
       "Tennis": [
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-01", "Sport": "Tennis", "League": "ATP Washington", "Event": "Nakashima - Fritz", "Type": "Single", "Market": "Fritz Set 1 Winner & 1st Set Total Over 10.5", "Notes": "Activated August 1" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-01", "Sport": "Tennis", "League": "ATP Washington", "Event": "Jodar - Tabilo", "Type": "Single", "Market": "Jodar Match Winner, Jodar 1st Set Winner & Games Total 1st Set Over 9.5", "Notes": "Activated August 1" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-01", "Sport": "Tennis", "League": "WTA Washington", "Event": "Osaka - Eala", "Type": "Single", "Market": "Osaka Match Winner, Osaka 1st Set Winner & Games Total 1st Set Over 9.5", "Notes": "Activated August 1" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-15", "Sport": "Tennis", "League": "ATP Cincinnati", "Event": "Djokovic - Tirante", "Type": "Single", "Market": "Djokovic 1st Set Winner & Total 9.5", "Notes": "Activated August 14" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-24", "Sport": "Tennis", "League": "WTA US Open", "Event": "Zheng - You", "Type": "Single", "Market": "Zheng, Qinwen To Win A set - Yes, You, Xiaodi To Win A Set - Yes, Set 1 Games Over 8.5", "Notes": "" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Tennis", "League": "ATP US Open", "Event": "Safiullin - Alcaraz", "Type": "Single", "Market": "Alcaraz 1st Set Winner & Total 9.5", "Notes": "" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Tennis", "League": "WTA US Open", "Event": "Swiatek - Wang Xiy", "Type": "Single", "Market": "Match Winner - Swiatek, Set 1 Winner - Swiatek, Set 1 Games Over 8.5", "Notes": "" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Tennis", "League": "WTA US Open", "Event": "Pegula, Jessica vs Kenin, Sofia", "Type": "Single", "Market": "Any Set to Nil", "Notes": "" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Tennis", "League": "WTA US Open", "Event": "Navarro, Emma - McNally, Catherine", "Type": "Single", "Market": "Total Sets: Over 2.5", "Notes": "" },
-        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Tennis", "League": "WTA US Open", "Event": "Zeynep - Gauff", "Type": "Single", "Market": "Total games won by Gauff over 12.5", "Notes": "" }
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Tennis", "League": "ATP US Open", "Event": "Safiullin - Alcaraz", "Type": "Single", "Market": "Alcaraz 1st Set Winner & Total 9.5", "Notes": "" }
       ],
-      "Guidelines": {
-        "leaguesRank": [
-          { "rank": "1", "league": "European Championships", "teams": "Real Madrid, Barcelona, Man Utd, Liverpool, Bayern, Juventus, Dortmund, Arsenal, PSG, Benfica, Inter/Milan" },
-          { "rank": "2", "league": "England Premier League", "teams": "Man Utd, Liverpool, Arsenal, Man City, Chelsea, Tottenham, Aston Villa, Leeds, Everton, Newcastle" },
-          { "rank": "3", "league": "Spain La Liga", "teams": "Real Madrid, Barcelona, Atl Madrid, Athletic Club, Sevilla, Real Betis, Valencia, Real Sociedad, Villarreal, Espanyol" },
-          { "rank": "4", "league": "Germany Bundesliga", "teams": "Bayern, Dortmund, Eintracht Frankfurt, Schalke 04, Borussia M'gladbach, Hamburger SV, FC Köln, Werder Bremen, Union Berlin, Stuttgart" },
-          { "rank": "5", "league": "Italy Serie A", "teams": "Inter, Juventus, Milan, Napoli, Roma, Lazio, Fiorentina, Como, Atalanta, Cagliari" },
-          { "rank": "6", "league": "France Ligue 1", "teams": "PSG, Marseille, Lyon, Saint Etienne, Lens, Lille, Monaco, Nantes, Rennes, Strasbourg" },
-          { "rank": "7", "league": "Portugal Liga", "teams": "Benfica, Porto, Sporting CP, Sporting Braga, Vitória de Guimarães, Boavista, Maritimo, Belenenses, Rio Ave, Vitória de Setúbal" },
-          { "rank": "8", "league": "Netherlands Eredivisie", "teams": "Ajax, Feyenoord, PSV, Utrecht, Twente, Alkmaar, Vitesse, Heerenveen, NEC Nijmegen, Groningen" }
-        ],
-        "targetMarkets": [
-          "Favourites (2.20 or less: 1x2): Team -1 handicap, Main Scorer 1st Goalscorer, Team HT/FT, Team Win to Nil, Main Scorer to Score, Team + o2.5 goals, Team + BTTS + o3.5, Team Over X Corners (7.5+)",
-          "On Less Favored Team (2.50 or more): Team to win either half, BTTS + o2.5, BTTS 1st Half, Main Scorer to Score, Team o1.5 goals"
-        ],
-        "boostSettings": [
-          { "type": "General Boosts", "minStake": "1€", "maxStake": "25€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "10%" },
-          { "type": "Game Super Boosts", "minStake": "1€", "maxStake": "20€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "25%" },
-          { "type": "Outright Super Boosts", "minStake": "1€", "maxStake": "10€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "25% to 100%" }
-        ]
-      }
+      "Other Sports": [],
+      "Guidelines": defaultGuidelines
     };
 
     let activeTabKey = "Football";
 
-    // Date Parser Utility
     function parseDate(dateStr) {
-      if (!dateStr) return null;
+      if (!dateStr || String(dateStr).trim() === '') return null;
       const clean = String(dateStr).trim().split(" ")[0];
       const d = new Date(clean);
       return isNaN(d.getTime()) ? null : d;
     }
 
+    // CUSTOM SORT: Blank dates always on top, then descending by date
     function sortDatasetDescending(dataArray) {
       if (!dataArray || !Array.isArray(dataArray)) return;
       dataArray.sort((a, b) => {
-        const dateA = a.Date || a["To Activate"] || a.Activated || "";
-        const dateB = b.Date || b["To Activate"] || b.Activated || "";
-        return String(dateB).localeCompare(String(dateA));
+        const rawA = a.Date || a["To Activate"] || a.Activated || "";
+        const rawB = b.Date || b["To Activate"] || b.Activated || "";
+
+        const hasA = String(rawA).trim() !== '';
+        const hasB = String(rawB).trim() !== '';
+
+        if (!hasA && !hasB) return 0;
+        if (!hasA) return -1; // Blank A stays at top
+        if (!hasB) return 1;  // Blank B stays at top
+
+        const dateA = parseDate(rawA);
+        const dateB = parseDate(rawB);
+
+        if (!dateA && !dateB) return String(rawB).localeCompare(String(rawA));
+        if (!dateA) return -1;
+        if (!dateB) return 1;
+
+        return dateB - dateA; // Most recent dates first
       });
     }
 
-    // Populate Dynamic Month Filter Dropdown
     function populateMonthFilter() {
       const select = document.getElementById('monthFilter');
       const currentSelected = select.value;
@@ -355,7 +456,6 @@
       });
     }
 
-    // Banner logic: Filter upcoming weekly matches
     function generateUpcomingTopPicks() {
       const today = new Date("2026-09-02T00:00:00"); 
       const nextWeek = new Date(today);
@@ -387,9 +487,6 @@
       return upcomingList.slice(0, 3);
     }
 
-    // -------------------------------------------------------------
-    // 3. UI RENDERING ENGINE & CONTROLS
-    // -------------------------------------------------------------
     function toggleDaylightNightMode() {
       document.body.classList.toggle('light-mode');
       const btn = document.getElementById('btnThemeToggle');
@@ -409,7 +506,13 @@
       const nav = document.getElementById('sportsTabsNav');
       nav.innerHTML = '';
 
-      Object.keys(masterDataset).forEach((key) => {
+      const tabOrder = ["Football", "Tennis", "Other Sports", "Guidelines"];
+      
+      tabOrder.forEach((key) => {
+        if (!masterDataset.hasOwnProperty(key)) {
+          masterDataset[key] = key === "Guidelines" ? defaultGuidelines : [];
+        }
+
         const btn = document.createElement('button');
         btn.className = `tab-item ${key === activeTabKey ? 'active' : ''} primary`;
         btn.innerText = key;
@@ -458,9 +561,8 @@
 
       sortDatasetDescending(data);
 
-      const headers = Object.keys(data[0]);
+      const headers = Object.keys(data[0] || { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "", "Sport": activeTabKey, "League": "", "Event": "", "Market": "", "Notes": "" });
       
-      // Build Header
       const trHead = document.createElement('tr');
       headers.forEach(h => {
         const th = document.createElement('th');
@@ -474,14 +576,13 @@
       trHead.appendChild(thAction);
       thead.appendChild(trHead);
 
-      // Filter Rows (Month Filter + Search Query)
       const filteredIndexes = [];
       data.forEach((row, index) => {
         const rawDate = row.Date || row["To Activate"] || row.Activated || "";
         const d = parseDate(rawDate);
         const mKey = d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` : '';
 
-        const monthMatches = (monthFilter === "ALL" || mKey === monthFilter);
+        const monthMatches = (monthFilter === "ALL" || mKey === monthFilter || rawDate === "");
         const queryMatches = Object.values(row).some(v => String(v).toLowerCase().includes(query));
 
         if (monthMatches && queryMatches) {
@@ -489,7 +590,6 @@
         }
       });
 
-      // Apply Row Limit Filter
       const totalFiltered = filteredIndexes.length;
       let displayIndexes = filteredIndexes;
       if (rowLimitFilter !== "ALL") {
@@ -547,9 +647,8 @@
       renderTopPicks();
     }
 
-    // Guidelines Tab Layout Renderer
     function renderGuidelinesView(container) {
-      const g = masterDataset.Guidelines;
+      const g = masterDataset.Guidelines || defaultGuidelines;
       container.className = '';
       let html = `
         <div class="guidelines-card">
@@ -565,7 +664,7 @@
             <tbody>
       `;
       
-      g.leaguesRank.forEach(item => {
+      (g.leaguesRank || []).forEach(item => {
         html += `
           <tr>
             <td><strong>#${item.rank}</strong></td>
@@ -586,7 +685,7 @@
             <ul style="padding-left: 20px; line-height: 1.8; color: var(--text-sub);">
       `;
 
-      g.targetMarkets.forEach(m => {
+      (g.targetMarkets || []).forEach(m => {
         html += `<li style="margin-bottom: 8px;"><strong style="color:var(--text-main);">${m.split(':')[0]}:</strong> ${m.split(':')[1]}</li>`;
       });
 
@@ -609,7 +708,7 @@
               <tbody>
       `;
 
-      g.boostSettings.forEach(bs => {
+      (g.boostSettings || []).forEach(bs => {
         html += `
           <tr>
             <td><strong>${bs.type}</strong></td>
@@ -660,10 +759,12 @@
     }
 
     // -------------------------------------------------------------
-    // 4. ADD, DELETE & EXPORT
+    // LEAVE DATE BLANK WHEN ADDING NEW ROW (PINS TO TOP)
     // -------------------------------------------------------------
     function addNewRowAtTop() {
       if (activeTabKey === "Guidelines") return;
+      if (!masterDataset[activeTabKey]) masterDataset[activeTabKey] = [];
+      
       const data = masterDataset[activeTabKey];
       let newRow = {};
 
@@ -672,13 +773,13 @@
           if (k === 'BO' || k === 'PUB') {
             newRow[k] = false;
           } else if (k === 'Date') {
-            newRow[k] = new Date().toISOString().split('T')[0];
+            newRow[k] = ""; // LEAVE BLANK TO STAY AT TOP
           } else {
             newRow[k] = "";
           }
         });
       } else {
-        newRow = { "BO": false, "PUB": false, "Brand": "Ibet", "Date": new Date().toISOString().split('T')[0], "Sport": activeTabKey, "League": "", "Event": "", "Market": "", "Notes": "" };
+        newRow = { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "", "Sport": activeTabKey, "League": "", "Event": "", "Market": "", "Notes": "" };
       }
 
       masterDataset[activeTabKey].unshift(newRow);
@@ -727,7 +828,17 @@
       db.ref('masterBoostsData').on('value', (snap) => {
         const val = snap.val();
         if (val) {
-          masterDataset = val;
+          masterDataset = Object.assign({
+            "Football": [],
+            "Tennis": [],
+            "Other Sports": [],
+            "Guidelines": defaultGuidelines
+          }, val);
+
+          if (!masterDataset.Guidelines) {
+            masterDataset.Guidelines = defaultGuidelines;
+          }
+
           renderTabs();
           renderActiveTab();
         }
