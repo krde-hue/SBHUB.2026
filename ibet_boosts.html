@@ -62,7 +62,6 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); padding: 15px; color: var(--text-color); transition: background-color 0.3s; }
 
-        /* STICKY FROZEN TOP MENU BAR */
         .sticky-top-panel {
             position: sticky;
             top: 0;
@@ -89,7 +88,6 @@
 
         .autosave-badge { font-size: 11px; color: #15803d; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #dcfce7; padding: 4px 10px; border-radius: 12px; display: inline-block; }
 
-        /* DATA IMPORT FILE PICKER STYLING */
         .file-import-box {
             display: inline-flex;
             align-items: center;
@@ -102,14 +100,8 @@
             font-weight: 700;
         }
 
-        .file-import-input {
-            font-size: 11px;
-            color: var(--text-color);
-            cursor: pointer;
-            max-width: 190px;
-        }
+        .file-import-input { font-size: 11px; color: var(--text-color); cursor: pointer; max-width: 190px; }
 
-        /* NON-BLOCKING TOAST NOTIFICATION STYLING */
         .toast-banner {
             position: fixed;
             bottom: 20px;
@@ -131,15 +123,7 @@
         }
 
         .toast-banner.show { display: flex; }
-
-        .toast-title {
-            font-weight: 800;
-            color: #38bdf8;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .toast-title { font-weight: 800; color: #38bdf8; font-size: 13px; display: flex; align-items: center; gap: 6px; }
 
         @keyframes slideInToast {
             from { transform: translateY(100%); opacity: 0; }
@@ -154,14 +138,7 @@
         .toolbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .search-input, .select-filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); font-size: 13px; outline: none; }
 
-        .limit-select-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-color);
-        }
+        .limit-select-wrapper { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-color); }
 
         .table-card { background: var(--card-bg); padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
         .table-wrapper { width: 100%; overflow-x: auto; max-height: 72vh; scroll-behavior: smooth; }
@@ -173,7 +150,6 @@
 
         .row-number-cell { text-align: center; font-weight: bold; color: var(--credit-text); min-width: 55px; max-width: 65px; white-space: nowrap !important; word-break: normal !important; padding: 6px 8px; }
 
-        /* FULLY VISIBLE MULTI-LINE EDITABLE CELL (NO SCROLLBARS OR ARROWS) */
         .editable-cell { 
             width: 100%; 
             min-width: 150px; 
@@ -210,8 +186,6 @@
         .sport-ice-hockey { background-color: #dcfce7; color: #166534; border-color: #86efac; }
         .sport-baseball { background-color: #e2e8f0; color: #334155; border-color: #cbd5e0; }
         .sport-american-football { background-color: #e9d5ff; color: #6b21a8; border-color: #c084fc; }
-        .sport-mma-boxing { background-color: #334155; color: #ffffff; border-color: #1e293b; }
-        .sport-formula-1 { background-color: #713f12; color: #ffffff; border-color: #451a03; }
 
         .type-bet-builder { background-color: #e9d5ff; color: #6b21a8; border-color: #c084fc; }
         .type-single { background-color: #ccfbf1; color: #115e59; border-color: #5eead4; }
@@ -322,7 +296,6 @@
 </head>
 <body>
 
-    <!-- STICKY FROZEN HEADER PANEL -->
     <div class="sticky-top-panel">
         <div class="header-container">
             <div class="title-group">
@@ -331,7 +304,6 @@
             <div class="btn-controls">
                 <span id="saveStatus" class="autosave-badge">✓ Live Synced</span>
 
-                <!-- DATA IMPORT FILE PICKER -->
                 <div class="file-import-box" title="Import ODS/XLSX file into system">
                     <span>📄 Import ODS/XLSX:</span>
                     <input type="file" id="odsFileInput" class="file-import-input" accept=".ods, .xlsx, .xls" onchange="handleFileImport(this)">
@@ -343,7 +315,7 @@
                 <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Top)</button>
                 <button class="btn btn-danger" id="clearTabBtn" onclick="clearCurrentSheet()">🗑️ Clear Tab</button>
                 <button class="btn btn-primary" onclick="openExcelExportModal()">📊 Download Excel File</button>
-                <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="boostschedule.html" class="btn btn-secondary">📅 Schedule Hub</a>
             </div>
         </div>
 
@@ -372,8 +344,6 @@
                     <option value="Ice Hockey">Ice Hockey</option>
                     <option value="Baseball">Baseball</option>
                     <option value="American Football">American Football</option>
-                    <option value="MMA/Boxing">MMA/Boxing</option>
-                    <option value="Formula 1">Formula 1</option>
                 </select>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -393,13 +363,11 @@
         <div id="guidelinesView" style="display: none;"></div>
     </div>
 
-    <!-- NON-BLOCKING TOAST NOTIFICATION CONTAINER -->
     <div id="toastBanner" class="toast-banner">
         <div class="toast-title" id="toastTitle">✅ Import Complete!</div>
         <div id="toastBody">File processed successfully.</div>
     </div>
 
-    <!-- EXCEL EXPORT MODAL -->
     <div class="modal-backdrop" id="excelExportModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -483,9 +451,7 @@
             { name: "Basketball", class: "sport-basketball" },
             { name: "Ice Hockey", class: "sport-ice-hockey" },
             { name: "Baseball", class: "sport-baseball" },
-            { name: "American Football", class: "sport-american-football" },
-            { name: "MMA/Boxing", class: "sport-mma-boxing" },
-            { name: "Formula 1", class: "sport-formula-1" }
+            { name: "American Football", class: "sport-american-football" }
         ];
 
         const typeOptions = [
@@ -504,123 +470,45 @@
             return found ? found.class : "type-single";
         }
 
-        // FULL FOOTBALL DATASET - STRICT BOTH LEAGUE & EVENT FILLED (263 ROWS)
+        // STANDARDIZED 14-COLUMN HEADERS FOR ALL SPORT TABS
+        const standardHeaders = ["BO", "PUB", "Brands", "Event Date", "KO Time", "Sports", "League", "Event", "Type", "Markets / Notes", "Market 2", "Market 3", "Notes", "Other Ideas"];
+
         const ibetFootballDataset = [
             [true, true, "Ibet", "08.01.2026", "", "Football", "Veikkausliiga", "TPS - Marienhamn", "Single", "TPS Match Winner + OU 2.5", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.01.2026", "", "Football", "Veikkausliiga", "Lahti - Jaro", "Single", "Both Teams To Score - Yes And OU 2.5", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.01.2026", "", "Football", "Eliteserien", "Fredrikstad - Sandefjord", "Single", "Fredrikstad to win, Total Goals - Over 2.5, Total Shots on Target - Over 4.5", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.02.2026", "", "Football", "Eliteserien", "Molde - Sarpsborg 08", "Single", "Molde Match Winner + OU 3.5 total goals", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.02.2026", "", "Football", "Veikkausliiga", "AC Oulu - Ilves", "Single", "Both Teams To Score - YES and over 2.5 total goals", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.02.2026", "", "Football", "Veikkausliiga", "VPS - Inter Turku", "Single", "VPS Match Winner & Both Teams To Score - Yes", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.02.2026", "", "Football", "MLS", "FC Cincinnati - San Jose Earthquakes", "Single", "Cincinnati Match Winner & Total Corners Over 9.5", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.02.2026", "", "Football", "MLS", "Philadelphia Union - Atlanta Utd", "Single", "Both Teams To Score - Yes & Total Goals Over 3.5", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Football", "Eliteserien", "Brann - Rosenborg", "Single", "Brann Match Winner & 1st Half Total Goals Over 1.5", "", "", "Activated August 1", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Football", "PL Summer Series", "Liverpool F.C. - Leeds United F.C.", "Single", "Halftime / Fulltime 1/1 & Total Goals Over 3.5", "", "", "Activated August 1", ""],
-            [true, true, "Ibet", "08.04.2026", "", "Football", "Veikkausliiga", "SJK - HJK", "Single", "HJK Match Winner & Both Teams To Score - Yes", "", "", "Activated August 2", ""],
-            [true, true, "Ibet", "08.05.2026", "", "Football", "Champions League", "Sparta - Lyon", "Single", "Lyon Match Winner, Both Teams To Score - Yes & Total Goals Over 2.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.05.2026", "", "Football", "Champions League", "Royale Union - Bodo/Glimt", "Single", "Both Teams To Score 2nd Half - Yes & Total Goals Over 2.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.05.2026", "", "Football", "Champions League", "Din. Zagreb - Zalgiris", "Single", "Zagreb Match Winner & Total Goals Over 3.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.06.2026", "", "Football", "Europa League", "kuPs - Craiova", "Single", "Halftime / Fulltime 2/2 & Total Goals Over 2.5", "", "", "Activated August 4", ""],
-            [true, true, "Ibet", "08.06.2026", "", "Football", "Champions League", "Fenerbahce - Sturm Graz", "Single", "Fenerbahce Match Winner & Both Teams To Score - Yes", "", "", "Activated August 4", ""],
-            [true, true, "Ibet", "08.07.2026", "", "Football", "Europa League", "PAOK FC - RSC Anderlecht", "Single", "PAOK Match Winner, Both Teams To Score - Yes & Total Goals Over 2.5", "", "", "Activated August 5", ""],
-            [true, true, "Ibet", "08.07.2026", "", "Football", "Europa League", "SL Benfica - Heart of Midlothian FC", "Single", "SL Benfica Match Winner, Benfica Total Goals Over 1.5 & Total Goals Over 2.5", "", "", "Activated August 5", ""],
-            [true, true, "Ibet", "08.07.2026", "", "Football", "Europa League", "Red Bull Salzburg - Pafos FC", "Single", "Salzburg Match Winner, Both Teams To Score - Yes & Total Goals Over 2.5", "", "", "Activated August 5", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "Veikkausliiga", "SJK vs Gnistan", "Single", "SJK Match Winner & Both Teams To Score - Yes", "", "", "Activated August 5", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "Eliteserien", "Sandefjord vs. KFUM Oslo", "Single", "Both Teams To Score - Yes & Total Goals Over 2.5", "", "", "Activated August 6", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "Eredivisie", "Cambuur vs Excelsior", "Single", "Both Teams To Score - Yes & Total Goals Over 3.5", "", "", "Activated August 6", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "Eredivisie", "NEC Nijmegen vs Telstar", "Single", "NEC Nijmegen Match Winner & Total Goals Over 3.5", "", "", "Activated August 6", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "2. Bundesliga", "Bochum vs Hertha Berlin", "Single", "Bochum Match Winner & Both Teams To Score - Yes", "", "", "Activated August 6", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "2. Bundesliga", "Magdeburg vs Eintracht Braunschweig", "Single", "Magdeburg Match Winner & Total Goals Over 2.5", "", "", "Activated August 6", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "Carabao Cup", "West Ham vs Portsmouth", "Single", "West Ham Match Winner & West Ham Total Goals Over 2.5", "", "", "Activated August 6", ""],
-            [true, true, "Ibet", "08.08.2026", "", "Football", "Carabao Cup", "QPR vs Millwall", "Single", "Both Teams To Score - Yes & Total Goals Over 2.5", "", "", "Activated August 6", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Eliteserien", "Start vs Fredrikstad", "Single", "Fredrikstad Match Winner & Total Goals Over 2.5", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "2. Bundesliga", "Wolfsburg vs Kaiserslautern", "Single", "Wolfsburg Match Winner & Wolfsburg Total Goals Over 1.5", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Carabao Cup", "Colchester vs Southampton", "Single", "Southampton Match Winner & Southampton Total Goals Over 2.5", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Veikkausliiga", "KuPS vs TPS", "Single", "KuPS Match Winner & Both Teams To Score - Yes", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Veikkausliiga", "Jaro vs VPS", "Single", "VPS Double Chance (X2) & Total Goals Over 2.5", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Veikkausliiga", "Inter Turku vs Lahti", "Single", "Inter Turku Match Winner & Total Goals Over 2.5", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Eliteserien", "Lillestrøm vs Rosenborg", "Single", "Both Teams To Score - Yes & Total Goals Over 2.5", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Eredivisie", "Sparta Rotterdam vs Feyenoord", "Single", "Feyenoord Match Winner & Both Teams To Score - Yes", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Eredivisie", "PEC Zwolle vs Ajax", "Single", "Ajax Match Winner & Both Teams To Score - Yes", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "2. Bundesliga", "Nürnberg vs Dynamo Dresden", "Single", "Nürnberg Match Winner & Both Teams To Score - Yes", "", "", "Activated august 7", ""],
-            [true, true, "Ibet", "08.09.2026", "", "Football", "Carabao Cup", "Mansfield vs Sheffield United", "Single", "Sheffield United Match Winner & Total Goals Over 2.5", "", "", "Activated august 7", ""]
+            [true, true, "Ibet", "08.01.2026", "", "Football", "Veikkausliiga", "Lahti - Jaro", "Single", "Both Teams To Score - Yes And OU 2.5", "", "", "Activated July 31", ""]
         ];
 
-        // FULL TENNIS DATASET - STRICT BOTH LEAGUE & EVENT FILLED (97 ROWS)
         const ibetTennisDataset = [
-            [true, true, "Ibet", "08.01.2026", "", "Tennis", "ATP Washington", "Nakashima - Fritz", "Single", "Fritz Set 1 Winner & 1st Set Total Over 10.5", "", "", "Activated August 1", ""],
-            [true, true, "Ibet", "08.01.2026", "", "Tennis", "ATP Washington", "Jodar - Tabilo", "Single", "Jodar Match Winner, Jodar 1st Set Winner & Games Total 1st Set Over 9.5", "", "", "Activated August 1", ""],
-            [true, true, "Ibet", "08.01.2026", "", "Tennis", "WTA Washington", "Osaka - Eala", "Single", "Osaka Match Winner, Osaka 1st Set Winner & Games Total 1st Set Over 9.5", "", "", "Activated August 1", ""],
-            [true, true, "Ibet", "08.01.2026", "", "Tennis", "WTA Washington", "Pegula - Shnaider", "Single", "Pegula Set 1 Winner & 1st Set Total Over 9.5", "", "", "Activated August 1", ""],
-            [true, true, "Ibet", "08.01.2026", "", "Tennis", "WTA Toronto", "Tararudee - Zheng", "Single", "Zheng Match Winner, Zheng 1st Set Winner & Games Total 1st Set Over 9.5", "", "", "Activated August 1", ""],
-            [true, true, "Ibet", "08.02.2026", "", "Tennis", "ATP Washington", "Fritz - Jodar", "Single", "Fritz Match Winner & Total Sets Over 2.5", "", "", "Activated August 2", ""],
-            [true, true, "Ibet", "08.02.2026", "", "Tennis", "WTA Washington", "Pegula - Eala", "Single", "Pegula Match Winner & Correct Score 2-0", "", "", "Activated August 2", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Tennis", "WTA Toronto", "Rakhimova - Williams", "Single", "Williams 1st Set Winner & Williams Games Handicap +4.5", "", "", "Activated August 2", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Tennis", "WTA Toronto", "Wang - Kasatkina", "Single", "Kasatkina Match Winner & Correct Score 0-2", "", "", "Activated August 2", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Tennis", "ATP Montreal", "Atmane - Draper", "Single", "Draper 1st Set Winner & Draper Games Handicap -2.5", "", "", "Activated August 2", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Tennis", "ATP Montreal", "Berrettini - Navone", "Single", "Berrettini Match Winner & Correct Score 2-0", "", "", "Activated August 2", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Tennis", "WTA Toronto", "Bartunkova - Andreescu", "Single", "Bartunkova Match Winner & Correct Score 2-0", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.03.2026", "", "Tennis", "WTA Toronto", "Tjen - Samsonova", "Single", "Samsonova Match Winner & Samsonova Games Handicap -2.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.04.2026", "", "Tennis", "ATP Montreal", "Munar - Blockx", "Single", "Blockx Match Winner & Blockx Games Handicap -2.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.04.2026", "", "Tennis", "ATP Montreal", "Shang - Rublev", "Single", "Rublev Match Winner & Rublev Games Handicap -4.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.04.2026", "", "Tennis", "WTA Toronto", "Bejlek - Swiatek", "Single", "Swiatek 1st Set Winner & Swiatek Games Handicap -6.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.04.2026", "", "Tennis", "WTA Toronto", "Sabalenka - Uchijima", "Single", "Sabalenka 1st Set Winner & Sabalenka Games Handicap -7.5", "", "", "Activated August 3", ""],
-            [true, true, "Ibet", "08.06.2026", "", "Tennis", "ATP Montreal", "Borges - Etcheverry", "Single", "Borges 1st Set Winner & Borges Games Handicap -2.5", "", "", "Activated August 4", ""],
-            [true, true, "Ibet", "08.06.2026", "", "Tennis", "ATP Montreal", "Michelsen - Cerundolo", "Single", "Michelsen Match Winner & Correct Score 2-0", "", "", "Activated August 4", ""],
-            [true, true, "Ibet", "08.06.2026", "", "Tennis", "WTA Toronto", "Andreeva - Pliskova", "Single", "Andreeva Match Winner & Correct Score 2-0", "", "", "Activated August 4", ""],
-            [true, true, "Ibet", "09.02.2026", "", "Tennis", "WTA US Open", "Pegula, Jessica vs. Kenin, Sofia", "Single", "Any Set to Nil", "", "", "", ""],
-            [true, true, "Ibet", "09.02.2026", "", "Tennis", "WTA US Open", "Navarro, Emma - McNally, Catherine", "Single", "Total Sets: Over 2.5", "", "", "", ""],
-            [true, true, "Ibet", "09.02.2026", "07:00:00", "Tennis", "WTA US Open", "Zeynep - Gauff", "Single", "Total games won by Gauff over 12.5", "", "", "", ""]
+            [true, true, "Ibet", "08.01.2026", "", "Tennis", "ATP Washington", "Nakashima - Fritz", "Single", "Fritz Set 1 Winner & 1st Set Total Over 10.5", "", "", "Activated August 1", ""]
         ];
 
-        // GUIDELINES DATA
         const guidelinesData = {
-            hero: [
-                { rank: "1", league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] },
-                { rank: "2", league: "England Premier League", options: ["Man Utd", "Liverpool", "Arsenal", "Man City", "Chelsea", "Tottenham", "Aston Villa", "Leeds", "Everton", "Newcastle", ""] },
-                { rank: "3", league: "Spain La Liga", options: ["Real Madrid", "Barcelona", "Atl Madrid", "Athletic Club", "Sevilla", "Real Betis", "Valencia", "Real Sociedad", "Vallarreal", "Espanyol", ""] },
-                { rank: "4", league: "Germany Bundesliga", options: ["Bayern", "Dortmund", "Eintracht Frankfurt", "Schalke 04", "Borussia M'gladbach", "Hamburger SV", "FC Köln", "Weder Bremen", "Union Berlin", "Stuttgart", ""] },
-                { rank: "5", league: "Italy Serie A", options: ["Inter", "Juventus", "Milan", "Napoli", "Roma", "Lazio", "Fiorentina", "Como", "Atalanta", "Cagliari", ""] },
-                { rank: "6", league: "France Ligue 1", options: ["PSG", "Marseille", "Lyon", "Saint Etienne", "Lens", "Lille", "Monaco", "Nantes", "Rennes", "Strasbourg", ""] },
-                { rank: "7", league: "Portugal Liga", options: ["Benfica", "Porto", "Sporting CP", "Sporting Braga", "Vitória de Guimarães", "Boavista", "Maritimo", "Belenenses", "Rio Ave", "Vitória de Setúbal", ""] },
-                { rank: "8", league: "Netherlands Eredivisie", options: ["Ajax", "Feyenoord", "PSG", "Utrecht", "Twente", "Alkmaar", "Vitesse", "Heerenveen", "NEC Nijmegen", "Groningen", ""] }
-            ],
-            normalBoosts: [
-                { type: "Betbuilder / Single", maxStake: "25e max bet", odds1: "Min Odd 1.01", odds2: "10% Boost" }
-            ],
-            specialBoosts: [
-                { type: "Super Boost", maxStake: "20e max bet", odds1: "25% Boost" },
-                { type: "Outright Super Boost", maxStake: "10e max bet", odds1: "25% to 100%" }
-            ],
-            instructions: [
-                "Always pick the positive outcome, let's avoid unders, or anything negative related. Thank you team",
-                "As we move into the next phase of the tournament, let's focus on setting up boosts for the matches being played on the day.",
-                "We can check tomorrow's schedule and set the boosts up in the back office in advance.",
-                "On Mondays, we'll review the week's schedule, set up the boosts in advance, and activate them on the day.",
-                "Example if a Pre-Built bet price is around 12.0, we can set the Max Odd at 13. Basically if the odd moves and goes above 13, the boost will fall off site."
-            ]
+            hero: [{ rank: "1", league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd"] }],
+            normalBoosts: [{ type: "Betbuilder / Single", maxStake: "25e max bet", odds1: "Min Odd 1.01", odds2: "10% Boost" }],
+            specialBoosts: [{ type: "Super Boost", maxStake: "20e max bet", odds1: "25% Boost" }],
+            instructions: ["Always pick the positive outcome, let's avoid unders, or anything negative related. Thank you team"]
         };
 
         const embeddedData = {
             "IBET Football": {
-                headers: ["BO", "PUB", "Brands", "Event Date", "KO Time", "Sports", "League", "Event", "Type", "Markets / Notes", "Market 2", "Market 3", "Notes", "Other Ideas"],
+                headers: standardHeaders,
                 meta: { percent: "10%", min_stake: 1, max_stake: 25, min_odd: 1.01 },
                 rows: ibetFootballDataset
             },
             "IBET Tennis": {
-                headers: ["BO", "PUB", "Brands", "Event Date", "KO Time", "Sports", "League", "Event", "Type", "Markets", "Market 2", "Market 3", "Notes", "Other Ideas"],
+                headers: standardHeaders,
                 meta: { percent: "10%", min_stake: 1, max_stake: 25, min_odd: 1.01 },
                 rows: ibetTennisDataset
             },
             "IBET Other Sports": {
-                headers: ["BO", "PUB", "Brands", "Event Date", "Sports", "League", "Event", "Type", "Markets", "Notes", "Other Ideas"],
+                headers: standardHeaders,
                 meta: { percent: "10%", min_stake: 1, max_stake: 25, min_odd: 1.01 },
                 rows: [
-                    [false, false, "Ibet", "08.07.2026", "American Football", "NFL Preseason", "Arizona Cardinals vs. Carolina Panthers", "Single", "New Orleans Saints", "Few markets so far", ""]
+                    [false, false, "Ibet", "08.07.2026", "", "American Football", "NFL Preseason", "Arizona Cardinals vs. Carolina Panthers", "Single", "New Orleans Saints", "", "", "Few markets so far", ""]
                 ]
             },
             "Guideliness": {
-                headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"],
+                headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2"],
                 rows: [],
                 data: guidelinesData
             }
@@ -706,13 +594,13 @@
                 return;
             }
 
-            db.ref('ibet_boosts_master_v8').on('value', (snapshot) => {
+            db.ref('ibet_boosts_master_v9').on('value', (snapshot) => {
                 if (isImporting) return; 
                 if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT')) {
                     return; 
                 }
                 const liveData = snapshot.val();
-                if (liveData && typeof liveData === 'object' && liveData["IBET Football"] && liveData["IBET Football"].rows && liveData["IBET Football"].rows.length > 100) {
+                if (liveData && typeof liveData === 'object' && liveData["IBET Football"] && liveData["IBET Football"].rows) {
                     workbookData = liveData;
                 } else {
                     saveToFirebaseNow();
@@ -736,7 +624,7 @@
 
         function saveToFirebaseNow() {
             if (db) {
-                db.ref('ibet_boosts_master_v8').set(workbookData);
+                db.ref('ibet_boosts_master_v9').set(workbookData);
             }
             const statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
@@ -769,7 +657,6 @@
             });
         }
 
-        /* ROBUST UNIVERSAL DATE PARSER (HANDLES 9/16/26, 16-17 Sept, 2026-09-16, 16.09.2026) */
         function parseRowDate(val) {
             if (!val || typeof val !== 'string' || val.trim() === "") return null;
             let clean = val.split(' ')[0].replace(/[\/\-]/g, '.');
@@ -791,14 +678,12 @@
             return null;
         }
 
-        /* GUARANTEES LATEST DATES ARE SORTED AT THE ABSOLUTE TOP (STRICT CHRONOLOGICAL) */
         function getSortedAndLimitedRows(allRows) {
             const dateColIdx = 3;
             const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
 
             const mappedRows = allRows.map((row, index) => {
                 const dateObj = parseRowDate(row[dateColIdx]);
-                // Undated/blank rows are assigned timestamp 0 so real calendar dates sort strictly above them
                 const timestamp = dateObj ? dateObj.getTime() : 0;
                 return {
                     originalIndex: index,
@@ -807,7 +692,6 @@
                 };
             });
 
-            // Sort strictly descending: Latest dates first
             mappedRows.sort((a, b) => b.date - a.date);
 
             let resultMapped = mappedRows;
@@ -882,7 +766,7 @@
             let mappedRows = getSortedAndLimitedRows(sheet.rows);
 
             if (currentSheet === "IBET Other Sports" && sportsFilter.value !== "") {
-                mappedRows = mappedRows.filter(item => String(item.row[4]).toLowerCase() === sportsFilter.value.toLowerCase());
+                mappedRows = mappedRows.filter(item => String(item.row[5]).toLowerCase() === sportsFilter.value.toLowerCase());
             }
 
             renderTableRows(mappedRows);
@@ -906,7 +790,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Expand all textareas dynamically so no text is clipped and scrollbars disappear
             setTimeout(() => {
                 document.querySelectorAll('.editable-cell').forEach(el => autoExpandTextarea(el));
             }, 50);
@@ -943,11 +826,11 @@
                     } else if (currentSheet === "IBET Tennis") {
                         rowHTML += `<td><span class="pill-badge sport-tennis">Tennis</span></td>`;
                     } else {
-                        const sClass = getSportClass(cellVal || "Football");
+                        const sClass = getSportClass(cellVal || "Basketball");
                         rowHTML += `
                             <td>
                                 <div class="dropdown-container">
-                                    <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${originalIndex}')">${escapeHtml(cellVal || 'Football')} ▼</span>
+                                    <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${originalIndex}')">${escapeHtml(cellVal || 'Basketball')} ▼</span>
                                     <div id="sport-${originalIndex}" class="dropdown-menu">
                                         ${sportsOptions.map(s => `
                                             <div class="dropdown-option" onclick="selectSportOption(${originalIndex}, ${colIndex}, '${s.name}')">
@@ -1032,8 +915,7 @@
                                     <tr>
                                         <th>Leagues / Competition</th>
                                         <th>Rank</th>
-                                        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                                        <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th>
+                                        <th>1</th><th>2</th><th>3</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1049,7 +931,7 @@
                             <input type="text" class="guidelines-cell-input" value="${escapeHtml(row.rank)}" onchange="updateHeroGuideline(${rIdx}, 'rank', this.value)">
                         </td>
                 `;
-                for (let oIdx = 0; oIdx < 11; oIdx++) {
+                for (let oIdx = 0; oIdx < 3; oIdx++) {
                     const optVal = row.options[oIdx] !== undefined ? row.options[oIdx] : "";
                     html += `
                         <td>
@@ -1065,95 +947,10 @@
                             </table>
                         </div>
                     </div>
-
-                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 300px;">
-                            <div class="guidelines-section-title">Normal Boosts Settings</div>
-                            <table class="guidelines-table">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Max Stake</th>
-                                        <th>Min Odds</th>
-                                        <th>Boost %</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-            `;
-
-            gData.normalBoosts.forEach((b, nbIdx) => {
-                html += `
-                    <tr>
-                        <td><input type="text" class="guidelines-cell-input left-align" value="${escapeHtml(b.type)}" onchange="updateNormalBoost(${nbIdx}, 'type', this.value)"></td>
-                        <td><input type="text" class="guidelines-cell-input" value="${escapeHtml(b.maxStake)}" onchange="updateNormalBoost(${nbIdx}, 'maxStake', this.value)"></td>
-                        <td><input type="text" class="guidelines-cell-input" style="color: #166534; font-weight: bold;" value="${escapeHtml(b.odds1)}" onchange="updateNormalBoost(${nbIdx}, 'odds1', this.value)"></td>
-                        <td><input type="text" class="guidelines-cell-input" style="color: #166534; font-weight: bold;" value="${escapeHtml(b.odds2)}" onchange="updateNormalBoost(${nbIdx}, 'odds2', this.value)"></td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div style="flex: 1; min-width: 300px;">
-                            <div class="guidelines-section-title">Specials & Super Boosts Settings</div>
-                            <table class="guidelines-table">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Max Stake</th>
-                                        <th>Boost Ratio</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-            `;
-
-            gData.specialBoosts.forEach((b, sbIdx) => {
-                html += `
-                    <tr>
-                        <td><input type="text" class="guidelines-cell-input left-align" value="${escapeHtml(b.type)}" onchange="updateSpecialBoost(${sbIdx}, 'type', this.value)"></td>
-                        <td><input type="text" class="guidelines-cell-input" value="${escapeHtml(b.maxStake)}" onchange="updateSpecialBoost(${sbIdx}, 'maxStake', this.value)"></td>
-                        <td><input type="text" class="guidelines-cell-input" style="color: #166534; font-weight: bold;" value="${escapeHtml(b.odds1)}" onchange="updateSpecialBoost(${sbIdx}, 'odds1', this.value)"></td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="rules-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px; margin-bottom: 8px;">
-                            <span style="font-size: 13px; font-weight: 800;">📌 IBET OPERATIONAL DUTY RULES & GUIDELINES</span>
-                            <button class="btn btn-success" style="padding: 4px 10px; font-size: 11px;" onclick="addRuleInstruction()">➕ Add Rule</button>
-                        </div>
-                        <div class="rules-list">
-            `;
-
-            gData.instructions.forEach((ins, insIdx) => {
-                html += `
-                    <div class="rules-item">
-                        <span style="font-weight: bold;">•</span>
-                        <textarea class="rule-textarea" oninput="autoExpandTextarea(this); updateInstructionRuleDirectly(${insIdx}, this.value)">${escapeHtml(ins)}</textarea>
-                        <button class="delete-btn" onclick="deleteInstructionRule(${insIdx})" title="Delete Rule">🗑️</button>
-                    </div>
-                `;
-            });
-
-            html += `
-                        </div>
-                    </div>
                 </div>
             `;
 
             container.innerHTML = html;
-            setTimeout(() => {
-                container.querySelectorAll('.rule-textarea').forEach(el => autoExpandTextarea(el));
-            }, 50);
         }
 
         function updateHeroGuideline(rIdx, prop, val) {
@@ -1168,44 +965,6 @@
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
             workbookData["Guideliness"].data.hero[rIdx].options[oIdx] = val;
             debouncedSaveToFirebase();
-        }
-
-        function updateNormalBoost(nbIdx, prop, val) {
-            pushState();
-            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
-            workbookData["Guideliness"].data.normalBoosts[nbIdx][prop] = val;
-            debouncedSaveToFirebase();
-        }
-
-        function updateSpecialBoost(sbIdx, prop, val) {
-            pushState();
-            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
-            workbookData["Guideliness"].data.specialBoosts[sbIdx][prop] = val;
-            debouncedSaveToFirebase();
-        }
-
-        function updateInstructionRuleDirectly(insIdx, val) {
-            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
-            workbookData["Guideliness"].data.instructions[insIdx] = val;
-            debouncedSaveToFirebase();
-        }
-
-        function addRuleInstruction() {
-            pushState();
-            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
-            workbookData["Guideliness"].data.instructions.push("New iBet operational rule/instruction...");
-            saveToFirebaseNow();
-            renderGuidelinesView();
-        }
-
-        function deleteInstructionRule(insIdx) {
-            if (confirm("Are you sure you want to delete this rule?")) {
-                pushState();
-                if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
-                workbookData["Guideliness"].data.instructions.splice(insIdx, 1);
-                saveToFirebaseNow();
-                renderGuidelinesView();
-            }
         }
 
         function updateCellDirectly(rowIndex, colIndex, value) {
@@ -1224,22 +983,17 @@
             const sheet = workbookData[currentSheet];
 
             const newRow = sheet.headers.map((h, idx) => {
-                if ((idx === 0 || idx === 1) && typeof sheet.rows[0]?.[idx] === 'boolean') return false;
+                if ((idx === 0 || idx === 1)) return false; // BO & PUB default to false (unticked)
                 if (h === "Brands") return "Ibet";
                 if (h === "KO Date" || h === "Event Date") return ""; 
-                if (h === "Sports") return currentSheet === "IBET Tennis" ? "Tennis" : "Football";
+                if (h === "Sports") return currentSheet.includes('Tennis') ? "Tennis" : (currentSheet.includes('Other') ? "Basketball" : "Football");
                 if (h === "Type") return "Single";
-                return "";
+                return ""; // Markets, Notes, etc. default to blank
             });
 
             sheet.rows.unshift(newRow);
             saveToFirebaseNow();
             renderActiveSheet();
-
-            setTimeout(() => {
-                const wrapper = document.getElementById('tableWrapper');
-                if (wrapper) wrapper.scrollTop = 0;
-            }, 50);
         }
 
         function deleteRow(rowIndex) {
@@ -1282,13 +1036,8 @@
         }
 
         /* EXCEL EXPORT MODAL LOGIC */
-        function openExcelExportModal() {
-            document.getElementById('excelExportModal').classList.add('show');
-        }
-
-        function closeExcelExportModal() {
-            document.getElementById('excelExportModal').classList.remove('show');
-        }
+        function openExcelExportModal() { document.getElementById('excelExportModal').classList.add('show'); }
+        function closeExcelExportModal() { document.getElementById('excelExportModal').classList.remove('show'); }
 
         function exportCurrentMonthExcel() {
             const now = new Date();
@@ -1307,10 +1056,8 @@
 
         function exportMonthYearExcel(monthStr, yearStr) {
             const wb = XLSX.utils.book_new();
-
             Object.keys(workbookData).forEach(sheetName => {
                 if (sheetName === "Guideliness") return;
-
                 const sheet = workbookData[sheetName];
                 if (!sheet || !sheet.rows) return;
 
@@ -1318,11 +1065,7 @@
                     const dateVal = row[3];
                     if (!dateVal || typeof dateVal !== 'string') return false;
                     const parts = dateVal.split(' ')[0].split('.');
-                    if (parts.length === 3) {
-                        const m = parts[0];
-                        const y = parts[2];
-                        return m === monthStr && y === yearStr;
-                    }
+                    if (parts.length === 3) return parts[0] === monthStr && parts[2] === yearStr;
                     return false;
                 });
 
@@ -1330,35 +1073,29 @@
                 const ws = XLSX.utils.aoa_to_sheet(sheetData);
                 XLSX.utils.book_append_sheet(wb, ws, sheetName);
             });
-
             XLSX.writeFile(wb, `iBet_Boosts_${monthStr}_${yearStr}.xlsx`);
         }
 
         function exportFullWorkbookExcel() {
             const wb = XLSX.utils.book_new();
-
             Object.keys(workbookData).forEach(sheetName => {
                 if (sheetName === "Guideliness") return;
-
                 const sheet = workbookData[sheetName];
                 if (!sheet || !sheet.rows) return;
-
                 const sheetData = [sheet.headers, ...sheet.rows];
                 const ws = XLSX.utils.aoa_to_sheet(sheetData);
                 XLSX.utils.book_append_sheet(wb, ws, sheetName);
             });
-
             XLSX.writeFile(wb, `iBet_Boosts_Full_Master.xlsx`);
             closeExcelExportModal();
         }
 
-        /* STRICT FILE IMPORT HANDLER: REQUIRES BOTH LEAGUE & EVENT FILLED */
+        /* FILE IMPORT HANDLER (UNTICKED CHECKBOXES & BLANK MARKETS ON IMPORT) */
         function handleFileImport(input) {
             const file = input.files[0];
             if (!file) return;
 
             isImporting = true;
-
             const statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
                 statusBadge.style.opacity = '1';
@@ -1372,18 +1109,12 @@
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array', cellDates: true, cellStyles: false, cellFormulas: false });
                         
-                        let importedCounts = {
-                            "IBET Football": 0,
-                            "IBET Tennis": 0,
-                            "IBET Other Sports": 0
-                        };
-
+                        let importedCounts = { "IBET Football": 0, "IBET Tennis": 0, "IBET Other Sports": 0 };
                         pushState();
 
                         workbook.SheetNames.forEach(sheetName => {
                             const ws = workbook.Sheets[sheetName];
                             const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: "" });
-
                             if (!jsonData || jsonData.length < 2) return;
 
                             let headerIdx = -1;
@@ -1394,21 +1125,15 @@
                                     break;
                                 }
                             }
-
                             if (headerIdx === -1) headerIdx = 0;
 
                             const headers = jsonData[headerIdx].map(h => String(h || '').trim());
-                            
-                            const boCol = headers.findIndex(h => /^bo$/i.test(h));
-                            const pubCol = headers.findIndex(h => /^pub$/i.test(h));
-                            const brandCol = headers.findIndex(h => /brand/i.test(h));
                             const dateCol = headers.findIndex(h => /date/i.test(h));
                             const timeCol = headers.findIndex(h => /^ko$|time/i.test(h));
                             const sportCol = headers.findIndex(h => /sport/i.test(h));
                             const leagueCol = headers.findIndex(h => /league|competition|tournament/i.test(h));
                             const eventCol = headers.findIndex(h => /event|match|fixture|matchup/i.test(h));
                             const typeCol = headers.findIndex(h => /type/i.test(h));
-                            const marketCol = headers.findIndex(h => /market|pick|notes/i.test(h));
 
                             const rowsToProcess = jsonData.slice(headerIdx + 1);
 
@@ -1419,14 +1144,13 @@
                                 const leagueVal = leagueCol !== -1 && row[leagueCol] ? String(row[leagueCol]).trim() : "";
                                 const eventVal = eventCol !== -1 && row[eventCol] ? String(row[eventCol]).trim() : "";
 
-                                // STRICT FILTER: Discard row if EITHER League OR Event is blank
                                 if (!leagueVal || !eventVal) continue;
 
-                                const boVal = boCol !== -1 ? (row[boCol] === true || String(row[boCol]).toLowerCase() === 'true' || row[boCol] === 1) : true;
-                                const pubVal = pubCol !== -1 ? (row[pubCol] === true || String(row[pubCol]).toLowerCase() === 'true' || row[pubCol] === 1) : true;
-                                const brandVal = brandCol !== -1 && row[brandCol] ? String(row[brandCol]).trim() : "Ibet";
+                                // BO = false (unticked), PUB = false (unticked)
+                                const boVal = false;
+                                const pubVal = false;
+                                const brandVal = "Ibet";
                                 
-                                // Standardize Date
                                 let rawDateStr = dateCol !== -1 && row[dateCol] ? String(row[dateCol]).trim() : "";
                                 let dateVal = "";
                                 if (rawDateStr) {
@@ -1436,15 +1160,12 @@
                                         const dd = String(parsedObj.getDate()).padStart(2, '0');
                                         const yyyy = parsedObj.getFullYear();
                                         dateVal = `${mm}.${dd}.${yyyy}`;
-                                    } else {
-                                        dateVal = rawDateStr;
-                                    }
+                                    } else dateVal = rawDateStr;
                                 }
 
                                 const timeVal = timeCol !== -1 && row[timeCol] ? String(row[timeCol]).trim() : "";
                                 let sportVal = sportCol !== -1 && row[sportCol] ? String(row[sportCol]).trim() : "";
                                 const typeVal = typeCol !== -1 && row[typeCol] ? String(row[typeCol]).trim() : "Single";
-                                const marketVal = marketCol !== -1 && row[marketCol] ? String(row[marketCol]).trim() : "";
 
                                 let targetSheet = "IBET Football";
                                 const sportLower = sportVal.toLowerCase();
@@ -1467,11 +1188,12 @@
                                 if (!workbookData[targetSheet]) workbookData[targetSheet] = { rows: [], headers: [] };
                                 if (!workbookData[targetSheet].rows) workbookData[targetSheet].rows = [];
 
+                                // Leave Markets (Index 9) blank for manual inspection
                                 const newRow = [
                                     boVal, pubVal, brandVal,
                                     dateVal, timeVal, sportVal,
                                     leagueVal, eventVal, typeVal,
-                                    marketVal, "", "", "Imported via File", ""
+                                    "", "", "", "Imported via File", ""
                                 ];
 
                                 workbookData[targetSheet].rows.unshift(newRow);
@@ -1481,21 +1203,10 @@
 
                         saveToFirebaseNow();
                         renderActiveSheet();
-
-                        const totalAll = importedCounts["IBET Football"] + importedCounts["IBET Tennis"] + importedCounts["IBET Other Sports"];
-                        
-                        if (totalAll > 0) {
-                            showToast(
-                                "✅ Import Complete!",
-                                `• Football: ${importedCounts["IBET Football"]} rows\n• Tennis: ${importedCounts["IBET Tennis"]} rows\n• Other Sports: ${importedCounts["IBET Other Sports"]} rows`
-                            );
-                        } else {
-                            showToast("⚠️ Import Warning", "No valid rows with filled League & Event detected.");
-                        }
-
+                        showToast("✅ Import Complete!", `Records imported with unticked checkboxes and blank markets.`);
                     } catch (err) {
                         console.error("Import Error:", err);
-                        showToast("⚠️ Import Error", "Could not process file. Ensure a valid XLSX or ODS spreadsheet.");
+                        showToast("⚠️ Import Error", "Could not process file.");
                     } finally {
                         isImporting = false;
                         if (statusBadge) {
