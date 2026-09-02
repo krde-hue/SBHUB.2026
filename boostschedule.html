@@ -32,6 +32,7 @@
             --badge-outright: #a855f7;
             --market-box-bg: rgba(0, 0, 0, 0.35);
             --market-box-border: rgba(255, 255, 255, 0.25);
+            --modal-bg: rgba(19, 48, 84, 0.95);
         }
 
         [data-theme="light"] {
@@ -45,6 +46,7 @@
             --input-bg: #ffffff;
             --market-box-bg: #e2e8f0;
             --market-box-border: #cbd5e0;
+            --modal-bg: rgba(255, 255, 255, 0.95);
         }
 
         * { 
@@ -476,6 +478,39 @@
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
         }
+
+        /* DESTINATION TARGET SELECTION MODAL */
+        .import-dest-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .import-dest-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.25s ease;
+        }
+
+        .import-dest-btn:hover {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .import-dest-btn i {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -507,7 +542,7 @@
             </div>
 
             <div class="btn-controls">
-                <button class="btn-batch-import" id="importSelectedBtn" onclick="importSelectedMatchesToEdgeBoost()" style="display: none;">
+                <button class="btn-batch-import" id="importSelectedBtn" onclick="openImportDestinationModal()" style="display: none;">
                     <i class="fa-solid fa-bolt"></i> Import Selected (<span id="selectedCountBadge">0</span>)
                 </button>
 
@@ -535,7 +570,6 @@
             <button class="tab-btn" id="tab-TENNIS" onclick="switchCategoryTab('TENNIS')">
                 🎾 Tennis (ATP & WTA Singles)
             </button>
-            <!-- REPLACED MLS WITH MLB -->
             <button class="tab-btn" id="tab-OTHER" onclick="switchCategoryTab('OTHER')">
                 🏀 Basketball, MLB, NFL & Others
             </button>
@@ -562,6 +596,7 @@
 
     <div class="schedule-grid" id="scheduleContainer"></div>
 
+    <!-- EVENT EDIT / CREATE MODAL -->
     <div class="modal-backdrop" id="eventModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -619,6 +654,39 @@
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORT DESTINATION TARGET SELECTION MODAL -->
+    <div class="modal-backdrop" id="importDestinationModal">
+        <div class="modal-box" style="max-width: 440px;">
+            <div class="modal-header">
+                <span>⚡ Select Import Destination</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeImportDestinationModal()"></i>
+            </div>
+
+            <p style="font-size: 12px; opacity: 0.85;">Where would you like to transfer the <strong id="modalImportCount">0</strong> selected events?</p>
+
+            <div class="import-dest-options">
+                <button class="import-dest-btn" onclick="executeBatchImport('EDGE')">
+                    <span>⚡ EDGE Boosts Only</span>
+                    <i class="fa-solid fa-bolt" style="color: #fbbf24;"></i>
+                </button>
+
+                <button class="import-dest-btn" onclick="executeBatchImport('IBET')">
+                    <span>📈 iBet Boosts Only</span>
+                    <i class="fa-solid fa-chart-line" style="color: #38bdf8;"></i>
+                </button>
+
+                <button class="import-dest-btn" style="border-color: #22c55e; background: rgba(34, 197, 94, 0.1);" onclick="executeBatchImport('BOTH')">
+                    <span>🔥 Import to Both (EDGE & iBet)</span>
+                    <i class="fa-solid fa-layer-group" style="color: #22c55e;"></i>
+                </button>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="closeImportDestinationModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -786,81 +854,106 @@
             }
         }
 
-        function importSelectedMatchesToEdgeBoost() {
+        /* DESTINATION SELECTION MODAL CONTROLS */
+        function openImportDestinationModal() {
+            if (selectedMatchIds.size === 0) return;
+            document.getElementById('modalImportCount').innerText = selectedMatchIds.size;
+            document.getElementById('importDestinationModal').classList.add('show');
+        }
+
+        function closeImportDestinationModal() {
+            document.getElementById('importDestinationModal').classList.remove('show');
+        }
+
+        /* BATCH IMPORT EXECUTION ENGINE TO SPECIFIC NODES */
+        function executeBatchImport(destination) {
             if (selectedMatchIds.size === 0) return;
 
             const matchesToTransfer = Array.from(selectedMatchIds).map(id => eventSchedule[id]).filter(Boolean);
+            closeImportDestinationModal();
 
-            db.ref('edge_boosts_master_v23').once('value').then(snapshot => {
-                let liveData = snapshot.val() || {};
-                let addedCount = 0;
+            const targetNodes = [];
+            if (destination === 'EDGE' || destination === 'BOTH') targetNodes.push({ dbNode: 'edge_boosts_master_v23', brandLabel: '7Abet/BVBet', name: 'EDGE Boosts' });
+            if (destination === 'IBET' || destination === 'BOTH') targetNodes.push({ dbNode: 'ibet_boosts_master_v23', brandLabel: 'iBet', name: 'iBet Boosts' });
 
-                matchesToTransfer.forEach(item => {
-                    let targetSheet = "Edge Football";
-                    let sportVal = "Football";
+            let completedOperations = 0;
 
-                    if (item.sport === "TENNIS") {
-                        targetSheet = "Edge Tennis";
-                        sportVal = "Tennis";
-                    } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
-                        targetSheet = "Edge Other Sports";
-                        sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
-                    }
+            targetNodes.forEach(target => {
+                db.ref(target.dbNode).once('value').then(snapshot => {
+                    let liveData = snapshot.val() || {};
+                    let addedCount = 0;
 
-                    if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
-                    if (!liveData[targetSheet].rows) liveData[targetSheet].rows = [];
+                    matchesToTransfer.forEach(item => {
+                        let targetSheet = "Edge Football";
+                        let sportVal = "Football";
 
-                    let formattedDate = "";
-                    let formattedTime = "";
-
-                    if (item.dateTime) {
-                        const dateObj = new Date(item.dateTime);
-                        if (!isNaN(dateObj.getTime())) {
-                            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-                            const d = String(dateObj.getDate()).padStart(2, '0');
-                            const y = dateObj.getFullYear();
-                            formattedDate = `${m}.${d}.${y}`;
-
-                            const hh = String(dateObj.getHours()).padStart(2, '0');
-                            const mm = String(dateObj.getMinutes()).padStart(2, '0');
-                            const ss = String(dateObj.getSeconds()).padStart(2, '0');
-                            formattedTime = `${hh}:${mm}:${ss}`;
+                        if (item.sport === "TENNIS") {
+                            targetSheet = "Edge Tennis";
+                            sportVal = "Tennis";
+                        } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
+                            targetSheet = "Edge Other Sports";
+                            sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
                         }
-                    }
 
-                    let newRow = [];
-                    if (targetSheet === "Edge Football") {
-                        newRow = [
-                            false, false, "7Abet/BVBet", 
-                            formattedDate, formattedTime, "Football", 
-                            item.league || "", item.title || "", "Bet Builder", 
-                            "", "", "", "", "Transferred from Schedule", ""
-                        ];
-                    } else if (targetSheet === "Edge Tennis") {
-                        newRow = [
-                            false, false, "7Abet/BVBet", 
-                            formattedDate, formattedTime, "Tennis", 
-                            item.league || "", item.title || "", "Single", 
-                            "", "", "", "Transferred from Schedule", ""
-                        ];
-                    } else {
-                        newRow = [
-                            false, false, "7Abet/BVBet", 
-                            formattedDate, sportVal, 
-                            item.league || "", item.title || "", "Bet Builder", 
-                            "", "Transferred from Schedule", ""
-                        ];
-                    }
+                        if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
+                        if (!liveData[targetSheet].rows) liveData[targetSheet].rows = [];
 
-                    liveData[targetSheet].rows.push(newRow);
-                    addedCount++;
-                });
+                        let formattedDate = "";
+                        let formattedTime = "";
 
-                db.ref('edge_boosts_master_v23').set(liveData).then(() => {
-                    alert(`⚡ Successfully imported ${addedCount} selected matches directly to Edge Boost Master!`);
-                    selectedMatchIds.clear();
-                    updateImportButtonBadge();
-                    renderSchedule();
+                        if (item.dateTime) {
+                            const dateObj = new Date(item.dateTime);
+                            if (!isNaN(dateObj.getTime())) {
+                                const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                                const d = String(dateObj.getDate()).padStart(2, '0');
+                                const y = dateObj.getFullYear();
+                                formattedDate = `${m}.${d}.${y}`;
+
+                                const hh = String(dateObj.getHours()).padStart(2, '0');
+                                const mm = String(dateObj.getMinutes()).padStart(2, '0');
+                                const ss = String(dateObj.getSeconds()).padStart(2, '0');
+                                formattedTime = `${hh}:${mm}:${ss}`;
+                            }
+                        }
+
+                        let newRow = [];
+                        if (targetSheet === "Edge Football") {
+                            newRow = [
+                                false, false, target.brandLabel, 
+                                formattedDate, formattedTime, "Football", 
+                                item.league || "", item.title || "", "Bet Builder", 
+                                "", "", "", "", "Transferred from Schedule", ""
+                            ];
+                        } else if (targetSheet === "Edge Tennis") {
+                            newRow = [
+                                false, false, target.brandLabel, 
+                                formattedDate, formattedTime, "Tennis", 
+                                item.league || "", item.title || "", "Single", 
+                                "", "", "", "Transferred from Schedule", ""
+                            ];
+                        } else {
+                            newRow = [
+                                false, false, target.brandLabel, 
+                                formattedDate, sportVal, 
+                                item.league || "", item.title || "", "Bet Builder", 
+                                "", "Transferred from Schedule", ""
+                            ];
+                        }
+
+                        liveData[targetSheet].rows.push(newRow);
+                        addedCount++;
+                    });
+
+                    db.ref(target.dbNode).set(liveData).then(() => {
+                        completedOperations++;
+                        if (completedOperations === targetNodes.length) {
+                            const destNames = targetNodes.map(t => t.name).join(' & ');
+                            alert(`⚡ Successfully imported ${matchesToTransfer.length} selected matches directly to ${destNames}!`);
+                            selectedMatchIds.clear();
+                            updateImportButtonBadge();
+                            renderSchedule();
+                        }
+                    });
                 });
             });
         }
