@@ -211,16 +211,16 @@
 
   <script>
     // -------------------------------------------------------------
-    // 1. FIREBASE REALTIME SETUP
+    // 1. FIREBASE REALTIME SETUP (SYNCHRONIZED CREDENTIALS)
     // -------------------------------------------------------------
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+      authDomain: "test-daily-task--sb.firebaseapp.com",
+      databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+      projectId: "test-daily-task--sb",
+      storageBucket: "test-daily-task--sb.firebasestorage.app",
+      messagingSenderId: "928476661919",
+      appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
     };
 
     let db = null;
@@ -332,7 +332,8 @@
       select.innerHTML = '<option value="ALL">All Months</option>';
 
       const monthsSet = new Set();
-      ["Football", "Tennis"].forEach(sportKey => {
+      Object.keys(masterDataset).forEach(sportKey => {
+        if (sportKey === "Guidelines") return;
         (masterDataset[sportKey] || []).forEach(row => {
           const rawDate = row.Date || row["To Activate"] || row.Activated || "";
           const d = parseDate(rawDate);
@@ -354,7 +355,7 @@
       });
     }
 
-    // Banner logic: Filter only upcoming weekly matches (today + 7 days)
+    // Banner logic: Filter upcoming weekly matches
     function generateUpcomingTopPicks() {
       const today = new Date("2026-09-02T00:00:00"); 
       const nextWeek = new Date(today);
@@ -362,7 +363,8 @@
 
       let upcomingList = [];
 
-      ["Football", "Tennis"].forEach(sportKey => {
+      Object.keys(masterDataset).forEach(sportKey => {
+        if (sportKey === "Guidelines") return;
         const rows = masterDataset[sportKey] || [];
         rows.forEach(item => {
           const rawDate = item.Date || item["To Activate"] || item.Activated || "";
@@ -708,7 +710,8 @@
 
     function exportExcelAllTabs() {
       const workbook = XLSX.utils.book_new();
-      ["Football", "Tennis"].forEach(tabKey => {
+      Object.keys(masterDataset).forEach(tabKey => {
+        if (tabKey === "Guidelines") return;
         const data = masterDataset[tabKey] || [];
         if (data.length > 0) {
           const worksheet = XLSX.utils.json_to_sheet(data);
