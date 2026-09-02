@@ -132,7 +132,7 @@
             transform: translateY(-2px);
         }
 
-        .btn-batch-import {
+        .btn-batch-import-ibet {
             background-color: #f59e0b !important;
             color: #000000 !important;
             font-weight: 800 !important;
@@ -147,10 +147,24 @@
             transition: all 0.2s ease;
         }
 
-        .btn-batch-import:hover {
-            background-color: #d97706 !important;
+        .btn-batch-import-edge {
+            background-color: #a855f7 !important;
             color: #ffffff !important;
+            font-weight: 800 !important;
+            padding: 7px 14px !important;
+            font-size: 12px !important;
+            border: 1px solid #c084fc !important;
+            border-radius: 6px !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-batch-import-ibet:hover, .btn-batch-import-edge:hover {
             transform: scale(1.03);
+            opacity: 0.9;
         }
 
         .card-select-checkbox {
@@ -352,8 +366,14 @@
             </div>
 
             <div class="btn-controls">
-                <button class="btn-batch-import" id="importSelectedBtn" onclick="importSelectedMatchesToIBetBoost()" style="display: none;">
-                    <i class="fa-solid fa-bolt"></i> Import Selected to iBet (<span id="selectedCountBadge">0</span>)
+                <!-- IMPORT BUTTON TO IBET BOOST (UNTICKED & BLANK MARKETS) -->
+                <button class="btn-batch-import-ibet" id="importSelectedIBetBtn" onclick="importSelectedMatchesToIBetBoost()" style="display: none;">
+                    <i class="fa-solid fa-bolt"></i> Import to iBet (<span id="selectedCountBadgeIBet">0</span>)
+                </button>
+
+                <!-- IMPORT BUTTON TO EDGE BOOST -->
+                <button class="btn-batch-import-edge" id="importSelectedEdgeBtn" onclick="importSelectedMatchesToEdgeBoost()" style="display: none;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Import to Edge (<span id="selectedCountBadgeEdge">0</span>)
                 </button>
 
                 <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
@@ -536,15 +556,20 @@
         }
 
         function updateImportButtonBadge() {
-            const badge = document.getElementById('selectedCountBadge');
-            const btn = document.getElementById('importSelectedBtn');
+            const badgeIBet = document.getElementById('selectedCountBadgeIBet');
+            const badgeEdge = document.getElementById('selectedCountBadgeEdge');
+            const btnIBet = document.getElementById('importSelectedIBetBtn');
+            const btnEdge = document.getElementById('importSelectedEdgeBtn');
             const count = selectedMatchIds.size;
             
-            if (badge) badge.innerText = count;
-            if (btn) btn.style.display = count > 0 ? 'inline-flex' : 'none';
+            if (badgeIBet) badgeIBet.innerText = count;
+            if (badgeEdge) badgeEdge.innerText = count;
+            
+            if (btnIBet) btnIBet.style.display = count > 0 ? 'inline-flex' : 'none';
+            if (btnEdge) btnEdge.style.display = count > 0 ? 'inline-flex' : 'none';
         }
 
-        /* DUAL MULTI-SPORT IMPORTER TO ibet_boosts_master_v8 */
+        /* IMPORTER TO IBET BOOST (UNTICKED CHECKBOXES & BLANK MARKETS FOR MANUAL CHECK) */
         function importSelectedMatchesToIBetBoost() {
             if (selectedMatchIds.size === 0) return;
 
@@ -589,19 +614,12 @@
                         }
                     }
 
-                    let marketNotes = "";
-                    if (Array.isArray(item.markets) && item.markets.length > 0) {
-                        marketNotes = item.markets.join(', ');
-                    } else if (typeof item.markets === 'string') {
-                        marketNotes = item.markets;
-                    }
-
-                    // STRICT 14-COLUMN ARRAY FOR ALL SHEETS (INCLUDING IBET OTHER SPORTS)
+                    // BO = false (unticked), PUB = false (unticked), Markets = "" (blank for manual check)
                     let newRow = [
-                        true, true, "Ibet",
+                        false, false, "Ibet",
                         formattedDate, formattedTime, sportVal,
                         item.league || "", item.title || "", "Single",
-                        marketNotes, "", "", "Transferred from Schedule", ""
+                        "", "", "", "Transferred from Schedule", ""
                     ];
 
                     liveData[targetSheet].rows.unshift(newRow);
@@ -609,7 +627,94 @@
                 });
 
                 db.ref('ibet_boosts_master_v8').set(liveData).then(() => {
-                    alert(`⚡ Successfully imported ${addedCount} selected games directly into iBet Boosts Master!`);
+                    alert(`⚡ Successfully transferred ${addedCount} games to iBet Boosts Master! (Checkboxes unticked, markets left blank for manual input)`);
+                    selectedMatchIds.clear();
+                    updateImportButtonBadge();
+                    renderSchedule();
+                });
+            });
+        }
+
+        /* IMPORTER TO EDGE BOOST */
+        function importSelectedMatchesToEdgeBoost() {
+            if (selectedMatchIds.size === 0) return;
+
+            const matchesToTransfer = Array.from(selectedMatchIds).map(id => eventSchedule[id]).filter(Boolean);
+
+            db.ref('edge_boosts_master_v23').once('value').then(snapshot => {
+                let liveData = snapshot.val() || {};
+                let addedCount = 0;
+
+                matchesToTransfer.forEach(item => {
+                    let targetSheet = "Edge Football";
+                    let sportVal = "Football";
+
+                    if (item.sport === "TENNIS") {
+                        targetSheet = "Edge Tennis";
+                        sportVal = "Tennis";
+                    } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
+                        targetSheet = "Edge Other Sports";
+                        sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
+                    }
+
+                    if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
+                    if (!liveData[targetSheet].rows) liveData[targetSheet].rows = [];
+
+                    let formattedDate = "";
+                    let formattedTime = "";
+
+                    if (item.dateTime) {
+                        const dateObj = new Date(item.dateTime);
+                        if (!isNaN(dateObj.getTime())) {
+                            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const d = String(dateObj.getDate()).padStart(2, '0');
+                            const y = dateObj.getFullYear();
+                            formattedDate = `${m}.${d}.${y}`;
+
+                            const hh = String(dateObj.getHours()).padStart(2, '0');
+                            const mm = String(dateObj.getMinutes()).padStart(2, '0');
+                            const ss = String(dateObj.getSeconds()).padStart(2, '0');
+                            formattedTime = `${hh}:${mm}:${ss}`;
+                        }
+                    }
+
+                    let marketNotes = "";
+                    if (Array.isArray(item.markets) && item.markets.length > 0) {
+                        marketNotes = item.markets.join(', ');
+                    } else if (typeof item.markets === 'string') {
+                        marketNotes = item.markets;
+                    }
+
+                    let newRow = [];
+                    if (targetSheet === "Edge Football") {
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, formattedTime, "Football", 
+                            item.league || "", item.title || "", "Bet Builder", 
+                            "", "", "", "", "Transferred from Schedule", ""
+                        ];
+                    } else if (targetSheet === "Edge Tennis") {
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, formattedTime, "Tennis", 
+                            item.league || "", item.title || "", "Single", 
+                            "", "", "", "Transferred from Schedule", ""
+                        ];
+                    } else {
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, sportVal, 
+                            item.league || "", item.title || "", "Bet Builder", 
+                            "", "Transferred from Schedule", ""
+                        ];
+                    }
+
+                    liveData[targetSheet].rows.unshift(newRow);
+                    addedCount++;
+                });
+
+                db.ref('edge_boosts_master_v23').set(liveData).then(() => {
+                    alert(`⚡ Successfully imported ${addedCount} selected games directly into Edge Boost Master!`);
                     selectedMatchIds.clear();
                     updateImportButtonBadge();
                     renderSchedule();
