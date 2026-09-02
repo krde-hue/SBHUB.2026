@@ -254,16 +254,6 @@
             color: var(--accent-btn-text);
         }
 
-        .featured-match-badge {
-            font-size: 11px;
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #fff;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -287,34 +277,6 @@
         .event-sport { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--accent-btn); }
         .event-title { font-size: 15px; font-weight: 800; color: var(--header-text); margin-top: 2px; }
         .event-meta { font-size: 11px; opacity: 0.85; display: flex; gap: 12px; align-items: center; font-weight: 600; }
-
-        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .badge-tier1 { background: var(--badge-tier1); color: #000; }
-        .badge-hot { background: var(--badge-hot); color: #fff; }
-        .badge-outright { background: var(--badge-outright); color: #fff; }
-
-        .popular-markets-box {
-            background: var(--market-box-bg);
-            border: 1px dashed var(--market-box-border);
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .market-box-title { font-weight: 800; color: var(--text-color); display: flex; align-items: center; gap: 6px; font-size: 11px; }
-        .market-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
-
-        .market-tag {
-            background: rgba(56, 189, 248, 0.18);
-            color: var(--text-color);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 10px;
-            font-weight: 700;
-        }
 
         .card-actions {
             display: flex;
@@ -448,7 +410,7 @@
 
             <div>
                 <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Matchup / Outright Title *</label>
-                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Real Madrid vs Barcelona">
+                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Boston Celtics vs Los Angeles Lakers">
             </div>
 
             <div style="display: flex; gap: 10px;">
@@ -459,12 +421,13 @@
                         <option value="TENNIS">Tennis (ATP / WTA)</option>
                         <option value="BASKETBALL">Basketball (NBA)</option>
                         <option value="BASEBALL">Baseball (MLB)</option>
+                        <option value="AM_FOOTBALL">American Football (NFL)</option>
                         <option value="OUTRIGHT">Outright / Specials</option>
                     </select>
                 </div>
                 <div style="flex: 1;">
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">League / Tournament</label>
-                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., Spain La Liga">
+                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., NBA">
                 </div>
             </div>
 
@@ -484,8 +447,8 @@
             </div>
 
             <div>
-                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Markets & Goalscorers (Comma Separated)</label>
-                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Kylian Mbappé (Scorer), Shots on Target">
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Markets & Props (Comma Separated)</label>
+                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Jayson Tatum 25+ Points, Moneyline">
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
@@ -581,7 +544,7 @@
             if (btn) btn.style.display = count > 0 ? 'inline-flex' : 'none';
         }
 
-        /* DIRECT IMPORTER TO ibet_boosts_master_v8 NODE */
+        /* DUAL MULTI-SPORT IMPORTER TO ibet_boosts_master_v8 */
         function importSelectedMatchesToIBetBoost() {
             if (selectedMatchIds.size === 0) return;
 
@@ -600,7 +563,9 @@
                         sportVal = "Tennis";
                     } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
                         targetSheet = "IBET Other Sports";
-                        sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
+                        if (item.sport === "BASEBALL") sportVal = "Baseball";
+                        else if (item.sport === "AM_FOOTBALL") sportVal = "American Football";
+                        else sportVal = "Basketball";
                     }
 
                     if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
@@ -631,7 +596,7 @@
                         marketNotes = item.markets;
                     }
 
-                    // Strict 14-Column Structure for ibet_boosts.html
+                    // STRICT 14-COLUMN ARRAY FOR ALL SHEETS (INCLUDING IBET OTHER SPORTS)
                     let newRow = [
                         true, true, "Ibet",
                         formattedDate, formattedTime, sportVal,
@@ -644,7 +609,7 @@
                 });
 
                 db.ref('ibet_boosts_master_v8').set(liveData).then(() => {
-                    alert(`⚡ Successfully imported ${addedCount} selected matches directly into iBet Boosts Master!`);
+                    alert(`⚡ Successfully imported ${addedCount} selected games directly into iBet Boosts Master!`);
                     selectedMatchIds.clear();
                     updateImportButtonBadge();
                     renderSchedule();
@@ -762,7 +727,7 @@
 
             const feeds = [
                 { title: "Real Madrid vs Barcelona", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(0, "21:00"), tier: "HOT_GAME", markets: ["Kylian Mbappé (Scorer)", "BTTS & Over 2.5"] },
-                { title: "Aston Villa vs Arsenal", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "16:00"), tier: "HOT_GAME", markets: ["Bukayo Saka (Scorer)", "Shots on Target"] }
+                { title: "Boston Celtics vs Los Angeles Lakers", league: "NBA", sport: "BASKETBALL", dateTime: getRelativeDateStr(1, "08:30"), tier: "HOT_GAME", markets: ["Jayson Tatum 25+ Points", "Moneyline Winner"] }
             ];
 
             feeds.forEach(evt => db.ref('boost_schedule').push(evt));
@@ -773,7 +738,7 @@
             document.getElementById('editEventId').value = '';
             document.getElementById('eventTitle').value = '';
             document.getElementById('eventLeague').value = '';
-            document.getElementById('eventSport').value = 'FOOTBALL';
+            document.getElementById('eventSport').value = 'BASKETBALL';
             document.getElementById('eventDateTime').value = new Date().toISOString().slice(0, 16);
             document.getElementById('eventModal').classList.add('show');
         }
