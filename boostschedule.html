@@ -158,7 +158,6 @@
             transform: translateY(-2px);
         }
 
-        /* CONSOLIDATED ORANGE IMPORT BUTTON & DROPDOWN MENU */
         .import-dropdown-container { position: relative; display: inline-block; }
 
         .btn-import-main {
@@ -475,7 +474,6 @@
             </div>
 
             <div class="btn-controls">
-                <!-- CONSOLIDATED ORANGE IMPORT BUTTON WITH DROPDOWN -->
                 <div class="import-dropdown-container">
                     <button class="btn-import-main" id="importMainBtn" onclick="toggleImportMenu(event)" style="display: none;">
                         <i class="fa-solid fa-file-import"></i> IMPORT ( <span id="selectedCountBadge">0</span> ) <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 2px;"></i>
@@ -653,7 +651,6 @@
             });
         }
 
-        /* AUTOMATED REALTIME FLASHSCORE POLL & SYNC ENGINE */
         function syncLiveFlashscoreFeed(showPrompt = false) {
             const resyncBtn = document.getElementById('resyncBtn');
             if (resyncBtn && showPrompt) resyncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Polling Flashscore...';
@@ -665,7 +662,6 @@
                 return `${d.toISOString().split('T')[0]}T${hourStr}`;
             }
 
-            // Realtime Sync Mock API Proxy Fetcher
             const liveProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://flashscore-live-proxy.free.beacon/fixtures')}`;
 
             fetch(liveProxyUrl)
@@ -793,7 +789,7 @@
             };
         }
 
-        /* 1. IMPORT TO IBET BOOST */
+        /* 1. STRICT 14-COLUMN IMPORTER TO IBET BOOST */
         function importSelectedMatchesToIBetBoost() {
             if (selectedMatchIds.size === 0) return;
 
@@ -838,6 +834,7 @@
                         }
                     }
 
+                    // Strict 14-Column Array Structure for iBet Boosts
                     let newRow = [
                         false, false, "Ibet",
                         formattedDate, formattedTime, sportVal,
@@ -858,7 +855,7 @@
             });
         }
 
-        /* 2. IMPORT TO EDGE BOOST */
+        /* 2. TAB-SPECIFIC IMPORTER TO EDGE BOOST */
         function importSelectedMatchesToEdgeBoost() {
             if (selectedMatchIds.size === 0) return;
 
@@ -877,7 +874,9 @@
                         sportVal = "Tennis";
                     } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
                         targetSheet = "Edge Other Sports";
-                        sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
+                        if (item.sport === "BASEBALL") sportVal = "Baseball";
+                        else if (item.sport === "AM_FOOTBALL") sportVal = "American Football";
+                        else sportVal = "Basketball";
                     }
 
                     if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
@@ -901,12 +900,24 @@
                         }
                     }
 
-                    let newRow = [
-                        false, false, "7Abet/BVBet", 
-                        formattedDate, formattedTime, sportVal, 
-                        item.league || "", item.title || "", "Single", 
-                        "", "", "", "Transferred from Schedule", ""
-                    ];
+                    let newRow = [];
+                    if (targetSheet === "Edge Other Sports") {
+                        // Edge Other Sports layout (11 cols, omits KO Time)
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, sportVal, 
+                            item.league || "", item.title || "", "Single", 
+                            "", "Transferred from Schedule", ""
+                        ];
+                    } else {
+                        // Football and Tennis layout (14 cols)
+                        newRow = [
+                            false, false, "7Abet/BVBet", 
+                            formattedDate, formattedTime, sportVal, 
+                            item.league || "", item.title || "", "Single", 
+                            "", "", "", "Transferred from Schedule", ""
+                        ];
+                    }
 
                     liveData[targetSheet].rows.unshift(newRow);
                     addedCount++;
@@ -1104,7 +1115,6 @@
         window.onload = function() {
             updateGlobalClocks();
             listenToDatabase();
-            // AUTOMATED BACKGROUND FLASHSCORE POLLING INTERVAL (60 seconds)
             livePollingTimer = setInterval(() => {
                 syncLiveFlashscoreFeed(false);
             }, 60000);
