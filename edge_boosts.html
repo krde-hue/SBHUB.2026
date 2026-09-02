@@ -9,6 +9,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+    <!-- SheetJS CDN Library for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
         :root {
             --bg-color: #f1f5f9;
@@ -31,6 +34,7 @@
             --excel-green-text: #166534;
             --excel-yellow-bg: #fef9c3;
             --excel-yellow-text: #854d0e;
+            --modal-bg: rgba(255, 255, 255, 0.95);
         }
 
         [data-theme="dark"] {
@@ -54,6 +58,7 @@
             --excel-green-text: #a7f3d0;
             --excel-yellow-bg: #713f12;
             --excel-yellow-text: #fef08a;
+            --modal-bg: rgba(15, 23, 42, 0.95);
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
@@ -197,6 +202,84 @@
         }
         [data-theme="dark"] .rule-textarea { background: rgba(0, 0, 0, 0.25); color: var(--excel-yellow-text); }
         .rule-textarea:focus { border-color: #38bdf8; background: var(--input-bg); color: var(--text-color); }
+
+        /* EXPORT MODAL STYLES */
+        .export-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .export-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .export-modal-card {
+            background: var(--modal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .export-modal-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--header-text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .export-option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .export-btn-option {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .export-btn-option:hover {
+            border-color: #38bdf8;
+            background: var(--hover-row);
+            transform: translateY(-1px);
+        }
+
+        .month-select-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -214,7 +297,7 @@
                 <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
                 <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Top)</button>
                 <button class="btn btn-danger" id="clearTabBtn" onclick="clearCurrentSheet()">🗑️ Clear Tab</button>
-                <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
+                <button class="btn btn-primary" onclick="openExportModal()">📊 Download Excel File</button>
                 <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
             </div>
         </div>
@@ -265,6 +348,45 @@
         <div id="guidelinesView" style="display: none;"></div>
     </div>
 
+    <!-- EXPORT SELECTION MODAL -->
+    <div class="export-modal-overlay" id="exportModal">
+        <div class="export-modal-card">
+            <div class="export-modal-title">
+                <span>📥 Export Excel File</span>
+                <button class="delete-btn" onclick="closeExportModal()">✕</button>
+            </div>
+            <div class="export-option-group">
+                <button class="export-btn-option" onclick="exportExcelByMonth('current')">
+                    <span>📊 Download Excel File (Current Month)</span>
+                    <span>➔</span>
+                </button>
+
+                <div class="month-select-row">
+                    <select id="customMonthSelect" class="select-filter" style="flex: 1;">
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="exportExcelByMonth('custom')">Export Selected</button>
+                </div>
+
+                <button class="export-btn-option" onclick="exportExcelByMonth('all')">
+                    <span>🗂️ Export All Records (Entire History)</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
@@ -291,6 +413,8 @@
         let undoStack = [];
         let redoStack = [];
         let saveDebounceTimer = null;
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         const sportsOptions = [
             { name: "Football", class: "sport-football" },
@@ -319,7 +443,7 @@
             return found ? found.class : "type-single";
         }
 
-        // FULL FOOTBALL DATASET - ALL 143 ROWS
+        // FULL FOOTBALL DATASET
         const footballDataset = [
             [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Football", "Veikkausliiga", "TPS - Marienhamn", "Bet Builder", "TPS to win", "Corner over 10.5", "", "", "Activated July 31", ""],
             [true, true, "7Abet/BVBet", "08.01.2026", "23:00:00", "Football", "Veikkausliiga", "Lahti - Jaro", "Single", "1st HT result - Lahti", "", "", "", "Activated July 31", ""],
@@ -466,7 +590,7 @@
             [true, true, "7Abet/BVBet", "09.03.2026", "20:00:00", "Football", "Scotland Premiership", "Hibernian - Hearts", "Bet Builder", "Total Over 2.5", "Both team to Score - YES", "", "", "Activated August 31", ""]
         ];
 
-        // FULL TENNIS DATASET - ALL 105 ROWS
+        // FULL TENNIS DATASET
         const tennisDataset = [
             [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Tennis", "ATP Washington", "De Minaur - Nakashima", "Single", "De Minaur 1st set winner", "", "", "Activated July 31", ""],
             [true, true, "7Abet/BVBet", "08.01.2026", "20:00:00", "Tennis", "ATP Washington", "Fritz - Michelsen", "Single", "(Correct score) Will the score be 2:0? YES", "", "", "Activated July 31", ""],
@@ -575,7 +699,7 @@
             [true, true, "7Abet/BVBet", "09.01.2026", "07:00:00", "Tennis", "WTA US Open", "Swiatek - Wang Xiy", "Bet Builder", "Swiatek to win 1st set", "total sets played over 2.5", "", "Activated August 31", ""]
         ];
 
-        // FULL BANNERS DATASET - ALL 24 ROWS
+        // FULL BANNERS DATASET
         const bannersDataset = [
             [true, "08.08.2026", "SJK vs Gnistan", "QPR vs Millwall", "", "Andreeva - Fernandez", "Ruud - Fonseca", "", ""],
             [true, "08.09.2026", "PEC Zwolle vs Ajax", "Mansfield vs Sheffield United", "", "Lehecka - Jodar", "Sabalenka - Alexandrova", "", ""],
@@ -668,6 +792,7 @@
             if (localStorage.getItem('theme_7a') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
             }
+            updateDynamicDownloadButtons();
             renderTabs();
             listenToFirebase();
 
@@ -685,6 +810,14 @@
                     redo();
                 }
             });
+        }
+
+        function updateDynamicDownloadButtons() {
+            const now = new Date();
+            const customMonthSelect = document.getElementById('customMonthSelect');
+            if (customMonthSelect) {
+                customMonthSelect.value = now.getMonth();
+            }
         }
 
         function closeAllDropdowns() {
@@ -728,7 +861,6 @@
                 return;
             }
 
-            // Node updated to v23 to bypass old 1-row cached states
             db.ref('edge_boosts_master_v23').on('value', (snapshot) => {
                 if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT')) {
                     return; 
@@ -1288,6 +1420,109 @@
 
         function escapeHtml(text) {
             return String(text).replace(/"/g, "&quot;");
+        }
+
+        // EXPORT MODAL CONTROL FUNCTIONS
+        function openExportModal() {
+            updateDynamicDownloadButtons();
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        // MONTHLY & FULL EXCEL EXPORT ENGINE
+        function exportExcelByMonth(mode) {
+            if (typeof XLSX === 'undefined') {
+                alert("Excel library is still loading. Please try again in a moment.");
+                return;
+            }
+
+            const now = new Date();
+            let targetMonthIndex;
+
+            if (mode === 'current') {
+                targetMonthIndex = now.getMonth();
+            } else if (mode === 'custom') {
+                targetMonthIndex = parseInt(document.getElementById('customMonthSelect').value, 10);
+            } else {
+                targetMonthIndex = null; // ALL
+            }
+
+            const wb = XLSX.utils.book_new();
+
+            Object.keys(workbookData).forEach(sheetName => {
+                let wsData = [];
+                const sheet = workbookData[sheetName];
+
+                if (sheetName === "Guideliness") {
+                    const gData = sheet.data || guidelinesData;
+                    wsData.push(["HERO BANNERS - WHICH TEAM TO PICK? WHO'S PLAYING?"]);
+                    wsData.push(["Leagues / Competition", "Rank", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]);
+                    
+                    gData.hero.forEach(h => {
+                        wsData.push([h.league, h.rank, ...h.options]);
+                    });
+
+                    wsData.push([]);
+                    wsData.push(["NORMAL BOOSTS"]);
+                    wsData.push(["Type", "Max Stake", "Odds 1.50 - 11.0", "Odds 11.0 +"]);
+                    gData.normalBoosts.forEach(nb => {
+                        wsData.push([nb.type, nb.maxStake, nb.odds1, nb.odds2 || ""]);
+                    });
+
+                    wsData.push([]);
+                    wsData.push(["SPECIAL BOOSTS"]);
+                    wsData.push(["Type", "Max Stake", "Boost Ratio"]);
+                    gData.specialBoosts.forEach(sb => {
+                        wsData.push([sb.type, sb.maxStake, sb.odds1]);
+                    });
+
+                    wsData.push([]);
+                    wsData.push(["OPERATIONAL DUTY RULES & GUIDELINES"]);
+                    gData.instructions.forEach((ins, idx) => {
+                        wsData.push([`${idx + 1}. ${ins}`]);
+                    });
+                } else {
+                    if (sheet.headers) {
+                        wsData.push(sheet.headers);
+                    }
+                    if (sheet.rows && Array.isArray(sheet.rows)) {
+                        const dateColIdx = sheetName === "EDGE Banners" ? 1 : 3;
+
+                        sheet.rows.forEach(r => {
+                            let shouldInclude = true;
+
+                            if (targetMonthIndex !== null) {
+                                const rowDate = parseRowDate(r[dateColIdx]);
+                                if (rowDate && rowDate.getMonth() !== targetMonthIndex) {
+                                    shouldInclude = false;
+                                }
+                            }
+
+                            if (shouldInclude) {
+                                const formattedRow = r.map(cell => typeof cell === 'boolean' ? (cell ? "YES" : "NO") : cell);
+                                wsData.push(formattedRow);
+                            }
+                        });
+                    }
+                }
+
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
+            });
+
+            let fileName;
+            if (targetMonthIndex !== null) {
+                const monthName = monthNames[targetMonthIndex];
+                fileName = `EDGE_Boosts_${monthName}_${now.getFullYear()}.xlsx`;
+            } else {
+                fileName = `EDGE_Boosts_FULL_HISTORY_${now.getFullYear()}.xlsx`;
+            }
+
+            XLSX.writeFile(wb, fileName);
+            closeExportModal();
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
