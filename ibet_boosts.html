@@ -1,1227 +1,756 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iBET Boosted Odds Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBET BOOST Dashboard</title>
 
-    <!-- Firebase Realtime Database SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- Google Font: Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <!-- SheetJS for Excel / ODS Parsing and Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- SheetJS Library for Excel Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <style>
-        :root {
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-color: #0f172a;
-            --header-text: #0f172a;
-            --credit-text: #64748b;
-            --border-color: #cbd5e0;
-            --table-border: #cbd5e0;
-            --accent-btn: #e2e8f0;
-            --accent-btn-text: #334155;
-            --th-bg: #f1f5f9;
-            --th-text: #0f172a;
-            --hover-row: #f8fafc;
-            --active-tab-bg: #0d233a;
-            --active-tab-text: #ffffff;
-            --input-bg: #ffffff;
-            --dropdown-bg: #ffffff;
-            --excel-green-bg: #dcfce7;
-            --excel-green-text: #166534;
-            --excel-yellow-bg: #fef9c3;
-            --excel-yellow-text: #854d0e;
-        }
+  <style>
+    /* Theme Variables */
+    :root {
+      --bg-dark: #0a0e17;
+      --card-bg: #141c2e;
+      --card-border: #23314d;
+      --accent-blue: #00b4d8;
+      --accent-green: #10b981;
+      --danger-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --input-bg: #0a0e17;
+      --table-header-bg: #1a243a;
+      --base-font-size: 14px;
+    }
 
-        [data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --header-text: #38bdf8;
-            --credit-text: #94a3b8;
-            --border-color: #374151;
-            --table-border: #374151;
-            --accent-btn: #334155;
-            --accent-btn-text: #f8fafc;
-            --th-bg: #0f172a;
-            --th-text: #94a3b8;
-            --hover-row: #1e293b;
-            --active-tab-bg: #38bdf8;
-            --active-tab-text: #0f172a;
-            --input-bg: #0f172a;
-            --dropdown-bg: #1e293b;
-            --excel-green-bg: #064e3b;
-            --excel-green-text: #a7f3d0;
-            --excel-yellow-bg: #713f12;
-            --excel-yellow-text: #fef08a;
-        }
+    /* Light Mode Variables */
+    body.light-mode {
+      --bg-dark: #f1f5f9;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --accent-blue: #0284c7;
+      --accent-green: #16a34a;
+      --danger-red: #dc2626;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --input-bg: #f8fafc;
+      --table-header-bg: #e2e8f0;
+    }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); padding: 15px; color: var(--text-color); transition: background-color 0.3s; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); padding: 24px; font-size: var(--base-font-size); transition: background-color 0.3s, color 0.3s; }
 
-        .sticky-top-panel {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background-color: var(--bg-color);
-            padding-bottom: 5px;
-        }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .logo-title { font-size: 1.8rem; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+    .logo-title span { color: var(--accent-blue); }
 
-        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--card-bg); padding: 12px 18px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 12px; border: 1px solid var(--border-color); }
-        .title-group { display: flex; flex-direction: column; gap: 2px; }
-        h1 { font-size: 20px; color: var(--header-text); }
+    .action-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    
+    .status-badge { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; background: var(--card-bg); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--card-border); font-weight: 500; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--danger-red); }
+    .dot.live { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 
-        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-primary { background-color: #0d233a; color: white; }
-        .btn-primary:hover { background-color: #173b61; }
-        .btn-secondary { background-color: var(--accent-btn); color: var(--accent-btn-text); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { opacity: 0.85; }
-        .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-danger { background-color: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
-        .btn-danger:hover { background-color: #fed7d7; }
-        .btn-success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        .btn-success:hover { background-color: #dcfce7; }
+    .btn { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px; }
+    .btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .btn-primary { background: linear-gradient(135deg, #00b4d8, #0077b6); color: #fff; border: none; font-weight: 700; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-success { background: var(--accent-green); color: #fff; border: none; font-weight: 700; }
 
-        .autosave-badge { font-size: 11px; color: #15803d; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #dcfce7; padding: 4px 10px; border-radius: 12px; display: inline-block; }
+    /* Top Picks Banner */
+    .top-picks-section { margin-bottom: 30px; }
+    .section-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+    .top-picks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    
+    .pick-card { background: var(--card-bg); border: 1px solid var(--accent-blue); border-radius: 12px; padding: 18px; position: relative; box-shadow: 0 4px 20px rgba(0, 180, 216, 0.08); }
+    .pick-card .tag { position: absolute; top: 14px; right: 14px; background: rgba(0, 180, 216, 0.15); color: var(--accent-blue); font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; }
+    .pick-card .event { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
+    .pick-card .market { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main); line-height: 1.3; }
+    .pick-card .odds-row { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 1rem; color: var(--accent-green); }
 
-        .file-import-box {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--input-bg);
-            border: 1px dashed var(--border-color);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
-        }
+    /* Navigation Tabs */
+    .sports-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--card-border); margin-bottom: 20px; overflow-x: auto; padding-bottom: 2px; }
+    .tab-item { background: none; border: none; color: var(--text-sub); padding: 10px 18px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border-radius: 8px 8px 0 0; transition: 0.2s; white-space: nowrap; }
+    .tab-item.active { background: var(--card-bg); color: var(--accent-blue); border: 1px solid var(--card-border); border-bottom: none; }
+    .tab-item.primary { border-top: 3px solid var(--accent-blue); }
 
-        .file-import-input { font-size: 11px; color: var(--text-color); cursor: pointer; max-width: 190px; }
+    /* Controls Bar */
+    .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 16px; flex-wrap: wrap; }
+    .search-box, .select-control { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); padding: 8px 14px; border-radius: 8px; outline: none; font-size: 0.9rem; }
+    .search-box { width: 220px; }
+    .search-box:focus, .select-control:focus { border-color: var(--accent-blue); }
+    .controls-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    
+    .font-slider-container { display: flex; align-items: center; gap: 8px; background: var(--card-bg); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
+    .font-slider { cursor: pointer; accent-color: var(--accent-blue); width: 80px; }
 
-        .toast-banner {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #0f172a;
-            color: #f8fafc;
-            border: 1px solid #38bdf8;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            padding: 14px 20px;
-            border-radius: 8px;
-            z-index: 99999;
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-            font-size: 12px;
-            line-height: 1.4;
-            min-width: 260px;
-            animation: slideInToast 0.3s ease;
-        }
+    /* Table Component */
+    .table-wrapper { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: inherit; }
+    th { background: var(--table-header-bg); color: var(--text-sub); padding: 12px 14px; font-weight: 700; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.05em; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
+    td { padding: 6px 10px; border-bottom: 1px solid var(--card-border); color: var(--text-main); position: relative; }
+    tr:hover { background-color: rgba(0, 180, 216, 0.03); }
 
-        .toast-banner.show { display: flex; }
-        .toast-title { font-weight: 800; color: #38bdf8; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    /* Invisible Editable Input Field */
+    .invisible-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      color: inherit;
+      padding: 6px 8px;
+      font-size: inherit;
+      border-radius: 4px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .invisible-input:hover {
+      border-color: rgba(148, 163, 184, 0.25);
+      background: rgba(148, 163, 184, 0.05);
+    }
+    .invisible-input:focus {
+      background: var(--input-bg);
+      border-color: var(--accent-blue);
+      color: var(--text-main);
+      box-shadow: 0 0 6px rgba(0, 180, 216, 0.3);
+    }
 
-        @keyframes slideInToast {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+    /* Checkbox Styling */
+    .checkbox-container { display: flex; align-items: center; justify-content: center; height: 100%; }
+    .track-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--accent-green);
+    }
 
-        .tabs-nav { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; background: var(--card-bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 45px; }
-        .tab-btn { padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; transition: all 0.2s; }
-        .tab-btn.active { background-color: var(--active-tab-bg); color: var(--active-tab-text); border-color: var(--active-tab-bg); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: var(--danger-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; transition: 0.2s; }
+    .btn-delete:hover { background: var(--danger-red); color: #fff; }
 
-        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--card-bg); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 12px; }
-        .toolbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .search-input, .select-filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); font-size: 13px; outline: none; }
-
-        .limit-select-wrapper { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-color); }
-
-        .table-card { background: var(--card-bg); padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
-        .table-wrapper { width: 100%; overflow-x: auto; max-height: 72vh; scroll-behavior: smooth; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
-        
-        th { position: sticky; top: 0; background-color: var(--th-bg); color: var(--th-text); padding: 10px 12px; text-align: left; font-weight: 700; border: 1px solid var(--border-color); white-space: nowrap; z-index: 10; }
-        td { padding: 6px 8px; border: 1px solid var(--table-border); vertical-align: middle; white-space: normal; word-break: break-word; position: relative; }
-        tr:hover { background-color: var(--hover-row); }
-
-        .row-number-cell { text-align: center; font-weight: bold; color: var(--credit-text); min-width: 55px; max-width: 65px; white-space: nowrap !important; word-break: normal !important; padding: 6px 8px; }
-
-        .editable-cell { 
-            width: 100%; 
-            min-width: 150px; 
-            border: 1px solid transparent; 
-            background: transparent; 
-            color: var(--text-color); 
-            font-size: 12px; 
-            padding: 4px 6px; 
-            border-radius: 4px; 
-            outline: none; 
-            transition: border 0.2s, background-color 0.2s; 
-            white-space: pre-wrap; 
-            word-break: break-word; 
-            resize: none !important; 
-            overflow: hidden !important; 
-            min-height: 32px; 
-            height: auto; 
-            font-family: inherit; 
-            line-height: 1.4; 
-            field-sizing: content;
-        }
-        .editable-cell:focus { border-color: #38bdf8; background-color: var(--input-bg); box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
-        .checkbox-cell { width: 18px; height: 18px; cursor: pointer; accent-color: #0d233a; }
-
-        .delete-btn { background: none; border: none; cursor: pointer; font-size: 15px; opacity: 0.7; transition: opacity 0.2s, transform 0.2s; padding: 4px; }
-        .delete-btn:hover { opacity: 1; transform: scale(1.2); }
-
-        .pill-badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 11px; text-align: center; white-space: nowrap; cursor: pointer; border: 1px solid transparent; transition: transform 0.15s; }
-        .pill-badge:hover { transform: scale(1.04); }
-
-        .sport-football { background-color: #fef08a; color: #854d0e; border-color: #fde047; }
-        .sport-tennis { background-color: #fecdd3; color: #9f1239; border-color: #fda4af; }
-        .sport-basketball { background-color: #991b1b; color: #ffffff; border-color: #7f1d1d; }
-        .sport-ice-hockey { background-color: #dcfce7; color: #166534; border-color: #86efac; }
-        .sport-baseball { background-color: #e2e8f0; color: #334155; border-color: #cbd5e0; }
-        .sport-american-football { background-color: #e9d5ff; color: #6b21a8; border-color: #c084fc; }
-
-        .type-bet-builder { background-color: #e9d5ff; color: #6b21a8; border-color: #c084fc; }
-        .type-single { background-color: #ccfbf1; color: #115e59; border-color: #5eead4; }
-        .type-combo-boost { background-color: #ffedd5; color: #9a3412; border-color: #fdba74; }
-
-        .dropdown-container { display: inline-block; width: 100%; }
-        .dropdown-menu { display: none; position: fixed; z-index: 99999; background-color: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 8px; min-width: 170px; max-height: none !important; overflow: visible !important; }
-        .dropdown-menu.show { display: flex; flex-direction: column; gap: 6px; }
-        .dropdown-option { padding: 4px; border-radius: 4px; cursor: pointer; }
-
-        .meta-bar { display: flex; gap: 15px; font-size: 12px; font-weight: bold; color: var(--credit-text); background: var(--th-bg); padding: 8px 12px; border-radius: 6px; flex-wrap: wrap; border: 1px dashed var(--border-color); }
-        .meta-item { display: flex; align-items: center; gap: 4px; }
-        .record-count { font-size: 12px; font-weight: bold; color: var(--header-text); }
-
-        .guidelines-container { display: flex; flex-direction: column; gap: 24px; padding: 10px; }
-        .guidelines-header-badge { background-color: var(--excel-green-bg); color: var(--excel-green-text); padding: 6px 14px; font-weight: 800; border-radius: 4px; display: inline-block; font-size: 13px; letter-spacing: 0.5px; border: 1px solid var(--border-color); width: fit-content; }
-        .guidelines-section-title { font-weight: 800; font-size: 14px; margin-bottom: 8px; text-align: center; color: var(--header-text); letter-spacing: 0.5px; }
-        
-        .guidelines-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; }
-        .guidelines-table th { text-align: center; background-color: var(--th-bg); border: 1px solid var(--border-color); padding: 8px 10px; }
-        .guidelines-table td { border: 1px solid var(--table-border); padding: 4px 6px; }
-        
-        .guidelines-cell-input { width: 100%; border: 1px solid transparent; background: transparent; color: var(--text-color); font-size: 12px; padding: 4px; border-radius: 4px; outline: none; text-align: center; font-weight: 500; }
-        .guidelines-cell-input:focus { border-color: #38bdf8; background-color: var(--input-bg); box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
-        .guidelines-cell-input.left-align { text-align: left; font-weight: bold; }
-
-        .rules-card { background-color: var(--excel-yellow-bg); color: var(--excel-yellow-text); padding: 14px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; line-height: 1.6; border: 1px solid var(--border-color); }
-        .rules-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-        .rules-item { display: flex; align-items: flex-start; gap: 8px; }
-        
-        .rule-textarea { 
-            flex: 1; 
-            border: 1px solid transparent; 
-            background: rgba(255, 255, 255, 0.4); 
-            color: var(--excel-yellow-text); 
-            font-size: 12px; 
-            font-weight: 700; 
-            padding: 6px 10px; 
-            border-radius: 6px; 
-            outline: none; 
-            resize: none !important; 
-            overflow: hidden !important; 
-            min-height: 32px; 
-            line-height: 1.35; 
-        }
-        [data-theme="dark"] .rule-textarea { background: rgba(0, 0, 0, 0.25); color: var(--excel-yellow-text); }
-        .rule-textarea:focus { border-color: #38bdf8; background: var(--input-bg); color: var(--text-color); }
-
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-backdrop.show { display: flex; }
-
-        .modal-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 16px;
-            font-weight: 700;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            color: var(--header-text);
-        }
-
-        .export-opt-btn {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--input-bg);
-            color: var(--text-color);
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
-        }
-
-        .export-opt-btn:hover {
-            border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.15);
-        }
-    </style>
+    /* Guidelines Layout Styling */
+    .guidelines-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+    .guidelines-title { font-size: 1.1em; color: var(--accent-blue); font-weight: 700; margin-bottom: 12px; }
+    .guidelines-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  </style>
 </head>
 <body>
 
-    <div class="sticky-top-panel">
-        <div class="header-container">
-            <div class="title-group">
-                <h1>iBET Boosted Odds Master</h1>
-            </div>
-            <div class="btn-controls">
-                <span id="saveStatus" class="autosave-badge">✓ Live Synced</span>
+  <header>
+    <div class="logo-title">
+      ⚡ IBET<span>BOOST</span>
+    </div>
+    <div class="action-toolbar">
+      <!-- Theme Daylight / Night Mode Toggle -->
+      <button class="btn" id="btnThemeToggle" onclick="toggleDaylightNightMode()">☀️ Daylight Mode</button>
+      <button class="btn btn-primary" onclick="pushToFirebase()">Sync Firebase</button>
+      <button class="btn" onclick="exportExcelCurrentTab()">Export Tab Excel</button>
+      <button class="btn" onclick="exportExcelAllTabs()">Export All Sheets Excel</button>
+      <div class="status-badge">
+        <span class="dot" id="firebaseDot"></span>
+        <span id="firebaseStatusText">Offline</span>
+      </div>
+    </div>
+  </header>
 
-                <div class="file-import-box" title="Import ODS/XLSX file into system">
-                    <span>📄 Import ODS/XLSX:</span>
-                    <input type="file" id="odsFileInput" class="file-import-input" accept=".ods, .xlsx, .xls" onchange="handleFileImport(this)">
-                </div>
+  <!-- Top Picks Section connected to Firebase -->
+  <section class="top-picks-section">
+    <div class="section-header">🔥 UPCOMING TOP PICKS (WEEKLY SCHEDULE)</div>
+    <div class="top-picks-grid" id="topPicksContainer"></div>
+  </section>
 
-                <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled title="Undo (Ctrl+Z)">↩️ Undo</button>
-                <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled title="Redo (Ctrl+Y)">↪️ Redo</button>
-                <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-                <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Top)</button>
-                <button class="btn btn-danger" id="clearTabBtn" onclick="clearCurrentSheet()">🗑️ Clear Tab</button>
-                <button class="btn btn-primary" onclick="openExcelExportModal()">📊 Download Excel File</button>
-                <a href="boostschedule.html" class="btn btn-secondary">📅 Schedule Hub</a>
-            </div>
-        </div>
+  <!-- Category Navigation Tabs -->
+  <nav class="sports-tabs" id="sportsTabsNav"></nav>
 
-        <div class="tabs-nav" id="tabsNav"></div>
+  <!-- Filters & Controls Bar -->
+  <div class="filter-bar">
+    <div class="controls-group">
+      <input type="text" id="searchInput" class="search-box" placeholder="Filter current view..." oninput="renderActiveTab()">
+      
+      <!-- Month Filter Dropdown -->
+      <select id="monthFilter" class="select-control" onchange="renderActiveTab()">
+        <option value="ALL">All Months</option>
+      </select>
 
-        <div class="toolbar">
-            <div class="toolbar-left">
-                <div id="metaSummary" class="meta-bar"></div>
-                
-                <div class="limit-select-wrapper">
-                    <span>📅 Show Latest:</span>
-                    <select id="recordLimitSelect" class="select-filter" onchange="renderActiveSheet()">
-                        <option value="10">10 Rows</option>
-                        <option value="20">20 Rows</option>
-                        <option value="30" selected>30 Rows</option>
-                        <option value="40">40 Rows</option>
-                        <option value="ALL">All Records (Legacy)</option>
-                    </select>
-                </div>
+      <!-- Row View Limit Selector -->
+      <select id="rowLimitFilter" class="select-control" onchange="renderActiveTab()">
+        <option value="10">Show 10 Rows</option>
+        <option value="20">Show 20 Rows</option>
+        <option value="30">Show 30 Rows</option>
+        <option value="ALL" selected>Show All Rows</option>
+      </select>
 
-                <select id="sportsFilter" class="select-filter" style="display: none;" onchange="filterTable()">
-                    <option value="">🏅 All Sports (Filter)</option>
-                    <option value="Football">Football</option>
-                    <option value="Tennis">Tennis</option>
-                    <option value="Basketball">Basketball</option>
-                    <option value="Ice Hockey">Ice Hockey</option>
-                    <option value="Baseball">Baseball</option>
-                    <option value="American Football">American Football</option>
-                </select>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span id="recordCounter" class="record-count">Records: 0</span>
-                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search active tab..." oninput="filterTable()">
-            </div>
-        </div>
+      <!-- Font Size Slider -->
+      <div class="font-slider-container">
+        <span>Font Size:</span>
+        <input type="range" id="fontSizeSlider" class="font-slider" min="11" max="18" value="14" oninput="adjustFontSize(this.value)">
+        <span id="fontSizeLabel">14px</span>
+      </div>
     </div>
 
-    <div class="table-card" id="mainCard">
-        <div class="table-wrapper" id="tableWrapper" onscroll="closeAllDropdowns()">
-            <table id="dataTable">
-                <thead id="tableHead"></thead>
-                <tbody id="tableBody"></tbody>
+    <div class="controls-group">
+      <button class="btn btn-success" id="btnAddRow" onclick="addNewRowAtTop()">➕ Add New Row (Front)</button>
+      <span style="font-size: 0.85rem; color: var(--text-sub);" id="rowCount">0 entries</span>
+    </div>
+  </div>
+
+  <!-- Main Display -->
+  <main id="mainContainer" class="table-wrapper">
+    <table>
+      <thead id="tableHead"></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </main>
+
+  <script>
+    // -------------------------------------------------------------
+    // 1. FIREBASE REALTIME SETUP
+    // -------------------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    let db = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      
+      db.ref('.info/connected').on('value', (snap) => {
+        const dot = document.getElementById('firebaseDot');
+        const txt = document.getElementById('firebaseStatusText');
+        if (snap.val() === true) {
+          dot.classList.add('live');
+          txt.innerText = 'Realtime Synced';
+          bindFirebaseListeners();
+        } else {
+          dot.classList.remove('live');
+          txt.innerText = 'Offline';
+        }
+      });
+    } catch (e) {
+      console.warn("Offline Mode Active.");
+    }
+
+    // -------------------------------------------------------------
+    // 2. MASTER DATASET (FULL FOOTBALL, TENNIS & GUIDELINES DATA)
+    // -------------------------------------------------------------
+    let masterDataset = {
+      "Football": [
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "Italy Serie A", "Event": "Parma - Cremonese", "Type": "Single", "Market": "Parma to win and BTTS yes", "Notes": "Activated September 1" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "Italy Serie A", "Event": "Torino - Monza", "Type": "Single", "Market": "Torino to win and Over 2.5 goals", "Notes": "Activated September 1" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Football", "League": "England Championship", "Event": "West Ham - Wolves", "Type": "Single", "Market": "West Ham + BTTS", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Football", "League": "Scotland Premiership", "Event": "Celtic - Aberdeen", "Type": "Single", "Market": "Celtic + o3.5", "Notes": "Activated August 29" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Football", "League": "Coppa Italia", "Event": "Sassuolo - Frosinone", "Type": "Single", "Market": "Sassuolo to win and BTTS yes", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "France Ligue 1", "Event": "Toulouse - Lille", "Type": "Single", "Market": "Lille Match Winner + o2.5", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "Coppa Italia", "Event": "Cagliari - Verona", "Type": "Single", "Market": "BTTS + o2.5", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-03", "Sport": "Football", "League": "Scotland Premiership", "Event": "Hibernian - Hearts", "Type": "Single", "Market": "Hearts Win Either Half", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "England Premier League", "Event": "Ipswich - Liverpool", "Type": "Single", "Market": "Liverpool Win to Nil", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "Italy Serie A", "Event": "Genoa - Como", "Type": "Single", "Market": "Both Teams to Score Yes", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "LaLiga", "Event": "Real Betis - Real Madrid", "Type": "Single", "Market": "Real Madrid HT/FT", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-04", "Sport": "Football", "League": "France Ligue 1", "Event": "PSG - Monaco", "Type": "Single", "Market": "PSG + o2.5", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "England Premier League", "Event": "Man City - Coventry", "Type": "Single", "Market": "Man City -1 handicap", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Italy Serie A", "Event": "Inter - Napoli", "Type": "Single", "Market": "Inter Win + BTTS", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "LaLiga", "Event": "Athletic - Atl Madrid", "Type": "Single", "Market": "BTTS + o2.5", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-05", "Sport": "Football", "League": "Germany Bundesliga", "Event": "Schalke - Bayern", "Type": "Single", "Market": "Kane to score first", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Everton - Man Utd", "Type": "Single", "Market": "Fernandes anytime goalscorer", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "England Premier League", "Event": "Arsenal - Chelsea", "Type": "Single", "Market": "Havertz to score first", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "Italy Serie A", "Event": "Juventus - Milan", "Type": "Single", "Market": "Milan + o2.5", "Notes": "" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-06", "Sport": "Football", "League": "LaLiga", "Event": "Valencia - Barcelona", "Type": "Single", "Market": "Barcelona + o3.5", "Notes": "superboost 25% / 20e max stake" },
+        { "BO": false, "PUB": false, "Brand": "Ibet", "Date": "2026-09-17", "Sport": "Football", "League": "UEFA Europa League", "Event": "Matchday 1 Fixtures", "Type": "Single", "Market": "BTTS + o2.5 Multi", "Notes": "Highlighted Event" }
+      ],
+      "Tennis": [
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-01", "Sport": "Tennis", "League": "ATP Washington", "Event": "Nakashima - Fritz", "Type": "Single", "Market": "Fritz Set 1 Winner & 1st Set Total Over 10.5", "Notes": "Activated August 1" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-01", "Sport": "Tennis", "League": "ATP Washington", "Event": "Jodar - Tabilo", "Type": "Single", "Market": "Jodar Match Winner, Jodar 1st Set Winner & Games Total 1st Set Over 9.5", "Notes": "Activated August 1" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-01", "Sport": "Tennis", "League": "WTA Washington", "Event": "Osaka - Eala", "Type": "Single", "Market": "Osaka Match Winner, Osaka 1st Set Winner & Games Total 1st Set Over 9.5", "Notes": "Activated August 1" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-15", "Sport": "Tennis", "League": "ATP Cincinnati", "Event": "Djokovic - Tirante", "Type": "Single", "Market": "Djokovic 1st Set Winner & Total 9.5", "Notes": "Activated August 14" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-08-24", "Sport": "Tennis", "League": "WTA US Open", "Event": "Zheng - You", "Type": "Single", "Market": "Zheng, Qinwen To Win A set - Yes, You, Xiaodi To Win A Set - Yes, Set 1 Games Over 8.5", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Tennis", "League": "ATP US Open", "Event": "Safiullin - Alcaraz", "Type": "Single", "Market": "Alcaraz 1st Set Winner & Total 9.5", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-01", "Sport": "Tennis", "League": "WTA US Open", "Event": "Swiatek - Wang Xiy", "Type": "Single", "Market": "Match Winner - Swiatek, Set 1 Winner - Swiatek, Set 1 Games Over 8.5", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Tennis", "League": "WTA US Open", "Event": "Pegula, Jessica vs Kenin, Sofia", "Type": "Single", "Market": "Any Set to Nil", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Tennis", "League": "WTA US Open", "Event": "Navarro, Emma - McNally, Catherine", "Type": "Single", "Market": "Total Sets: Over 2.5", "Notes": "" },
+        { "BO": true, "PUB": true, "Brand": "Ibet", "Date": "2026-09-02", "Sport": "Tennis", "League": "WTA US Open", "Event": "Zeynep - Gauff", "Type": "Single", "Market": "Total games won by Gauff over 12.5", "Notes": "" }
+      ],
+      "Guidelines": {
+        "leaguesRank": [
+          { "rank": "1", "league": "European Championships", "teams": "Real Madrid, Barcelona, Man Utd, Liverpool, Bayern, Juventus, Dortmund, Arsenal, PSG, Benfica, Inter/Milan" },
+          { "rank": "2", "league": "England Premier League", "teams": "Man Utd, Liverpool, Arsenal, Man City, Chelsea, Tottenham, Aston Villa, Leeds, Everton, Newcastle" },
+          { "rank": "3", "league": "Spain La Liga", "teams": "Real Madrid, Barcelona, Atl Madrid, Athletic Club, Sevilla, Real Betis, Valencia, Real Sociedad, Villarreal, Espanyol" },
+          { "rank": "4", "league": "Germany Bundesliga", "teams": "Bayern, Dortmund, Eintracht Frankfurt, Schalke 04, Borussia M'gladbach, Hamburger SV, FC Köln, Werder Bremen, Union Berlin, Stuttgart" },
+          { "rank": "5", "league": "Italy Serie A", "teams": "Inter, Juventus, Milan, Napoli, Roma, Lazio, Fiorentina, Como, Atalanta, Cagliari" },
+          { "rank": "6", "league": "France Ligue 1", "teams": "PSG, Marseille, Lyon, Saint Etienne, Lens, Lille, Monaco, Nantes, Rennes, Strasbourg" },
+          { "rank": "7", "league": "Portugal Liga", "teams": "Benfica, Porto, Sporting CP, Sporting Braga, Vitória de Guimarães, Boavista, Maritimo, Belenenses, Rio Ave, Vitória de Setúbal" },
+          { "rank": "8", "league": "Netherlands Eredivisie", "teams": "Ajax, Feyenoord, PSV, Utrecht, Twente, Alkmaar, Vitesse, Heerenveen, NEC Nijmegen, Groningen" }
+        ],
+        "targetMarkets": [
+          "Favourites (2.20 or less: 1x2): Team -1 handicap, Main Scorer 1st Goalscorer, Team HT/FT, Team Win to Nil, Main Scorer to Score, Team + o2.5 goals, Team + BTTS + o3.5, Team Over X Corners (7.5+)",
+          "On Less Favored Team (2.50 or more): Team to win either half, BTTS + o2.5, BTTS 1st Half, Main Scorer to Score, Team o1.5 goals"
+        ],
+        "boostSettings": [
+          { "type": "General Boosts", "minStake": "1€", "maxStake": "25€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "10%" },
+          { "type": "Game Super Boosts", "minStake": "1€", "maxStake": "20€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "25%" },
+          { "type": "Outright Super Boosts", "minStake": "1€", "maxStake": "10€", "minOdds": "1.01", "maxOdds": "10 (Default)", "boost": "25% to 100%" }
+        ]
+      }
+    };
+
+    let activeTabKey = "Football";
+
+    // Date Parser Utility
+    function parseDate(dateStr) {
+      if (!dateStr) return null;
+      const clean = String(dateStr).trim().split(" ")[0];
+      const d = new Date(clean);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function sortDatasetDescending(dataArray) {
+      if (!dataArray || !Array.isArray(dataArray)) return;
+      dataArray.sort((a, b) => {
+        const dateA = a.Date || a["To Activate"] || a.Activated || "";
+        const dateB = b.Date || b["To Activate"] || b.Activated || "";
+        return String(dateB).localeCompare(String(dateA));
+      });
+    }
+
+    // Populate Dynamic Month Filter Dropdown
+    function populateMonthFilter() {
+      const select = document.getElementById('monthFilter');
+      const currentSelected = select.value;
+      select.innerHTML = '<option value="ALL">All Months</option>';
+
+      const monthsSet = new Set();
+      ["Football", "Tennis"].forEach(sportKey => {
+        (masterDataset[sportKey] || []).forEach(row => {
+          const rawDate = row.Date || row["To Activate"] || row.Activated || "";
+          const d = parseDate(rawDate);
+          if (d) {
+            const mKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            const mLabel = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            monthsSet.add(JSON.stringify({ key: mKey, label: mLabel }));
+          }
+        });
+      });
+
+      const sortedMonths = Array.from(monthsSet).map(s => JSON.parse(s)).sort((a, b) => b.key.localeCompare(a.key));
+      sortedMonths.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.key;
+        opt.innerText = m.label;
+        if (m.key === currentSelected) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    // Banner logic: Filter only upcoming weekly matches (today + 7 days)
+    function generateUpcomingTopPicks() {
+      const today = new Date("2026-09-02T00:00:00"); 
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
+
+      let upcomingList = [];
+
+      ["Football", "Tennis"].forEach(sportKey => {
+        const rows = masterDataset[sportKey] || [];
+        rows.forEach(item => {
+          const rawDate = item.Date || item["To Activate"] || item.Activated || "";
+          const d = parseDate(rawDate);
+
+          if (d && d >= today && d <= nextWeek) {
+            upcomingList.push({
+              event: `${item.League || sportKey}: ${item.Event || 'Special Event'}`,
+              market: item.Market || item.Pick || 'Boosted Selection',
+              oldOdds: item["Old Price"] || item.OG || "2.05",
+              newOdds: item["New Price"] || item.NEW || "2.55",
+              tag: (item.Sport || sportKey).toUpperCase(),
+              parsedDate: d
+            });
+          }
+        });
+      });
+
+      upcomingList.sort((a, b) => a.parsedDate - b.parsedDate);
+      return upcomingList.slice(0, 3);
+    }
+
+    // -------------------------------------------------------------
+    // 3. UI RENDERING ENGINE & CONTROLS
+    // -------------------------------------------------------------
+    function toggleDaylightNightMode() {
+      document.body.classList.toggle('light-mode');
+      const btn = document.getElementById('btnThemeToggle');
+      if (document.body.classList.contains('light-mode')) {
+        btn.innerText = '🌙 Night Mode';
+      } else {
+        btn.innerText = '☀️ Daylight Mode';
+      }
+    }
+
+    function adjustFontSize(val) {
+      document.documentElement.style.setProperty('--base-font-size', val + 'px');
+      document.getElementById('fontSizeLabel').innerText = val + 'px';
+    }
+
+    function renderTabs() {
+      const nav = document.getElementById('sportsTabsNav');
+      nav.innerHTML = '';
+
+      Object.keys(masterDataset).forEach((key) => {
+        const btn = document.createElement('button');
+        btn.className = `tab-item ${key === activeTabKey ? 'active' : ''} primary`;
+        btn.innerText = key;
+        btn.onclick = () => {
+          activeTabKey = key;
+          renderTabs();
+          renderActiveTab();
+        };
+        nav.appendChild(btn);
+      });
+
+      populateMonthFilter();
+    }
+
+    function renderActiveTab() {
+      const mainContainer = document.getElementById('mainContainer');
+      const btnAddRow = document.getElementById('btnAddRow');
+      const searchInput = document.getElementById('searchInput');
+      const monthFilter = document.getElementById('monthFilter').value;
+      const rowLimitFilter = document.getElementById('rowLimitFilter').value;
+
+      if (activeTabKey === "Guidelines") {
+        btnAddRow.style.display = 'none';
+        renderGuidelinesView(mainContainer);
+        return;
+      }
+
+      btnAddRow.style.display = 'inline-block';
+      mainContainer.className = 'table-wrapper';
+      mainContainer.innerHTML = `
+        <table>
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      `;
+
+      let data = masterDataset[activeTabKey] || [];
+      const query = searchInput.value.toLowerCase();
+      const thead = document.getElementById('tableHead');
+      const tbody = document.getElementById('tableBody');
+
+      if (data.length === 0) {
+        document.getElementById('rowCount').innerText = '0 records found';
+        return;
+      }
+
+      sortDatasetDescending(data);
+
+      const headers = Object.keys(data[0]);
+      
+      // Build Header
+      const trHead = document.createElement('tr');
+      headers.forEach(h => {
+        const th = document.createElement('th');
+        th.innerText = h;
+        if (h === 'BO' || h === 'PUB') th.style.textAlign = 'center';
+        trHead.appendChild(th);
+      });
+      const thAction = document.createElement('th');
+      thAction.innerText = "Action";
+      thAction.style.width = "80px";
+      trHead.appendChild(thAction);
+      thead.appendChild(trHead);
+
+      // Filter Rows (Month Filter + Search Query)
+      const filteredIndexes = [];
+      data.forEach((row, index) => {
+        const rawDate = row.Date || row["To Activate"] || row.Activated || "";
+        const d = parseDate(rawDate);
+        const mKey = d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` : '';
+
+        const monthMatches = (monthFilter === "ALL" || mKey === monthFilter);
+        const queryMatches = Object.values(row).some(v => String(v).toLowerCase().includes(query));
+
+        if (monthMatches && queryMatches) {
+          filteredIndexes.push(index);
+        }
+      });
+
+      // Apply Row Limit Filter
+      const totalFiltered = filteredIndexes.length;
+      let displayIndexes = filteredIndexes;
+      if (rowLimitFilter !== "ALL") {
+        const limit = parseInt(rowLimitFilter, 10);
+        displayIndexes = filteredIndexes.slice(0, limit);
+      }
+
+      document.getElementById('rowCount').innerText = `Showing ${displayIndexes.length} of ${totalFiltered} entries`;
+
+      displayIndexes.forEach(rowIndex => {
+        const row = data[rowIndex];
+        const tr = document.createElement('tr');
+
+        headers.forEach(h => {
+          const td = document.createElement('td');
+          
+          if (h === 'BO' || h === 'PUB') {
+            const flexDiv = document.createElement('div');
+            flexDiv.className = 'checkbox-container';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'track-checkbox';
+            checkbox.checked = (row[h] === true || row[h] === "True" || row[h] === "1.0" || row[h] === 1);
+            checkbox.onchange = (e) => {
+              masterDataset[activeTabKey][rowIndex][h] = e.target.checked;
+              pushToFirebaseSilent();
+            };
+            flexDiv.appendChild(checkbox);
+            td.appendChild(flexDiv);
+          } else {
+            const input = document.createElement('input');
+            input.className = 'invisible-input';
+            input.type = 'text';
+            input.value = row[h] !== undefined ? row[h] : '';
+            input.oninput = (e) => {
+              masterDataset[activeTabKey][rowIndex][h] = e.target.value;
+            };
+            input.onblur = () => pushToFirebaseSilent();
+            td.appendChild(input);
+          }
+          tr.appendChild(td);
+        });
+
+        const tdDelete = document.createElement('td');
+        const btnDelete = document.createElement('button');
+        btnDelete.className = 'btn-delete';
+        btnDelete.innerText = '❌ Delete';
+        btnDelete.onclick = () => deleteRow(rowIndex);
+        tdDelete.appendChild(btnDelete);
+        tr.appendChild(tdDelete);
+
+        tbody.appendChild(tr);
+      });
+
+      renderTopPicks();
+    }
+
+    // Guidelines Tab Layout Renderer
+    function renderGuidelinesView(container) {
+      const g = masterDataset.Guidelines;
+      container.className = '';
+      let html = `
+        <div class="guidelines-card">
+          <div class="guidelines-title">🏆 Tier 1 Leagues & Priority Target Teams</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>League / Competition</th>
+                <th>Priority Target Teams</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      g.leaguesRank.forEach(item => {
+        html += `
+          <tr>
+            <td><strong>#${item.rank}</strong></td>
+            <td>${item.league}</td>
+            <td>${item.teams}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+
+        <div class="guidelines-grid">
+          <div class="guidelines-card">
+            <div class="guidelines-title">🎯 Target Boost Markets</div>
+            <ul style="padding-left: 20px; line-height: 1.8; color: var(--text-sub);">
+      `;
+
+      g.targetMarkets.forEach(m => {
+        html += `<li style="margin-bottom: 8px;"><strong style="color:var(--text-main);">${m.split(':')[0]}:</strong> ${m.split(':')[1]}</li>`;
+      });
+
+      html += `
+            </ul>
+          </div>
+
+          <div class="guidelines-card">
+            <div class="guidelines-title">⚙️ Boost Configuration Settings</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Boost Type</th>
+                  <th>Min Stake</th>
+                  <th>Max Stake</th>
+                  <th>Min Odds</th>
+                  <th>Boost %</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      g.boostSettings.forEach(bs => {
+        html += `
+          <tr>
+            <td><strong>${bs.type}</strong></td>
+            <td>${bs.minStake}</td>
+            <td>${bs.maxStake}</td>
+            <td>${bs.minOdds}</td>
+            <td style="color:var(--accent-green); font-weight:bold;">${bs.boost}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+              </tbody>
             </table>
+          </div>
         </div>
-        <div id="guidelinesView" style="display: none;"></div>
-    </div>
+      `;
 
-    <div id="toastBanner" class="toast-banner">
-        <div class="toast-title" id="toastTitle">✅ Import Complete!</div>
-        <div id="toastBody">File processed successfully.</div>
-    </div>
+      container.innerHTML = html;
+      document.getElementById('rowCount').innerText = 'Guidelines Active';
+    }
 
-    <div class="modal-backdrop" id="excelExportModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <span>📊 Export iBet Workbook to Excel</span>
-                <span style="cursor: pointer; font-size: 16px;" onclick="closeExcelExportModal()">✖</span>
-            </div>
-            <p style="font-size: 12px; opacity: 0.85;">Choose your preferred export scope:</p>
-            
-            <button class="export-opt-btn" onclick="exportCurrentMonthExcel()">
-                <span>📊 Download Excel File</span>
-                <span style="color: #38bdf8; font-size: 11px;">(Current Month Default)</span>
-            </button>
+    function renderTopPicks(customPicks) {
+      const container = document.getElementById('topPicksContainer');
+      container.innerHTML = '';
 
-            <div style="display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
-                <label style="font-size: 11px; font-weight: 700;">📆 Select Custom Month/Year:</label>
-                <div style="display: flex; gap: 8px;">
-                    <select id="exportMonthSelect" class="select-filter" style="flex: 1;">
-                        <option value="01">January</option>
-                        <option value="02">February</option>
-                        <option value="03">March</option>
-                        <option value="04">April</option>
-                        <option value="05">May</option>
-                        <option value="06">June</option>
-                        <option value="07">July</option>
-                        <option value="08" selected>August</option>
-                        <option value="09">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
-                    <select id="exportYearSelect" class="select-filter" style="width: 90px;">
-                        <option value="2026" selected>2026</option>
-                        <option value="2027">2027</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" style="margin-top: 6px; font-size: 11px;" onclick="exportCustomMonthExcel()">Export Selected Month</button>
-            </div>
+      const picks = customPicks && customPicks.length > 0 ? customPicks : generateUpcomingTopPicks();
 
-            <button class="export-opt-btn" onclick="exportFullWorkbookExcel()">
-                <span>📁 Export All Records (Full Master Workbook)</span>
-            </button>
+      if (picks.length === 0) {
+        container.innerHTML = `<div style="color:var(--text-sub); padding:10px;">No upcoming fixtures scheduled for this week.</div>`;
+        return;
+      }
 
-            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-                <button class="btn btn-secondary" onclick="closeExcelExportModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
+      picks.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'pick-card';
+        div.innerHTML = `
+          <div class="tag">${p.tag || 'UPCOMING'}</div>
+          <div class="event">${p.event}</div>
+          <div class="market">${p.market}</div>
+          <div class="odds-row">
+            <span style="color:var(--text-sub); font-size:0.85rem; font-weight:normal;">Was: <strike>${p.oldOdds}</strike></span>
+            <span>Boosted: ${p.newOdds}</span>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
-            authDomain: "test-daily-task--sb.firebaseapp.com",
-            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
-            projectId: "test-daily-task--sb",
-            storageBucket: "test-daily-task--sb.firebasestorage.app",
-            messagingSenderId: "928476661919",
-            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
-        };
+    // -------------------------------------------------------------
+    // 4. ADD, DELETE & EXPORT
+    // -------------------------------------------------------------
+    function addNewRowAtTop() {
+      if (activeTabKey === "Guidelines") return;
+      const data = masterDataset[activeTabKey];
+      let newRow = {};
 
-        let db = null;
-        try {
-            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-            } else if (typeof firebase !== 'undefined') {
-                db = firebase.database();
-            }
-        } catch(e) {
-            console.error("Firebase Fallback:", e);
+      if (data && data.length > 0) {
+        Object.keys(data[0]).forEach(k => {
+          if (k === 'BO' || k === 'PUB') {
+            newRow[k] = false;
+          } else if (k === 'Date') {
+            newRow[k] = new Date().toISOString().split('T')[0];
+          } else {
+            newRow[k] = "";
+          }
+        });
+      } else {
+        newRow = { "BO": false, "PUB": false, "Brand": "Ibet", "Date": new Date().toISOString().split('T')[0], "Sport": activeTabKey, "League": "", "Event": "", "Market": "", "Notes": "" };
+      }
+
+      masterDataset[activeTabKey].unshift(newRow);
+      populateMonthFilter();
+      renderActiveTab();
+      pushToFirebaseSilent();
+    }
+
+    function deleteRow(index) {
+      if (confirm("Are you sure you want to delete this entry?")) {
+        masterDataset[activeTabKey].splice(index, 1);
+        populateMonthFilter();
+        renderActiveTab();
+        pushToFirebaseSilent();
+      }
+    }
+
+    function exportExcelCurrentTab() {
+      const data = masterDataset[activeTabKey];
+      if (!data || Array.isArray(data) && data.length === 0) {
+        alert("No tabular data available to export.");
+        return;
+      }
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, activeTabKey);
+      XLSX.writeFile(workbook, `IBET_BOOST_${activeTabKey}.xlsx`);
+    }
+
+    function exportExcelAllTabs() {
+      const workbook = XLSX.utils.book_new();
+      ["Football", "Tennis"].forEach(tabKey => {
+        const data = masterDataset[tabKey] || [];
+        if (data.length > 0) {
+          const worksheet = XLSX.utils.json_to_sheet(data);
+          XLSX.utils.book_append_sheet(workbook, worksheet, tabKey);
         }
+      });
+      XLSX.writeFile(workbook, `IBET_BOOST_All_Records.xlsx`);
+    }
 
-        let undoStack = [];
-        let redoStack = [];
-        let saveDebounceTimer = null;
-        let renderDebounceTimer = null;
-        let isImporting = false;
+    function bindFirebaseListeners() {
+      if (!db) return;
 
-        const sportsOptions = [
-            { name: "Football", class: "sport-football" },
-            { name: "Tennis", class: "sport-tennis" },
-            { name: "Basketball", class: "sport-basketball" },
-            { name: "Ice Hockey", class: "sport-ice-hockey" },
-            { name: "Baseball", class: "sport-baseball" },
-            { name: "American Football", class: "sport-american-football" }
-        ];
-
-        const typeOptions = [
-            { name: "Bet Builder", class: "type-bet-builder" },
-            { name: "Single", class: "type-single" },
-            { name: "Combo Boost", class: "type-combo-boost" }
-        ];
-
-        function getSportClass(sportName) {
-            const found = sportsOptions.find(s => s.name.toLowerCase() === String(sportName).toLowerCase());
-            return found ? found.class : "sport-football";
+      db.ref('masterBoostsData').on('value', (snap) => {
+        const val = snap.val();
+        if (val) {
+          masterDataset = val;
+          renderTabs();
+          renderActiveTab();
         }
-
-        function getTypeClass(typeName) {
-            const found = typeOptions.find(t => t.name.toLowerCase() === String(typeName).toLowerCase());
-            return found ? found.class : "type-single";
-        }
-
-        // STANDARDIZED 14-COLUMN HEADERS FOR ALL SPORT TABS
-        const standardHeaders = ["BO", "PUB", "Brands", "Event Date", "KO Time", "Sports", "League", "Event", "Type", "Markets / Notes", "Market 2", "Market 3", "Notes", "Other Ideas"];
-
-        const ibetFootballDataset = [
-            [true, true, "Ibet", "08.01.2026", "", "Football", "Veikkausliiga", "TPS - Marienhamn", "Single", "TPS Match Winner + OU 2.5", "", "", "Activated July 31", ""],
-            [true, true, "Ibet", "08.01.2026", "", "Football", "Veikkausliiga", "Lahti - Jaro", "Single", "Both Teams To Score - Yes And OU 2.5", "", "", "Activated July 31", ""]
-        ];
-
-        const ibetTennisDataset = [
-            [true, true, "Ibet", "08.01.2026", "", "Tennis", "ATP Washington", "Nakashima - Fritz", "Single", "Fritz Set 1 Winner & 1st Set Total Over 10.5", "", "", "Activated August 1", ""]
-        ];
-
-        const guidelinesData = {
-            hero: [{ rank: "1", league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd"] }],
-            normalBoosts: [{ type: "Betbuilder / Single", maxStake: "25e max bet", odds1: "Min Odd 1.01", odds2: "10% Boost" }],
-            specialBoosts: [{ type: "Super Boost", maxStake: "20e max bet", odds1: "25% Boost" }],
-            instructions: ["Always pick the positive outcome, let's avoid unders, or anything negative related. Thank you team"]
-        };
-
-        const embeddedData = {
-            "IBET Football": {
-                headers: standardHeaders,
-                meta: { percent: "10%", min_stake: 1, max_stake: 25, min_odd: 1.01 },
-                rows: ibetFootballDataset
-            },
-            "IBET Tennis": {
-                headers: standardHeaders,
-                meta: { percent: "10%", min_stake: 1, max_stake: 25, min_odd: 1.01 },
-                rows: ibetTennisDataset
-            },
-            "IBET Other Sports": {
-                headers: standardHeaders,
-                meta: { percent: "10%", min_stake: 1, max_stake: 25, min_odd: 1.01 },
-                rows: [
-                    [false, false, "Ibet", "08.07.2026", "", "American Football", "NFL Preseason", "Arizona Cardinals vs. Carolina Panthers", "Single", "New Orleans Saints", "", "", "Few markets so far", ""]
-                ]
-            },
-            "Guideliness": {
-                headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2"],
-                rows: [],
-                data: guidelinesData
-            }
-        };
-
-        let currentSheet = "IBET Football";
-        let workbookData = JSON.parse(JSON.stringify(embeddedData));
-
-        function showToast(title, body) {
-            const banner = document.getElementById('toastBanner');
-            const tTitle = document.getElementById('toastTitle');
-            const tBody = document.getElementById('toastBody');
-            
-            if (tTitle) tTitle.innerText = title;
-            if (tBody) tBody.innerText = body;
-            if (banner) {
-                banner.classList.add('show');
-                setTimeout(() => { banner.classList.remove('show'); }, 4000);
-            }
-        }
-
-        function initApp() {
-            if (localStorage.getItem('theme_7a') === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-            }
-            renderTabs();
-            listenToFirebase();
-
-            window.addEventListener('click', function(e) {
-                if (!e.target.closest('.dropdown-container')) {
-                    closeAllDropdowns();
-                }
-            });
-
-            window.addEventListener('keydown', function(e) {
-                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-                    if (e.shiftKey) redo();
-                    else undo();
-                } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-                    redo();
-                }
-            });
-        }
-
-        function closeAllDropdowns() {
-            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
-        }
-
-        function pushState() {
-            undoStack.push(JSON.parse(JSON.stringify(workbookData)));
-            redoStack = [];
-            updateUndoRedoButtons();
-        }
-
-        function undo() {
-            if (undoStack.length === 0) return;
-            redoStack.push(JSON.parse(JSON.stringify(workbookData)));
-            workbookData = undoStack.pop();
-            saveToFirebaseNow();
-            renderActiveSheet();
-            updateUndoRedoButtons();
-        }
-
-        function redo() {
-            if (redoStack.length === 0) return;
-            undoStack.push(JSON.parse(JSON.stringify(workbookData)));
-            workbookData = redoStack.pop();
-            saveToFirebaseNow();
-            renderActiveSheet();
-            updateUndoRedoButtons();
-        }
-
-        function updateUndoRedoButtons() {
-            const undoBtn = document.getElementById('undoBtn');
-            const redoBtn = document.getElementById('redoBtn');
-            if (undoBtn) undoBtn.disabled = undoStack.length === 0;
-            if (redoBtn) redoBtn.disabled = redoStack.length === 0;
-        }
-
-        function listenToFirebase() {
-            if (!db) {
-                renderActiveSheet();
-                return;
-            }
-
-            db.ref('ibet_boosts_master_v9').on('value', (snapshot) => {
-                if (isImporting) return; 
-                if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT')) {
-                    return; 
-                }
-                const liveData = snapshot.val();
-                if (liveData && typeof liveData === 'object' && liveData["IBET Football"] && liveData["IBET Football"].rows) {
-                    workbookData = liveData;
-                } else {
-                    saveToFirebaseNow();
-                }
-                debouncedRender();
-            });
-        }
-
-        function debouncedSaveToFirebase() {
-            const statusBadge = document.getElementById('saveStatus');
-            if (statusBadge) {
-                statusBadge.style.opacity = '0.5';
-                statusBadge.innerText = '⏳ Syncing...';
-            }
-
-            clearTimeout(saveDebounceTimer);
-            saveDebounceTimer = setTimeout(() => {
-                saveToFirebaseNow();
-            }, 400);
-        }
-
-        function saveToFirebaseNow() {
-            if (db) {
-                db.ref('ibet_boosts_master_v9').set(workbookData);
-            }
-            const statusBadge = document.getElementById('saveStatus');
-            if (statusBadge) {
-                statusBadge.innerText = '✓ Live Synced';
-                statusBadge.style.opacity = '1';
-                setTimeout(() => { statusBadge.style.opacity = '0'; }, 1000);
-            }
-        }
-
-        function debouncedRender() {
-            clearTimeout(renderDebounceTimer);
-            renderDebounceTimer = setTimeout(() => {
-                renderActiveSheet();
-            }, 100);
-        }
-
-        function renderTabs() {
-            const tabsNav = document.getElementById('tabsNav');
-            tabsNav.innerHTML = '';
-            Object.keys(workbookData).forEach(sheetName => {
-                const btn = document.createElement('button');
-                btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
-                btn.innerText = sheetName;
-                btn.onclick = () => {
-                    currentSheet = sheetName;
-                    renderTabs();
-                    renderActiveSheet();
-                };
-                tabsNav.appendChild(btn);
-            });
-        }
-
-        function parseRowDate(val) {
-            if (!val || typeof val !== 'string' || val.trim() === "") return null;
-            let clean = val.split(' ')[0].replace(/[\/\-]/g, '.');
-            let parts = clean.split('.');
-            if (parts.length === 3) {
-                let day, month, year;
-                if (parts[0].length === 4) {
-                    year = parseInt(parts[0], 10);
-                    month = parseInt(parts[1], 10) - 1;
-                    day = parseInt(parts[2], 10);
-                } else {
-                    month = parseInt(parts[0], 10) - 1;
-                    day = parseInt(parts[1], 10);
-                    year = parseInt(parts[2], 10);
-                    if (year < 100) year += 2000;
-                }
-                return new Date(year, month, day);
-            }
-            return null;
-        }
-
-        function getSortedAndLimitedRows(allRows) {
-            const dateColIdx = 3;
-            const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
-
-            const mappedRows = allRows.map((row, index) => {
-                const dateObj = parseRowDate(row[dateColIdx]);
-                const timestamp = dateObj ? dateObj.getTime() : 0;
-                return {
-                    originalIndex: index,
-                    row: row,
-                    date: timestamp
-                };
-            });
-
-            mappedRows.sort((a, b) => b.date - a.date);
-
-            let resultMapped = mappedRows;
-            if (limitVal !== "ALL") {
-                const count = parseInt(limitVal, 10);
-                resultMapped = mappedRows.slice(0, count);
-            }
-
-            return resultMapped;
-        }
-
-        function renderActiveSheet() {
-            closeAllDropdowns();
-            const tableWrapper = document.getElementById('tableWrapper');
-            const guidelinesView = document.getElementById('guidelinesView');
-            const metaSummary = document.getElementById('metaSummary');
-            const addRowBtn = document.getElementById('addRowBtn');
-            const clearTabBtn = document.getElementById('clearTabBtn');
-            const searchInput = document.getElementById('searchInput');
-            const sportsFilter = document.getElementById('sportsFilter');
-
-            if (currentSheet === "Guideliness") {
-                tableWrapper.style.display = 'none';
-                guidelinesView.style.display = 'block';
-                metaSummary.style.display = 'none';
-                addRowBtn.style.display = 'none';
-                clearTabBtn.style.display = 'none';
-                searchInput.style.display = 'none';
-                sportsFilter.style.display = 'none';
-                document.getElementById('recordCounter').innerText = "Guidelines Manual";
-
-                renderGuidelinesView();
-                return;
-            }
-
-            tableWrapper.style.display = 'block';
-            guidelinesView.style.display = 'none';
-            addRowBtn.style.display = 'inline-flex';
-            clearTabBtn.style.display = 'inline-flex';
-            searchInput.style.display = 'inline-block';
-
-            if (currentSheet === "IBET Other Sports") {
-                sportsFilter.style.display = 'inline-block';
-            } else {
-                sportsFilter.style.display = 'none';
-            }
-
-            const sheet = workbookData[currentSheet];
-            if (!sheet) return;
-
-            const thead = document.getElementById('tableHead');
-
-            if (sheet.meta) {
-                metaSummary.style.display = 'flex';
-                metaSummary.innerHTML = `
-                    <div class="meta-item"><span>⚡ Max Stake:</span> <strong>${sheet.meta.max_stake || '25'}</strong></div>
-                    <div class="meta-item"><span>📊 Percent:</span> <strong>${sheet.meta.percent || '10%'}</strong></div>
-                    <div class="meta-item"><span>💵 Min Stake:</span> <strong>${sheet.meta.min_stake || '1'}</strong></div>
-                    <div class="meta-item"><span>🎯 Min Odd:</span> <strong>${sheet.meta.min_odd || '1.01'}</strong></div>
-                `;
-            } else {
-                metaSummary.style.display = 'none';
-            }
-
-            let headHTML = '<tr><th class="row-number-cell">#</th><th style="width: 50px; text-align: center;">Action</th>';
-            sheet.headers.forEach(h => {
-                headHTML += `<th>${h}</th>`;
-            });
-            headHTML += '</tr>';
-            thead.innerHTML = headHTML;
-
-            let mappedRows = getSortedAndLimitedRows(sheet.rows);
-
-            if (currentSheet === "IBET Other Sports" && sportsFilter.value !== "") {
-                mappedRows = mappedRows.filter(item => String(item.row[5]).toLowerCase() === sportsFilter.value.toLowerCase());
-            }
-
-            renderTableRows(mappedRows);
-        }
-
-        function renderTableRows(mappedRows) {
-            const tbody = document.getElementById('tableBody');
-            const sheet = workbookData[currentSheet];
-            const recordCounter = document.getElementById('recordCounter');
-            
-            if (recordCounter) {
-                recordCounter.innerText = `Showing ${mappedRows.length} of ${sheet.rows.length}`;
-            }
-
-            tbody.innerHTML = '';
-            const totalDatabaseRows = sheet.rows.length;
-
-            mappedRows.forEach((item, displayIndex) => {
-                const sequentialLabelNumber = totalDatabaseRows - displayIndex;
-                const tr = createTableRowElement(item.row, item.originalIndex, sequentialLabelNumber);
-                tbody.appendChild(tr);
-            });
-
-            setTimeout(() => {
-                document.querySelectorAll('.editable-cell').forEach(el => autoExpandTextarea(el));
-            }, 50);
-        }
-
-        function autoExpandTextarea(el) {
-            el.style.height = 'auto';
-            el.style.height = (el.scrollHeight) + 'px';
-        }
-
-        function createTableRowElement(row, originalIndex, displayLabelNumber) {
-            const sheet = workbookData[currentSheet];
-            const tr = document.createElement('tr');
-
-            let rowHTML = `
-                <td class="row-number-cell">${displayLabelNumber}</td>
-                <td style="text-align: center; width: 50px;">
-                    <button class="delete-btn" onclick="deleteRow(${originalIndex})" title="Delete Row">🗑️</button>
-                </td>
-            `;
-
-            sheet.headers.forEach((headerName, colIndex) => {
-                const cellVal = row[colIndex];
-
-                if (typeof cellVal === 'boolean') {
-                    rowHTML += `
-                        <td style="text-align: center; width: 45px;">
-                            <input type="checkbox" class="checkbox-cell" ${cellVal ? 'checked' : ''} onchange="updateCell(${originalIndex}, ${colIndex}, this.checked)">
-                        </td>
-                    `;
-                } else if (headerName === "Sports") {
-                    if (currentSheet === "IBET Football") {
-                        rowHTML += `<td><span class="pill-badge sport-football">Football</span></td>`;
-                    } else if (currentSheet === "IBET Tennis") {
-                        rowHTML += `<td><span class="pill-badge sport-tennis">Tennis</span></td>`;
-                    } else {
-                        const sClass = getSportClass(cellVal || "Basketball");
-                        rowHTML += `
-                            <td>
-                                <div class="dropdown-container">
-                                    <span class="pill-badge ${sClass}" onclick="toggleFloatingDropdown(event, 'sport-${originalIndex}')">${escapeHtml(cellVal || 'Basketball')} ▼</span>
-                                    <div id="sport-${originalIndex}" class="dropdown-menu">
-                                        ${sportsOptions.map(s => `
-                                            <div class="dropdown-option" onclick="selectSportOption(${originalIndex}, ${colIndex}, '${s.name}')">
-                                                <span class="pill-badge ${s.class}">${s.name}</span>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            </td>
-                        `;
-                    }
-                } else if (headerName === "Type") {
-                    const tClass = getTypeClass(cellVal || "Single");
-                    rowHTML += `
-                        <td>
-                            <div class="dropdown-container">
-                                <span class="pill-badge ${tClass}" onclick="toggleFloatingDropdown(event, 'type-${originalIndex}')">${escapeHtml(cellVal || 'Single')} ▼</span>
-                                <div id="type-${originalIndex}" class="dropdown-menu">
-                                    ${typeOptions.map(t => `
-                                        <div class="dropdown-option" onclick="selectTypeOption(${originalIndex}, ${colIndex}, '${t.name}')">
-                                            <span class="pill-badge ${t.class}">${t.name}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </td>
-                    `;
-                } else {
-                    rowHTML += `
-                        <td>
-                            <textarea class="editable-cell" oninput="autoExpandTextarea(this); updateCellDirectly(${originalIndex}, ${colIndex}, this.value)">${escapeHtml(cellVal !== undefined && cellVal !== null ? cellVal : '')}</textarea>
-                        </td>
-                    `;
-                }
-            });
-
-            tr.innerHTML = rowHTML;
-            return tr;
-        }
-
-        function toggleFloatingDropdown(e, id) {
-            e.stopPropagation();
-            const badge = e.currentTarget;
-            const menu = document.getElementById(id);
-            if (!menu) return;
-
-            const isAlreadyOpen = menu.classList.contains('show');
-            closeAllDropdowns();
-
-            if (!isAlreadyOpen) {
-                const rect = badge.getBoundingClientRect();
-                menu.style.top = (rect.bottom + window.scrollY) + 'px';
-                menu.style.left = (rect.left + window.scrollX) + 'px';
-                menu.classList.add('show');
-            }
-        }
-
-        function selectSportOption(rowIndex, colIndex, sportName) {
-            pushState();
-            updateCell(rowIndex, colIndex, sportName);
-            renderActiveSheet();
-        }
-
-        function selectTypeOption(rowIndex, colIndex, typeName) {
-            pushState();
-            updateCell(rowIndex, colIndex, typeName);
-            renderActiveSheet();
-        }
-
-        function renderGuidelinesView() {
-            const container = document.getElementById('guidelinesView');
-            const gData = workbookData["Guideliness"].data || guidelinesData;
-
-            let html = `
-                <div class="guidelines-container">
-                    <div>
-                        <div class="guidelines-header-badge">FOOTBALL TEAM RANKINGS & PRIORITY LEAGUES</div>
-                        <div class="guidelines-section-title">WHICH TEAM TO PICK? WHO'S PLAYING?</div>
-                        <div style="overflow-x: auto;">
-                            <table class="guidelines-table">
-                                <thead>
-                                    <tr>
-                                        <th>Leagues / Competition</th>
-                                        <th>Rank</th>
-                                        <th>1</th><th>2</th><th>3</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-            `;
-
-            gData.hero.forEach((row, rIdx) => {
-                html += `
-                    <tr>
-                        <td class="col-league">
-                            <input type="text" class="guidelines-cell-input left-align" value="${escapeHtml(row.league)}" onchange="updateHeroGuideline(${rIdx}, 'league', this.value)">
-                        </td>
-                        <td class="col-rank">
-                            <input type="text" class="guidelines-cell-input" value="${escapeHtml(row.rank)}" onchange="updateHeroGuideline(${rIdx}, 'rank', this.value)">
-                        </td>
-                `;
-                for (let oIdx = 0; oIdx < 3; oIdx++) {
-                    const optVal = row.options[oIdx] !== undefined ? row.options[oIdx] : "";
-                    html += `
-                        <td>
-                            <input type="text" class="guidelines-cell-input" value="${escapeHtml(optVal)}" onchange="updateHeroOption(${rIdx}, ${oIdx}, this.value)">
-                        </td>
-                    `;
-                }
-                html += `</tr>`;
-            });
-
-            html += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            container.innerHTML = html;
-        }
-
-        function updateHeroGuideline(rIdx, prop, val) {
-            pushState();
-            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
-            workbookData["Guideliness"].data.hero[rIdx][prop] = val;
-            debouncedSaveToFirebase();
-        }
-
-        function updateHeroOption(rIdx, oIdx, val) {
-            pushState();
-            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
-            workbookData["Guideliness"].data.hero[rIdx].options[oIdx] = val;
-            debouncedSaveToFirebase();
-        }
-
-        function updateCellDirectly(rowIndex, colIndex, value) {
-            workbookData[currentSheet].rows[rowIndex][colIndex] = value;
-            debouncedSaveToFirebase();
-        }
-
-        function updateCell(rowIndex, colIndex, value) {
-            pushState();
-            workbookData[currentSheet].rows[rowIndex][colIndex] = value;
-            debouncedSaveToFirebase();
-        }
-
-        function addNewRow() {
-            pushState();
-            const sheet = workbookData[currentSheet];
-
-            const newRow = sheet.headers.map((h, idx) => {
-                if ((idx === 0 || idx === 1)) return false; // BO & PUB default to false (unticked)
-                if (h === "Brands") return "Ibet";
-                if (h === "KO Date" || h === "Event Date") return ""; 
-                if (h === "Sports") return currentSheet.includes('Tennis') ? "Tennis" : (currentSheet.includes('Other') ? "Basketball" : "Football");
-                if (h === "Type") return "Single";
-                return ""; // Markets, Notes, etc. default to blank
-            });
-
-            sheet.rows.unshift(newRow);
-            saveToFirebaseNow();
-            renderActiveSheet();
-        }
-
-        function deleteRow(rowIndex) {
-            if (confirm("Are you sure you want to delete this record?")) {
-                pushState();
-                workbookData[currentSheet].rows.splice(rowIndex, 1);
-                saveToFirebaseNow();
-                renderActiveSheet();
-            }
-        }
-
-        function clearCurrentSheet() {
-            if (confirm(`Are you sure you want to CLEAR ALL records in "${currentSheet}"?`)) {
-                pushState();
-                workbookData[currentSheet].rows = [];
-                saveToFirebaseNow();
-                renderActiveSheet();
-            }
-        }
-
-        function filterTable() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const allRows = workbookData[currentSheet].rows;
-            const mappedRows = getSortedAndLimitedRows(allRows);
-            const filtered = mappedRows.filter(item => 
-                item.row.some(cell => String(cell).toLowerCase().includes(query))
-            );
-            renderTableRows(filtered);
-        }
-
-        function toggleDarkMode() {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme_7a', newTheme);
-        }
-
-        function escapeHtml(text) {
-            return String(text).replace(/"/g, "&quot;");
-        }
-
-        /* EXCEL EXPORT MODAL LOGIC */
-        function openExcelExportModal() { document.getElementById('excelExportModal').classList.add('show'); }
-        function closeExcelExportModal() { document.getElementById('excelExportModal').classList.remove('show'); }
-
-        function exportCurrentMonthExcel() {
-            const now = new Date();
-            const currentMonthStr = String(now.getMonth() + 1).padStart(2, '0');
-            const currentYearStr = String(now.getFullYear());
-            exportMonthYearExcel(currentMonthStr, currentYearStr);
-            closeExcelExportModal();
-        }
-
-        function exportCustomMonthExcel() {
-            const m = document.getElementById('exportMonthSelect').value;
-            const y = document.getElementById('exportYearSelect').value;
-            exportMonthYearExcel(m, y);
-            closeExcelExportModal();
-        }
-
-        function exportMonthYearExcel(monthStr, yearStr) {
-            const wb = XLSX.utils.book_new();
-            Object.keys(workbookData).forEach(sheetName => {
-                if (sheetName === "Guideliness") return;
-                const sheet = workbookData[sheetName];
-                if (!sheet || !sheet.rows) return;
-
-                const filteredRows = sheet.rows.filter(row => {
-                    const dateVal = row[3];
-                    if (!dateVal || typeof dateVal !== 'string') return false;
-                    const parts = dateVal.split(' ')[0].split('.');
-                    if (parts.length === 3) return parts[0] === monthStr && parts[2] === yearStr;
-                    return false;
-                });
-
-                const sheetData = [sheet.headers, ...filteredRows];
-                const ws = XLSX.utils.aoa_to_sheet(sheetData);
-                XLSX.utils.book_append_sheet(wb, ws, sheetName);
-            });
-            XLSX.writeFile(wb, `iBet_Boosts_${monthStr}_${yearStr}.xlsx`);
-        }
-
-        function exportFullWorkbookExcel() {
-            const wb = XLSX.utils.book_new();
-            Object.keys(workbookData).forEach(sheetName => {
-                if (sheetName === "Guideliness") return;
-                const sheet = workbookData[sheetName];
-                if (!sheet || !sheet.rows) return;
-                const sheetData = [sheet.headers, ...sheet.rows];
-                const ws = XLSX.utils.aoa_to_sheet(sheetData);
-                XLSX.utils.book_append_sheet(wb, ws, sheetName);
-            });
-            XLSX.writeFile(wb, `iBet_Boosts_Full_Master.xlsx`);
-            closeExcelExportModal();
-        }
-
-        /* FILE IMPORT HANDLER (UNTICKED CHECKBOXES & BLANK MARKETS ON IMPORT) */
-        function handleFileImport(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            isImporting = true;
-            const statusBadge = document.getElementById('saveStatus');
-            if (statusBadge) {
-                statusBadge.style.opacity = '1';
-                statusBadge.innerText = '⏳ Processing File...';
-            }
-
-            setTimeout(() => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array', cellDates: true, cellStyles: false, cellFormulas: false });
-                        
-                        let importedCounts = { "IBET Football": 0, "IBET Tennis": 0, "IBET Other Sports": 0 };
-                        pushState();
-
-                        workbook.SheetNames.forEach(sheetName => {
-                            const ws = workbook.Sheets[sheetName];
-                            const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: "" });
-                            if (!jsonData || jsonData.length < 2) return;
-
-                            let headerIdx = -1;
-                            for (let i = 0; i < Math.min(15, jsonData.length); i++) {
-                                const rowStr = jsonData[i].join(' ').toLowerCase();
-                                if (rowStr.includes('event') || rowStr.includes('league') || rowStr.includes('markets') || rowStr.includes('date') || rowStr.includes('sport')) {
-                                    headerIdx = i;
-                                    break;
-                                }
-                            }
-                            if (headerIdx === -1) headerIdx = 0;
-
-                            const headers = jsonData[headerIdx].map(h => String(h || '').trim());
-                            const dateCol = headers.findIndex(h => /date/i.test(h));
-                            const timeCol = headers.findIndex(h => /^ko$|time/i.test(h));
-                            const sportCol = headers.findIndex(h => /sport/i.test(h));
-                            const leagueCol = headers.findIndex(h => /league|competition|tournament/i.test(h));
-                            const eventCol = headers.findIndex(h => /event|match|fixture|matchup/i.test(h));
-                            const typeCol = headers.findIndex(h => /type/i.test(h));
-
-                            const rowsToProcess = jsonData.slice(headerIdx + 1);
-
-                            for (let r = 0; r < rowsToProcess.length; r++) {
-                                const row = rowsToProcess[r];
-                                if (!row || row.length === 0) continue;
-
-                                const leagueVal = leagueCol !== -1 && row[leagueCol] ? String(row[leagueCol]).trim() : "";
-                                const eventVal = eventCol !== -1 && row[eventCol] ? String(row[eventCol]).trim() : "";
-
-                                if (!leagueVal || !eventVal) continue;
-
-                                // BO = false (unticked), PUB = false (unticked)
-                                const boVal = false;
-                                const pubVal = false;
-                                const brandVal = "Ibet";
-                                
-                                let rawDateStr = dateCol !== -1 && row[dateCol] ? String(row[dateCol]).trim() : "";
-                                let dateVal = "";
-                                if (rawDateStr) {
-                                    const parsedObj = parseRowDate(rawDateStr);
-                                    if (parsedObj) {
-                                        const mm = String(parsedObj.getMonth() + 1).padStart(2, '0');
-                                        const dd = String(parsedObj.getDate()).padStart(2, '0');
-                                        const yyyy = parsedObj.getFullYear();
-                                        dateVal = `${mm}.${dd}.${yyyy}`;
-                                    } else dateVal = rawDateStr;
-                                }
-
-                                const timeVal = timeCol !== -1 && row[timeCol] ? String(row[timeCol]).trim() : "";
-                                let sportVal = sportCol !== -1 && row[sportCol] ? String(row[sportCol]).trim() : "";
-                                const typeVal = typeCol !== -1 && row[typeCol] ? String(row[typeCol]).trim() : "Single";
-
-                                let targetSheet = "IBET Football";
-                                const sportLower = sportVal.toLowerCase();
-                                const sheetLower = sheetName.toLowerCase();
-
-                                if (sportLower.includes('tennis') || sheetLower.includes('tennis')) {
-                                    targetSheet = "IBET Tennis";
-                                    sportVal = "Tennis";
-                                } else if (sportLower.includes('football') || sportLower.includes('soccer') || sheetLower.includes('foot')) {
-                                    targetSheet = "IBET Football";
-                                    sportVal = "Football";
-                                } else if (sportVal !== "" || sheetLower.includes('other')) {
-                                    targetSheet = "IBET Other Sports";
-                                    if (!sportVal) sportVal = "Basketball";
-                                } else {
-                                    targetSheet = currentSheet.includes('Tennis') ? "IBET Tennis" : (currentSheet.includes('Other') ? "IBET Other Sports" : "IBET Football");
-                                    if (!sportVal) sportVal = targetSheet.replace('IBET ', '');
-                                }
-
-                                if (!workbookData[targetSheet]) workbookData[targetSheet] = { rows: [], headers: [] };
-                                if (!workbookData[targetSheet].rows) workbookData[targetSheet].rows = [];
-
-                                // Leave Markets (Index 9) blank for manual inspection
-                                const newRow = [
-                                    boVal, pubVal, brandVal,
-                                    dateVal, timeVal, sportVal,
-                                    leagueVal, eventVal, typeVal,
-                                    "", "", "", "Imported via File", ""
-                                ];
-
-                                workbookData[targetSheet].rows.unshift(newRow);
-                                importedCounts[targetSheet]++;
-                            }
-                        });
-
-                        saveToFirebaseNow();
-                        renderActiveSheet();
-                        showToast("✅ Import Complete!", `Records imported with unticked checkboxes and blank markets.`);
-                    } catch (err) {
-                        console.error("Import Error:", err);
-                        showToast("⚠️ Import Error", "Could not process file.");
-                    } finally {
-                        isImporting = false;
-                        if (statusBadge) {
-                            statusBadge.innerText = '✓ Live Synced';
-                            statusBadge.style.opacity = '1';
-                            setTimeout(() => { statusBadge.style.opacity = '0'; }, 1000);
-                        }
-                        input.value = '';
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            }, 50);
-        }
-
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
+      });
+    }
+
+    function pushToFirebaseSilent() {
+      if (db) {
+        db.ref('masterBoostsData').set(masterDataset);
+      }
+    }
+
+    function pushToFirebase() {
+      if (!db) {
+        alert("Firebase is not initialized! Please configure your Firebase keys.");
+        return;
+      }
+      db.ref('masterBoostsData').set(masterDataset);
+      db.ref('topPicks').set(generateUpcomingTopPicks())
+        .then(() => alert("Successfully synced all IBET BOOST data to Firebase!"))
+        .catch(e => alert("Firebase Sync Error: " + e.message));
+    }
+
+    // Initialize
+    renderTabs();
+    renderActiveTab();
+  </script>
 </body>
 </html>
