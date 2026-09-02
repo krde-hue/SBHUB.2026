@@ -132,7 +132,10 @@
             transform: translateY(-2px);
         }
 
-        .btn-batch-import-ibet {
+        /* CONSOLIDATED ORANGE IMPORT BUTTON WITH DROPDOWN */
+        .import-dropdown-container { position: relative; display: inline-block; }
+
+        .btn-import-main {
             background-color: #f59e0b !important;
             color: #000000 !important;
             font-weight: 800 !important;
@@ -145,27 +148,48 @@
             align-items: center;
             gap: 6px;
             transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
         }
 
-        .btn-batch-import-edge {
-            background-color: #a855f7 !important;
+        .btn-import-main:hover {
+            background-color: #d97706 !important;
             color: #ffffff !important;
-            font-weight: 800 !important;
-            padding: 7px 14px !important;
-            font-size: 12px !important;
-            border: 1px solid #c084fc !important;
-            border-radius: 6px !important;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
+            transform: scale(1.03);
         }
 
-        .btn-batch-import-ibet:hover, .btn-batch-import-edge:hover {
-            transform: scale(1.03);
-            opacity: 0.9;
+        .import-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            min-width: 170px;
+            z-index: 10000;
+            overflow: hidden;
+            flex-direction: column;
         }
+
+        .import-menu.show { display: flex; }
+
+        .import-menu-item {
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .import-menu-item:last-child { border-bottom: none; }
+        .import-menu-item:hover { background-color: #334155; color: #38bdf8; }
 
         .card-select-checkbox {
             width: 20px;
@@ -174,17 +198,7 @@
             accent-color: #f59e0b;
         }
 
-        .event-card.selected-card {
-            border-color: #f59e0b !important;
-            background: rgba(245, 158, 11, 0.08) !important;
-        }
-
-        .category-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
+        .category-tabs { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
 
         .tab-btn {
             background: var(--card-bg);
@@ -263,17 +277,15 @@
             transition: all 0.2s;
         }
 
-        .btn-date-select:hover {
-            background: var(--accent-btn);
-            color: var(--accent-btn-text);
-        }
+        .btn-date-select:hover { background: var(--accent-btn); color: var(--accent-btn-text); }
 
         .schedule-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
             gap: 16px;
         }
 
+        /* GLOWING & PULSING DERBY / MAJOR EVENT CARDS */
         .event-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -287,10 +299,81 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
+        .event-card.hot-game-card {
+            border: 2px solid #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
+            animation: pulseHotGlow 2s infinite alternate;
+        }
+
+        .event-card.selected-card {
+            border-color: #f59e0b !important;
+            background: rgba(245, 158, 11, 0.08) !important;
+        }
+
+        @keyframes pulseHotGlow {
+            0% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.7); }
+        }
+
         .event-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
         .event-sport { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--accent-btn); }
         .event-title { font-size: 15px; font-weight: 800; color: var(--header-text); margin-top: 2px; }
         .event-meta { font-size: 11px; opacity: 0.85; display: flex; gap: 12px; align-items: center; font-weight: 600; }
+
+        /* BADGE TAGS */
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; display: inline-flex; align-items: center; gap: 4px; }
+        .badge-tier1 { background: var(--badge-tier1); color: #000; }
+        .badge-hot { background: var(--badge-hot); color: #fff; animation: blinkBadge 1.2s infinite alternate; }
+        .badge-backup { background: #3b82f6; color: #fff; }
+
+        @keyframes blinkBadge {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* POPULAR MARKETS & TOP SCORERS DISPLAY BOX */
+        .popular-markets-box {
+            background: var(--market-box-bg);
+            border: 1px dashed var(--market-box-border);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .market-box-title {
+            font-weight: 800;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .market-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+
+        .market-tag {
+            background: rgba(56, 189, 248, 0.18);
+            color: var(--text-color);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .scorer-tag {
+            background: rgba(250, 204, 21, 0.18);
+            color: #fef08a;
+            border: 1px solid rgba(250, 204, 21, 0.4);
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 800;
+        }
 
         .card-actions {
             display: flex;
@@ -366,15 +449,23 @@
             </div>
 
             <div class="btn-controls">
-                <!-- IMPORT BUTTON TO IBET BOOST (UNTICKED CHECKBOXES & BLANK MARKETS) -->
-                <button class="btn-batch-import-ibet" id="importSelectedIBetBtn" onclick="importSelectedMatchesToIBetBoost()" style="display: none;">
-                    <i class="fa-solid fa-bolt"></i> Import to iBet (<span id="selectedCountBadgeIBet">0</span>)
-                </button>
-
-                <!-- IMPORT BUTTON TO EDGE BOOST -->
-                <button class="btn-batch-import-edge" id="importSelectedEdgeBtn" onclick="importSelectedMatchesToEdgeBoost()" style="display: none;">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Import to Edge (<span id="selectedCountBadgeEdge">0</span>)
-                </button>
+                <!-- CONSOLIDATED ORANGE IMPORT BUTTON WITH DROPDOWN -->
+                <div class="import-dropdown-container">
+                    <button class="btn-import-main" id="importMainBtn" onclick="toggleImportMenu(event)" style="display: none;">
+                        <i class="fa-solid fa-file-import"></i> IMPORT ( <span id="selectedCountBadge">0</span> ) <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 2px;"></i>
+                    </button>
+                    <div class="import-menu" id="importMenu">
+                        <div class="import-menu-item" onclick="importSelectedMatchesToEdgeBoost()">
+                            <i class="fa-solid fa-cloud-arrow-up" style="color: #a855f7;"></i> Import to Edge
+                        </div>
+                        <div class="import-menu-item" onclick="importSelectedMatchesToIBetBoost()">
+                            <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> Import to Ibet
+                        </div>
+                        <div class="import-menu-item" onclick="importSelectedMatchesToBoth()">
+                            <i class="fa-solid fa-layer-group" style="color: #38bdf8;"></i> Import BOTH
+                        </div>
+                    </div>
+                </div>
 
                 <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
                 <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
@@ -430,7 +521,7 @@
 
             <div>
                 <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Matchup / Outright Title *</label>
-                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Boston Celtics vs Los Angeles Lakers">
+                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Bayern Munich vs Borussia Dortmund">
             </div>
 
             <div style="display: flex; gap: 10px;">
@@ -447,7 +538,7 @@
                 </div>
                 <div style="flex: 1;">
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">League / Tournament</label>
-                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., NBA">
+                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., Germany Bundesliga">
                 </div>
             </div>
 
@@ -460,15 +551,15 @@
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Priority Tier</label>
                     <select id="eventTier" class="form-control" style="width: 100%;">
                         <option value="HOT_GAME">🔥 Hot Game / Derby</option>
-                        <option value="TIER_1">⭐ Tier 1</option>
-                        <option value="REGULAR">Regular Game</option>
+                        <option value="TIER_1">⭐ Tier 1 Priority</option>
+                        <option value="BACKUP">🛡️ Backup League</option>
                     </select>
                 </div>
             </div>
 
             <div>
-                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Markets & Props (Comma Separated)</label>
-                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Jayson Tatum 25+ Points, Moneyline">
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Goalscorers & Popular Markets (Comma Separated)</label>
+                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Harry Kane (Scorer), Both Teams To Score & Over 2.5">
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
@@ -495,6 +586,22 @@
         let eventSchedule = {};
         let activeTabCategory = 'FOOTBALL';
         let selectedMatchIds = new Set();
+
+        /* PRIORITY TEAMS MAPPING DIRECTORY */
+        const priorityTeamScorers = {
+            "Bayern": ["Harry Kane", "Serge Gnabry", "Jamal Musiala"],
+            "Dortmund": ["Serhou Guirassy", "Julian Brandt", "Karim Adeyemi"],
+            "Real Madrid": ["Kylian Mbappé", "Vinícius Júnior", "Jude Bellingham"],
+            "Barcelona": ["Robert Lewandowski", "Lamine Yamal", "Raphinha"],
+            "Man Utd": ["Rasmus Højlund", "Marcus Rashford", "Bruno Fernandes"],
+            "Liverpool": ["Mohamed Salah", "Darwin Núñez", "Luis Díaz"],
+            "Man City": ["Erling Haaland", "Phil Foden", "Kevin De Bruyne"],
+            "Arsenal": ["Bukayo Saka", "Kai Havertz", "Martin Ødegaard"],
+            "PSG": ["Ousmane Dembélé", "Randal Kolo Muani", "Bradley Barcola"],
+            "Inter": ["Laataro Martínez", "Marcus Thuram"],
+            "Juventus": ["Dusan Vlahović", "Kenan Yildiz"],
+            "Milan": ["Rafael Leão", "Christian Pulisic"]
+        };
 
         function updateGlobalClocks() {
             const now = new Date();
@@ -555,21 +662,53 @@
             });
         }
 
-        function updateImportButtonBadge() {
-            const badgeIBet = document.getElementById('selectedCountBadgeIBet');
-            const badgeEdge = document.getElementById('selectedCountBadgeEdge');
-            const btnIBet = document.getElementById('importSelectedIBetBtn');
-            const btnEdge = document.getElementById('importSelectedEdgeBtn');
-            const count = selectedMatchIds.size;
-            
-            if (badgeIBet) badgeIBet.innerText = count;
-            if (badgeEdge) badgeEdge.innerText = count;
-            
-            if (btnIBet) btnIBet.style.display = count > 0 ? 'inline-flex' : 'none';
-            if (btnEdge) btnEdge.style.display = count > 0 ? 'inline-flex' : 'none';
+        function toggleImportMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('importMenu');
+            if (menu) menu.classList.toggle('show');
         }
 
-        /* IMPORTER TO IBET BOOST (UNTICKED CHECKBOXES & BLANK MARKETS FOR MANUAL INPUT) */
+        window.addEventListener('click', function() {
+            const menu = document.getElementById('importMenu');
+            if (menu) menu.classList.remove('show');
+        });
+
+        function updateImportButtonBadge() {
+            const badge = document.getElementById('selectedCountBadge');
+            const btn = document.getElementById('importMainBtn');
+            const count = selectedMatchIds.size;
+            
+            if (badge) badge.innerText = count;
+            if (btn) btn.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+
+        /* DYNAMIC SCORER & POPULAR BOOST DETECTOR */
+        function getSuggestedBoostMarkets(title, existingMarkets) {
+            const scorers = [];
+            const popularMarkets = ["Match Winner & BTTS", "Both Teams To Score & Over 2.5", "Over 3.5 Total Goals"];
+
+            Object.keys(priorityTeamScorers).forEach(team => {
+                if (title.toLowerCase().includes(team.toLowerCase())) {
+                    scorers.push(...priorityTeamScorers[team]);
+                }
+            });
+
+            const uniqueScorers = Array.from(new Set(scorers)).slice(0, 2);
+
+            let customMarkets = [];
+            if (Array.isArray(existingMarkets) && existingMarkets.length > 0) {
+                customMarkets = existingMarkets;
+            } else if (typeof existingMarkets === 'string' && existingMarkets.trim() !== '') {
+                customMarkets = existingMarkets.split(',').map(s => s.trim());
+            }
+
+            return {
+                scorers: uniqueScorers,
+                markets: customMarkets.length > 0 ? customMarkets : popularMarkets
+            };
+        }
+
+        /* 1. IMPORT TO IBET BOOST */
         function importSelectedMatchesToIBetBoost() {
             if (selectedMatchIds.size === 0) return;
 
@@ -614,8 +753,7 @@
                         }
                     }
 
-                    // Index 0: BO=false (unticked), Index 1: PUB=false (unticked), Markets="" (blank)
-                    // Index 4: formattedTime, Index 5: sportVal, Index 6: league, Index 7: event, Index 8: Type
+                    // BO = false, PUB = false, Markets = "" (blank for manual input)
                     let newRow = [
                         false, false, "Ibet",
                         formattedDate, formattedTime, sportVal,
@@ -628,7 +766,7 @@
                 });
 
                 db.ref('ibet_boosts_master_v9').set(liveData).then(() => {
-                    alert(`⚡ Successfully transferred ${addedCount} games to iBet Boosts Master! (Checkboxes unticked, markets left blank for manual input)`);
+                    alert(`⚡ Successfully transferred ${addedCount} games to iBet Boosts Master!`);
                     selectedMatchIds.clear();
                     updateImportButtonBadge();
                     renderSchedule();
@@ -636,7 +774,7 @@
             });
         }
 
-        /* IMPORTER TO EDGE BOOST */
+        /* 2. IMPORT TO EDGE BOOST */
         function importSelectedMatchesToEdgeBoost() {
             if (selectedMatchIds.size === 0) return;
 
@@ -679,29 +817,12 @@
                         }
                     }
 
-                    let newRow = [];
-                    if (targetSheet === "Edge Football") {
-                        newRow = [
-                            false, false, "7Abet/BVBet", 
-                            formattedDate, formattedTime, "Football", 
-                            item.league || "", item.title || "", "Bet Builder", 
-                            "", "", "", "", "Transferred from Schedule", ""
-                        ];
-                    } else if (targetSheet === "Edge Tennis") {
-                        newRow = [
-                            false, false, "7Abet/BVBet", 
-                            formattedDate, formattedTime, "Tennis", 
-                            item.league || "", item.title || "", "Single", 
-                            "", "", "", "Transferred from Schedule", ""
-                        ];
-                    } else {
-                        newRow = [
-                            false, false, "7Abet/BVBet", 
-                            formattedDate, sportVal, 
-                            item.league || "", item.title || "", "Bet Builder", 
-                            "", "Transferred from Schedule", ""
-                        ];
-                    }
+                    let newRow = [
+                        false, false, "7Abet/BVBet", 
+                        formattedDate, formattedTime, sportVal, 
+                        item.league || "", item.title || "", "Single", 
+                        "", "", "", "Transferred from Schedule", ""
+                    ];
 
                     liveData[targetSheet].rows.unshift(newRow);
                     addedCount++;
@@ -714,6 +835,13 @@
                     renderSchedule();
                 });
             });
+        }
+
+        /* 3. IMPORT BOTH */
+        function importSelectedMatchesToBoth() {
+            if (selectedMatchIds.size === 0) return;
+            importSelectedMatchesToIBetBoost();
+            importSelectedMatchesToEdgeBoost();
         }
 
         function renderSchedule() {
@@ -784,11 +912,24 @@
 
                 dayMatches.forEach(item => {
                     const isChecked = selectedMatchIds.has(item.id);
+                    const isHotGame = item.tier === 'HOT_GAME';
+                    const isTier1 = item.tier === 'TIER_1';
+
                     const card = document.createElement('div');
                     card.id = `card-${item.id}`;
-                    card.className = `event-card ${isChecked ? 'selected-card' : ''}`;
+                    card.className = `event-card ${isHotGame ? 'hot-game-card' : ''} ${isChecked ? 'selected-card' : ''}`;
 
                     const timeFormatted = new Date(item.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const boostInfo = getSuggestedBoostMarkets(item.title, item.markets);
+
+                    let badgeHTML = '';
+                    if (isHotGame) {
+                        badgeHTML = `<span class="badge badge-hot"><i class="fa-solid fa-fire"></i> DERBY / HOT MATCH</span>`;
+                    } else if (isTier1) {
+                        badgeHTML = `<span class="badge badge-tier1"><i class="fa-solid fa-star"></i> TIER 1 PRIORITY</span>`;
+                    } else {
+                        badgeHTML = `<span class="badge badge-backup"><i class="fa-solid fa-shield"></i> BACKUP LEAGUE</span>`;
+                    }
 
                     card.innerHTML = `
                         <div class="event-header">
@@ -799,10 +940,34 @@
                                     <div class="event-title">${escapeHtml(item.title)}</div>
                                 </div>
                             </div>
+                            ${badgeHTML}
                         </div>
 
                         <div class="event-meta">
                             <span>⏰ Kickoff: ${timeFormatted} (GMT+8)</span>
+                        </div>
+
+                        <!-- POPULAR MARKETS & TOP SCORERS BOX -->
+                        <div class="popular-markets-box">
+                            <div class="market-box-title">
+                                <i class="fa-solid fa-bullseye"></i> Suggested Boost Markets
+                            </div>
+                            
+                            ${boostInfo.scorers.length > 0 ? `
+                                <div style="font-size: 10px; font-weight: 800; color: #fef08a; margin-top: 2px;">
+                                    ⚽ 1-2 Top Goalscorers:
+                                </div>
+                                <div class="market-tag-list">
+                                    ${boostInfo.scorers.map(s => `<span class="scorer-tag">🎯 ${escapeHtml(s)}</span>`).join('')}
+                                </div>
+                            ` : ''}
+
+                            <div style="font-size: 10px; font-weight: 800; color: #38bdf8; margin-top: 4px;">
+                                🔥 Popular Markets to Offer:
+                            </div>
+                            <div class="market-tag-list">
+                                ${boostInfo.markets.map(m => `<span class="market-tag">${escapeHtml(m)}</span>`).join('')}
+                            </div>
                         </div>
 
                         <div class="card-actions">
@@ -824,20 +989,24 @@
                 return `${d.toISOString().split('T')[0]}T${hourStr}`;
             }
 
-            const feeds = [
-                { title: "Real Madrid vs Barcelona", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(0, "21:00"), tier: "HOT_GAME", markets: ["Kylian Mbappé (Scorer)", "BTTS & Over 2.5"] },
+            const priorityFeeds = [
+                { title: "Bayern Munich vs Borussia Dortmund", league: "Germany Bundesliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(0, "18:30"), tier: "HOT_GAME", markets: ["Harry Kane (Scorer)", "Serhou Guirassy (Scorer)", "Both Teams To Score & Over 2.5"] },
+                { title: "Real Madrid vs Barcelona", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "21:00"), tier: "HOT_GAME", markets: ["Kylian Mbappé (Scorer)", "Robert Lewandowski (Scorer)", "Match Winner & Shots on Target"] },
+                { title: "Manchester United vs Liverpool", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "16:30"), tier: "HOT_GAME", markets: ["Mohamed Salah (Scorer)", "Rasmus Højlund (Scorer)", "Total Goals Over 3.5"] },
+                { title: "Paris Saint-Germain vs Marseille", league: "France Ligue 1", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "20:45"), tier: "HOT_GAME", markets: ["Ousmane Dembélé (Scorer)", "PSG Match Winner"] },
+                { title: "Inter vs Juventus", league: "Italy Serie A", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "19:45"), tier: "HOT_GAME", markets: ["Lautaro Martínez (Scorer)", "Dusan Vlahović (Scorer)"] },
                 { title: "Boston Celtics vs Los Angeles Lakers", league: "NBA", sport: "BASKETBALL", dateTime: getRelativeDateStr(1, "08:30"), tier: "HOT_GAME", markets: ["Jayson Tatum 25+ Points", "Moneyline Winner"] }
             ];
 
-            feeds.forEach(evt => db.ref('boost_schedule').push(evt));
-            if (showPrompt) alert("✓ Feed re-synced successfully!");
+            priorityFeeds.forEach(evt => db.ref('boost_schedule').push(evt));
+            if (showPrompt) alert("✓ Priority and Backup feeds successfully re-synced!");
         }
 
         function openNewEventModal() {
             document.getElementById('editEventId').value = '';
             document.getElementById('eventTitle').value = '';
             document.getElementById('eventLeague').value = '';
-            document.getElementById('eventSport').value = 'BASKETBALL';
+            document.getElementById('eventSport').value = 'FOOTBALL';
             document.getElementById('eventDateTime').value = new Date().toISOString().slice(0, 16);
             document.getElementById('eventModal').classList.add('show');
         }
