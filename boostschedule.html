@@ -366,7 +366,7 @@
             </div>
 
             <div class="btn-controls">
-                <!-- IMPORT BUTTON TO IBET BOOST (UNTICKED & BLANK MARKETS) -->
+                <!-- IMPORT BUTTON TO IBET BOOST (UNTICKED CHECKBOXES & BLANK MARKETS) -->
                 <button class="btn-batch-import-ibet" id="importSelectedIBetBtn" onclick="importSelectedMatchesToIBetBoost()" style="display: none;">
                     <i class="fa-solid fa-bolt"></i> Import to iBet (<span id="selectedCountBadgeIBet">0</span>)
                 </button>
@@ -569,13 +569,13 @@
             if (btnEdge) btnEdge.style.display = count > 0 ? 'inline-flex' : 'none';
         }
 
-        /* IMPORTER TO IBET BOOST (UNTICKED CHECKBOXES & BLANK MARKETS FOR MANUAL CHECK) */
+        /* IMPORTER TO IBET BOOST (UNTICKED CHECKBOXES & BLANK MARKETS FOR MANUAL INPUT) */
         function importSelectedMatchesToIBetBoost() {
             if (selectedMatchIds.size === 0) return;
 
             const matchesToTransfer = Array.from(selectedMatchIds).map(id => eventSchedule[id]).filter(Boolean);
 
-            db.ref('ibet_boosts_master_v8').once('value').then(snapshot => {
+            db.ref('ibet_boosts_master_v9').once('value').then(snapshot => {
                 let liveData = snapshot.val() || {};
                 let addedCount = 0;
 
@@ -614,7 +614,8 @@
                         }
                     }
 
-                    // BO = false (unticked), PUB = false (unticked), Markets = "" (blank for manual check)
+                    // Index 0: BO=false (unticked), Index 1: PUB=false (unticked), Markets="" (blank)
+                    // Index 4: formattedTime, Index 5: sportVal, Index 6: league, Index 7: event, Index 8: Type
                     let newRow = [
                         false, false, "Ibet",
                         formattedDate, formattedTime, sportVal,
@@ -626,7 +627,7 @@
                     addedCount++;
                 });
 
-                db.ref('ibet_boosts_master_v8').set(liveData).then(() => {
+                db.ref('ibet_boosts_master_v9').set(liveData).then(() => {
                     alert(`⚡ Successfully transferred ${addedCount} games to iBet Boosts Master! (Checkboxes unticked, markets left blank for manual input)`);
                     selectedMatchIds.clear();
                     updateImportButtonBadge();
@@ -676,13 +677,6 @@
                             const ss = String(dateObj.getSeconds()).padStart(2, '0');
                             formattedTime = `${hh}:${mm}:${ss}`;
                         }
-                    }
-
-                    let marketNotes = "";
-                    if (Array.isArray(item.markets) && item.markets.length > 0) {
-                        marketNotes = item.markets.join(', ');
-                    } else if (typeof item.markets === 'string') {
-                        marketNotes = item.markets;
                     }
 
                     let newRow = [];
