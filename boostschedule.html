@@ -657,11 +657,6 @@
             if (resyncBtn && showPrompt) resyncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Polling Flashscore...';
 
             const now = new Date();
-            function getRelativeDateStr(offsetDays, hourStr) {
-                const d = new Date(now);
-                d.setDate(d.getDate() + offsetDays);
-                return `${d.toISOString().split('T')[0]}T${hourStr}`;
-            }
 
             const liveProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://flashscore-live-proxy.free.beacon/fixtures')}`;
 
@@ -790,82 +785,62 @@
             };
         }
 
-        /* 1. STRICT 14-COLUMN IMPORTER TO IBET BOOST & MASTER BOOST DATA */
+        /* 1. FIXED IMPORTER TO IBET BOOST (TARGETS masterBoostsData) */
         function importSelectedMatchesToIBetBoost() {
             if (selectedMatchIds.size === 0) return;
 
             const matchesToTransfer = Array.from(selectedMatchIds).map(id => eventSchedule[id]).filter(Boolean);
 
-            // Push to shared real-time listener node 'scheduledBoosts'
-            matchesToTransfer.forEach(item => {
-                db.ref('scheduledBoosts').push({
-                    date: item.dateTime ? item.dateTime.split('T')[0] : new Date().toISOString().split('T')[0],
-                    sport: item.sport || 'FOOTBALL',
-                    league: item.league || '',
-                    event: item.title || '',
-                    type: 'Single',
-                    notes: 'Imported from boostschedule.html',
-                    timestamp: Date.now()
-                });
-            });
-
-            // Also update 'ibet_boosts_master_v9' DB
-            db.ref('ibet_boosts_master_v9').once('value').then(snapshot => {
+            db.ref('masterBoostsData').once('value').then(snapshot => {
                 let liveData = snapshot.val() || {};
                 let addedCount = 0;
 
                 matchesToTransfer.forEach(item => {
-                    let targetSheet = "IBET Football";
-                    let sportVal = "Football";
+                    let targetSheet = "Football";
 
                     if (item.sport === "TENNIS") {
-                        targetSheet = "IBET Tennis";
-                        sportVal = "Tennis";
+                        targetSheet = "Tennis";
                     } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
-                        targetSheet = "IBET Other Sports";
-                        if (item.sport === "BASEBALL") sportVal = "Baseball";
-                        else if (item.sport === "AM_FOOTBALL") sportVal = "American Football";
-                        else sportVal = "Basketball";
+                        targetSheet = "Other Sports";
                     }
 
-                    if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
-                    if (!liveData[targetSheet].rows) liveData[targetSheet].rows = [];
+                    if (!liveData[targetSheet]) liveData[targetSheet] = [];
 
                     let formattedDate = "";
-                    let formattedTime = "";
-
                     if (item.dateTime) {
                         const dateObj = new Date(item.dateTime);
                         if (!isNaN(dateObj.getTime())) {
-                            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-                            const d = String(dateObj.getDate()).padStart(2, '0');
-                            const y = dateObj.getFullYear();
-                            formattedDate = `${m}.${d}.${y}`;
-
-                            const hh = String(dateObj.getHours()).padStart(2, '0');
-                            const mm = String(dateObj.getMinutes()).padStart(2, '0');
-                            const ss = String(dateObj.getSeconds()).padStart(2, '0');
-                            formattedTime = `${hh}:${mm}:${ss}`;
+                            formattedDate = dateObj.toISOString().split('T')[0];
                         }
                     }
 
-                    // Strict 14-Column Array Structure for iBet Boosts
-                    let newRow = [
-                        false, false, "Ibet",
-                        formattedDate, formattedTime, sportVal,
-                        item.league || "", item.title || "", "Single",
-                        "", "", "", "Transferred from Schedule", ""
-                    ];
+                    const boostInfo = getSuggestedBoostMarkets(item.title || "", item.markets);
+                    const marketStr = boostInfo.markets.length > 0 ? boostInfo.markets.join(' | ') : "";
 
-                    liveData[targetSheet].rows.unshift(newRow);
+                    let newRow = {
+                        "BO": false,
+                        "PUB": false,
+                        "Brand": "Ibet",
+                        "Date": formattedDate || new Date().toISOString().split('T')[0],
+                        "Sport": item.sport || "Football",
+                        "League": item.league || "",
+                        "Event": item.title || "",
+                        "Type": "Single",
+                        "Market": marketStr,
+                        "Notes": "Imported from Schedule"
+                    };
+
+                    liveData[targetSheet].unshift(newRow);
                     addedCount++;
                 });
 
-                db.ref('ibet_boosts_master_v9').set(liveData).then(() => {
-                    alert(`⚡ Successfully transferred ${addedCount} games to iBet Boosts Master & Realtime Nodes!`);
+                db.ref('masterBoostsData').set(liveData).then(() => {
+                    alert(`⚡ Successfully transferred ${addedCount} games to iBet Boosts!`);
                     selectedMatchIds.clear();
                     updateImportButtonBadge();
                     renderSchedule();
+                }).catch(err => {
+                    alert("Error syncing to Firebase: " + err.message);
                 });
             });
         }
@@ -917,7 +892,6 @@
 
                     let newRow = [];
                     if (targetSheet === "Edge Other Sports") {
-                        // Edge Other Sports layout (11 cols, omits KO Time)
                         newRow = [
                             false, false, "7Abet/BVBet", 
                             formattedDate, sportVal, 
@@ -925,7 +899,6 @@
                             "", "Transferred from Schedule", ""
                         ];
                     } else {
-                        // Football and Tennis layout (14 cols)
                         newRow = [
                             false, false, "7Abet/BVBet", 
                             formattedDate, formattedTime, sportVal, 
