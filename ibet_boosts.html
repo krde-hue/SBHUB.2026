@@ -173,6 +173,7 @@
 
         .row-number-cell { text-align: center; font-weight: bold; color: var(--credit-text); min-width: 55px; max-width: 65px; white-space: nowrap !important; word-break: normal !important; padding: 6px 8px; }
 
+        /* FULLY VISIBLE MULTI-LINE EDITABLE CELL (NO SCROLLBARS OR ARROWS) */
         .editable-cell { 
             width: 100%; 
             min-width: 150px; 
@@ -192,6 +193,7 @@
             height: auto; 
             font-family: inherit; 
             line-height: 1.4; 
+            field-sizing: content;
         }
         .editable-cell:focus { border-color: #38bdf8; background-color: var(--input-bg); box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
         .checkbox-cell { width: 18px; height: 18px; cursor: pointer; accent-color: #0d233a; }
@@ -789,14 +791,14 @@
             return null;
         }
 
-        /* GUARANTEES LATEST DATES ARE SORTED AT THE ABSOLUTE TOP */
+        /* GUARANTEES LATEST DATES ARE SORTED AT THE ABSOLUTE TOP (STRICT CHRONOLOGICAL) */
         function getSortedAndLimitedRows(allRows) {
             const dateColIdx = 3;
             const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
 
             const mappedRows = allRows.map((row, index) => {
                 const dateObj = parseRowDate(row[dateColIdx]);
-                // Undated rows are assigned timestamp 0 so real calendar dates sort strictly above them
+                // Undated/blank rows are assigned timestamp 0 so real calendar dates sort strictly above them
                 const timestamp = dateObj ? dateObj.getTime() : 0;
                 return {
                     originalIndex: index,
