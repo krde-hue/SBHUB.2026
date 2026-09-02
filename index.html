@@ -62,7 +62,6 @@
             position: relative;
         }
 
-        /* TRADING CANVAS BACKGROUND */
         #trading-bg {
             position: absolute;
             top: 0;
@@ -74,7 +73,6 @@
             pointer-events: none;
         }
 
-        /* TOP RIGHT CONTROLS */
         .top-controls {
             position: absolute;
             top: 20px;
@@ -138,7 +136,6 @@
             border-color: #f472b6;
         }
 
-        /* BOTTOM-RIGHT LOGO BRANDING */
         .bottom-right-brand {
             position: absolute;
             bottom: 20px;
@@ -201,7 +198,6 @@
             height: 100vh;
         }
 
-        /* POSITIONED WATERMARK TITLE BELOW MENU CONSOLE */
         .dashboard-header-bg {
             position: absolute;
             top: calc(50% + 280px);
@@ -248,7 +244,6 @@
             max-width: 95vw;
         }
 
-        /* CIRCULAR NAVIGATION MENU */
         .circular-menu {
             position: relative;
             width: 720px;
@@ -261,7 +256,6 @@
             touch-action: none;
         }
 
-        /* MOBILE TOUCH PREVIEW BANNER */
         .touch-preview-banner {
             position: absolute;
             top: -55px;
@@ -289,7 +283,6 @@
             transform: translateX(-50%) translateY(-5px);
         }
 
-        /* STEADY 3D CENTER BUTTON */
         .toggle-btn {
             position: relative;
             width: 155px;
@@ -371,7 +364,6 @@
             pointer-events: auto;
         }
 
-        /* SLEEK GLASS MUTED BASE BUTTONS */
         .menu-item {
             position: absolute;
             top: 50%;
@@ -397,8 +389,7 @@
             -webkit-tap-highlight-color: transparent;
             border: 1px solid rgba(148, 163, 184, 0.3);
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 
-                        inset 0 1px 2px rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
         }
 
@@ -435,14 +426,12 @@
             color: #94a3b8 !important;
         }
 
-        /* ANCHORED TRANSFORMS ON HOVER - NO FLICKER */
         .circular-menu.active .menu-item:hover, 
         .circular-menu.active .menu-item.touch-active {
             transform: translate(var(--tx), var(--ty)) scale(1.18) !important;
             z-index: 100 !important;
         }
 
-        /* INDIVIDUAL BRAND COLOR HIGHLIGHTS ON HOVER */
         .menu-item[data-id="top-picks"]:hover, .menu-item[data-id="top-picks"].touch-active {
             background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
             border-color: #f472b6;
@@ -534,7 +523,6 @@
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
         }
 
-        /* HOVER TOOLTIP BADGES */
         .menu-item::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -563,7 +551,6 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* LOGIN AUTH MODAL STYLES */
         .login-modal-overlay {
             position: fixed;
             top: 0;
@@ -707,7 +694,6 @@
             opacity: 1;
         }
 
-        /* Shake Animation for incorrect password */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-10px); }
@@ -718,13 +704,11 @@
             animation: shake 0.4s ease-in-out;
         }
 
-        /* MOBILE VIEW CLEANUP MODIFICATIONS */
         body.mobile-view-active .top-controls { 
             top: 15px; 
             right: 15px; 
         }
 
-        /* HIDE UNNECESSARY WIDGETS IN MOBILE VIEW */
         body.mobile-view-active #game-selector,
         body.mobile-view-active #user-profile-select,
         body.mobile-view-active #mobile-toggle,
@@ -791,7 +775,6 @@
             <span id="mobile-text">Mobile View: OFF</span>
         </button>
 
-        <!-- KEPT ACTIVE IN MOBILE VIEW -->
         <button class="control-btn" id="theme-toggle">
             <i class="fa-solid fa-moon" id="theme-icon"></i>
             <span id="theme-text">Night Mode</span>
@@ -824,7 +807,6 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- BACKGROUND WATERMARK TITLE WITH REAL TIME DYNAMIC SINE WAVE CHOMPING -->
         <div class="dashboard-header-bg">
             <div class="welcome-subtitle-bg">Welcome to</div>
             <div class="title-wrapper">
@@ -832,7 +814,6 @@
             </div>
         </div>
 
-        <!-- CIRCULAR NAVIGATION MENU -->
         <div class="circular-menu" id="circular-menu">
             <div class="touch-preview-banner" id="touch-banner">SELECT A BUTTON</div>
             <div class="toggle-btn" id="toggle-btn" title="Expand Operations Menu">
@@ -904,7 +885,6 @@
         const userProfileSelect = document.getElementById('user-profile-select');
         const touchBanner = document.getElementById('touch-banner');
 
-        // LOGIN AUTH ELEMENTS
         const loginModal = document.getElementById('login-modal');
         const loginCard = document.getElementById('login-card');
         const passcodeInputs = document.getElementById('passcode-input');
@@ -982,7 +962,7 @@
                     localStorage.setItem('sb_active_user', currentUser);
                     let customOpt = document.createElement('option');
                     customOpt.value = currentUser;
-                    customOpt.textContent = `👤 Player: ${currentUser}`;
+                    customOpt.textContent = "👤 Player: " + currentUser;
                     userProfileSelect.appendChild(customOpt);
                     userProfileSelect.value = currentUser;
                 }
@@ -1036,20 +1016,19 @@
                     a.setAttribute('rel', 'noopener noreferrer');
                 }
 
-                a.style.setProperty('--tx', `${x}px`);
-                a.style.setProperty('--ty', `${y}px`);
+                a.style.setProperty('--tx', x + 'px');
+                a.style.setProperty('--ty', y + 'px');
 
                 if (item.letter) {
-                    a.innerHTML = `<span class="letter-icon">${item.letter}</span>`;
+                    a.innerHTML = '<span class="letter-icon">' + item.letter + '</span>';
                 } else {
-                    a.innerHTML = `<i class="${item.icon}"></i>`;
+                    a.innerHTML = '<i class="' + item.icon + '"></i>';
                 }
                 
                 menuItemsContainer.appendChild(a);
             });
         }
 
-        // MOBILE TOUCH/SLIDE HOVER GESTURE ENGINE
         function initMobileTouchGestures() {
             if (!circularMenu) return;
 
@@ -1079,7 +1058,7 @@
                     activeTouchedItem.classList.add('touch-active');
 
                     const label = activeTouchedItem.getAttribute('data-tooltip');
-                    touchBanner.textContent = `📍 ${label}`;
+                    touchBanner.textContent = '📍 ' + label;
                     touchBanner.classList.add('show');
                 } else if (activeTouchedItem) {
                     activeTouchedItem.classList.remove('touch-active');
@@ -1132,7 +1111,7 @@
                     if (isActive) {
                         setTimeout(() => {
                             item.style.opacity = '1';
-                            item.style.transform = `translate(${tx}, ${ty}) scale(1)`;
+                            item.style.transform = 'translate(' + tx + ', ' + ty + ') scale(1)';
                         }, index * 25);
                     } else {
                         item.style.opacity = '0';
@@ -1207,19 +1186,17 @@
             if (screenWidth < 1150 || isMobileView) {
                 const targetWidth = isMobileView ? Math.min(screenWidth * 0.90, 360) : Math.min(screenWidth * 0.95, 1150);
                 const scale = targetWidth / 1150;
-                canvas.style.transform = `scale(${scale})`;
+                canvas.style.transform = 'scale(' + scale + ')';
             } else {
-                canvas.style.transform = `scale(1)`;
+                canvas.style.transform = 'scale(1)';
             }
         }
 
-        // PERFECT DIRECTIONAL ROTATION PAC-MAN ENGINE (NO BLACK SHADOW, 100% FORWARD FACING)
         function initTitleWatermarkEngine() {
             const canvas = document.getElementById('title-text-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
-            // OFF-SCREEN BUFFER CANVAS FOR MASKING WITHOUT BLACK TRAILS
             const textCanvas = document.createElement('canvas');
             textCanvas.width = canvas.width;
             textCanvas.height = canvas.height;
@@ -1233,12 +1210,11 @@
             let activeBites = [];
 
             let pacmanX = startX - 40; 
-            let pacmanDirection = 1; // 1 = MOVING RIGHT, -1 = MOVING LEFT
-            let pacmanSpeed = 0.15; // 3X SLOWER SPEED
+            let pacmanDirection = 1; 
+            let pacmanSpeed = 0.15; 
             let mouthAngle = 0.2;
             let mouthSpeed = 0.015;
 
-            // SINE WAVE PATH CONSTANTS
             const centerY = canvas.height / 2;
             const waveAmplitude = 32; 
             const waveFrequency = 0.012; 
@@ -1253,7 +1229,6 @@
 
                 const currentPacmanY = getPacmanY(pacmanX);
 
-                // 1. RENDER CLEAN BASE TEXT TO OFF-SCREEN CANVAS
                 textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
 
                 textCtx.font = '900 96px Orbitron, sans-serif';
@@ -1276,7 +1251,6 @@
                 }
                 textCtx.restore();
 
-                // 2. LOG CIRCULAR CHOMP DAMAGE
                 if (pacmanX >= startX - 20 && pacmanX <= startX + totalWidth + 20) {
                     activeBites.push({
                         x: pacmanX,
@@ -1286,7 +1260,6 @@
                     });
                 }
 
-                // 3. MASK BITE HOLES CLEANLY ON TEXT LAYER ONLY
                 textCtx.save();
                 textCtx.globalCompositeOperation = 'destination-out';
 
@@ -1296,7 +1269,7 @@
                     if (bite.healTimer > 0) {
                         bite.healTimer--;
                     } else {
-                        bite.radius -= 0.04; // SLOW REGENERATION
+                        bite.radius -= 0.04;
                     }
 
                     if (bite.radius <= 0) {
@@ -1309,11 +1282,9 @@
                 }
                 textCtx.restore();
 
-                // 4. CLEAR MAIN DISPLAY CANVAS AND DRAW MASKED TEXT
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(textCanvas, 0, 0);
 
-                // 5. UPDATE PAC-MAN POSITION & PING-PONG DIRECTION
                 pacmanX += pacmanSpeed * pacmanDirection;
 
                 const rightLimit = startX + totalWidth + 50;
@@ -1321,16 +1292,15 @@
 
                 if (pacmanX >= rightLimit) {
                     pacmanX = rightLimit;
-                    pacmanDirection = -1; // TURN AROUND TO MOVE LEFT
+                    pacmanDirection = -1;
                 } else if (pacmanX <= leftLimit) {
                     pacmanX = leftLimit;
-                    pacmanDirection = 1; // TURN AROUND TO MOVE RIGHT
+                    pacmanDirection = 1;
                 }
 
                 mouthAngle += mouthSpeed;
                 if (mouthAngle > 0.42 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
 
-                // 6. DRAW PAC-MAN (ROTATED TANGENT TO WAVE & FULLY REVERSED WHEN MOVING LEFT)
                 ctx.save();
                 ctx.translate(pacmanX, currentPacmanY);
 
@@ -1339,7 +1309,6 @@
                 let slopeAngle = Math.atan2(deltaY, deltaX);
 
                 if (pacmanDirection === -1) {
-                    // FLIP 180 DEGREES SO MOUTH FACES LEFT TOWARDS DIRECTION OF TRAVEL
                     slopeAngle += Math.PI; 
                 }
 
@@ -1395,7 +1364,7 @@
                 draw() {
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(${this.color}, 0.65)`;
+                    ctx.fillStyle = 'rgba(' + this.color + ', 0.65)';
                     ctx.fill();
                 }
             }
