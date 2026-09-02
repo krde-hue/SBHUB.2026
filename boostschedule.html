@@ -886,8 +886,12 @@
             closeImportDestinationModal();
 
             const targetNodes = [];
-            if (destination === 'EDGE' || destination === 'BOTH') targetNodes.push({ dbNode: 'edge_boosts_master_v23', brandLabel: '7Abet/BVBet', name: 'EDGE Boosts' });
-            if (destination === 'IBET' || destination === 'BOTH') targetNodes.push({ dbNode: 'ibet_boosts_master_v23', brandLabel: 'iBet', name: 'iBet Boosts' });
+            if (destination === 'EDGE' || destination === 'BOTH') {
+                targetNodes.push({ dbNode: 'edge_boosts_master_v23', brandLabel: '7Abet/BVBet', name: 'EDGE Boosts' });
+            }
+            if (destination === 'IBET' || destination === 'BOTH') {
+                targetNodes.push({ dbNode: 'ibet_boosts_master_v23', brandLabel: 'iBet', name: 'iBet Boosts' });
+            }
 
             let completedOperations = 0;
 
