@@ -26,6 +26,7 @@
             --glow-color: rgba(56, 189, 248, 0.65);
             --shadow-color: rgba(0, 0, 0, 0.85);
             --canvas-opacity: 0.35;
+            --modal-bg: rgba(15, 23, 42, 0.92);
         }
 
         :root[data-theme="light"] {
@@ -40,6 +41,7 @@
             --glow-color: rgba(2, 132, 199, 0.45);
             --shadow-color: rgba(0, 0, 0, 0.2);
             --canvas-opacity: 0.18;
+            --modal-bg: rgba(255, 255, 255, 0.92);
         }
 
         * {
@@ -561,6 +563,145 @@
             transform: translateX(-50%) translateY(0);
         }
 
+        /* LOGIN AUTH MODAL STYLES */
+        .login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .login-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .login-card {
+            background: var(--modal-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px var(--shadow-color), 0 0 30px var(--glow-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .login-modal-overlay.active .login-card {
+            transform: scale(1);
+        }
+
+        .login-icon {
+            font-size: 2.8rem;
+            color: var(--title-cyan);
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 10px var(--glow-color));
+        }
+
+        .login-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .login-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .login-input-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-family: 'Segoe UI', sans-serif;
+            outline: none;
+            text-align: center;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            border-color: var(--title-cyan);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.6);
+        }
+
+        .login-error-msg {
+            color: #f87171;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+            min-height: 1.2em;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .login-error-msg.show {
+            opacity: 1;
+        }
+
+        /* Shake Animation for incorrect password */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
         /* MOBILE VIEW CLEANUP MODIFICATIONS */
         body.mobile-view-active .top-controls { 
             top: 15px; 
@@ -703,6 +844,20 @@
         </div>
     </div>
 
+    <!-- LOGIN AUTH MODAL -->
+    <div class="login-modal-overlay" id="login-modal">
+        <div class="login-card" id="login-card">
+            <i class="fa-solid fa-shield-halved login-icon"></i>
+            <div class="login-title">AUTHENTICATION</div>
+            <div class="login-subtitle">Enter key to access Sportsbook Hub</div>
+            <div class="login-input-wrapper">
+                <input type="password" id="passcode-input" class="login-input" placeholder="Enter Password..." autocomplete="off">
+            </div>
+            <button class="login-btn" id="login-submit-btn">UNLOCK HUB</button>
+            <div class="login-error-msg" id="login-error">Incorrect passcode! Access Denied.</div>
+        </div>
+    </div>
+
     <script>
         const navMenuJSON = [
             { id: "top-picks", icon: "fa-solid fa-fire", label: "TOP PICKS", url: "boostschedule.html" },
@@ -732,8 +887,52 @@
         const userProfileSelect = document.getElementById('user-profile-select');
         const touchBanner = document.getElementById('touch-banner');
 
+        // LOGIN AUTH ELEMENTS
+        const loginModal = document.getElementById('login-modal');
+        const loginCard = document.getElementById('login-card');
+        const passcodeInput = document.getElementById('passcode-input');
+        const loginSubmitBtn = document.getElementById('login-submit-btn');
+        const loginError = document.getElementById('login-error');
+
         let isMobileView = false;
         let activeTouchedItem = null;
+        let isAuthenticated = false;
+
+        function checkAuthStatus() {
+            return sessionStorage.getItem('sb_authenticated') === 'true';
+        }
+
+        function promptLogin(callback) {
+            loginModal.classList.add('active');
+            passcodeInput.value = '';
+            loginError.classList.remove('show');
+            setTimeout(() => passcodeInput.focus(), 100);
+
+            function handleAuthenticate() {
+                const enteredPass = passcodeInput.value.trim();
+                if (enteredPass === 'sportsbook2026') {
+                    sessionStorage.setItem('sb_authenticated', 'true');
+                    isAuthenticated = true;
+                    loginModal.classList.remove('active');
+                    loginSubmitBtn.removeEventListener('click', handleAuthenticate);
+                    passcodeInput.removeEventListener('keydown', handleKeyDown);
+                    if (callback) callback();
+                } else {
+                    loginError.classList.add('show');
+                    loginCard.classList.add('shake');
+                    passcodeInput.value = '';
+                    passcodeInput.focus();
+                    setTimeout(() => loginCard.classList.remove('shake'), 400);
+                }
+            }
+
+            function handleKeyDown(e) {
+                if (e.key === 'Enter') handleAuthenticate();
+            }
+
+            loginSubmitBtn.onclick = handleAuthenticate;
+            passcodeInput.onkeydown = handleKeyDown;
+        }
 
         function initActiveUser() {
             let savedUser = localStorage.getItem('sb_active_user');
@@ -893,11 +1092,7 @@
         }
 
         if (toggleBtn && circularMenu) {
-            function handleToggleMenu(e) {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
+            function executeMenuToggle() {
                 const isActive = circularMenu.classList.toggle('active');
                 const items = menuItemsContainer.querySelectorAll('.menu-item');
 
@@ -914,6 +1109,21 @@
                         item.style.transform = 'translate(0, 0) scale(0)';
                     }
                 });
+            }
+
+            function handleToggleMenu(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                if (checkAuthStatus()) {
+                    executeMenuToggle();
+                } else {
+                    promptLogin(() => {
+                        executeMenuToggle();
+                    });
+                }
             }
 
             toggleBtn.addEventListener('click', handleToggleMenu);
