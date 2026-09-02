@@ -719,15 +719,31 @@
 
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // SORT DAYS DESCENDING: NEWEST/CURRENT DATE AT THE TOP, OLDER DATES BELOW
+            // STRICT SORTING ALGORITHM:
+            // 1. TODAY's Date is explicitly pinned to the top.
+            // 2. FUTURE Dates follow below Today (sorted ascending: tomorrow, next day...).
+            // 3. PAST Dates appear at the bottom (sorted descending: yesterday, day before...).
             const sortedDayKeys = Object.keys(database).sort((a, b) => {
                 const dateA = database[a].isoDate || '';
                 const dateB = database[b].isoDate || '';
-                return dateB.localeCompare(dateA);
+
+                if (dateA === todayStr) return -1;
+                if (dateB === todayStr) return 1;
+
+                const isAFuture = dateA > todayStr;
+                const isBFuture = dateB > todayStr;
+
+                if (isAFuture && !isBFuture) return -1;
+                if (!isAFuture && isBFuture) return 1;
+
+                if (isAFuture && isBFuture) {
+                    return dateA.localeCompare(dateB);
+                } else {
+                    return dateB.localeCompare(dateA);
+                }
             });
 
             let todayTargetElem = null;
-            let firstFutureElem = null;
 
             sortedDayKeys.forEach((dayKey) => {
                 let dayData = database[dayKey];
@@ -846,20 +862,15 @@
 
                 if (isToday) {
                     todayTargetElem = daySection;
-                } else if (!firstFutureElem && dayData.isoDate >= todayStr) {
-                    firstFutureElem = daySection;
                 }
             });
 
-            // AUTOMATICALLY SCROLL TO TODAY OR UPCOMING DATE
+            // ENSURE THE VIEW IS PINNED AT THE VERY TOP OF THE PAGE ON LOAD
             if (!hasAutoScrolledToToday) {
-                const targetToScroll = todayTargetElem || firstFutureElem;
-                if (targetToScroll) {
-                    setTimeout(() => {
-                        targetToScroll.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        hasAutoScrolledToToday = true;
-                    }, 300);
-                }
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    hasAutoScrolledToToday = true;
+                }, 300);
             }
         }
 
