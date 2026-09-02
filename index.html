@@ -634,11 +634,13 @@
             position: relative;
             width: 100%;
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
         }
 
         .login-input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 42px 12px 16px;
             background: rgba(15, 23, 42, 0.6);
             border: 1.5px solid var(--border-color);
             border-radius: 12px;
@@ -654,6 +656,20 @@
         .login-input:focus {
             border-color: var(--title-cyan);
             box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .toggle-password-icon {
+            position: absolute;
+            right: 14px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            user-select: none;
+        }
+
+        .toggle-password-icon:hover {
+            color: var(--title-cyan);
         }
 
         .login-btn {
@@ -852,6 +868,7 @@
             <div class="login-subtitle">Enter key to access Sportsbook Hub</div>
             <div class="login-input-wrapper">
                 <input type="password" id="passcode-input" class="login-input" placeholder="Enter Password..." autocomplete="off">
+                <i class="fa-solid fa-eye toggle-password-icon" id="toggle-password-btn" title="Toggle Visibility"></i>
             </div>
             <button class="login-btn" id="login-submit-btn">UNLOCK HUB</button>
             <div class="login-error-msg" id="login-error">Incorrect passcode! Access Denied.</div>
@@ -890,38 +907,37 @@
         // LOGIN AUTH ELEMENTS
         const loginModal = document.getElementById('login-modal');
         const loginCard = document.getElementById('login-card');
-        const passcodeInput = document.getElementById('passcode-input');
+        const passcodeInputs = document.getElementById('passcode-input');
+        const togglePasswordBtn = document.getElementById('toggle-password-btn');
         const loginSubmitBtn = document.getElementById('login-submit-btn');
         const loginError = document.getElementById('login-error');
 
         let isMobileView = false;
         let activeTouchedItem = null;
-        let isAuthenticated = false;
 
         function checkAuthStatus() {
-            return sessionStorage.getItem('sb_authenticated') === 'true';
+            return localStorage.getItem('sb_device_authenticated') === 'true';
         }
 
         function promptLogin(callback) {
             loginModal.classList.add('active');
-            passcodeInput.value = '';
+            passcodeInputs.value = '';
             loginError.classList.remove('show');
-            setTimeout(() => passcodeInput.focus(), 100);
+            setTimeout(() => passcodeInputs.focus(), 100);
 
             function handleAuthenticate() {
-                const enteredPass = passcodeInput.value.trim();
+                const enteredPass = passcodeInputs.value.trim();
                 if (enteredPass === 'sportsbook2026') {
-                    sessionStorage.setItem('sb_authenticated', 'true');
-                    isAuthenticated = true;
+                    localStorage.setItem('sb_device_authenticated', 'true');
                     loginModal.classList.remove('active');
                     loginSubmitBtn.removeEventListener('click', handleAuthenticate);
-                    passcodeInput.removeEventListener('keydown', handleKeyDown);
+                    passcodeInputs.removeEventListener('keydown', handleKeyDown);
                     if (callback) callback();
                 } else {
                     loginError.classList.add('show');
                     loginCard.classList.add('shake');
-                    passcodeInput.value = '';
-                    passcodeInput.focus();
+                    passcodeInputs.value = '';
+                    passcodeInputs.focus();
                     setTimeout(() => loginCard.classList.remove('shake'), 400);
                 }
             }
@@ -931,7 +947,21 @@
             }
 
             loginSubmitBtn.onclick = handleAuthenticate;
-            passcodeInput.onkeydown = handleKeyDown;
+            passcodeInputs.onkeydown = handleKeyDown;
+        }
+
+        if (togglePasswordBtn && passcodeInputs) {
+            togglePasswordBtn.addEventListener('click', () => {
+                if (passcodeInputs.type === 'password') {
+                    passcodeInputs.type = 'text';
+                    togglePasswordBtn.classList.remove('fa-eye');
+                    togglePasswordBtn.classList.add('fa-eye-slash');
+                } else {
+                    passcodeInputs.type = 'password';
+                    togglePasswordBtn.classList.remove('fa-eye-slash');
+                    togglePasswordBtn.classList.add('fa-eye');
+                }
+            });
         }
 
         function initActiveUser() {
