@@ -92,6 +92,14 @@
         h1 { font-size: 18px; color: var(--header-text); font-weight: 800; letter-spacing: -0.02em; }
         .title-credit { font-size: 11px; font-weight: 600; color: var(--accent-btn); opacity: 0.85; }
 
+        /* HEADER RIGHT SECTION WRAPPER */
+        .header-right-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
         /* GLOBAL TIMEZONE CLOCKS BADGE */
         .timezone-clocks-bar {
             display: flex;
@@ -145,12 +153,12 @@
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
         }
 
-        /* BATCH IMPORT BUTTON STYLES */
+        /* BATCH IMPORT BUTTON STYLES - POSITIONED TOP RIGHT */
         .btn-batch-import {
             background-color: #f59e0b !important;
             color: #000000 !important;
             font-weight: 800 !important;
-            padding: 7px 14px !important;
+            padding: 7px 16px !important;
             font-size: 12px !important;
             border: 1px solid #fbbf24 !important;
             border-radius: 6px !important;
@@ -159,13 +167,14 @@
             align-items: center;
             gap: 6px;
             transition: all 0.2s ease;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
         }
 
         .btn-batch-import:hover {
             background-color: #d97706 !important;
             color: #ffffff !important;
             transform: scale(1.03);
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.7);
         }
 
         .card-select-checkbox {
@@ -521,45 +530,49 @@
             <div class="title-group">
                 <h1>AUTOMATED BIG EVENTS & OUTRIGHTS SCHEDULE</h1>
                 <span class="title-credit">kdv_2026 model • Flashscore Sync Engine</span>
+                
+                <div class="btn-controls" style="margin-top: 10px;">
+                    <div class="font-slider-wrapper" title="Adjust Readability Font Size">
+                        <i class="fa-solid fa-font"></i>
+                        <input type="range" id="fontSlider" min="11" max="20" value="14" oninput="changeFontSize(this.value)">
+                        <span id="fontSizeBadge">14px</span>
+                        <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="resetFontSize()">Reset</button>
+                    </div>
+
+                    <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
+                    <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
+                    <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+                    
+                    <a href="index.html" class="btn btn-dashboard">
+                        <i class="fa-solid fa-house"></i> Dashboard
+                    </a>
+                </div>
             </div>
 
-            <!-- GLOBAL TIMEZONE CLOCKS BADGE -->
-            <div class="timezone-clocks-bar">
-                <div class="tz-item">
-                    <span>🌏 Manila / SGT (GMT+8):</span>
-                    <span class="tz-highlight" id="clockGMT8">--:--:--</span>
+            <!-- HEADER RIGHT WRAPPER FOR TIMEZONE CLOCKS & RE-ALIGNED IMPORT BUTTON -->
+            <div class="header-right-wrapper">
+                <!-- GLOBAL TIMEZONE CLOCKS BADGE -->
+                <div class="timezone-clocks-bar">
+                    <div class="tz-item">
+                        <span>🌏 Manila / SGT (GMT+8):</span>
+                        <span class="tz-highlight" id="clockGMT8">--:--:--</span>
+                    </div>
+                    <span style="opacity: 0.4;">|</span>
+                    <div class="tz-item">
+                        <span>🇪🇺 CET:</span>
+                        <span id="clockCET">--:--:--</span>
+                    </div>
+                    <span style="opacity: 0.4;">|</span>
+                    <div class="tz-item">
+                        <span>🇺🇸 EST:</span>
+                        <span id="clockEST">--:--:--</span>
+                    </div>
                 </div>
-                <span style="opacity: 0.4;">|</span>
-                <div class="tz-item">
-                    <span>🇪🇺 CET:</span>
-                    <span id="clockCET">--:--:--</span>
-                </div>
-                <span style="opacity: 0.4;">|</span>
-                <div class="tz-item">
-                    <span>🇺🇸 EST:</span>
-                    <span id="clockEST">--:--:--</span>
-                </div>
-            </div>
 
-            <div class="btn-controls">
-                <button class="btn-batch-import" id="importSelectedBtn" onclick="openImportDestinationModal()" style="display: none;">
+                <!-- IMPORT SELECTED BUTTON IN THE UPPER RIGHT CORNER -->
+                <button class="btn-batch-import" id="importSelectedBtn" onclick="openImportDestinationModal()" style="display: none; margin-top: 4px;">
                     <i class="fa-solid fa-bolt"></i> Import Selected (<span id="selectedCountBadge">0</span>)
                 </button>
-
-                <div class="font-slider-wrapper" title="Adjust Readability Font Size">
-                    <i class="fa-solid fa-font"></i>
-                    <input type="range" id="fontSlider" min="11" max="20" value="14" oninput="changeFontSize(this.value)">
-                    <span id="fontSizeBadge">14px</span>
-                    <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="resetFontSize()">Reset</button>
-                </div>
-
-                <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
-                <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
-                <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-                
-                <a href="index.html" class="btn btn-dashboard">
-                    <i class="fa-solid fa-house"></i> Dashboard
-                </a>
             </div>
         </div>
 
