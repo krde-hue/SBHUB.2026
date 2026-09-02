@@ -535,8 +535,9 @@
             <button class="tab-btn" id="tab-TENNIS" onclick="switchCategoryTab('TENNIS')">
                 🎾 Tennis (ATP & WTA Singles)
             </button>
+            <!-- REPLACED MLS WITH MLB -->
             <button class="tab-btn" id="tab-OTHER" onclick="switchCategoryTab('OTHER')">
-                🏀 Basketball, MLS, NFL, MLB & Others
+                🏀 Basketball, MLB, NFL & Others
             </button>
             <button class="tab-btn" id="tab-OUTRIGHT" onclick="switchCategoryTab('OUTRIGHT')">
                 🏆 Outright Picks & Specials (All Sports, Racing, Politics)
@@ -582,8 +583,8 @@
                         <option value="FOOTBALL">Football / Soccer</option>
                         <option value="TENNIS">Tennis (ATP / WTA)</option>
                         <option value="BASKETBALL">Basketball (NBA / EuroLeague)</option>
-                        <option value="AM_FOOTBALL">American Football (NFL)</option>
                         <option value="BASEBALL">Baseball (MLB)</option>
+                        <option value="AM_FOOTBALL">American Football (NFL)</option>
                         <option value="HOCKEY">Ice Hockey (NHL)</option>
                         <option value="ESPORTS">Esports</option>
                         <option value="OUTRIGHT">Outright / Specials / Politics / Racing</option>
@@ -659,7 +660,6 @@
 
         setInterval(updateGlobalClocks, 1000);
 
-        /* GET NOW TIMESTAMP FOR STRICT REAL-TIME FILTERING */
         function getNowGMT8Date() {
             return new Date();
         }
@@ -698,7 +698,7 @@
             "DFB Pokal",
             "Scotland Premiership",
             "EFL",
-            "MLS"
+            "MLB"
         ];
 
         function changeFontSize(pxValue) {
@@ -804,7 +804,7 @@
                         sportVal = "Tennis";
                     } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
                         targetSheet = "Edge Other Sports";
-                        sportVal = "Basketball";
+                        sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
                     }
 
                     if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
@@ -1099,7 +1099,7 @@
                 { title: "Celtic vs Rangers", league: "Scotland Premiership", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "12:30"), tier: "HOT_GAME", markets: ["Kyogo Furuhashi (Scorer)", "Cyriel Dessers (Scorer)", "Red Card Yes"] },
                 { title: "RB Leipzig vs Eintracht Frankfurt", league: "DFB Pokal", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "20:45"), tier: "TIER_1", markets: ["To Qualify Winner", "Over 2.5 Goals"] },
                 { title: "Leeds United vs Sunderland", league: "EFL", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "15:00"), tier: "TIER_1", markets: ["1X2 Odds", "Over 2.5 Goals"] },
-                { title: "Inter Miami vs LA Galaxy", league: "MLS", sport: "OTHER", dateTime: getRelativeDateStr(4, "23:30"), tier: "HOT_GAME", markets: ["Lionel Messi (Scorer)", "Luis Suárez (Scorer)"] },
+                { title: "New York Yankees vs Boston Red Sox", league: "MLB", sport: "BASEBALL", dateTime: getRelativeDateStr(4, "23:30"), tier: "HOT_GAME", markets: ["Moneyline Winner", "Over/Under Runs"] },
                 { title: "Sporting CP vs Benfica", league: "Liga Portugal", sport: "FOOTBALL", dateTime: getRelativeDateStr(5, "20:30"), tier: "HOT_GAME", markets: ["Viktor Gyökeres (Scorer)", "Vangelis Pavlidis (Scorer)"] },
                 { title: "Malmö FF vs AIK", league: "Sweden Allsvenskan", sport: "FOOTBALL", dateTime: getRelativeDateStr(5, "15:00"), tier: "TIER_1", markets: ["Home Win", "BTTS"] },
                 { title: "Örgryte IS vs Landskrona BoIS", league: "Sweden Eliteserien", sport: "FOOTBALL", dateTime: getRelativeDateStr(6, "17:00"), tier: "REGULAR", markets: ["Over 2.5 Goals"] },
