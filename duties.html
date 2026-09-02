@@ -719,11 +719,11 @@
 
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // SORT DAYS CHRONOLOGICALLY BY ISO DATE
+            // SORT DAYS DESCENDING: NEWEST/CURRENT DATE AT THE TOP, OLDER DATES BELOW
             const sortedDayKeys = Object.keys(database).sort((a, b) => {
                 const dateA = database[a].isoDate || '';
                 const dateB = database[b].isoDate || '';
-                return dateA.localeCompare(dateB);
+                return dateB.localeCompare(dateA);
             });
 
             let todayTargetElem = null;
@@ -942,6 +942,7 @@
             database[dayKey].isoDate = newIsoDate; 
             saveToDatabase(); 
             syncShiftsFromRotaMaster();
+            renderAllPages();
         }
 
         function clearDayDuties(dayKey) {
@@ -996,6 +997,7 @@
             
             saveToDatabase();
             syncShiftsFromRotaMaster();
+            renderAllPages();
         }
 
         // Initialize application after DOM is fully parsed
