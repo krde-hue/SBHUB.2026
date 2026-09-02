@@ -32,7 +32,6 @@
             --badge-outright: #a855f7;
             --market-box-bg: rgba(0, 0, 0, 0.35);
             --market-box-border: rgba(255, 255, 255, 0.25);
-            --modal-bg: rgba(19, 48, 84, 0.95);
         }
 
         [data-theme="light"] {
@@ -46,7 +45,6 @@
             --input-bg: #ffffff;
             --market-box-bg: #e2e8f0;
             --market-box-border: #cbd5e0;
-            --modal-bg: rgba(255, 255, 255, 0.95);
         }
 
         * { 
@@ -64,7 +62,6 @@
             line-height: 1.4;
         }
 
-        /* FROZEN STICKY TOP PANE INCLUDING HEADER, CATEGORY TABS, AND FILTER BAR */
         .frozen-top-pane {
             position: sticky;
             top: 0;
@@ -92,15 +89,6 @@
         h1 { font-size: 18px; color: var(--header-text); font-weight: 800; letter-spacing: -0.02em; }
         .title-credit { font-size: 11px; font-weight: 600; color: var(--accent-btn); opacity: 0.85; }
 
-        /* HEADER RIGHT SECTION WRAPPER */
-        .header-right-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
-        }
-
-        /* GLOBAL TIMEZONE CLOCKS BADGE */
         .timezone-clocks-bar {
             display: flex;
             gap: 12px;
@@ -115,16 +103,8 @@
             flex-wrap: wrap;
         }
 
-        .tz-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .tz-highlight {
-            color: #38bdf8;
-            font-weight: 800;
-        }
+        .tz-item { display: flex; align-items: center; gap: 4px; }
+        .tz-highlight { color: #38bdf8; font-weight: 800; }
 
         .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .btn { padding: 7px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
@@ -142,7 +122,7 @@
             font-weight: 800 !important;
             border-radius: 6px !important;
             box-shadow: 0 0 10px rgba(236, 72, 153, 0.3);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            transition: all 0.3s ease !important;
         }
 
         .btn-dashboard:hover {
@@ -150,15 +130,13 @@
             border-color: #f472b6 !important;
             color: #ffffff !important;
             transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(244, 114, 182, 0.8) !important;
         }
 
-        /* BATCH IMPORT BUTTON STYLES - POSITIONED TOP RIGHT */
         .btn-batch-import {
             background-color: #f59e0b !important;
             color: #000000 !important;
             font-weight: 800 !important;
-            padding: 7px 16px !important;
+            padding: 7px 14px !important;
             font-size: 12px !important;
             border: 1px solid #fbbf24 !important;
             border-radius: 6px !important;
@@ -167,14 +145,12 @@
             align-items: center;
             gap: 6px;
             transition: all 0.2s ease;
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
         }
 
         .btn-batch-import:hover {
             background-color: #d97706 !important;
             color: #ffffff !important;
             transform: scale(1.03);
-            box-shadow: 0 0 16px rgba(245, 158, 11, 0.7);
         }
 
         .card-select-checkbox {
@@ -187,25 +163,6 @@
         .event-card.selected-card {
             border-color: #f59e0b !important;
             background: rgba(245, 158, 11, 0.08) !important;
-        }
-
-        .font-slider-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 5px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-color);
-        }
-
-        .font-slider-wrapper input[type="range"] {
-            width: 80px;
-            cursor: pointer;
-            accent-color: var(--accent-btn);
         }
 
         .category-tabs {
@@ -270,7 +227,6 @@
             margin-top: 10px;
             font-size: 14px;
             font-weight: 800;
-            letter-spacing: 0.03em;
             color: var(--header-text);
             display: flex;
             align-items: center;
@@ -279,11 +235,7 @@
             gap: 10px;
         }
 
-        .date-header-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .date-header-actions { display: flex; align-items: center; gap: 8px; }
 
         .btn-date-select {
             background: rgba(255, 255, 255, 0.15);
@@ -331,65 +283,12 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        @keyframes popularGlow {
-            0%, 100% { border-color: #ef4444; box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); }
-            50% { border-color: #facc15; box-shadow: 0 0 8px rgba(250, 204, 21, 0.35); }
-        }
+        .event-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .event-sport { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--accent-btn); }
+        .event-title { font-size: 15px; font-weight: 800; color: var(--header-text); margin-top: 2px; }
+        .event-meta { font-size: 11px; opacity: 0.85; display: flex; gap: 12px; align-items: center; font-weight: 600; }
 
-        @keyframes blinkBadge {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.75; transform: scale(1.05); }
-        }
-
-        .event-card.popular-highlight {
-            animation: popularGlow 2s infinite ease-in-out;
-            border-width: 2px !important;
-        }
-
-        .badge-blink {
-            animation: blinkBadge 1.2s infinite ease-in-out;
-        }
-
-        .event-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .event-sport {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            color: var(--accent-btn);
-        }
-
-        .event-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--header-text);
-            margin-top: 2px;
-            line-height: 1.3;
-        }
-
-        .event-meta {
-            font-size: 11px;
-            opacity: 0.85;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            font-weight: 600;
-        }
-
-        .badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .badge-tier1 { background: var(--badge-tier1); color: #000; }
         .badge-hot { background: var(--badge-hot); color: #fff; }
         .badge-outright { background: var(--badge-outright); color: #fff; }
@@ -404,20 +303,8 @@
             gap: 6px;
         }
 
-        .market-box-title {
-            font-weight: 800;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-        }
-
-        .market-tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
+        .market-box-title { font-weight: 800; color: var(--text-color); display: flex; align-items: center; gap: 6px; font-size: 11px; }
+        .market-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
 
         .market-tag {
             background: rgba(56, 189, 248, 0.18);
@@ -427,18 +314,6 @@
             border-radius: 5px;
             font-size: 10px;
             font-weight: 700;
-        }
-
-        .market-tag-scorer {
-            background: rgba(250, 204, 21, 0.2) !important;
-            border-color: #facc15 !important;
-            color: #fef08a !important;
-        }
-
-        [data-theme="light"] .market-tag-scorer {
-            background: rgba(234, 179, 8, 0.25) !important;
-            border-color: #ca8a04 !important;
-            color: #854d0e !important;
         }
 
         .card-actions {
@@ -472,7 +347,6 @@
             max-width: 580px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -487,92 +361,46 @@
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
         }
-
-        /* DESTINATION TARGET SELECTION MODAL */
-        .import-dest-options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .import-dest-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            padding: 14px 16px;
-            color: var(--text-color);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: 700;
-            font-size: 13px;
-            transition: all 0.25s ease;
-        }
-
-        .import-dest-btn:hover {
-            border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .import-dest-btn i {
-            font-size: 18px;
-        }
     </style>
 </head>
 <body>
 
-    <!-- FROZEN STICKY TOP PANE INCLUDING HEADER, CATEGORY TABS, AND FILTER BAR -->
     <div class="frozen-top-pane">
         <div class="header-container">
             <div class="title-group">
                 <h1>AUTOMATED BIG EVENTS & OUTRIGHTS SCHEDULE</h1>
                 <span class="title-credit">kdv_2026 model • Flashscore Sync Engine</span>
-                
-                <div class="btn-controls" style="margin-top: 10px;">
-                    <div class="font-slider-wrapper" title="Adjust Readability Font Size">
-                        <i class="fa-solid fa-font"></i>
-                        <input type="range" id="fontSlider" min="11" max="20" value="14" oninput="changeFontSize(this.value)">
-                        <span id="fontSizeBadge">14px</span>
-                        <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 10px;" onclick="resetFontSize()">Reset</button>
-                    </div>
+            </div>
 
-                    <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
-                    <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
-                    <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-                    
-                    <a href="index.html" class="btn btn-dashboard">
-                        <i class="fa-solid fa-house"></i> Dashboard
-                    </a>
+            <div class="timezone-clocks-bar">
+                <div class="tz-item">
+                    <span>🌏 Manila / SGT (GMT+8):</span>
+                    <span class="tz-highlight" id="clockGMT8">--:--:--</span>
+                </div>
+                <span style="opacity: 0.4;">|</span>
+                <div class="tz-item">
+                    <span>🇪🇺 CET:</span>
+                    <span id="clockCET">--:--:--</span>
+                </div>
+                <span style="opacity: 0.4;">|</span>
+                <div class="tz-item">
+                    <span>🇺🇸 EST:</span>
+                    <span id="clockEST">--:--:--</span>
                 </div>
             </div>
 
-            <!-- HEADER RIGHT WRAPPER FOR TIMEZONE CLOCKS & RE-ALIGNED IMPORT BUTTON -->
-            <div class="header-right-wrapper">
-                <!-- GLOBAL TIMEZONE CLOCKS BADGE -->
-                <div class="timezone-clocks-bar">
-                    <div class="tz-item">
-                        <span>🌏 Manila / SGT (GMT+8):</span>
-                        <span class="tz-highlight" id="clockGMT8">--:--:--</span>
-                    </div>
-                    <span style="opacity: 0.4;">|</span>
-                    <div class="tz-item">
-                        <span>🇪🇺 CET:</span>
-                        <span id="clockCET">--:--:--</span>
-                    </div>
-                    <span style="opacity: 0.4;">|</span>
-                    <div class="tz-item">
-                        <span>🇺🇸 EST:</span>
-                        <span id="clockEST">--:--:--</span>
-                    </div>
-                </div>
-
-                <!-- IMPORT SELECTED BUTTON IN THE UPPER RIGHT CORNER -->
-                <button class="btn-batch-import" id="importSelectedBtn" onclick="openImportDestinationModal()" style="display: none; margin-top: 4px;">
-                    <i class="fa-solid fa-bolt"></i> Import Selected (<span id="selectedCountBadge">0</span>)
+            <div class="btn-controls">
+                <button class="btn-batch-import" id="importSelectedBtn" onclick="importSelectedMatchesToIBetBoost()" style="display: none;">
+                    <i class="fa-solid fa-bolt"></i> Import Selected to iBet (<span id="selectedCountBadge">0</span>)
                 </button>
+
+                <button class="btn btn-success" onclick="fetchFlashscore7Days(true)"><i class="fa-solid fa-rotate"></i> Manual Re-sync Feed</button>
+                <button class="btn btn-primary" onclick="openNewEventModal()">➕ Add Custom Event</button>
+                <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+                
+                <a href="ibet_boosts.html" class="btn btn-dashboard">
+                    <i class="fa-solid fa-house"></i> iBet Dashboard
+                </a>
             </div>
         </div>
 
@@ -587,7 +415,7 @@
                 🏀 Basketball, MLB, NFL & Others
             </button>
             <button class="tab-btn" id="tab-OUTRIGHT" onclick="switchCategoryTab('OUTRIGHT')">
-                🏆 Outright Picks & Specials (All Sports, Racing, Politics)
+                🏆 Outright Picks & Specials
             </button>
         </div>
 
@@ -609,7 +437,6 @@
 
     <div class="schedule-grid" id="scheduleContainer"></div>
 
-    <!-- EVENT EDIT / CREATE MODAL -->
     <div class="modal-backdrop" id="eventModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -621,7 +448,7 @@
 
             <div>
                 <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Matchup / Outright Title *</label>
-                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Real Madrid vs Barcelona or Champions League Winner">
+                <input type="text" id="eventTitle" class="form-control" style="width: 100%;" placeholder="e.g., Real Madrid vs Barcelona">
             </div>
 
             <div style="display: flex; gap: 10px;">
@@ -630,76 +457,40 @@
                     <select id="eventSport" class="form-control" style="width: 100%;">
                         <option value="FOOTBALL">Football / Soccer</option>
                         <option value="TENNIS">Tennis (ATP / WTA)</option>
-                        <option value="BASKETBALL">Basketball (NBA / EuroLeague)</option>
+                        <option value="BASKETBALL">Basketball (NBA)</option>
                         <option value="BASEBALL">Baseball (MLB)</option>
-                        <option value="AM_FOOTBALL">American Football (NFL)</option>
-                        <option value="HOCKEY">Ice Hockey (NHL)</option>
-                        <option value="ESPORTS">Esports</option>
-                        <option value="OUTRIGHT">Outright / Specials / Politics / Racing</option>
+                        <option value="OUTRIGHT">Outright / Specials</option>
                     </select>
                 </div>
                 <div style="flex: 1;">
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">League / Tournament</label>
-                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., Europa Champions League / Scotland Premiership">
+                    <input type="text" id="eventLeague" class="form-control" style="width: 100%;" placeholder="e.g., Spain La Liga">
                 </div>
             </div>
 
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Date / Settlement Time (GMT+8) *</label>
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Event Date / Kickoff Time *</label>
                     <input type="datetime-local" id="eventDateTime" class="form-control" style="width: 100%;">
                 </div>
                 <div style="flex: 1;">
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Priority Tier</label>
                     <select id="eventTier" class="form-control" style="width: 100%;">
-                        <option value="HOT_GAME">🔥 Hot Game / Derby / Major Outright</option>
-                        <option value="TIER_1">⭐ Tier 1 (Popular Event Highlight)</option>
+                        <option value="HOT_GAME">🔥 Hot Game / Derby</option>
+                        <option value="TIER_1">⭐ Tier 1</option>
                         <option value="REGULAR">Regular Game</option>
                     </select>
                 </div>
             </div>
 
             <div>
-                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">1-2 Top Goalscorers & Featured Options (Comma Separated)</label>
-                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Kylian Mbappé (Goalscorer), Shots on Target">
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Markets & Goalscorers (Comma Separated)</label>
+                <input type="text" id="eventMarkets" class="form-control" style="width: 100%;" placeholder="e.g., Kylian Mbappé (Scorer), Shots on Target">
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- IMPORT DESTINATION TARGET SELECTION MODAL -->
-    <div class="modal-backdrop" id="importDestinationModal">
-        <div class="modal-box" style="max-width: 440px;">
-            <div class="modal-header">
-                <span>⚡ Select Import Destination</span>
-                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeImportDestinationModal()"></i>
-            </div>
-
-            <p style="font-size: 12px; opacity: 0.85;">Where would you like to transfer the <strong id="modalImportCount">0</strong> selected events?</p>
-
-            <div class="import-dest-options">
-                <button class="import-dest-btn" onclick="executeBatchImport('EDGE')">
-                    <span>⚡ EDGE Boosts Only</span>
-                    <i class="fa-solid fa-bolt" style="color: #fbbf24;"></i>
-                </button>
-
-                <button class="import-dest-btn" onclick="executeBatchImport('IBET')">
-                    <span>📈 iBet Boosts Only</span>
-                    <i class="fa-solid fa-chart-line" style="color: #38bdf8;"></i>
-                </button>
-
-                <button class="import-dest-btn" style="border-color: #22c55e; background: rgba(34, 197, 94, 0.1);" onclick="executeBatchImport('BOTH')">
-                    <span>🔥 Import to Both (EDGE & iBet)</span>
-                    <i class="fa-solid fa-layer-group" style="color: #22c55e;"></i>
-                </button>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-                <button class="btn btn-secondary" onclick="closeImportDestinationModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -722,93 +513,22 @@
         let activeTabCategory = 'FOOTBALL';
         let selectedMatchIds = new Set();
 
-        /* TIMEZONE CLOCK UPDATER */
         function updateGlobalClocks() {
             const now = new Date();
-
             const optionsGMT8 = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const optionsCET = { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const optionsEST = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
 
-            const elemGMT8 = document.getElementById('clockGMT8');
-            const elemCET = document.getElementById('clockCET');
-            const elemEST = document.getElementById('clockEST');
-
-            if (elemGMT8) elemGMT8.innerText = now.toLocaleTimeString('en-GB', optionsGMT8);
-            if (elemCET) elemCET.innerText = now.toLocaleTimeString('en-GB', optionsCET);
-            if (elemEST) elemEST.innerText = now.toLocaleTimeString('en-GB', optionsEST);
+            document.getElementById('clockGMT8').innerText = now.toLocaleTimeString('en-GB', optionsGMT8);
+            document.getElementById('clockCET').innerText = now.toLocaleTimeString('en-GB', optionsCET);
+            document.getElementById('clockEST').innerText = now.toLocaleTimeString('en-GB', optionsEST);
         }
 
         setInterval(updateGlobalClocks, 1000);
 
-        function getNowGMT8Date() {
-            return new Date();
-        }
-
-        const teamStarScorers = {
-            "arsenal": ["Bukayo Saka", "Kai Havertz"],
-            "aston villa": ["Ollie Watkins", "Leon Bailey"],
-            "liverpool": ["Mo Salah", "Darwin Núñez"],
-            "manchester city": ["Erling Haaland", "Phil Foden"],
-            "manchester united": ["Bruno Fernandes", "Rasmus Højlund"],
-            "chelsea": ["Cole Palmer", "Nicolas Jackson"],
-            "real madrid": ["Kylian Mbappé", "Jude Bellingham"],
-            "barcelona": ["Robert Lewandowski", "Lamine Yamal"],
-            "bayern munich": ["Harry Kane", "Jamal Musiala"],
-            "inter milan": ["Lautaro Martínez", "Marcus Thuram"],
-            "psg": ["Ousmane Dembélé", "Randal Kolo Muani"],
-            "celtic": ["Kyogo Furuhashi", "Daizen Maeda"],
-            "rangers": ["Cyriel Dessers", "James Tavernier"],
-            "sporting cp": ["Viktor Gyökeres", "Pedro Gonçalves"],
-            "benfica": ["Vangelis Pavlidis", "Ángel Di María"],
-            "inter miami": ["Lionel Messi", "Luis Suárez"]
-        };
-
-        const fallbackPriorityLeagues = [
-            "European Championships",
-            "Europa Champions League",
-            "England Premier League",
-            "Spain La Liga",
-            "Germany Bundesliga",
-            "Italy Serie A",
-            "France Ligue 1",
-            "Liga Portugal",
-            "Netherlands Eredivisie",
-            "Europa League",
-            "Europa League Conference",
-            "DFB Pokal",
-            "Scotland Premiership",
-            "EFL",
-            "MLB"
-        ];
-
-        function changeFontSize(pxValue) {
-            const numVal = parseInt(pxValue, 10);
-            document.querySelectorAll('.event-title').forEach(el => el.style.fontSize = `${numVal + 2}px`);
-            document.querySelectorAll('.event-sport').forEach(el => el.style.fontSize = `${Math.max(10, numVal - 3)}px`);
-            document.querySelectorAll('.event-meta').forEach(el => el.style.fontSize = `${Math.max(11, numVal - 2)}px`);
-            document.querySelectorAll('.market-box-title').forEach(el => el.style.fontSize = `${Math.max(11, numVal - 2)}px`);
-            document.querySelectorAll('.market-tag').forEach(el => el.style.fontSize = `${Math.max(10, numVal - 3)}px`);
-
-            document.getElementById('fontSizeBadge').innerText = `${numVal}px`;
-            localStorage.setItem('boost_font_size', numVal);
-        }
-
-        function resetFontSize() {
-            document.getElementById('fontSlider').value = 14;
-            changeFontSize(14);
-        }
-
-        function initFontSize() {
-            const savedSize = localStorage.getItem('boost_font_size') || 14;
-            document.getElementById('fontSlider').value = savedSize;
-            changeFontSize(savedSize);
-        }
-
         function listenToDatabase() {
             db.ref('boost_schedule').on('value', (snapshot) => {
                 eventSchedule = snapshot.val() || {};
-                
                 if (Object.keys(eventSchedule).length === 0) {
                     fetchFlashscore7Days(false);
                 } else {
@@ -820,12 +540,12 @@
         function switchCategoryTab(cat) {
             activeTabCategory = cat;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-${cat}`).classList.add('active');
+            document.getElementById('tab-' + cat).classList.add('active');
             renderSchedule();
         }
 
         function toggleMatchSelection(id, isChecked) {
-            const cardEl = document.getElementById(`card-${id}`);
+            const cardEl = document.getElementById('card-' + id);
             if (isChecked) {
                 selectedMatchIds.add(id);
                 if (cardEl) cardEl.classList.add('selected-card');
@@ -837,18 +557,15 @@
         }
 
         function selectAllVisibleMatches(shouldSelect) {
-            const checkboxes = document.querySelectorAll('.card-select-checkbox');
-            checkboxes.forEach(cb => {
+            document.querySelectorAll('.card-select-checkbox').forEach(cb => {
                 cb.checked = shouldSelect;
                 const matchId = cb.getAttribute('data-id');
                 toggleMatchSelection(matchId, shouldSelect);
             });
         }
 
-        /* PER-DATE GROUP BATCH SELECTOR FUNCTION */
         function selectMatchesByDate(dateKey, shouldSelect) {
-            const checkboxes = document.querySelectorAll(`.card-select-checkbox[data-date="${dateKey}"]`);
-            checkboxes.forEach(cb => {
+            document.querySelectorAll(`.card-select-checkbox[data-date="${dateKey}"]`).forEach(cb => {
                 cb.checked = shouldSelect;
                 const matchId = cb.getAttribute('data-id');
                 toggleMatchSelection(matchId, shouldSelect);
@@ -861,157 +578,78 @@
             const count = selectedMatchIds.size;
             
             if (badge) badge.innerText = count;
-            if (btn) {
-                if (count > 0) btn.style.display = 'inline-flex';
-                else btn.style.display = 'none';
-            }
+            if (btn) btn.style.display = count > 0 ? 'inline-flex' : 'none';
         }
 
-        /* DESTINATION SELECTION MODAL CONTROLS */
-        function openImportDestinationModal() {
-            if (selectedMatchIds.size === 0) return;
-            document.getElementById('modalImportCount').innerText = selectedMatchIds.size;
-            document.getElementById('importDestinationModal').classList.add('show');
-        }
-
-        function closeImportDestinationModal() {
-            document.getElementById('importDestinationModal').classList.remove('show');
-        }
-
-        /* BATCH IMPORT EXECUTION ENGINE TO SPECIFIC NODES */
-        function executeBatchImport(destination) {
+        /* DIRECT IMPORTER TO ibet_boosts_master_v8 NODE */
+        function importSelectedMatchesToIBetBoost() {
             if (selectedMatchIds.size === 0) return;
 
             const matchesToTransfer = Array.from(selectedMatchIds).map(id => eventSchedule[id]).filter(Boolean);
-            closeImportDestinationModal();
 
-            const targetNodes = [];
-            if (destination === 'EDGE' || destination === 'BOTH') {
-                targetNodes.push({ dbNode: 'edge_boosts_master_v23', brandLabel: '7Abet/BVBet', name: 'EDGE Boosts' });
-            }
-            if (destination === 'IBET' || destination === 'BOTH') {
-                targetNodes.push({ dbNode: 'ibet_boosts_master_v23', brandLabel: 'iBet', name: 'iBet Boosts' });
-            }
+            db.ref('ibet_boosts_master_v8').once('value').then(snapshot => {
+                let liveData = snapshot.val() || {};
+                let addedCount = 0;
 
-            let completedOperations = 0;
+                matchesToTransfer.forEach(item => {
+                    let targetSheet = "IBET Football";
+                    let sportVal = "Football";
 
-            targetNodes.forEach(target => {
-                db.ref(target.dbNode).once('value').then(snapshot => {
-                    let liveData = snapshot.val() || {};
-                    let addedCount = 0;
+                    if (item.sport === "TENNIS") {
+                        targetSheet = "IBET Tennis";
+                        sportVal = "Tennis";
+                    } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
+                        targetSheet = "IBET Other Sports";
+                        sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
+                    }
 
-                    matchesToTransfer.forEach(item => {
-                        let targetSheet = "Edge Football";
-                        let sportVal = "Football";
+                    if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
+                    if (!liveData[targetSheet].rows) liveData[targetSheet].rows = [];
 
-                        if (item.sport === "TENNIS") {
-                            targetSheet = "Edge Tennis";
-                            sportVal = "Tennis";
-                        } else if (item.sport !== "FOOTBALL" && item.sport !== "OUTRIGHT") {
-                            targetSheet = "Edge Other Sports";
-                            sportVal = item.sport === "BASEBALL" ? "Baseball" : "Basketball";
+                    let formattedDate = "";
+                    let formattedTime = "";
+
+                    if (item.dateTime) {
+                        const dateObj = new Date(item.dateTime);
+                        if (!isNaN(dateObj.getTime())) {
+                            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const d = String(dateObj.getDate()).padStart(2, '0');
+                            const y = dateObj.getFullYear();
+                            formattedDate = `${m}.${d}.${y}`;
+
+                            const hh = String(dateObj.getHours()).padStart(2, '0');
+                            const mm = String(dateObj.getMinutes()).padStart(2, '0');
+                            const ss = String(dateObj.getSeconds()).padStart(2, '0');
+                            formattedTime = `${hh}:${mm}:${ss}`;
                         }
+                    }
 
-                        if (!liveData[targetSheet]) liveData[targetSheet] = { rows: [] };
-                        if (!liveData[targetSheet].rows) liveData[targetSheet].rows = [];
+                    let marketNotes = "";
+                    if (Array.isArray(item.markets) && item.markets.length > 0) {
+                        marketNotes = item.markets.join(', ');
+                    } else if (typeof item.markets === 'string') {
+                        marketNotes = item.markets;
+                    }
 
-                        let formattedDate = "";
-                        let formattedTime = "";
+                    // Strict 14-Column Structure for ibet_boosts.html
+                    let newRow = [
+                        true, true, "Ibet",
+                        formattedDate, formattedTime, sportVal,
+                        item.league || "", item.title || "", "Single",
+                        marketNotes, "", "", "Transferred from Schedule", ""
+                    ];
 
-                        if (item.dateTime) {
-                            const dateObj = new Date(item.dateTime);
-                            if (!isNaN(dateObj.getTime())) {
-                                const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-                                const d = String(dateObj.getDate()).padStart(2, '0');
-                                const y = dateObj.getFullYear();
-                                formattedDate = `${m}.${d}.${y}`;
+                    liveData[targetSheet].rows.unshift(newRow);
+                    addedCount++;
+                });
 
-                                const hh = String(dateObj.getHours()).padStart(2, '0');
-                                const mm = String(dateObj.getMinutes()).padStart(2, '0');
-                                const ss = String(dateObj.getSeconds()).padStart(2, '0');
-                                formattedTime = `${hh}:${mm}:${ss}`;
-                            }
-                        }
-
-                        let newRow = [];
-                        if (targetSheet === "Edge Football") {
-                            newRow = [
-                                false, false, target.brandLabel, 
-                                formattedDate, formattedTime, "Football", 
-                                item.league || "", item.title || "", "Bet Builder", 
-                                "", "", "", "", "Transferred from Schedule", ""
-                            ];
-                        } else if (targetSheet === "Edge Tennis") {
-                            newRow = [
-                                false, false, target.brandLabel, 
-                                formattedDate, formattedTime, "Tennis", 
-                                item.league || "", item.title || "", "Single", 
-                                "", "", "", "Transferred from Schedule", ""
-                            ];
-                        } else {
-                            newRow = [
-                                false, false, target.brandLabel, 
-                                formattedDate, sportVal, 
-                                item.league || "", item.title || "", "Bet Builder", 
-                                "", "Transferred from Schedule", ""
-                            ];
-                        }
-
-                        liveData[targetSheet].rows.push(newRow);
-                        addedCount++;
-                    });
-
-                    db.ref(target.dbNode).set(liveData).then(() => {
-                        completedOperations++;
-                        if (completedOperations === targetNodes.length) {
-                            const destNames = targetNodes.map(t => t.name).join(' & ');
-                            alert(`⚡ Successfully imported ${matchesToTransfer.length} selected matches directly to ${destNames}!`);
-                            selectedMatchIds.clear();
-                            updateImportButtonBadge();
-                            renderSchedule();
-                        }
-                    });
+                db.ref('ibet_boosts_master_v8').set(liveData).then(() => {
+                    alert(`⚡ Successfully imported ${addedCount} selected matches directly into iBet Boosts Master!`);
+                    selectedMatchIds.clear();
+                    updateImportButtonBadge();
+                    renderSchedule();
                 });
             });
-        }
-
-        function generatePopularMarketsForMatch(title, sport) {
-            const teams = title.split(/ vs | v /i);
-            const teamAKey = teams[0] ? teams[0].trim().toLowerCase() : '';
-            const teamBKey = teams[1] ? teams[1].trim().toLowerCase() : '';
-
-            let scorers = [];
-            if (teamStarScorers[teamAKey]) scorers.push(teamStarScorers[teamAKey][0] + " (Scorer)");
-            if (teamStarScorers[teamBKey]) scorers.push(teamStarScorers[teamBKey][0] + " (Scorer)");
-
-            if (sport === 'FOOTBALL') {
-                return [
-                    ...scorers,
-                    `1X2 Match Result`,
-                    `Over/Under 2.5 Goals`,
-                    `Shots on Target`
-                ];
-            } else if (sport === 'TENNIS') {
-                return [
-                    `${teams[0] || 'Player 1'} Winner`,
-                    `Set Betting 3-0 / 2-0`,
-                    `Total Games Over/Under`
-                ];
-            } else {
-                return [
-                    `Moneyline Winner`,
-                    `Point Spread Handicap`,
-                    `Total Points Over/Under`
-                ];
-            }
-        }
-
-        function getBestPickForDay(dayMatches) {
-            for (const leagueName of fallbackPriorityLeagues) {
-                const found = dayMatches.find(m => m.league === leagueName && (m.tier === 'HOT_GAME' || m.tier === 'TIER_1'));
-                if (found) return found;
-            }
-            return dayMatches[0] || null;
         }
 
         function renderSchedule() {
@@ -1020,33 +658,13 @@
 
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const filterTier = document.getElementById('filterTier').value;
-
-            // STRICT REAL-TIME TIMESTAMP CUTOFF
-            const now = getNowGMT8Date();
-
-            const seenMatchKeys = new Set();
-            const duplicatesToDelete = [];
+            const now = new Date();
 
             const filteredItems = [];
-            const keys = Object.keys(eventSchedule);
-
-            keys.forEach(id => {
+            Object.keys(eventSchedule).forEach(id => {
                 const item = eventSchedule[id];
-                
-                // 1. STRICT KICKOFF PASSED FILTER
                 const matchDateObj = new Date(item.dateTime);
-                if (isNaN(matchDateObj.getTime()) || matchDateObj < now) {
-                    duplicatesToDelete.push(id); // Automatically remove passed matches from database
-                    return; 
-                }
-
-                const normalizedTitle = (item.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-
-                if (seenMatchKeys.has(normalizedTitle)) {
-                    duplicatesToDelete.push(id);
-                    return; 
-                }
-                seenMatchKeys.add(normalizedTitle);
+                if (isNaN(matchDateObj.getTime()) || matchDateObj < now) return;
 
                 let matchesTab = false;
                 if (activeTabCategory === 'FOOTBALL' && item.sport === 'FOOTBALL') matchesTab = true;
@@ -1062,22 +680,14 @@
                 const isPopular = (item.tier === 'HOT_GAME' || item.tier === 'TIER_1');
                 let matchesTier = true;
                 if (filterTier === 'POPULAR') matchesTier = isPopular;
-                else if (filterTier === 'HOT_GAME') matchesTier = (item.tier === 'HOT_GAME');
-                else if (filterTier === 'TIER_1') matchesTier = (item.tier === 'TIER_1');
 
                 if (matchesTab && matchesSearch && matchesTier) {
                     filteredItems.push({ id, ...item });
                 }
             });
 
-            if (duplicatesToDelete.length > 0) {
-                duplicatesToDelete.forEach(dupId => {
-                    db.ref(`boost_schedule/${dupId}`).remove();
-                });
-            }
-
             if (filteredItems.length === 0) {
-                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; opacity: 0.6; padding: 40px;">No upcoming selections found. Past matches have been purged. Click <strong>"Manual Re-sync Feed"</strong> to update matches.</div>`;
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; opacity: 0.6; padding: 40px;">No upcoming selections found. Click "Manual Re-sync Feed" to sync matches.</div>`;
                 return;
             }
 
@@ -1092,8 +702,6 @@
 
             Object.keys(groupedByDay).sort().forEach(dateKey => {
                 const dayMatches = groupedByDay[dateKey];
-                const topPickOfDay = getBestPickForDay(dayMatches);
-
                 const dayDateObj = new Date(dateKey + "T00:00:00");
                 const dayHeaderStr = dayDateObj.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -1102,7 +710,6 @@
                 dayHeaderEl.innerHTML = `
                     <div style="display:flex; align-items:center; gap:12px;">
                         <span>📅 ${dayHeaderStr}</span>
-                        ${topPickOfDay ? `<span class="featured-match-badge">🔥 Featured Daily Pick: ${escapeHtml(topPickOfDay.title)}</span>` : ''}
                     </div>
                     <div class="date-header-actions">
                         <button class="btn-date-select" onclick="selectMatchesByDate('${dateKey}', true)">☑️ Select Day</button>
@@ -1112,22 +719,12 @@
                 container.appendChild(dayHeaderEl);
 
                 dayMatches.forEach(item => {
-                    const isPopular = (item.tier === 'HOT_GAME' || item.tier === 'TIER_1');
                     const isChecked = selectedMatchIds.has(item.id);
                     const card = document.createElement('div');
                     card.id = `card-${item.id}`;
-                    card.className = `event-card ${isPopular ? 'popular-highlight' : ''} ${isChecked ? 'selected-card' : ''}`;
+                    card.className = `event-card ${isChecked ? 'selected-card' : ''}`;
 
                     const timeFormatted = new Date(item.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                    let marketTags = [];
-                    if (Array.isArray(item.markets) && item.markets.length > 0) {
-                        marketTags = item.markets;
-                    } else if (typeof item.markets === 'string' && item.markets.trim().length > 0) {
-                        marketTags = item.markets.split(',').map(m => m.trim());
-                    } else {
-                        marketTags = generatePopularMarketsForMatch(item.title, item.sport);
-                    }
 
                     card.innerHTML = `
                         <div class="event-header">
@@ -1138,36 +735,13 @@
                                     <div class="event-title">${escapeHtml(item.title)}</div>
                                 </div>
                             </div>
-                            ${isPopular ? `
-                                <span class="badge ${item.sport === 'OUTRIGHT' ? 'badge-outright' : (item.tier === 'HOT_GAME' ? 'badge-hot' : 'badge-tier1')} badge-blink">
-                                    ${item.sport === 'OUTRIGHT' ? '🏆 OUTRIGHT' : (item.tier === 'HOT_GAME' ? '🔥 HOT' : '⭐ TIER 1')}
-                                </span>
-                            ` : ''}
                         </div>
 
                         <div class="event-meta">
                             <span>⏰ Kickoff: ${timeFormatted} (GMT+8)</span>
                         </div>
 
-                        <div class="popular-markets-box">
-                            <div class="market-box-title">
-                                <i class="fa-solid ${item.sport === 'OUTRIGHT' ? 'fa-trophy' : 'fa-fire-flame-curved'}" style="color:${item.sport === 'OUTRIGHT' ? '#a855f7' : '#ef4444'};"></i> 
-                                ${item.sport === 'OUTRIGHT' ? 'Top Oddschecker Favorites:' : '1-2 Goalscorers & Top Options:'}
-                            </div>
-                            <div class="market-tag-list">
-                                ${marketTags.map(tag => {
-                                    const isScorer = tag.toLowerCase().includes('scorer') || tag.toLowerCase().includes('goal') || tag.toLowerCase().includes('saka') || tag.toLowerCase().includes('haaland') || tag.toLowerCase().includes('mbapp');
-                                    return `<span class="market-tag ${isScorer ? 'market-tag-scorer' : ''}">${escapeHtml(tag)}</span>`;
-                                }).join('')}
-                            </div>
-                        </div>
-
                         <div class="card-actions">
-                            <div style="display: flex; gap: 6px;">
-                                <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="editEvent('${item.id}')">
-                                    ✏️ Edit Details
-                                </button>
-                            </div>
                             <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="deleteEvent('${item.id}')">🗑️ Delete</button>
                         </div>
                     `;
@@ -1176,69 +750,23 @@
             });
 
             updateImportButtonBadge();
-            const currentSliderVal = document.getElementById('fontSlider').value;
-            changeFontSize(currentSliderVal);
         }
 
-        /* POPULATE STRICTLY UPCOMING 7 DAYS STARTING AFTER CURRENT TIME */
         function fetchFlashscore7Days(showPrompt = false) {
-            const now = getNowGMT8Date();
-
-            // Purge expired matches from database
-            Object.keys(eventSchedule).forEach(id => {
-                const matchDateObj = new Date(eventSchedule[id].dateTime);
-                if (isNaN(matchDateObj.getTime()) || matchDateObj < now) {
-                    db.ref(`boost_schedule/${id}`).remove();
-                }
-            });
-
+            const now = new Date();
             function getRelativeDateStr(offsetDays, hourStr) {
                 const d = new Date(now);
                 d.setDate(d.getDate() + offsetDays);
-                const isoDate = d.toISOString().split('T')[0];
-                return `${isoDate}T${hourStr}`;
+                return `${d.toISOString().split('T')[0]}T${hourStr}`;
             }
 
-            const upcomingFlashscoreFeeds = [
-                { title: "Real Madrid vs Barcelona", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(0, "21:00"), tier: "HOT_GAME", markets: ["Kylian Mbappé (Scorer)", "Lamine Yamal (Scorer)", "BTTS & Over 2.5"] },
-                { title: "Aston Villa vs Arsenal", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "16:00"), tier: "HOT_GAME", markets: ["Bukayo Saka (Scorer)", "Ollie Watkins (Scorer)", "Shots on Target"] },
-                { title: "Bayern Munich vs Borussia Dortmund", league: "Germany Bundesliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "18:30"), tier: "HOT_GAME", markets: ["Harry Kane (Scorer)", "Over 3.5 Goals"] },
-                { title: "Paris Saint-Germain vs Inter Milan", league: "Europa Champions League", sport: "FOOTBALL", dateTime: getRelativeDateStr(2, "21:00"), tier: "HOT_GAME", markets: ["Ousmane Dembélé (Scorer)", "Lautaro Martínez (Scorer)"] },
-                { title: "Roma vs Ajax", league: "Europa League", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "18:45"), tier: "TIER_1", markets: ["Match Winner", "Total Corners Over 9.5"] },
-                { title: "Fiorentina vs Real Betis", league: "Europa League Conference", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "21:00"), tier: "TIER_1", markets: ["Both Teams To Score", "Cards Over 4.5"] },
-                { title: "Celtic vs Rangers", league: "Scotland Premiership", sport: "FOOTBALL", dateTime: getRelativeDateStr(3, "12:30"), tier: "HOT_GAME", markets: ["Kyogo Furuhashi (Scorer)", "Cyriel Dessers (Scorer)", "Red Card Yes"] },
-                { title: "RB Leipzig vs Eintracht Frankfurt", league: "DFB Pokal", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "20:45"), tier: "TIER_1", markets: ["To Qualify Winner", "Over 2.5 Goals"] },
-                { title: "Leeds United vs Sunderland", league: "EFL", sport: "FOOTBALL", dateTime: getRelativeDateStr(4, "15:00"), tier: "TIER_1", markets: ["1X2 Odds", "Over 2.5 Goals"] },
-                { title: "New York Yankees vs Boston Red Sox", league: "MLB", sport: "BASEBALL", dateTime: getRelativeDateStr(4, "23:30"), tier: "HOT_GAME", markets: ["Moneyline Winner", "Over/Under Runs"] },
-                { title: "Sporting CP vs Benfica", league: "Liga Portugal", sport: "FOOTBALL", dateTime: getRelativeDateStr(5, "20:30"), tier: "HOT_GAME", markets: ["Viktor Gyökeres (Scorer)", "Vangelis Pavlidis (Scorer)"] },
-                { title: "Malmö FF vs AIK", league: "Sweden Allsvenskan", sport: "FOOTBALL", dateTime: getRelativeDateStr(5, "15:00"), tier: "TIER_1", markets: ["Home Win", "BTTS"] },
-                { title: "Örgryte IS vs Landskrona BoIS", league: "Sweden Eliteserien", sport: "FOOTBALL", dateTime: getRelativeDateStr(6, "17:00"), tier: "REGULAR", markets: ["Over 2.5 Goals"] },
-                { title: "HJK Helsinki vs KuPS", league: "Veikkausliiga", sport: "FOOTBALL", dateTime: getRelativeDateStr(6, "18:00"), tier: "TIER_1", markets: ["Match Winner"] },
-                { title: "FC Copenhagen vs Brøndby", league: "Denmark Superliga", sport: "FOOTBALL", dateTime: getRelativeDateStr(6, "16:00"), tier: "HOT_GAME", markets: ["Derby Winner", "Cards Over 5.5"] },
-                { title: "Carlos Alcaraz vs Jannik Sinner", league: "ATP Tennis Singles", sport: "TENNIS", dateTime: getRelativeDateStr(2, "14:00"), tier: "HOT_GAME", markets: ["Match Winner", "Over 3.5 Sets"] },
-                { title: "Premier League Winner 2026/27", league: "England Premier League Outright", sport: "OUTRIGHT", dateTime: "2026-09-15T00:00", tier: "HOT_GAME", markets: ["Man City (Favorites)", "Arsenal (2nd Fav)", "Liverpool"] }
+            const feeds = [
+                { title: "Real Madrid vs Barcelona", league: "Spain La Liga", sport: "FOOTBALL", dateTime: getRelativeDateStr(0, "21:00"), tier: "HOT_GAME", markets: ["Kylian Mbappé (Scorer)", "BTTS & Over 2.5"] },
+                { title: "Aston Villa vs Arsenal", league: "England Premier League", sport: "FOOTBALL", dateTime: getRelativeDateStr(1, "16:00"), tier: "HOT_GAME", markets: ["Bukayo Saka (Scorer)", "Shots on Target"] }
             ];
 
-            const normalize = str => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-            const existingMatchTitles = Object.keys(eventSchedule).map(k => normalize(eventSchedule[k].title));
-
-            let newAdded = 0;
-            upcomingFlashscoreFeeds.forEach(evt => {
-                const normalizedFeedTitle = normalize(evt.title);
-                if (!existingMatchTitles.includes(normalizedFeedTitle)) {
-                    db.ref('boost_schedule').push(evt);
-                    existingMatchTitles.push(normalizedFeedTitle);
-                    newAdded++;
-                }
-            });
-
-            if (showPrompt) {
-                if (newAdded > 0) {
-                    alert(`✓ Purged expired past matches and added ${newAdded} upcoming Flashscore matches.`);
-                } else {
-                    alert("✓ Schedule updated! All past/expired kickoffs have been purged.");
-                }
-            }
+            feeds.forEach(evt => db.ref('boost_schedule').push(evt));
+            if (showPrompt) alert("✓ Feed re-synced successfully!");
         }
 
         function openNewEventModal() {
@@ -1246,71 +774,32 @@
             document.getElementById('eventTitle').value = '';
             document.getElementById('eventLeague').value = '';
             document.getElementById('eventSport').value = 'FOOTBALL';
-            document.getElementById('eventTier').value = 'TIER_1';
             document.getElementById('eventDateTime').value = new Date().toISOString().slice(0, 16);
-            document.getElementById('eventMarkets').value = '';
-            document.getElementById('modalTitle').innerText = 'Add Custom Event / Outright';
             document.getElementById('eventModal').classList.add('show');
         }
 
-        function closeModal() {
-            document.getElementById('eventModal').classList.remove('show');
-        }
+        function closeModal() { document.getElementById('eventModal').classList.remove('show'); }
 
         function saveEvent() {
             const title = document.getElementById('eventTitle').value.trim();
             const league = document.getElementById('eventLeague').value.trim();
             const sport = document.getElementById('eventSport').value;
-            const tier = document.getElementById('eventTier').value;
             const dateTime = document.getElementById('eventDateTime').value;
-            const marketsInput = document.getElementById('eventMarkets').value.trim();
-            const editId = document.getElementById('editEventId').value;
 
-            if (!title || !dateTime) {
-                return alert("Please enter both an Event Title and Date/Time.");
-            }
+            if (!title || !dateTime) return alert("Please enter both an Event Title and Date/Time.");
 
-            const markets = marketsInput ? marketsInput.split(',').map(m => m.trim()) : [];
-            const eventData = { title, league, sport, tier, dateTime, markets };
-
-            if (editId) {
-                db.ref(`boost_schedule/${editId}`).set(eventData);
-            } else {
-                db.ref('boost_schedule').push(eventData);
-            }
-
+            db.ref('boost_schedule').push({ title, league, sport, dateTime, tier: 'TIER_1', markets: [] });
             closeModal();
         }
 
-        function editEvent(id) {
-            const item = eventSchedule[id];
-            if (!item) return;
-
-            document.getElementById('editEventId').value = id;
-            document.getElementById('eventTitle').value = item.title;
-            document.getElementById('eventLeague').value = item.league;
-            document.getElementById('eventSport').value = item.sport;
-            document.getElementById('eventTier').value = item.tier;
-            document.getElementById('eventDateTime').value = item.dateTime;
-
-            const marketsStr = Array.isArray(item.markets) ? item.markets.join(', ') : (item.markets || '');
-            document.getElementById('eventMarkets').value = marketsStr;
-
-            document.getElementById('modalTitle').innerText = 'Edit Event / Outright Details';
-            document.getElementById('eventModal').classList.add('show');
-        }
-
         function deleteEvent(id) {
-            if (confirm("Delete this selection from the schedule?")) {
-                db.ref(`boost_schedule/${id}`).remove();
-            }
+            if (confirm("Delete this selection?")) db.ref(`boost_schedule/${id}`).remove();
         }
 
         function toggleDarkMode() {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('sb_theme', newTheme);
         }
 
         function escapeHtml(str) {
@@ -1318,10 +807,6 @@
         }
 
         window.onload = function() {
-            if (localStorage.getItem('sb_theme') === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-            initFontSize();
             updateGlobalClocks();
             listenToDatabase();
         };
