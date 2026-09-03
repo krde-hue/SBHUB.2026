@@ -184,26 +184,27 @@
             overflow-x: auto;
         }
 
+        /* --- STYLED TASK SUMMARY SIDEBAR WITH SUMMED PILL BADGES --- */
         .task-summary-card {
-            width: 280px;
-            min-width: 250px;
+            width: 260px;
+            min-width: 240px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
 
         .task-summary-title {
             font-size: 13px;
             font-weight: 800;
             color: var(--header-text);
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 6px;
         }
 
         .task-summary-list {
@@ -211,36 +212,51 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding-right: 4px;
+            gap: 6px;
+            padding-right: 2px;
         }
 
         .task-summary-item {
-            font-size: 11px;
-            background: var(--bg-color);
-            padding: 6px 8px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 4px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            font-size: 12px;
         }
 
         .task-summary-name {
-            font-weight: 700;
-            color: var(--header-text);
-            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--text-color);
+            flex: 1;
+            padding-right: 8px;
+            word-break: break-word;
         }
 
         .task-summary-counts {
             display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            color: var(--text-color);
+            align-items: center;
+            justify-content: flex-end;
         }
 
-        .member-badge {
-            background: var(--accent-btn);
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-weight: 600;
+        /* Clean Summed Pill Badge */
+        .summed-total-badge {
+            padding: 3px 12px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            cursor: help;
+        }
+
+        [data-theme="dark"] .summed-total-badge {
+            background-color: #0369a1;
+            color: #e0f2fe;
         }
 
         .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 700px; }
@@ -476,7 +492,6 @@
             }
         };
 
-        // STRICT AM PRIORITY (9:00 AM SLOT ONLY)
         const strict9amSlotTasks = [
             "@Sportsbook Escalation check",
             "Big Winners Check",
@@ -485,14 +500,12 @@
             "ALL Tickers"
         ];
 
-        // STRICT PM PRIORITY (12:00 PM SLOT ONWARDS)
         const pm12pmOnwardsShiftTasks = [
             "Edge Boost / Banner creation",
             "iBet Boost",
             "7A Boosts"
         ];
 
-        // GENERAL UNMENTIONED TASKS (DISTRIBUTED AS NORMAL)
         const generalUnmentionedTasks = [
             "Edge Prediction Market Ticker",
             "Pubs Prediction Market Ticker",
@@ -982,7 +995,6 @@
             autoAssignTasksForDay(dayKey);
         }
 
-        // AUTO-ASSIGN ENGINE WITH AM/PM PRIORITY & SINGLE HANDOVER PER SHIFT
         function autoAssignTasksForDay(dayKey) {
             getValidatedUser();
             if (!database[dayKey]) return;
@@ -1002,7 +1014,7 @@
             });
 
             let memberLastSlot = {};
-            let endSlotMemberMap = {}; // Tracks members ending at the same slot
+            let endSlotMemberMap = {};
 
             members.forEach(m => {
                 let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
@@ -1017,7 +1029,6 @@
                 }
             });
 
-            // Randomly select one member per ending slot to receive Handover Report
             let handoverAssignees = {};
             Object.keys(endSlotMemberMap).forEach(slotId => {
                 let candidates = endSlotMemberMap[slotId];
@@ -1051,7 +1062,6 @@
                     let pool = [];
                     let isMorningRangeSlot = ['slot_7_10', 'slot_10_12', 'slot_9_12'].includes(slotId);
 
-                    // Apply AM and PM Priorities
                     if (isMorningRangeSlot && !isLateShift) {
                         pool = shuffleArray([...strict9amSlotTasks, ...generalUnmentionedTasks]);
                     } else if (isLateShift || slotId.includes('12') || slotId.includes('15') || slotId.includes('16')) {
@@ -1080,10 +1090,8 @@
                         selectedTasks.forEach(t => assignedTasksInSlot.add(t));
                     }
 
-                    // Remove existing handover reports to prevent duplicates
                     selectedTasks = selectedTasks.filter(t => !t.includes("Handover Report"));
 
-                    // Strictly assign single Handover Report to assigned member at shift end
                     if (handoverAssignees[m.id] === slotId) {
                         let handoverTask = (isLateShift || memberShift === 'shift-10-19') ? "Handover Report PM" : "Handover Report AM";
                         selectedTasks.push(handoverTask);
@@ -1130,6 +1138,7 @@
             return counts;
         }
 
+        // RENDER MONTHLY TOTALS WITH SUMMED PILL BADGES
         function renderTaskSummarySidebar(dayIsoDate) {
             const counts = getMonthlyTaskCounts(dayIsoDate);
             const monthLabel = dayIsoDate ? new Date(dayIsoDate).toLocaleString('default', { month: 'short', year: 'numeric' }) : 'Month';
@@ -1149,17 +1158,25 @@
             } else {
                 sortedTasks.forEach(taskName => {
                     const memberCounts = counts[taskName];
-                    const badges = members.map(m => {
-                        const count = memberCounts[m.id] || 0;
-                        if (count === 0) return '';
-                        return `<span class="member-badge">${m.name} (${count})</span>`;
-                    }).filter(Boolean).join(' ');
+                    let totalCount = 0;
+                    let breakdownDetails = [];
 
-                    if (badges) {
+                    members.forEach(m => {
+                        const cnt = memberCounts[m.id] || 0;
+                        if (cnt > 0) {
+                            totalCount += cnt;
+                            breakdownDetails.push(`${m.name}: ${cnt}`);
+                        }
+                    });
+
+                    if (totalCount > 0) {
+                        const tooltipText = breakdownDetails.join(', ');
                         html += `
                             <div class="task-summary-item">
                                 <div class="task-summary-name">${taskName}</div>
-                                <div class="task-summary-counts">${badges}</div>
+                                <div class="task-summary-counts">
+                                    <span class="summed-total-badge" title="${tooltipText}">${totalCount}</span>
+                                </div>
                             </div>
                         `;
                     }
