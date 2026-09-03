@@ -134,7 +134,11 @@
             color: var(--header-text);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-size: 16px;
+            font-size: 14px;
+            background: var(--accent-btn);
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
         }
 
         .today-badge {
@@ -184,7 +188,6 @@
             overflow-x: auto;
         }
 
-        /* --- STYLED TASK SUMMARY SIDEBAR WITH SUMMED PILL BADGES --- */
         .task-summary-card {
             width: 260px;
             min-width: 240px;
@@ -474,25 +477,29 @@
             ]
         };
 
+        // STRICTLY 9:00 AM PRIORITY TASKS ONLY
         const strict9amSlotTasks = [
-            "@Sportsbook Escalation check",
+            "iBet Boost",
             "Big Winners Check",
-            "Sports Events Booking Check (BR Portal)",
-            "Boost Display Check",
-            "ALL Tickers"
+            "ALL Tickers",
+            "@Sportsbook Escalation check",
+            "Telegram Channel Monitoring",
+            "Sports Events Booking Check (BR Portal)"
         ];
 
-        const pm12pmOnwardsShiftTasks = [
+        // STRICTLY 12:00 PM PRIORITY TASKS ONLY
+        const strict12pmSlotTasks = [
             "Edge Boost / Banner creation",
-            "iBet Boost",
-            "7A Boosts"
+            "Boost creation",
+            "Rejected Bets Monitoring",
+            "Telegram Channel Monitoring",
+            "ALL tickers"
         ];
 
         const generalUnmentionedTasks = [
             "Edge Prediction Market Ticker",
             "Pubs Prediction Market Ticker",
             "Pubs Tickers",
-            "Rejected Bets Monitoring",
             "Site Checking (Web/Mobile)",
             "Qbet tickers",
             "30Bet tickers",
@@ -501,15 +508,15 @@
             "7A/BVB/GQBET tickers",
             "SoftSwiss Files",
             "SB Files checking (Client's Tracking/VIP files/CRM files)",
-            "Telegram Channel Monitoring",
             "Friendlies Checking",
             "Overnight Bets",
+            "7A Boosts",
             "Others (As instructed)"
         ];
 
         const availableTasks = Array.from(new Set([
             ...strict9amSlotTasks, 
-            ...pm12pmOnwardsShiftTasks, 
+            ...strict12pmSlotTasks, 
             ...generalUnmentionedTasks, 
             "Handover Report AM", 
             "Handover Report PM"
@@ -554,7 +561,7 @@
                         "ann": {
                             shift: "shift-7-16",
                             slots: {
-                                "slot_7_10": ["@Sportsbook Escalation check", "Big Winners Check", "Sports Events Booking Check (BR Portal)", "Boost Display Check", "ALL Tickers"],
+                                "slot_7_10": ["iBet Boost", "Big Winners Check", "ALL Tickers", "@Sportsbook Escalation check", "Telegram Channel Monitoring", "Sports Events Booking Check (BR Portal)"],
                                 "slot_10_12": ["Site Checking (Web/Mobile)", "Friendlies Checking"],
                                 "slot_12_16": ["SoftSwiss Files", "Handover Report AM"]
                             }
@@ -570,15 +577,15 @@
                         "ken": {
                             shift: "shift-12-21",
                             slots: {
-                                "slot_12_16": ["Edge Boost / Banner creation", "iBet Boost", "7A Boosts"],
-                                "slot_16_19": ["Telegram Channel Monitoring", "Overnight Bets"],
+                                "slot_12_16": ["Edge Boost / Banner creation", "Boost creation", "Rejected Bets Monitoring"],
+                                "slot_16_19": ["Telegram Channel Monitoring", "ALL tickers"],
                                 "slot_19_21": ["Handover Report PM", "Others (As instructed)"]
                             }
                         },
                         "kriztel": {
                             shift: "shift-16-1",
                             slots: {
-                                "slot_16_19": ["Edge Boost / Banner creation", "Rejected Bets Monitoring"],
+                                "slot_16_19": ["Edge Boost / Banner creation", "Boost creation", "Rejected Bets Monitoring"],
                                 "slot_19_21": ["Telegram Channel Monitoring", "ALL tickers"],
                                 "slot_22_1": ["Handover Report PM", "Others (As instructed)"]
                             }
@@ -596,21 +603,18 @@
         let isLocalActionPending = false;
         let debounceInputTimer = null;
 
-        // DYNAMIC SHIFT PROFILE DETECTOR
         function getAutoProfileForDay(dayData) {
             if (!dayData || !dayData.grid) return 'profile_1';
-            let profile2ShiftCount = 0;
-            let totalActive = 0;
+            let has9amShift = false;
 
             members.forEach(m => {
                 let s = dayData.grid[m.id]?.shift;
-                if (s && !['shift-rd', 'shift-vl', 'shift-sl'].includes(s)) {
-                    totalActive++;
-                    if (s === 'shift-9-18') profile2ShiftCount++;
+                if (s === 'shift-9-18') {
+                    has9amShift = true;
                 }
             });
 
-            return (totalActive > 0 && profile2ShiftCount >= 2) ? 'profile_2' : 'profile_1';
+            return has9amShift ? 'profile_2' : 'profile_1';
         }
 
         function getValidatedUser() {
@@ -937,6 +941,7 @@
             autoAssignTasksForDay(dayKey);
         }
 
+        // STRICT 9:00 AM & 12:00 PM SHIFT AUTO-ASSIGNMENT ENGINE
         function autoAssignTasksForDay(dayKey) {
             getValidatedUser();
             if (!database[dayKey]) return;
@@ -1002,12 +1007,17 @@
                     let isLateShift = ['shift-12-21', 'shift-14-23', 'shift-16-1'].includes(memberShift);
 
                     let pool = [];
-                    let isMorningRangeSlot = ['slot_7_10', 'slot_10_12', 'slot_9_12'].includes(slotId);
+                    
+                    // STRICTLY 9:00 AM SLOT SELECTION (MORNING SHIFTS ONLY)
+                    let isExact9amSlot = (slotId === 'slot_7_10' || slotId === 'slot_9_12');
+                    
+                    // STRICTLY 12:00 PM SLOT SELECTION (AFTERNOON SHIFTS ONLY)
+                    let isExact12pmSlot = (slotId === 'slot_12_16' || slotId === 'slot_12_15');
 
-                    if (isMorningRangeSlot && !isLateShift) {
+                    if (isExact9amSlot && !isLateShift) {
                         pool = shuffleArray([...strict9amSlotTasks, ...generalUnmentionedTasks]);
-                    } else if (isLateShift || slotId.includes('12') || slotId.includes('15') || slotId.includes('16')) {
-                        pool = shuffleArray([...pm12pmOnwardsShiftTasks, ...generalUnmentionedTasks]);
+                    } else if (isExact12pmSlot && isLateShift) {
+                        pool = shuffleArray([...strict12pmSlotTasks, ...generalUnmentionedTasks]);
                     } else {
                         pool = shuffleArray(generalUnmentionedTasks);
                     }
@@ -1165,9 +1175,9 @@
                 const isToday = (dayData.isoDate === todayStr);
                 if (isToday) daySection.classList.add('today-card');
 
-                // DYNAMIC AUTO PROFILE SELECTION
                 let currentProfileKey = getAutoProfileForDay(dayData);
                 let activeTimeSlots = timeSlotProfiles[currentProfileKey];
+                let shiftBadgeText = currentProfileKey === 'profile_2' ? 'SHIFT 2' : 'SHIFT 1';
 
                 let titleHTML = `
                     <div class="day-title-area">
@@ -1175,6 +1185,7 @@
                             <span class="date-picker-wrapper">
                                 📅 
                                 <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="updateDayDate('${dayKey}', this.value)">
+                                <span class="shift-badge-label">${shiftBadgeText}</span>
                             </span>
                             ${isToday ? '<span class="today-badge">Today</span>' : ''}
                             <div class="reminder-box-wrapper">
