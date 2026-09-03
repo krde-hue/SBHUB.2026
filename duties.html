@@ -585,56 +585,43 @@
         };
 
         function createDefaultDatabase() {
-            return {
-                "day_1": {
-                    isoDate: getLocalDateString(),
-                    reminder: "",
-                    grid: {
-                        "ann": {
-                            shift: "shift-7-16",
-                            slots: {
-                                "slot_7_10": ["iBet Boost", "Big Winners Check", "ALL Tickers", "@Sportsbook Escalation check", "Telegram Channel Monitoring", "Sports Events Booking Check (BR Portal)"],
-                                "slot_10_12": ["Site Checking (Web/Mobile)", "Friendlies Checking"],
-                                "slot_12_16": ["SoftSwiss Files", "Handover Report AM"]
-                            }
-                        },
-                        "dave": {
-                            shift: "shift-10-19",
-                            slots: {
-                                "slot_10_12": ["SoftSwiss Files", "SB Files checking (Client's Tracking/VIP files/CRM files)"],
-                                "slot_12_16": ["Pubs Prediction Market Ticker", "Pubs Tickers"],
-                                "slot_16_19": ["Handover Report PM", "Others (As instructed)"]
-                            }
-                        },
-                        "ken": {
-                            shift: "shift-12-21",
-                            slots: {
-                                "slot_12_16": ["Edge Boost / Banner creation", "Boost Check", "Rejected Bets Monitoring"],
-                                "slot_16_19": ["Telegram Channel Monitoring", "ALL Tickers"],
-                                "slot_19_21": ["Handover Report PM", "Others (As instructed)"]
-                            }
-                        },
-                        "kriztel": {
-                            shift: "shift-16-1",
-                            slots: {
-                                "slot_16_19": ["Edge Boost / Banner creation", "Rejected Bets Monitoring"],
-                                "slot_19_21": ["Telegram Channel Monitoring", "ALL Tickers"],
-                                "slot_22_1": ["Handover Report PM", "Others (As instructed)"]
-                            }
-                        }
-                    }
+            let todayKey = getLocalDateString();
+            let dbObj = {};
+            dbObj[todayKey] = {
+                isoDate: todayKey,
+                reminder: "",
+                grid: {
+                    "ann": { shift: "shift-7-16", slots: {} },
+                    "dave": { shift: "shift-10-19", slots: {} },
+                    "ken": { shift: "shift-12-21", slots: {} },
+                    "kriztel": { shift: "shift-16-1", slots: {} }
                 }
             };
+            return dbObj;
         }
 
-        let database = createDefaultDatabase();
+        // RECOVER FROM LOCALSTORAGE IF FIREBASE HAS DELAY ON INITIAL LOAD
+        let database = (function() {
+            try {
+                let localStr = localStorage.getItem('sb_roster_data_backup');
+                if (localStr) {
+                    let parsed = JSON.parse(localStr);
+                    if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+                        return parsed;
+                    }
+                }
+            } catch(e) {}
+            return createDefaultDatabase();
+        })();
+
         let masterRotaCalendar = {};
         let activeOpenDropdownId = null;
         let isMobileView = false;
         let isLocalActionPending = false;
         let debounceInputTimer = null;
         
-        let activeViewIsoDate = getLocalDateString();
+        // RECOVER LAST ACTIVE VIEWED DATE OR DEFAULT TO TODAY
+        let activeViewIsoDate = localStorage.getItem('sb_active_view_date') || getLocalDateString();
 
         function getAutoProfileForDay(dayData) {
             if (!dayData || !dayData.grid) return 'profile_1';
@@ -687,7 +674,6 @@
             });
         }
 
-        // MANUAL SAVE ACTION FUNCTION WITH USER TOAST
         function manualSaveDatabase() {
             let user = getValidatedUser();
             isLocalActionPending = true;
@@ -869,22 +855,24 @@
             });
 
             db.ref('roster_data').on('value', (snapshot) => {
-                if (isLocalActionPending) return;
-
                 const liveData = snapshot.val();
+                
                 if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
-                    database = liveData;
-                } else {
+                    if (!isLocalActionPending) {
+                        database = liveData;
+                        // Backup to local storage for offline recovery
+                        try { localStorage.setItem('sb_roster_data_backup', JSON.stringify(database)); } catch(e){}
+                        syncShiftsFromRotaMaster();
+                        if (!activeOpenDropdownId) {
+                            renderAllPages();
+                        } else {
+                            syncActiveDropdownCheckboxes();
+                        }
+                    }
+                } else if (!isLocalActionPending && (!database || Object.keys(database).length === 0)) {
                     database = createDefaultDatabase();
                     saveToDatabase();
-                }
-
-                syncShiftsFromRotaMaster();
-
-                if (!activeOpenDropdownId) {
                     renderAllPages();
-                } else {
-                    syncActiveDropdownCheckboxes();
                 }
             });
         }
@@ -935,10 +923,12 @@
 
                                 if (matchedShiftId) {
                                     if (!dayData.grid) dayData.grid = {};
-                                    if (!dayData.grid[m.id]) dayData.grid[m.id] = { slots: {} };
-                                    
-                                    if (dayData.grid[m.id].shift !== matchedShiftId) {
+                                    if (!dayData.grid[m.id]) {
+                                        dayData.grid[m.id] = { shift: matchedShiftId, slots: {} };
+                                        updated = true;
+                                    } else if (dayData.grid[m.id].shift !== matchedShiftId) {
                                         dayData.grid[m.id].shift = matchedShiftId;
+                                        dayData.grid[m.id].slots = dayData.grid[m.id].slots || {};
                                         updated = true;
                                     }
                                 }
@@ -950,13 +940,18 @@
 
             if (updated) {
                 saveToDatabase();
-                renderAllPages();
             }
         }
 
+        // SAVE DUAL-PERSISTENCE: FIREBASE + LOCALSTORAGE BACKUP
         function saveToDatabase() {
             if (!database) database = createDefaultDatabase();
+            try {
+                localStorage.setItem('sb_roster_data_backup', JSON.stringify(database));
+            } catch(e){}
+            
             if (db) db.ref('roster_data').set(database);
+            
             let statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
                 statusBadge.style.opacity = '1';
@@ -1144,24 +1139,27 @@
             d.setDate(d.getDate() + offsetDays);
             activeViewIsoDate = getLocalDateString(d);
             
+            try { localStorage.setItem('sb_active_view_date', activeViewIsoDate); } catch(e){}
             ensureDayExists(activeViewIsoDate);
             renderAllPages();
         }
 
         function resetToTodayView() {
             activeViewIsoDate = getLocalDateString();
+            try { localStorage.setItem('sb_active_view_date', activeViewIsoDate); } catch(e){}
             ensureDayExists(activeViewIsoDate);
             renderAllPages();
         }
 
+        // DIRECT DATE-KEY ENTRY CREATION SAFEGUARD
         function ensureDayExists(targetIsoDate) {
-            let foundKey = Object.keys(database).find(k => database[k].isoDate === targetIsoDate);
-            if (!foundKey) {
-                let dayNum = Object.keys(database).length + 1;
-                let newDayId = "day_" + newDayNum;
-                database[newDayId] = { isoDate: targetIsoDate, reminder: "", grid: {} };
+            if (!database) database = {};
+            let targetKey = targetIsoDate;
+
+            if (!database[targetKey]) {
+                database[targetKey] = { isoDate: targetIsoDate, reminder: "", grid: {} };
                 members.forEach(m => {
-                    database[newDayId].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
+                    database[targetKey].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
                 });
                 saveToDatabase();
                 syncShiftsFromRotaMaster();
@@ -1176,13 +1174,10 @@
 
             const todayStr = getLocalDateString();
 
-            let dayKey = Object.keys(database).find(k => database[k].isoDate === activeViewIsoDate);
-            if (!dayKey) {
-                ensureDayExists(activeViewIsoDate);
-                dayKey = Object.keys(database).find(k => database[k].isoDate === activeViewIsoDate);
-            }
+            ensureDayExists(activeViewIsoDate);
+            let dayKey = activeViewIsoDate;
 
-            let dayData = database[dayKey];
+            let dayData = database[dayKey] || { isoDate: activeViewIsoDate, reminder: "", grid: {} };
             let daySection = document.createElement('div');
             daySection.className = 'day-section';
             daySection.id = `section-${dayKey}`;
@@ -1194,14 +1189,13 @@
             let activeTimeSlots = timeSlotProfiles[currentProfileKey];
             let shiftBadgeText = currentProfileKey === 'profile_2' ? 'SHIFT 2' : 'SHIFT 1';
 
-            // FROZEN UPPER PANEL TITLE AREA WITH MANUAL SAVE BUTTON
             let titleHTML = `
                 <div class="day-title-area">
                     <div class="day-title-left">
                         <button class="btn btn-secondary no-print" onclick="changeViewDate(-1)" title="Previous Day">◀ Previous</button>
                         <span class="date-picker-wrapper">
                             📅 
-                            <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="activeViewIsoDate=this.value; updateDayDate('${dayKey}', this.value)">
+                            <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="activeViewIsoDate=this.value; localStorage.setItem('sb_active_view_date', this.value); updateDayDate('${dayKey}', this.value)">
                             <span class="shift-badge-label">${shiftBadgeText}</span>
                         </span>
                         <button class="btn btn-secondary no-print" onclick="changeViewDate(1)" title="Next Day">Next ▶</button>
@@ -1455,9 +1449,16 @@
             getValidatedUser();
 
             if (!database[dayKey]) return;
-            database[dayKey].isoDate = newIsoDate; 
+            
+            // Move data object cleanly if date key changed
+            let oldData = database[dayKey];
+            delete database[dayKey];
+            
+            oldData.isoDate = newIsoDate;
+            database[newIsoDate] = oldData;
+            
             saveToDatabase(); 
-            logActivity("UPDATE_DATE", { targetDay: dayKey, newDate: newIsoDate });
+            logActivity("UPDATE_DATE", { oldKey: dayKey, newDate: newIsoDate });
             syncShiftsFromRotaMaster();
             renderAllPages();
         }
@@ -1518,6 +1519,7 @@
             }
         }
 
+        // SAFE PAGE INITIALIZATION
         document.addEventListener('DOMContentLoaded', function() {
             if (localStorage.getItem('sb_theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
@@ -1525,7 +1527,10 @@
 
             toggleMobileView(false);
 
-            resetToTodayView();
+            // Render existing local backup immediately so user never sees empty screen
+            renderAllPages();
+
+            // Establish real-time connection to Firebase
             listenToLiveDatabase();
             setupPresenceSystem();
             
