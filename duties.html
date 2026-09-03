@@ -615,6 +615,7 @@
         let activeOpenDropdownId = null;
         let isMobileView = false;
         let hasAutoScrolledToToday = false;
+        let isLocalActionPending = false; // PREVENTS FIREBASE OVERWRITES DURING FAST CLICKING
 
         function getValidatedUser() {
             let storedUser = localStorage.getItem('sb_user_name');
@@ -736,27 +737,12 @@
             });
 
             db.ref('roster_data').on('value', (snapshot) => {
+                // Ignore remote sync updates if user is actively clicking reshuffle locally
+                if (isLocalActionPending) return;
+
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
-                    Object.keys(liveData).forEach(dayKey => {
-                        if (!database[dayKey]) {
-                            database[dayKey] = liveData[dayKey];
-                        } else {
-                            database[dayKey].isoDate = liveData[dayKey].isoDate || database[dayKey].isoDate;
-                            database[dayKey].reminder = liveData[dayKey].reminder || database[dayKey].reminder;
-                            database[dayKey].shiftProfile = liveData[dayKey].shiftProfile || database[dayKey].shiftProfile;
-                            if (liveData[dayKey].grid) {
-                                Object.keys(liveData[dayKey].grid).forEach(mId => {
-                                    if (!database[dayKey].grid[mId]) {
-                                        database[dayKey].grid[mId] = liveData[dayKey].grid[mId];
-                                    } else {
-                                        database[dayKey].grid[mId].shift = liveData[dayKey].grid[mId].shift || database[dayKey].grid[mId].shift;
-                                        database[dayKey].grid[mId].slots = liveData[dayKey].grid[mId].slots || database[dayKey].grid[mId].slots;
-                                    }
-                                });
-                            }
-                        }
-                    });
+                    database = liveData;
                 } else {
                     database = createDefaultDatabase();
                     saveToDatabase();
@@ -957,10 +943,18 @@
             return a;
         }
 
-        // MULTI-CLICK AUTO-ASSIGN & REAL-TIME IN-MEMORY RE-RENDER
+        // DEDICATED RE-SHUFFLE FUNCTION (SMOOTH MULTI-CLICKABLE RE-RANDOMIZER)
+        function reshuffleTasksForDay(dayKey) {
+            autoAssignTasksForDay(dayKey);
+        }
+
+        // MULTI-CLICK AUTO-ASSIGN & REAL-TIME IN-MEMORY RE-RENDER ENGINE
         function autoAssignTasksForDay(dayKey) {
             let user = getValidatedUser();
             if (!database[dayKey]) return;
+
+            // Set flag to temporarily ignore remote Firebase snapshot overrides while clicking
+            isLocalActionPending = true;
 
             let currentProfileKey = database[dayKey].shiftProfile || 'profile_1';
             let activeSlots = timeSlotProfiles[currentProfileKey] || timeSlotProfiles['profile_1'];
@@ -1057,10 +1051,16 @@
                 });
             });
 
-            // Save state and immediately render the UI locally without waiting for external page reload
+            // 1. Immediately render local changes to UI
+            renderAllPages();
+
+            // 2. Persist to Firebase in background and reset sync guard
             saveToDatabase();
             logActivity("AUTO_ASSIGN_TASKS", { targetDay: dayKey });
-            renderAllPages();
+
+            setTimeout(() => {
+                isLocalActionPending = false;
+            }, 800);
         }
 
         function getMonthlyTaskCounts(targetIsoDate) {
@@ -1186,6 +1186,7 @@
                         </div>
                         <div class="no-print" style="display:flex; gap:10px; align-items:center;">
                             <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🎲 Auto Assign Tasks</button>
+                            <button class="btn btn-secondary" onclick="reshuffleTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px; background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">🔀 Re-Shuffle Tasks</button>
                             <select class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onchange="updateShiftProfile('${dayKey}', this.value)">
                                 <option value="profile_1" ${currentProfileKey === 'profile_1' ? 'selected' : ''}>Shift 1 (7:00 - 1:00)</option>
                                 <option value="profile_2" ${currentProfileKey === 'profile_2' ? 'selected' : ''}>Shift 2 (9:00 - 21:00)</option>
