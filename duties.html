@@ -83,15 +83,6 @@
         .btn-mobile-toggle { background-color: #a855f7; color: #ffffff; }
         .btn-mobile-toggle.active { background-color: #ec4899; }
 
-        .btn-lock {
-            background-color: #f59e0b !important;
-            color: #ffffff !important;
-            font-weight: 700;
-        }
-        .btn-lock.unlocked {
-            background-color: #10b981 !important;
-        }
-
         .btn-dashboard {
             background-color: #0d233a !important;
             color: #ffffff !important;
@@ -137,6 +128,14 @@
 
         .date-picker-wrapper { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
         .date-picker-input { border: none; font-size: 18px; font-weight: bold; color: var(--header-text); width: 160px; outline: none; border-bottom: 1px dashed var(--border-color); background: transparent; cursor: pointer; }
+
+        .shift-badge-label {
+            font-weight: 800;
+            color: var(--header-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 16px;
+        }
 
         .today-badge {
             background-color: #38bdf8;
@@ -277,33 +276,6 @@
         .legend-color { width: 20px; height: 10px; border-radius: 2px; border: 1px solid #ccc; }
 
         .autosave-badge { font-size: 11px; color: #2f855a; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #c6f6d5; padding: 3px 8px; border-radius: 12px; display: inline-block; }
-        
-        @keyframes bounceSticker {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-12px) scale(1.2); }
-        }
-        @keyframes blinkBanner {
-            0%, 100% { opacity: 1; box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
-            50% { opacity: 0.82; box-shadow: 0 0 5px rgba(34, 197, 94, 0.2); }
-        }
-
-        .jumping-sticker { display: inline-block; font-size: 28px; animation: bounceSticker 0.6s infinite ease-in-out; margin: 0 8px; }
-        
-        .shift-end-banner {
-            background: linear-gradient(135deg, #fef08a, #86efac);
-            color: #14532d;
-            border: 2px solid #22c55e;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-weight: 800;
-            font-size: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: blinkBanner 1.2s infinite ease-in-out;
-            text-align: center;
-        }
 
         .modal-overlay {
             display: none;
@@ -370,7 +342,7 @@
 
         @media print {
             body { background: white; padding: 0; color: black; }
-            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .shift-end-banner, .task-summary-card, .modal-overlay { display: none !important; }
+            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .task-summary-card, .modal-overlay { display: none !important; }
             .task-card { min-height: 100px; }
             .schedule-table { border: 2px solid #000 !important; }
             td, th { border: 1px solid #000 !important; }
@@ -394,22 +366,16 @@
             </span>
             <span id="saveStatus" class="autosave-badge">✓ Live Synced</span>
             
-            <button id="lockToggleBtn" class="btn btn-lock" onclick="toggleViewOnlyMode()">🔒 View-Only: ON</button>
             <button class="btn btn-secondary" onclick="viewSecurityLogs()">📜 History Logs</button>
-            <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View: OFF</button>
+            <button class="btn btn-secondary" onclick="viewArchivesModal()">📦 Archives</button>
+            <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView(true)">📱 Mobile View: OFF</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-            <button id="clearAllBtn" class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
-            <button id="addDayBtn" class="btn btn-secondary" onclick="addNewDay()">➕ Add Next Day</button>
+            <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
+            <button class="btn btn-secondary" onclick="addNewDay()">➕ Add Next Day</button>
             <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
 
             <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
         </div>
-    </div>
-
-    <div id="shiftEndBanner" class="shift-end-banner" style="display: none;">
-        <span class="jumping-sticker">🥳</span>
-        <span id="shiftEndMessage">Almost there! Great job today!</span>
-        <span class="jumping-sticker">🎉</span>
     </div>
 
     <div id="pagesContainer"></div>
@@ -417,7 +383,7 @@
     <div id="logModalOverlay" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 style="font-size:16px;">📜 Audit & Action Security Log</h3>
+                <h3 id="modalTitle" style="font-size:16px;">📜 Audit & Security Log</h3>
                 <button class="btn btn-danger" style="padding:2px 8px;" onclick="closeLogModal()">✕</button>
             </div>
             <div id="modalLogBody" class="modal-body">
@@ -462,11 +428,18 @@
             console.error("Firebase init fallback:", e);
         }
 
+        function getLocalDateString(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         const members = [
-            { id: 'ann', name: 'ANN', index: 0, defaultShift: 'shift-7-16' },
-            { id: 'dave', name: 'DAVE', index: 1, defaultShift: 'shift-10-19' },
-            { id: 'ken', name: 'KEN', index: 2, defaultShift: 'shift-12-21' },
-            { id: 'kriztel', name: 'KRIZTEL', index: 3, defaultShift: 'shift-16-1' }
+            { id: 'ann', name: 'ANN', index: 0, defaultShiftProfile1: 'shift-7-16', defaultShiftProfile2: 'shift-9-18' },
+            { id: 'dave', name: 'DAVE', index: 1, defaultShiftProfile1: 'shift-10-19', defaultShiftProfile2: 'shift-9-18' },
+            { id: 'ken', name: 'KEN', index: 2, defaultShiftProfile1: 'shift-12-21', defaultShiftProfile2: 'shift-12-21' },
+            { id: 'kriztel', name: 'KRIZTEL', index: 3, defaultShiftProfile1: 'shift-16-1', defaultShiftProfile2: 'shift-12-21' }
         ];
 
         const timeSlotProfiles = {
@@ -503,27 +476,28 @@
             }
         };
 
+        // STRICT AM PRIORITY (9:00 AM SLOT ONLY)
         const strict9amSlotTasks = [
-            "iBet Boost",
-            "Big Winners Check",
-            "ALL Tickers",
             "@Sportsbook Escalation check",
-            "Telegram Channel Monitoring",
-            "Sports Events Booking Check (BR Portal)"
+            "Big Winners Check",
+            "Sports Events Booking Check (BR Portal)",
+            "Boost Display Check",
+            "ALL Tickers"
         ];
 
+        // STRICT PM PRIORITY (12:00 PM SLOT ONWARDS)
         const pm12pmOnwardsShiftTasks = [
             "Edge Boost / Banner creation",
-            "Boost creation",
-            "Rejected Bets Monitoring",
-            "Telegram Channel Monitoring",
-            "ALL tickers"
+            "iBet Boost",
+            "7A Boosts"
         ];
 
+        // GENERAL UNMENTIONED TASKS (DISTRIBUTED AS NORMAL)
         const generalUnmentionedTasks = [
-            "@Sportsbook Escalation check",
+            "Edge Prediction Market Ticker",
             "Pubs Prediction Market Ticker",
             "Pubs Tickers",
+            "Rejected Bets Monitoring",
             "Site Checking (Web/Mobile)",
             "Qbet tickers",
             "30Bet tickers",
@@ -532,8 +506,9 @@
             "7A/BVB/GQBET tickers",
             "SoftSwiss Files",
             "SB Files checking (Client's Tracking/VIP files/CRM files)",
-            "Edge Prediction Market Ticker",
-            "7A Boosts",
+            "Telegram Channel Monitoring",
+            "Friendlies Checking",
+            "Overnight Bets",
             "Others (As instructed)"
         ];
 
@@ -576,17 +551,17 @@
         };
 
         function createDefaultDatabase() {
-            let defaultDb = {
+            return {
                 "day_1": {
-                    isoDate: new Date().toISOString().split('T')[0],
+                    isoDate: getLocalDateString(),
                     reminder: "",
                     shiftProfile: "profile_1",
                     grid: {
                         "ann": {
                             shift: "shift-7-16",
                             slots: {
-                                "slot_7_10": ["iBet Boost", "Big Winners Check", "ALL Tickers", "@Sportsbook Escalation check", "Telegram Channel Monitoring", "Sports Events Booking Check (BR Portal)"],
-                                "slot_10_12": ["Site Checking (Web/Mobile)", "7A Boosts"],
+                                "slot_7_10": ["@Sportsbook Escalation check", "Big Winners Check", "Sports Events Booking Check (BR Portal)", "Boost Display Check", "ALL Tickers"],
+                                "slot_10_12": ["Site Checking (Web/Mobile)", "Friendlies Checking"],
                                 "slot_12_16": ["SoftSwiss Files", "Handover Report AM"]
                             }
                         },
@@ -601,15 +576,15 @@
                         "ken": {
                             shift: "shift-12-21",
                             slots: {
-                                "slot_12_16": ["Edge Boost / Banner creation", "Boost creation", "Rejected Bets Monitoring"],
-                                "slot_16_19": ["Telegram Channel Monitoring", "ALL tickers"],
+                                "slot_12_16": ["Edge Boost / Banner creation", "iBet Boost", "7A Boosts"],
+                                "slot_16_19": ["Telegram Channel Monitoring", "Overnight Bets"],
                                 "slot_19_21": ["Handover Report PM", "Others (As instructed)"]
                             }
                         },
                         "kriztel": {
                             shift: "shift-16-1",
                             slots: {
-                                "slot_16_19": ["Edge Boost / Banner creation", "Boost creation", "Rejected Bets Monitoring"],
+                                "slot_16_19": ["Edge Boost / Banner creation", "Rejected Bets Monitoring"],
                                 "slot_19_21": ["Telegram Channel Monitoring", "ALL tickers"],
                                 "slot_22_1": ["Handover Report PM", "Others (As instructed)"]
                             }
@@ -617,7 +592,6 @@
                     }
                 }
             };
-            return defaultDb;
         }
 
         let database = createDefaultDatabase();
@@ -626,45 +600,7 @@
         let isMobileView = false;
         let hasAutoScrolledToToday = false;
         let isLocalActionPending = false;
-        let isViewOnly = true; // DEFAULT VIEW ONLY MODE TO PREVENT ACCIDENTAL CHANGES
-
-        // VIEW ONLY TOGGLE WITH PASSWORD SECURITY (2026)
-        function toggleViewOnlyMode() {
-            if (isViewOnly) {
-                let passwordInput = prompt("Enter Password to unlock edit mode:", "");
-                if (passwordInput === "2026") {
-                    isViewOnly = false;
-                    alert("Unlocked! Edit mode enabled.");
-                } else {
-                    alert("Incorrect Password. View-Only Mode remains active.");
-                    return;
-                }
-            } else {
-                isViewOnly = true;
-                alert("View-Only Mode enabled. Editing locked.");
-            }
-            updateViewOnlyUI();
-            renderAllPages();
-        }
-
-        function updateViewOnlyUI() {
-            const lockBtn = document.getElementById('lockToggleBtn');
-            const clearAllBtn = document.getElementById('clearAllBtn');
-            const addDayBtn = document.getElementById('addDayBtn');
-
-            if (lockBtn) {
-                if (isViewOnly) {
-                    lockBtn.innerText = "🔒 View-Only: ON";
-                    lockBtn.classList.remove('unlocked');
-                } else {
-                    lockBtn.innerText = "🔓 Edit Mode: ON";
-                    lockBtn.classList.add('unlocked');
-                }
-            }
-
-            if (clearAllBtn) clearAllBtn.style.display = isViewOnly ? 'none' : 'inline-flex';
-            if (addDayBtn) addDayBtn.style.display = isViewOnly ? 'none' : 'inline-flex';
-        }
+        let debounceInputTimer = null;
 
         function getValidatedUser() {
             let storedUser = localStorage.getItem('sb_user_name');
@@ -677,6 +613,18 @@
                 }
             }
             return storedUser;
+        }
+
+        function archiveSnapshot(reason = "AUTO_SAVE") {
+            if (!db || !database) return;
+            const currentUser = localStorage.getItem('sb_user_name') || 'Operator';
+            db.ref('roster_archive').push({
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                formattedTime: new Date().toLocaleString(),
+                savedBy: currentUser,
+                action: reason,
+                snapshot: database
+            });
         }
 
         function logActivity(actionType, details = {}) {
@@ -694,8 +642,10 @@
         function viewSecurityLogs() {
             const overlay = document.getElementById('logModalOverlay');
             const logContainer = document.getElementById('modalLogBody');
+            const titleElem = document.getElementById('modalTitle');
             if (!overlay || !logContainer) return;
 
+            if (titleElem) titleElem.innerText = "📜 Audit & Action Security Log";
             overlay.style.display = 'flex';
             logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px;">Loading live audit logs...</div>';
 
@@ -728,14 +678,78 @@
             });
         }
 
+        function viewArchivesModal() {
+            const overlay = document.getElementById('logModalOverlay');
+            const logContainer = document.getElementById('modalLogBody');
+            const titleElem = document.getElementById('modalTitle');
+            if (!overlay || !logContainer) return;
+
+            if (titleElem) titleElem.innerText = "📦 Historical Database Archives";
+            overlay.style.display = 'flex';
+            logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px;">Loading automated backups...</div>';
+
+            if (!db) {
+                logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px; color:red;">Database offline.</div>';
+                return;
+            }
+
+            db.ref('roster_archive').limitToLast(15).once('value', (snap) => {
+                const archives = snap.val();
+                if (!archives) {
+                    logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px;">No archives available.</div>';
+                    return;
+                }
+
+                let archiveKeys = Object.keys(archives).reverse();
+                logContainer.innerHTML = archiveKeys.map(key => {
+                    let item = archives[key];
+                    return `
+                        <div class="log-entry" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight:bold; color:var(--header-text);">💾 ${item.action || 'Archive'}</div>
+                                <div style="font-size:10px; color:var(--credit-text);">${item.formattedTime || ''} by ${item.savedBy || 'System'}</div>
+                            </div>
+                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="restoreArchive('${key}')">🔄 Restore</button>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function restoreArchive(archiveKey) {
+            if (!confirm("Are you sure you want to restore this archival snapshot? Current data will be safely backed up first.")) return;
+            archiveSnapshot("PRE_RESTORE_BACKUP");
+            db.ref(`roster_archive/${archiveKey}/snapshot`).once('value', (snap) => {
+                const restoredData = snap.val();
+                if (restoredData) {
+                    database = restoredData;
+                    saveToDatabase();
+                    renderAllPages();
+                    closeLogModal();
+                    alert("Archive restored successfully!");
+                }
+            });
+        }
+
         function closeLogModal() {
             const overlay = document.getElementById('logModalOverlay');
             if (overlay) overlay.style.display = 'none';
         }
 
-        function toggleMobileView() {
+        function toggleMobileView(isUserClick = false) {
             const btn = document.getElementById('mobileToggleBtn');
-            isMobileView = !isMobileView;
+            if (isUserClick) {
+                isMobileView = !isMobileView;
+                localStorage.setItem('duties_mobile_view', isMobileView ? 'true' : 'false');
+            } else {
+                const storedView = localStorage.getItem('duties_mobile_view');
+                if (storedView !== null) {
+                    isMobileView = (storedView === 'true');
+                } else {
+                    isMobileView = false;
+                }
+            }
+
             if (isMobileView) {
                 document.body.classList.add('mobile-view-active');
                 if (btn) {
@@ -749,7 +763,6 @@
                     btn.classList.remove('active');
                 }
             }
-            localStorage.setItem('duties_mobile_view', isMobileView ? 'true' : 'false');
         }
 
         function setupPresenceSystem() {
@@ -795,7 +808,7 @@
                     database = createDefaultDatabase();
                     saveToDatabase();
                 }
-                
+
                 syncShiftsFromRotaMaster();
 
                 if (!activeOpenDropdownId) {
@@ -803,7 +816,6 @@
                 } else {
                     syncActiveDropdownCheckboxes();
                 }
-                checkNearShiftEnd();
             });
         }
 
@@ -836,19 +848,25 @@
                     let dateParts = dayData.isoDate.split('-');
                     if (dateParts.length === 3) {
                         let year = dateParts[0];
-                        let month = parseInt(dateParts[1], 10);
+                        let monthInt = parseInt(dateParts[1], 10);
                         let dayNum = parseInt(dateParts[2], 10);
 
-                        let rotaMonthKey = `${year}_${month}`;
-                        let rotaDayRow = masterRotaCalendar[rotaMonthKey] ? masterRotaCalendar[rotaMonthKey][dayNum] : null;
+                        let monthPadded = String(monthInt).padStart(2, '0');
+                        let rotaMonthKey1 = `${year}_${monthInt}`;
+                        let rotaMonthKey2 = `${year}_${monthPadded}`;
+
+                        let rotaMonthData = masterRotaCalendar[rotaMonthKey1] || masterRotaCalendar[rotaMonthKey2] || null;
+                        let rotaDayRow = rotaMonthData ? (rotaMonthData[dayNum] || rotaMonthData[String(dayNum)]) : null;
 
                         if (rotaDayRow) {
                             members.forEach(m => {
-                                let rawRotaShift = rotaDayRow[m.index];
+                                let rawRotaShift = rotaDayRow[m.index] || rotaDayRow[m.id];
                                 let matchedShiftId = parseRotaShiftToShiftId(rawRotaShift);
 
                                 if (matchedShiftId) {
+                                    if (!dayData.grid) dayData.grid = {};
                                     if (!dayData.grid[m.id]) dayData.grid[m.id] = { slots: {} };
+                                    
                                     if (dayData.grid[m.id].shift !== matchedShiftId) {
                                         dayData.grid[m.id].shift = matchedShiftId;
                                         updated = true;
@@ -860,7 +878,10 @@
                 }
             });
 
-            if (updated) renderAllPages();
+            if (updated) {
+                saveToDatabase();
+                renderAllPages();
+            }
         }
 
         function saveToDatabase() {
@@ -880,63 +901,12 @@
             localStorage.setItem('sb_theme', newTheme);
         }
 
-        function checkNearShiftEnd() {
-            const now = new Date();
-            const currentMinutesOfDay = now.getHours() * 60 + now.getMinutes();
-
-            let dayKeys = Object.keys(database || {});
-            if (dayKeys.length === 0) return;
-            let currentDayKey = dayKeys[0];
-            let activeGrid = database[currentDayKey].grid || {};
-
-            let endingMembers = [];
-
-            members.forEach(m => {
-                let memberData = activeGrid[m.id] || { shift: m.defaultShift };
-                let shiftObj = shifts.find(s => s.id === memberData.shift);
-
-                if (shiftObj && shiftObj.endHour !== null) {
-                    let endMinutesOfDay = shiftObj.endHour * 60 + shiftObj.endMinute;
-                    if (shiftObj.endHour === 1 && currentMinutesOfDay > 12 * 60) {
-                        endMinutesOfDay += 24 * 60;
-                    }
-
-                    let minutesRemaining = endMinutesOfDay - currentMinutesOfDay;
-                    if (minutesRemaining > 0 && minutesRemaining <= 20) {
-                        endingMembers.push(m.name);
-                    }
-                }
-            });
-
-            const banner = document.getElementById('shiftEndBanner');
-            const messageElem = document.getElementById('shiftEndMessage');
-
-            if (endingMembers.length > 0 && banner && messageElem) {
-                let nameString = "";
-                if (endingMembers.length === 1) {
-                    nameString = endingMembers[0];
-                } else if (endingMembers.length === 2) {
-                    nameString = `${endingMembers[0]} and ${endingMembers[1]}`;
-                } else {
-                    nameString = `${endingMembers.slice(0, -1).join(', ')}, and ${endingMembers[endingMembers.length - 1]}`;
-                }
-
-                messageElem.innerText = `Almost there, ${nameString}! Shift ends in less than 20 minutes—keep up the great work!`;
-                banner.style.display = 'flex';
-            } else if (banner) {
-                banner.style.display = 'none';
-            }
-        }
-
-        setInterval(checkNearShiftEnd, 30000);
-
         function isOffDuty(shiftId, slotId) {
             return (shiftOffDutyMap[shiftId] || []).includes(slotId);
         }
 
         function updateReminderText(dayKey, newText) {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
-            let user = getValidatedUser();
+            getValidatedUser();
             if (!database[dayKey]) database[dayKey] = { grid: {} };
             database[dayKey].reminder = newText;
             saveToDatabase();
@@ -944,8 +914,8 @@
         }
 
         function updateShiftProfile(dayKey, newProfile) {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
-            let user = getValidatedUser();
+            getValidatedUser();
+            isLocalActionPending = true;
 
             if (!database[dayKey]) database[dayKey] = { grid: {} };
 
@@ -957,6 +927,17 @@
 
                 members.forEach(m => {
                     let memberGrid = database[dayKey].grid[m.id];
+                    
+                    if (newProfile === 'profile_2') {
+                        if (!memberGrid || memberGrid.shift === 'shift-7-16' || memberGrid.shift === 'shift-10-19') {
+                            memberGrid.shift = m.defaultShiftProfile2;
+                        }
+                    } else if (newProfile === 'profile_1') {
+                        if (!memberGrid || memberGrid.shift === 'shift-9-18') {
+                            memberGrid.shift = m.defaultShiftProfile1;
+                        }
+                    }
+
                     if (memberGrid && memberGrid.slots) {
                         let newSlots = {};
                         Object.keys(memberGrid.slots).forEach(oldSlotId => {
@@ -973,15 +954,19 @@
                                 }
                             });
                         });
-                        database[dayKey].grid[m.id].slots = { ...database[dayKey].grid[m.id].slots, ...newSlots };
+                        database[dayKey].grid[m.id].slots = newSlots;
                     }
                 });
             }
 
             database[dayKey].shiftProfile = newProfile;
+            archiveSnapshot(`SHIFT_PROFILE_CHANGE_${newProfile}`);
             saveToDatabase();
             logActivity("UPDATE_SHIFT_PROFILE", { targetDay: dayKey, profile: newProfile });
+            
             renderAllPages();
+
+            setTimeout(() => { isLocalActionPending = false; }, 300);
         }
 
         function shuffleArray(arr) {
@@ -997,9 +982,9 @@
             autoAssignTasksForDay(dayKey);
         }
 
+        // AUTO-ASSIGN ENGINE WITH AM/PM PRIORITY & SINGLE HANDOVER PER SHIFT
         function autoAssignTasksForDay(dayKey) {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
-            let user = getValidatedUser();
+            getValidatedUser();
             if (!database[dayKey]) return;
 
             isLocalActionPending = true;
@@ -1008,42 +993,50 @@
             let activeSlots = timeSlotProfiles[currentProfileKey] || timeSlotProfiles['profile_1'];
 
             members.forEach(m => {
+                let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
                 if (!database[dayKey].grid[m.id]) {
-                    database[dayKey].grid[m.id] = { shift: m.defaultShift, slots: {} };
+                    database[dayKey].grid[m.id] = { shift: defaultForProfile, slots: {} };
                 } else {
                     database[dayKey].grid[m.id].slots = {};
                 }
             });
 
-            let memberFirstSlot = {};
             let memberLastSlot = {};
+            let endSlotMemberMap = {}; // Tracks members ending at the same slot
 
             members.forEach(m => {
-                let memberShift = database[dayKey].grid[m.id]?.shift || m.defaultShift;
+                let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
+                let memberShift = database[dayKey].grid[m.id]?.shift || defaultForProfile;
                 let activeForMember = activeSlots.filter(s => !isOffDuty(memberShift, s.id)).map(s => s.id);
                 if (activeForMember.length > 0) {
-                    memberFirstSlot[m.id] = activeForMember[0];
-                    memberLastSlot[m.id] = activeForMember[activeForMember.length - 1];
+                    let lastSlotId = activeForMember[activeForMember.length - 1];
+                    memberLastSlot[m.id] = lastSlotId;
+
+                    if (!endSlotMemberMap[lastSlotId]) endSlotMemberMap[lastSlotId] = [];
+                    endSlotMemberMap[lastSlotId].push(m.id);
                 }
             });
 
+            // Randomly select one member per ending slot to receive Handover Report
+            let handoverAssignees = {};
+            Object.keys(endSlotMemberMap).forEach(slotId => {
+                let candidates = endSlotMemberMap[slotId];
+                let chosenMember = candidates[Math.floor(Math.random() * candidates.length)];
+                handoverAssignees[chosenMember] = slotId;
+            });
+
             const tickerFallbackPool = [
-                "ALL Tickers",
-                "Pubs Tickers",
-                "Qbet tickers",
-                "30Bet tickers",
-                "55Bet tickers",
-                "Ibet tickers",
-                "7A/BVB/GQBET tickers",
-                "Edge Prediction Market Ticker",
-                "Pubs Prediction Market Ticker"
+                "ALL Tickers", "Pubs Tickers", "Qbet tickers", "30Bet tickers", 
+                "55Bet tickers", "Ibet tickers", "7A/BVB/GQBET tickers", 
+                "Edge Prediction Market Ticker", "Pubs Prediction Market Ticker"
             ];
 
             activeSlots.forEach(slot => {
                 let slotId = slot.id;
 
                 let activeMembersInSlot = members.filter(m => {
-                    let memberShift = database[dayKey].grid[m.id]?.shift || m.defaultShift;
+                    let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
+                    let memberShift = database[dayKey].grid[m.id]?.shift || defaultForProfile;
                     return !isOffDuty(memberShift, slotId);
                 });
 
@@ -1051,18 +1044,18 @@
                 let assignedTasksInSlot = new Set();
 
                 activeMembersInSlot.forEach(m => {
-                    let memberShift = database[dayKey].grid[m.id]?.shift || m.defaultShift;
-                    let is12pmOnwardsShift = memberShift.includes('12') || memberShift.includes('14') || memberShift.includes('16');
-                    let isLastActiveSlot = (memberLastSlot[m.id] === slotId);
+                    let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
+                    let memberShift = database[dayKey].grid[m.id]?.shift || defaultForProfile;
+                    let isLateShift = ['shift-12-21', 'shift-14-23', 'shift-16-1'].includes(memberShift);
 
                     let pool = [];
+                    let isMorningRangeSlot = ['slot_7_10', 'slot_10_12', 'slot_9_12'].includes(slotId);
 
-                    let is9amRangeSlot = (slotId === 'slot_7_10' || slotId === 'slot_9_12');
-
-                    if (is9amRangeSlot && !is12pmOnwardsShift) {
-                        pool = shuffleArray(strict9amSlotTasks);
-                    } else if (is12pmOnwardsShift) {
-                        pool = shuffleArray(pm12pmOnwardsShiftTasks);
+                    // Apply AM and PM Priorities
+                    if (isMorningRangeSlot && !isLateShift) {
+                        pool = shuffleArray([...strict9amSlotTasks, ...generalUnmentionedTasks]);
+                    } else if (isLateShift || slotId.includes('12') || slotId.includes('15') || slotId.includes('16')) {
+                        pool = shuffleArray([...pm12pmOnwardsShiftTasks, ...generalUnmentionedTasks]);
                     } else {
                         pool = shuffleArray(generalUnmentionedTasks);
                     }
@@ -1071,25 +1064,28 @@
                         ? pool 
                         : pool.filter(t => !assignedTasksInSlot.has(t));
 
-                    let taskBatchSize = isSoloSlot ? Math.min(8, availableTasksForMember.length) : Math.min(6, availableTasksForMember.length);
+                    let taskBatchSize = isSoloSlot ? Math.min(8, availableTasksForMember.length) : Math.min(5, availableTasksForMember.length);
                     let selectedTasks = availableTasksForMember.slice(0, taskBatchSize);
 
                     if (selectedTasks.length === 0) {
                         let shuffledTickers = shuffleArray(tickerFallbackPool);
                         let unassignedTickers = shuffledTickers.filter(t => !assignedTasksInSlot.has(t));
                         
-                        selectedTasks = unassignedTickers.length >= 3 
-                            ? unassignedTickers.slice(0, 4) 
-                            : shuffledTickers.slice(0, 4);
+                        selectedTasks = unassignedTickers.length >= 2 
+                            ? unassignedTickers.slice(0, 3) 
+                            : shuffledTickers.slice(0, 3);
                     }
 
                     if (!isSoloSlot) {
                         selectedTasks.forEach(t => assignedTasksInSlot.add(t));
                     }
 
-                    if (isLastActiveSlot) {
-                        let handoverTask = is12pmOnwardsShift ? "Handover Report PM" : "Handover Report AM";
-                        selectedTasks = selectedTasks.filter(t => !t.includes("Handover Report"));
+                    // Remove existing handover reports to prevent duplicates
+                    selectedTasks = selectedTasks.filter(t => !t.includes("Handover Report"));
+
+                    // Strictly assign single Handover Report to assigned member at shift end
+                    if (handoverAssignees[m.id] === slotId) {
+                        let handoverTask = (isLateShift || memberShift === 'shift-10-19') ? "Handover Report PM" : "Handover Report AM";
                         selectedTasks.push(handoverTask);
                     }
 
@@ -1097,13 +1093,14 @@
                 });
             });
 
+            archiveSnapshot(`AUTO_ASSIGN_${dayKey}`);
             renderAllPages();
             saveToDatabase();
             logActivity("AUTO_ASSIGN_TASKS", { targetDay: dayKey });
 
             setTimeout(() => {
                 isLocalActionPending = false;
-            }, 800);
+            }, 300);
         }
 
         function getMonthlyTaskCounts(targetIsoDate) {
@@ -1179,30 +1176,30 @@
             container.innerHTML = '';
             if (!database) database = createDefaultDatabase();
 
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getLocalDateString();
             
-            const sortedDayKeys = Object.keys(database).sort((a, b) => {
-                const dateA = database[a].isoDate || '';
-                const dateB = database[b].isoDate || '';
-
-                if (dateA === todayStr) return -1;
-                if (dateB === todayStr) return 1;
-
-                const isAFuture = dateA > todayStr;
-                const isBFuture = dateB > todayStr;
-
-                if (isAFuture && !isBFuture) return -1;
-                if (!isAFuture && isBFuture) return 1;
-
-                if (isAFuture && isBFuture) {
-                    return dateA.localeCompare(dateB);
-                } else {
-                    return dateB.localeCompare(dateA);
+            const seenDates = new Map();
+            Object.keys(database).forEach(key => {
+                const isoDate = database[key].isoDate || todayStr;
+                if (!seenDates.has(isoDate)) {
+                    seenDates.set(isoDate, key);
                 }
             });
 
-            sortedDayKeys.forEach((dayKey) => {
+            const uniqueDayKeys = Array.from(seenDates.values()).sort((a, b) => {
+                const dateA = database[a].isoDate || todayStr;
+                const dateB = database[b].isoDate || todayStr;
+
+                if (dateA === todayStr && dateB !== todayStr) return -1;
+                if (dateB === todayStr && dateA !== todayStr) return 1;
+
+                return dateA.localeCompare(dateB);
+            });
+
+            uniqueDayKeys.forEach((dayKey) => {
                 let dayData = database[dayKey];
+                if (!dayData.isoDate) dayData.isoDate = todayStr;
+
                 let daySection = document.createElement('div');
                 daySection.className = 'day-section';
                 daySection.id = `section-${dayKey}`;
@@ -1212,32 +1209,31 @@
 
                 let currentProfileKey = dayData.shiftProfile || 'profile_1';
                 let activeTimeSlots = timeSlotProfiles[currentProfileKey] || timeSlotProfiles['profile_1'];
+                let shiftTitleLabel = currentProfileKey === 'profile_2' ? 'SHIFT 2' : 'SHIFT 1';
 
                 let titleHTML = `
                     <div class="day-title-area">
                         <div class="day-title-left">
                             <span class="date-picker-wrapper">
                                 📅 
-                                <input type="date" class="date-picker-input" value="${dayData.isoDate || ''}" ${isViewOnly ? 'disabled' : ''} onchange="updateDayDate('${dayKey}', this.value)">
-                                SHIFT
+                                <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="updateDayDate('${dayKey}', this.value)">
+                                <span class="shift-badge-label">${shiftTitleLabel}</span>
                             </span>
                             ${isToday ? '<span class="today-badge">Today</span>' : ''}
                             <div class="reminder-box-wrapper">
                                 <span>📌</span>
-                                <input type="text" class="reminder-box-input" placeholder="Meeting Reminders / Notes..." value="${dayData.reminder || ''}" ${isViewOnly ? 'disabled' : ''} onchange="updateReminderText('${dayKey}', this.value)">
+                                <input type="text" class="reminder-box-input" placeholder="Meeting Reminders / Notes..." value="${dayData.reminder || ''}" onchange="updateReminderText('${dayKey}', this.value)">
                             </div>
                         </div>
                         <div class="no-print" style="display:flex; gap:10px; align-items:center;">
-                            ${!isViewOnly ? `
-                                <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🎲 Auto Assign Tasks</button>
-                                <button class="btn btn-secondary" onclick="reshuffleTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px; background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">🔀 Re-Shuffle Tasks</button>
-                                <select class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onchange="updateShiftProfile('${dayKey}', this.value)">
-                                    <option value="profile_1" ${currentProfileKey === 'profile_1' ? 'selected' : ''}>Shift 1 (7:00 - 1:00)</option>
-                                    <option value="profile_2" ${currentProfileKey === 'profile_2' ? 'selected' : ''}>Shift 2 (9:00 - 21:00)</option>
-                                </select>
-                                <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:4px 8px; font-size:11px;">🧹 Clear Day</button>
-                                <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🗑️ Delete Day</button>
-                            ` : '<span style="font-size:11px; font-weight:700; color:var(--credit-text);">🔒 View-Only Active</span>'}
+                            <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🎲 Auto Assign Tasks</button>
+                            <button class="btn btn-secondary" onclick="reshuffleTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px; background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">🔀 Re-Shuffle Tasks</button>
+                            <select class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onchange="updateShiftProfile('${dayKey}', this.value)">
+                                <option value="profile_1" ${currentProfileKey === 'profile_1' ? 'selected' : ''}>Shift 1 (7:00 - 1:00)</option>
+                                <option value="profile_2" ${currentProfileKey === 'profile_2' ? 'selected' : ''}>Shift 2 (9:00 - 21:00)</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:4px 8px; font-size:11px;">🧹 Clear Day</button>
+                            <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🗑️ Delete Day</button>
                         </div>
                     </div>
                 `;
@@ -1265,7 +1261,8 @@
                 
                 let tbody = document.createElement('tbody');
                 members.forEach(m => {
-                    let memberGrid = (dayData.grid && dayData.grid[m.id]) ? dayData.grid[m.id] : { shift: m.defaultShift, slots: {} };
+                    let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
+                    let memberGrid = (dayData.grid && dayData.grid[m.id]) ? dayData.grid[m.id] : { shift: defaultForProfile, slots: {} };
                     let tr = document.createElement('tr');
                     
                     let memberCell = `<td><div class="team-member-cell">${m.name}</div></td>`;
@@ -1276,7 +1273,7 @@
                     let shiftCell = `
                         <td>
                             <div class="shift-select-container">
-                                <select class="shift-select no-print" ${isViewOnly ? 'disabled' : ''} onchange="changeShift('${dayKey}', '${m.id}', this.value)">
+                                <select class="shift-select no-print" onchange="changeShift('${dayKey}', '${m.id}', this.value)">
                                     ${shiftOptions}
                                 </select>
                             </div>
@@ -1297,7 +1294,7 @@
                             let isChecked = selectedTaskList.includes(t) ? 'checked' : '';
                             return `
                                 <label class="task-option-label" onclick="event.stopPropagation();">
-                                    <input type="checkbox" value="${t}" ${isChecked} ${isViewOnly ? 'disabled' : ''} onchange="toggleTask('${dayKey}', '${m.id}', '${slot.id}', this, event)">
+                                    <input type="checkbox" value="${t}" ${isChecked} onchange="toggleTask('${dayKey}', '${m.id}', '${slot.id}', this, event)">
                                     ${t}
                                 </label>
                             `;
@@ -1307,17 +1304,15 @@
 
                         td.innerHTML = `
                             <div class="task-card ${memberGrid.shift} ${offDutyClass}">
-                                ${!isViewOnly ? `
-                                    <div class="task-dropdown-container no-print" onclick="event.stopPropagation();">
-                                        <button type="button" class="task-dropdown-btn" onclick="toggleDropdown(event, '${dayKey}-${m.id}-${slot.id}')">
-                                            <span>▼ Tasks</span>
-                                        </button>
-                                        <div id="dropdown-${dayKey}-${m.id}-${slot.id}" class="task-dropdown-content ${dropdownOpenClass}" onclick="event.stopPropagation();">
-                                            ${taskCheckboxes}
-                                        </div>
+                                <div class="task-dropdown-container no-print" onclick="event.stopPropagation();">
+                                    <button type="button" class="task-dropdown-btn" onclick="toggleDropdown(event, '${dayKey}-${m.id}-${slot.id}')">
+                                        <span>▼ Tasks</span>
+                                    </button>
+                                    <div id="dropdown-${dayKey}-${m.id}-${slot.id}" class="task-dropdown-content ${dropdownOpenClass}" onclick="event.stopPropagation();">
+                                        ${taskCheckboxes}
                                     </div>
-                                ` : ''}
-                                <div class="editable-content-area" id="editor-${dayKey}-${m.id}-${slot.id}" contenteditable="${!isSlotOffDuty && !isViewOnly}" oninput="updateCellText('${dayKey}', '${m.id}', '${slot.id}', this)">${formattedText}</div>
+                                </div>
+                                <div class="editable-content-area" id="editor-${dayKey}-${m.id}-${slot.id}" contenteditable="${!isSlotOffDuty}" oninput="updateCellTextDebounced('${dayKey}', '${m.id}', '${slot.id}', this)">${formattedText}</div>
                             </div>
                         `;
                         tr.appendChild(td);
@@ -1346,7 +1341,6 @@
         }
 
         function toggleDropdown(event, id) {
-            if (isViewOnly) return;
             event.stopPropagation();
             const targetContent = document.getElementById(`dropdown-${id}`);
             const isCurrentlyShown = targetContent ? targetContent.classList.contains('show') : false;
@@ -1363,12 +1357,15 @@
 
         function toggleTask(dayKey, memberId, slotId, checkbox, event) {
             if (event) event.stopPropagation();
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
 
-            let user = getValidatedUser();
+            getValidatedUser();
 
             if (!database[dayKey]) database[dayKey] = { grid: {} };
-            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: 'shift-7-16', slots: {} };
+            let currentProfileKey = database[dayKey].shiftProfile || 'profile_1';
+            let mObj = members.find(m => m.id === memberId);
+            let defaultForProfile = currentProfileKey === 'profile_2' ? mObj.defaultShiftProfile2 : mObj.defaultShiftProfile1;
+
+            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: defaultForProfile, slots: {} };
             let dayGrid = database[dayKey].grid[memberId];
             if (!dayGrid.slots) dayGrid.slots = {};
             if (!dayGrid.slots[slotId]) dayGrid.slots[slotId] = [];
@@ -1408,30 +1405,36 @@
         }
 
         function changeShift(dayKey, memberId, newShift) {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
-            let user = getValidatedUser();
+            getValidatedUser();
 
             if (!database[dayKey]) database[dayKey] = { grid: {} };
             if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { slots: {} };
             database[dayKey].grid[memberId].shift = newShift;
             saveToDatabase();
             logActivity("CHANGE_SHIFT", { targetDay: dayKey, member: memberId, newShift: newShift });
-            checkNearShiftEnd();
+            renderAllPages();
         }
 
-        function updateCellText(dayKey, memberId, slotId, element) {
-            if (isViewOnly) return;
-            let lines = element.innerText.split('\n').filter(l => l.trim() !== '');
-            if (!database[dayKey]) database[dayKey] = { grid: {} };
-            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: 'shift-7-16', slots: {} };
-            if (!database[dayKey].grid[memberId].slots) database[dayKey].grid[memberId].slots = {};
-            database[dayKey].grid[memberId].slots[slotId] = lines;
-            saveToDatabase();
+        function updateCellTextDebounced(dayKey, memberId, slotId, element) {
+            isLocalActionPending = true;
+            clearTimeout(debounceInputTimer);
+            debounceInputTimer = setTimeout(() => {
+                let lines = element.innerText.split('\n').filter(l => l.trim() !== '');
+                if (!database[dayKey]) database[dayKey] = { grid: {} };
+                let currentProfileKey = database[dayKey].shiftProfile || 'profile_1';
+                let mObj = members.find(m => m.id === memberId);
+                let defaultForProfile = currentProfileKey === 'profile_2' ? mObj.defaultShiftProfile2 : mObj.defaultShiftProfile1;
+
+                if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: defaultForProfile, slots: {} };
+                if (!database[dayKey].grid[memberId].slots) database[dayKey].grid[memberId].slots = {};
+                database[dayKey].grid[memberId].slots[slotId] = lines;
+                saveToDatabase();
+                isLocalActionPending = false;
+            }, 500);
         }
 
         function updateDayDate(dayKey, newIsoDate) { 
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
-            let user = getValidatedUser();
+            getValidatedUser();
 
             if (!database[dayKey]) return;
             database[dayKey].isoDate = newIsoDate; 
@@ -1442,9 +1445,9 @@
         }
 
         function clearDayDuties(dayKey) {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
-            let user = getValidatedUser();
+            getValidatedUser();
             if (confirm(`Clear all assigned tasks for day (${dayKey})?`)) {
+                archiveSnapshot(`CLEAR_DAY_${dayKey}`);
                 logActivity("CLEAR_DAY_DUTIES", { targetDay: dayKey, backupData: JSON.stringify(database[dayKey]) });
                 
                 members.forEach(m => {
@@ -1463,10 +1466,10 @@
         }
 
         function clearAllData() {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
             let user = getValidatedUser();
 
             if (confirm(`CRITICAL WARNING! Are you sure you want to clear ALL duties across ALL days? This event will be logged in the Security Audit Trail.`)) {
+                archiveSnapshot("CLEAR_ALL_DATA");
                 logActivity("CLEAR_ALL_DATA", { clearedBy: user, fullBackup: JSON.stringify(database) });
                 Object.keys(database || {}).forEach(dayKey => {
                     members.forEach(m => {
@@ -1485,11 +1488,11 @@
         }
 
         function deleteDay(dayKey) {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
-            let user = getValidatedUser();
+            getValidatedUser();
 
             if (Object.keys(database || {}).length <= 1) return alert("You must keep at least one day sheet.");
             if (confirm(`Warning! Are you sure you want to delete this day sheet?`)) {
+                archiveSnapshot(`DELETE_DAY_${dayKey}`);
                 logActivity("DELETE_DAY_SHEET", { targetDay: dayKey, backupData: JSON.stringify(database[dayKey]) });
                 delete database[dayKey];
                 saveToDatabase();
@@ -1498,7 +1501,6 @@
         }
 
         function addNewDay() {
-            if (isViewOnly) return alert("View-Only mode is active. Click 🔒 View-Only to unlock.");
             let user = getValidatedUser();
 
             if (!database || typeof database !== 'object' || Object.keys(database).length === 0) {
@@ -1506,19 +1508,19 @@
             } else {
                 let dayKeys = Object.keys(database);
                 let lastKey = dayKeys[dayKeys.length - 1];
-                let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : new Date().toISOString().split('T')[0];
+                let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : getLocalDateString();
                 
-                let lastDate = new Date(lastIsoStr);
-                if (isNaN(lastDate.getTime())) lastDate = new Date();
+                let dateParts = lastIsoStr.split('-');
+                let lastDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
                 lastDate.setDate(lastDate.getDate() + 1);
                 
-                let newIsoDate = lastDate.toISOString().split('T')[0];
+                let newIsoDate = getLocalDateString(lastDate);
                 let newDayNum = parseInt(lastKey.split('_')[1] || '1') + 1;
                 let newDayId = "day_" + newDayNum;
                 
                 database[newDayId] = { isoDate: newIsoDate, reminder: "", shiftProfile: "profile_1", grid: {} };
                 members.forEach(m => {
-                    database[newDayId].grid[m.id] = { shift: m.defaultShift, slots: {} };
+                    database[newDayId].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
                 });
             }
             
@@ -1532,11 +1534,9 @@
             if (localStorage.getItem('sb_theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
             }
-            if (localStorage.getItem('duties_mobile_view') === 'true' || window.innerWidth < 768) {
-                isMobileView = false;
-                toggleMobileView();
-            }
-            updateViewOnlyUI();
+
+            toggleMobileView(false);
+
             renderAllPages();
             listenToLiveDatabase();
             setupPresenceSystem();
