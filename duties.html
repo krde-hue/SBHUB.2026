@@ -106,7 +106,6 @@
         .day-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; scroll-margin-top: 100px; }
         .day-section.today-card { border: 2px solid #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); }
         
-        /* FROZEN / STICKY UPPER PANEL STYLING */
         .day-title-area { 
             position: sticky;
             top: 70px;
@@ -477,6 +476,19 @@
             return `${year}-${month}-${day}`;
         }
 
+        // KEY SANITIZER FOR FIREBASE PERSISTENCE (SAFE FROM ARRAY CONVERSION)
+        function formatFirebaseKey(isoDate) {
+            return "date_" + isoDate.replace(/-/g, "_");
+        }
+
+        function parseIsoFromFirebaseKey(fbKey, fallbackIso) {
+            if (!fbKey) return fallbackIso;
+            if (fbKey.startsWith("date_")) {
+                return fbKey.replace("date_", "").replace(/_/g, "-");
+            }
+            return fbKey;
+        }
+
         const members = [
             { id: 'ann', name: 'Ann', initial: 'A', avatarClass: 'avatar-ann', index: 0, defaultShiftProfile1: 'shift-7-16', defaultShiftProfile2: 'shift-9-18' },
             { id: 'dave', name: 'Dave', initial: 'D', avatarClass: 'avatar-dave', index: 1, defaultShiftProfile1: 'shift-10-19', defaultShiftProfile2: 'shift-9-18' },
@@ -585,10 +597,11 @@
         };
 
         function createDefaultDatabase() {
-            let todayKey = getLocalDateString();
+            let todayIso = getLocalDateString();
+            let fbKey = formatFirebaseKey(todayIso);
             let dbObj = {};
-            dbObj[todayKey] = {
-                isoDate: todayKey,
+            dbObj[fbKey] = {
+                isoDate: todayIso,
                 reminder: "",
                 grid: {
                     "ann": { shift: "shift-7-16", slots: {} },
@@ -600,7 +613,7 @@
             return dbObj;
         }
 
-        // RECOVER FROM LOCALSTORAGE IF FIREBASE HAS DELAY ON INITIAL LOAD
+        // LOAD FROM LOCAL STORAGE FAILSAFE BACKUP IMMEDIATELY ON REFRESH
         let database = (function() {
             try {
                 let localStr = localStorage.getItem('sb_roster_data_backup');
@@ -620,7 +633,6 @@
         let isLocalActionPending = false;
         let debounceInputTimer = null;
         
-        // RECOVER LAST ACTIVE VIEWED DATE OR DEFAULT TO TODAY
         let activeViewIsoDate = localStorage.getItem('sb_active_view_date') || getLocalDateString();
 
         function getAutoProfileForDay(dayData) {
@@ -860,7 +872,6 @@
                 if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
                     if (!isLocalActionPending) {
                         database = liveData;
-                        // Backup to local storage for offline recovery
                         try { localStorage.setItem('sb_roster_data_backup', JSON.stringify(database)); } catch(e){}
                         syncShiftsFromRotaMaster();
                         if (!activeOpenDropdownId) {
@@ -869,10 +880,6 @@
                             syncActiveDropdownCheckboxes();
                         }
                     }
-                } else if (!isLocalActionPending && (!database || Object.keys(database).length === 0)) {
-                    database = createDefaultDatabase();
-                    saveToDatabase();
-                    renderAllPages();
                 }
             });
         }
@@ -900,8 +907,8 @@
             if (!masterRotaCalendar || Object.keys(masterRotaCalendar).length === 0) return;
 
             let updated = false;
-            Object.keys(database || {}).forEach(dayKey => {
-                let dayData = database[dayKey];
+            Object.keys(database || {}).forEach(fbKey => {
+                let dayData = database[fbKey];
                 if (dayData && dayData.isoDate) {
                     let dateParts = dayData.isoDate.split('-');
                     if (dateParts.length === 3) {
@@ -943,7 +950,6 @@
             }
         }
 
-        // SAVE DUAL-PERSISTENCE: FIREBASE + LOCALSTORAGE BACKUP
         function saveToDatabase() {
             if (!database) database = createDefaultDatabase();
             try {
@@ -1151,12 +1157,17 @@
             renderAllPages();
         }
 
-        // DIRECT DATE-KEY ENTRY CREATION SAFEGUARD
+        // SAFE DATE KEY SANITIZER TO PREVENT FIREBASE OVERWRITES
         function ensureDayExists(targetIsoDate) {
             if (!database) database = {};
-            let targetKey = targetIsoDate;
+            let targetKey = formatFirebaseKey(targetIsoDate);
 
-            if (!database[targetKey]) {
+            // Find either formatted key or raw iso string key
+            let existingKey = Object.keys(database).find(k => {
+                return k === targetKey || database[k].isoDate === targetIsoDate;
+            });
+
+            if (!existingKey) {
                 database[targetKey] = { isoDate: targetIsoDate, reminder: "", grid: {} };
                 members.forEach(m => {
                     database[targetKey].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
@@ -1175,7 +1186,9 @@
             const todayStr = getLocalDateString();
 
             ensureDayExists(activeViewIsoDate);
-            let dayKey = activeViewIsoDate;
+            let dayKey = Object.keys(database).find(k => {
+                return k === formatFirebaseKey(activeViewIsoDate) || database[k].isoDate === activeViewIsoDate;
+            }) || formatFirebaseKey(activeViewIsoDate);
 
             let dayData = database[dayKey] || { isoDate: activeViewIsoDate, reminder: "", grid: {} };
             let daySection = document.createElement('div');
@@ -1450,12 +1463,12 @@
 
             if (!database[dayKey]) return;
             
-            // Move data object cleanly if date key changed
             let oldData = database[dayKey];
             delete database[dayKey];
             
+            let newKey = formatFirebaseKey(newIsoDate);
             oldData.isoDate = newIsoDate;
-            database[newIsoDate] = oldData;
+            database[newKey] = oldData;
             
             saveToDatabase(); 
             logActivity("UPDATE_DATE", { oldKey: dayKey, newDate: newIsoDate });
@@ -1519,7 +1532,6 @@
             }
         }
 
-        // SAFE PAGE INITIALIZATION
         document.addEventListener('DOMContentLoaded', function() {
             if (localStorage.getItem('sb_theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
@@ -1527,10 +1539,10 @@
 
             toggleMobileView(false);
 
-            // Render existing local backup immediately so user never sees empty screen
+            // 1. Render immediately from local memory/LocalStorage backup
             renderAllPages();
 
-            // Establish real-time connection to Firebase
+            // 2. Establish live database connection safely
             listenToLiveDatabase();
             setupPresenceSystem();
             
