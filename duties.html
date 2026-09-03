@@ -78,6 +78,8 @@
         .btn-primary:hover { background-color: #173b61; }
         .btn-secondary { background-color: var(--accent-btn); color: var(--accent-btn-text); border: 1px solid var(--border-color); }
         .btn-secondary:hover { opacity: 0.85; }
+        .btn-success { background-color: #059669; color: white; }
+        .btn-success:hover { background-color: #047857; }
         .btn-danger { background-color: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
         .btn-danger:hover { background-color: #fed7d7; }
         .btn-mobile-toggle { background-color: #a855f7; color: #ffffff; }
@@ -104,13 +106,20 @@
         .day-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; scroll-margin-top: 100px; }
         .day-section.today-card { border: 2px solid #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); }
         
+        /* FROZEN / STICKY UPPER PANEL STYLING */
         .day-title-area { 
+            position: sticky;
+            top: 70px;
+            z-index: 900;
+            background: var(--card-bg);
             font-size: 18px; 
             font-weight: bold; 
             color: var(--header-text); 
             margin-bottom: 15px; 
-            padding-bottom: 10px; 
+            padding: 12px 15px; 
             border-bottom: 2px solid var(--border-color); 
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
@@ -121,7 +130,7 @@
         .day-title-left {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
             flex: 1;
         }
@@ -160,9 +169,9 @@
             padding: 5px 12px;
             border-radius: 6px;
             border: 1px dashed var(--border-color);
-            min-width: 300px;
+            min-width: 260px;
             flex: 1;
-            max-width: 550px;
+            max-width: 500px;
         }
 
         .reminder-box-input {
@@ -177,104 +186,122 @@
         }
 
         .day-content-wrapper {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
             width: 100%;
         }
 
         .table-responsive-wrapper {
-            flex: 1;
+            width: 100%;
             overflow-x: auto;
         }
 
-        .task-summary-card {
-            width: 260px;
-            min-width: 240px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 14px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .task-summary-title {
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--header-text);
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .task-summary-list {
-            max-height: 480px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding-right: 2px;
-        }
-
-        .task-summary-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 4px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-            font-size: 12px;
-        }
-
-        .task-summary-name {
-            font-weight: 600;
-            color: var(--text-color);
-            flex: 1;
-            padding-right: 8px;
-            word-break: break-word;
-        }
-
-        .task-summary-counts {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .summed-total-badge {
-            padding: 3px 12px;
-            border-radius: 16px;
-            font-weight: 800;
-            font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            background-color: #e0f2fe;
-            color: #0369a1;
-            cursor: help;
-        }
-
-        [data-theme="dark"] .summed-total-badge {
-            background-color: #0369a1;
-            color: #e0f2fe;
-        }
-
-        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 700px; }
+        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 850px; }
         th { background-color: var(--card-bg); color: var(--header-text); padding: 10px 4px; text-align: center; font-weight: 700; border: 1px solid var(--border-color); font-size: 13px; }
-        th.col-member { width: 110px; }
+        th.col-member { width: 185px; }
         th.col-shift { width: 120px; }
         
         td { vertical-align: top; border: 1px solid var(--table-border); background-color: var(--card-bg); color: var(--text-color); }
         
-        .team-member-cell { padding: 15px 5px; font-weight: bold; font-size: 14px; color: var(--text-color); text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 120px; }
-        
-        .shift-select-container { padding: 8px; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 120px; }
+        .team-member-container {
+            padding: 10px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            height: 100%;
+            min-height: 140px;
+        }
+
+        .member-avatar-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #ffffff;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .avatar-ann { background-color: #059669; }
+        .avatar-dave { background-color: #2563eb; }
+        .avatar-ken { background-color: #7c3aed; }
+        .avatar-kriztel { background-color: #ea580c; }
+
+        .member-name-label {
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--text-color);
+            text-transform: uppercase;
+        }
+
+        .duty-counter-card {
+            width: 100%;
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 8px;
+            color: #f3f4f6;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .duty-counter-title {
+            font-weight: 800;
+            font-size: 11px;
+            color: #38bdf8;
+            text-align: center;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+        }
+
+        .duty-counter-list {
+            max-height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-right: 2px;
+        }
+
+        .duty-counter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: #e5e7eb;
+            line-height: 1.2;
+        }
+
+        .duty-counter-row-name {
+            flex: 1;
+            padding-right: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .duty-counter-pill {
+            padding: 1px 7px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 10px;
+            min-width: 20px;
+            text-align: center;
+            display: inline-block;
+        }
+        .pill-c0 { background: #d1fae5; color: #065f46; }
+        .pill-c1 { background: #fef3c7; color: #92400e; }
+        .pill-c2 { background: #f3e8ff; color: #6b21a8; }
+        .pill-c3 { background: #e0f2fe; color: #075985; }
+
+        .shift-select-container { padding: 8px; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 140px; }
         .shift-select { border: 1px solid var(--border-color); background: var(--dropdown-bg); font-weight: 600; font-size: 12px; cursor: pointer; outline: none; width: 100%; padding: 6px; border-radius: 4px; color: var(--dropdown-text); text-align: center; }
         .shift-select option { background-color: var(--dropdown-bg); color: var(--dropdown-text); }
 
-        .task-card { padding: 6px; min-height: 120px; height: 100%; display: flex; flex-direction: column; gap: 4px; position: relative; transition: background-color 0.2s; }
+        .task-card { padding: 6px; min-height: 140px; height: 100%; display: flex; flex-direction: column; gap: 4px; position: relative; transition: background-color 0.2s; }
         
         .task-dropdown-container { position: relative; width: 100%; }
         .task-dropdown-btn { border: 1px solid var(--border-color); background: var(--dropdown-bg); font-weight: 600; font-size: 10px; cursor: pointer; outline: none; width: 100%; padding: 4px 6px; border-radius: 3px; text-align: left; display: flex; justify-content: space-between; align-items: center; color: var(--dropdown-text); }
@@ -343,15 +370,13 @@
         body.mobile-view-active .btn-controls { justify-content: flex-start; gap: 6px; }
         body.mobile-view-active .btn { padding: 6px 10px; font-size: 11px; }
         body.mobile-view-active .day-section { padding: 12px; margin-bottom: 16px; }
-        body.mobile-view-active .day-title-area { flex-direction: column; align-items: stretch; gap: 10px; }
+        body.mobile-view-active .day-title-area { flex-direction: column; align-items: stretch; gap: 10px; top: 0; }
         body.mobile-view-active .date-picker-input { font-size: 15px; width: 130px; }
         body.mobile-view-active .reminder-box-wrapper { min-width: 100%; padding: 4px 8px; }
         body.mobile-view-active .reminder-box-input { font-size: 12px !important; }
-        body.mobile-view-active .day-content-wrapper { flex-direction: column; }
-        body.mobile-view-active .task-summary-card { width: 100%; min-width: 100%; }
         body.mobile-view-active .schedule-table { min-width: 620px; }
         body.mobile-view-active th { font-size: 11px; padding: 6px 2px; }
-        body.mobile-view-active .team-member-cell { font-size: 12px; min-height: 90px; padding: 6px 2px; }
+        body.mobile-view-active .team-member-container { font-size: 12px; min-height: 100px; padding: 6px 2px; }
         body.mobile-view-active .shift-select { font-size: 10px; padding: 3px; }
         body.mobile-view-active .task-card { min-height: 90px; padding: 4px; }
         body.mobile-view-active .editable-content-area { font-size: 10px; min-height: 45px; }
@@ -360,7 +385,7 @@
 
         @media print {
             body { background: white; padding: 0; color: black; }
-            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .task-summary-card, .modal-overlay { display: none !important; }
+            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .modal-overlay { display: none !important; }
             .task-card { min-height: 100px; }
             .schedule-table { border: 2px solid #000 !important; }
             td, th { border: 1px solid #000 !important; }
@@ -389,7 +414,6 @@
             <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView(true)">📱 Mobile View: OFF</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
             <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
-            <button class="btn btn-secondary" onclick="addNewDay()">➕ Add Next Day</button>
             <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
 
             <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
@@ -454,10 +478,10 @@
         }
 
         const members = [
-            { id: 'ann', name: 'ANN', index: 0, defaultShiftProfile1: 'shift-7-16', defaultShiftProfile2: 'shift-9-18' },
-            { id: 'dave', name: 'DAVE', index: 1, defaultShiftProfile1: 'shift-10-19', defaultShiftProfile2: 'shift-9-18' },
-            { id: 'ken', name: 'KEN', index: 2, defaultShiftProfile1: 'shift-12-21', defaultShiftProfile2: 'shift-12-21' },
-            { id: 'kriztel', name: 'KRIZTEL', index: 3, defaultShiftProfile1: 'shift-16-1', defaultShiftProfile2: 'shift-12-21' }
+            { id: 'ann', name: 'Ann', initial: 'A', avatarClass: 'avatar-ann', index: 0, defaultShiftProfile1: 'shift-7-16', defaultShiftProfile2: 'shift-9-18' },
+            { id: 'dave', name: 'Dave', initial: 'D', avatarClass: 'avatar-dave', index: 1, defaultShiftProfile1: 'shift-10-19', defaultShiftProfile2: 'shift-9-18' },
+            { id: 'ken', name: 'Ken', initial: 'K', avatarClass: 'avatar-ken', index: 2, defaultShiftProfile1: 'shift-12-21', defaultShiftProfile2: 'shift-12-21' },
+            { id: 'kriztel', name: 'Kriztel', initial: 'K', avatarClass: 'avatar-kriztel', index: 3, defaultShiftProfile1: 'shift-16-1', defaultShiftProfile2: 'shift-12-21' }
         ];
 
         const timeSlotProfiles = {
@@ -477,30 +501,16 @@
             ]
         };
 
-        // STRICTLY 9:00 AM PRIORITY TASKS ONLY
-        const strict9amSlotTasks = [
-            "iBet Boost",
-            "Big Winners Check",
-            "ALL Tickers",
-            "@Sportsbook Escalation check",
-            "Telegram Channel Monitoring",
-            "Sports Events Booking Check (BR Portal)"
-        ];
-
-        // STRICTLY 12:00 PM PRIORITY TASKS ONLY
-        const strict12pmSlotTasks = [
-            "Edge Boost / Banner creation",
-            "Boost creation",
-            "Rejected Bets Monitoring",
-            "Telegram Channel Monitoring",
-            "ALL tickers"
-        ];
-
-        const generalUnmentionedTasks = [
+        const availableTasks = [
             "Edge Prediction Market Ticker",
             "Pubs Prediction Market Ticker",
             "Pubs Tickers",
+            "@Sportsbook Escalation check",
+            "Rejected Bets Monitoring",
             "Site Checking (Web/Mobile)",
+            "Big Winners Check",
+            "Boost Check",
+            "ALL Tickers",
             "Qbet tickers",
             "30Bet tickers",
             "55Bet tickers",
@@ -508,19 +518,41 @@
             "7A/BVB/GQBET tickers",
             "SoftSwiss Files",
             "SB Files checking (Client's Tracking/VIP files/CRM files)",
+            "Sports Events Booking Check (BR Portal)",
+            "Telegram Channel Monitoring",
             "Friendlies Checking",
+            "Handover Report AM",
+            "Handover Report PM",
             "Overnight Bets",
+            "Edge Boost / Banner creation",
+            "iBet Boost",
             "7A Boosts",
             "Others (As instructed)"
         ];
 
-        const availableTasks = Array.from(new Set([
-            ...strict9amSlotTasks, 
-            ...strict12pmSlotTasks, 
-            ...generalUnmentionedTasks, 
-            "Handover Report AM", 
-            "Handover Report PM"
-        ]));
+        const strict9amSlotTasks = [
+            "iBet Boost",
+            "Big Winners Check",
+            "ALL Tickers",
+            "@Sportsbook Escalation check",
+            "Telegram Channel Monitoring",
+            "Sports Events Booking Check (BR Portal)",
+            "Boost Check"
+        ];
+
+        const strict12pmSlotTasks = [
+            "Edge Boost / Banner creation",
+            "7A Boosts",
+            "Rejected Bets Monitoring",
+            "Telegram Channel Monitoring",
+            "ALL Tickers"
+        ];
+
+        const generalUnmentionedTasks = availableTasks.filter(t => 
+            !strict9amSlotTasks.includes(t) && 
+            !strict12pmSlotTasks.includes(t) && 
+            !t.includes("Handover Report")
+        );
 
         const shifts = [
             { id: 'shift-7-16', label: '7:00 - 16:00', endHour: 16, endMinute: 0 },
@@ -577,16 +609,16 @@
                         "ken": {
                             shift: "shift-12-21",
                             slots: {
-                                "slot_12_16": ["Edge Boost / Banner creation", "Boost creation", "Rejected Bets Monitoring"],
-                                "slot_16_19": ["Telegram Channel Monitoring", "ALL tickers"],
+                                "slot_12_16": ["Edge Boost / Banner creation", "Boost Check", "Rejected Bets Monitoring"],
+                                "slot_16_19": ["Telegram Channel Monitoring", "ALL Tickers"],
                                 "slot_19_21": ["Handover Report PM", "Others (As instructed)"]
                             }
                         },
                         "kriztel": {
                             shift: "shift-16-1",
                             slots: {
-                                "slot_16_19": ["Edge Boost / Banner creation", "Boost creation", "Rejected Bets Monitoring"],
-                                "slot_19_21": ["Telegram Channel Monitoring", "ALL tickers"],
+                                "slot_16_19": ["Edge Boost / Banner creation", "Rejected Bets Monitoring"],
+                                "slot_19_21": ["Telegram Channel Monitoring", "ALL Tickers"],
                                 "slot_22_1": ["Handover Report PM", "Others (As instructed)"]
                             }
                         }
@@ -599,9 +631,10 @@
         let masterRotaCalendar = {};
         let activeOpenDropdownId = null;
         let isMobileView = false;
-        let hasAutoScrolledToToday = false;
         let isLocalActionPending = false;
         let debounceInputTimer = null;
+        
+        let activeViewIsoDate = getLocalDateString();
 
         function getAutoProfileForDay(dayData) {
             if (!dayData || !dayData.grid) return 'profile_1';
@@ -652,6 +685,28 @@
                 action: actionType,
                 details: details
             });
+        }
+
+        // MANUAL SAVE ACTION FUNCTION WITH USER TOAST
+        function manualSaveDatabase() {
+            let user = getValidatedUser();
+            isLocalActionPending = true;
+
+            archiveSnapshot("MANUAL_USER_SAVE");
+            saveToDatabase();
+            logActivity("MANUAL_SAVE_DATA", { savedBy: user, activeDate: activeViewIsoDate });
+
+            let statusBadge = document.getElementById('saveStatus');
+            if (statusBadge) {
+                statusBadge.innerText = "✓ Data Secured!";
+                statusBadge.style.opacity = '1';
+                setTimeout(() => { 
+                    statusBadge.style.opacity = '0';
+                    setTimeout(() => { statusBadge.innerText = "✓ Live Synced"; }, 300);
+                }, 1800);
+            }
+
+            setTimeout(() => { isLocalActionPending = false; }, 800);
         }
 
         function viewSecurityLogs() {
@@ -922,10 +977,12 @@
 
         function updateReminderText(dayKey, newText) {
             getValidatedUser();
+            isLocalActionPending = true;
             if (!database[dayKey]) database[dayKey] = { grid: {} };
             database[dayKey].reminder = newText;
             saveToDatabase();
             logActivity("UPDATE_REMINDER", { targetDay: dayKey, text: newText });
+            setTimeout(() => { isLocalActionPending = false; }, 300);
         }
 
         function shuffleArray(arr) {
@@ -941,7 +998,6 @@
             autoAssignTasksForDay(dayKey);
         }
 
-        // STRICT 9:00 AM & 12:00 PM SHIFT AUTO-ASSIGNMENT ENGINE
         function autoAssignTasksForDay(dayKey) {
             getValidatedUser();
             if (!database[dayKey]) return;
@@ -1008,10 +1064,7 @@
 
                     let pool = [];
                     
-                    // STRICTLY 9:00 AM SLOT SELECTION (MORNING SHIFTS ONLY)
                     let isExact9amSlot = (slotId === 'slot_7_10' || slotId === 'slot_9_12');
-                    
-                    // STRICTLY 12:00 PM SLOT SELECTION (AFTERNOON SHIFTS ONLY)
                     let isExact12pmSlot = (slotId === 'slot_12_16' || slotId === 'slot_12_15');
 
                     if (isExact9amSlot && !isLateShift) {
@@ -1063,79 +1116,56 @@
             }, 300);
         }
 
-        function getMonthlyTaskCounts(targetIsoDate) {
-            if (!targetIsoDate) return {};
-            const [targetYear, targetMonth] = targetIsoDate.split('-');
-            const counts = {};
+        function getMemberDutyCountsForDay(dayData, memberId) {
+            const taskCounts = {};
+            availableTasks.forEach(t => taskCounts[t] = 0);
 
-            Object.keys(database || {}).forEach(dayKey => {
-                const dayData = database[dayKey];
-                if (!dayData || !dayData.isoDate) return;
+            if (!dayData || !dayData.grid || !dayData.grid[memberId]) return taskCounts;
 
-                const [year, month] = dayData.isoDate.split('-');
-                if (year === targetYear && month === targetMonth) {
-                    Object.keys(dayData.grid || {}).forEach(memberId => {
-                        const memberSlots = dayData.grid[memberId].slots || {};
-                        Object.keys(memberSlots).forEach(slotId => {
-                            const taskList = memberSlots[slotId] || [];
-                            taskList.forEach(taskName => {
-                                if (!counts[taskName]) counts[taskName] = {};
-                                counts[taskName][memberId] = (counts[taskName][memberId] || 0) + 1;
-                            });
-                        });
-                    });
-                }
-            });
-
-            return counts;
-        }
-
-        function renderTaskSummarySidebar(dayIsoDate) {
-            const counts = getMonthlyTaskCounts(dayIsoDate);
-            const monthLabel = dayIsoDate ? new Date(dayIsoDate).toLocaleString('default', { month: 'short', year: 'numeric' }) : 'Month';
-            
-            let html = `
-                <div class="task-summary-card">
-                    <div class="task-summary-title">
-                        📊 Monthly Totals (${monthLabel})
-                    </div>
-                    <div class="task-summary-list">
-            `;
-
-            const sortedTasks = Object.keys(counts).sort();
-
-            if (sortedTasks.length === 0) {
-                html += `<div style="font-size:11px; color:var(--credit-text); text-align:center;">No tasks recorded for this month.</div>`;
-            } else {
-                sortedTasks.forEach(taskName => {
-                    const memberCounts = counts[taskName];
-                    let totalCount = 0;
-                    let breakdownDetails = [];
-
-                    members.forEach(m => {
-                        const cnt = memberCounts[m.id] || 0;
-                        if (cnt > 0) {
-                            totalCount += cnt;
-                            breakdownDetails.push(`${m.name}: ${cnt}`);
-                        }
-                    });
-
-                    if (totalCount > 0) {
-                        const tooltipText = breakdownDetails.join(', ');
-                        html += `
-                            <div class="task-summary-item">
-                                <div class="task-summary-name">${taskName}</div>
-                                <div class="task-summary-counts">
-                                    <span class="summed-total-badge" title="${tooltipText}">${totalCount}</span>
-                                </div>
-                            </div>
-                        `;
+            const slots = dayData.grid[memberId].slots || {};
+            Object.keys(slots).forEach(slotId => {
+                const taskList = slots[slotId] || [];
+                taskList.forEach(taskName => {
+                    if (taskCounts.hasOwnProperty(taskName)) {
+                        taskCounts[taskName]++;
+                    } else {
+                        const matched = availableTasks.find(t => t.toLowerCase() === taskName.toLowerCase());
+                        if (matched) taskCounts[matched]++;
                     }
                 });
-            }
+            });
 
-            html += `</div></div>`;
-            return html;
+            return taskCounts;
+        }
+
+        function changeViewDate(offsetDays) {
+            let parts = activeViewIsoDate.split('-');
+            let d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            d.setDate(d.getDate() + offsetDays);
+            activeViewIsoDate = getLocalDateString(d);
+            
+            ensureDayExists(activeViewIsoDate);
+            renderAllPages();
+        }
+
+        function resetToTodayView() {
+            activeViewIsoDate = getLocalDateString();
+            ensureDayExists(activeViewIsoDate);
+            renderAllPages();
+        }
+
+        function ensureDayExists(targetIsoDate) {
+            let foundKey = Object.keys(database).find(k => database[k].isoDate === targetIsoDate);
+            if (!foundKey) {
+                let dayNum = Object.keys(database).length + 1;
+                let newDayId = "day_" + newDayNum;
+                database[newDayId] = { isoDate: targetIsoDate, reminder: "", grid: {} };
+                members.forEach(m => {
+                    database[newDayId].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
+                });
+                saveToDatabase();
+                syncShiftsFromRotaMaster();
+            }
         }
 
         function renderAllPages() {
@@ -1145,163 +1175,179 @@
             if (!database) database = createDefaultDatabase();
 
             const todayStr = getLocalDateString();
-            
-            const seenDates = new Map();
-            Object.keys(database).forEach(key => {
-                const isoDate = database[key].isoDate || todayStr;
-                if (!seenDates.has(isoDate)) {
-                    seenDates.set(isoDate, key);
-                }
-            });
 
-            const uniqueDayKeys = Array.from(seenDates.values()).sort((a, b) => {
-                const dateA = database[a].isoDate || todayStr;
-                const dateB = database[b].isoDate || todayStr;
+            let dayKey = Object.keys(database).find(k => database[k].isoDate === activeViewIsoDate);
+            if (!dayKey) {
+                ensureDayExists(activeViewIsoDate);
+                dayKey = Object.keys(database).find(k => database[k].isoDate === activeViewIsoDate);
+            }
 
-                if (dateA === todayStr && dateB !== todayStr) return -1;
-                if (dateB === todayStr && dateA !== todayStr) return 1;
+            let dayData = database[dayKey];
+            let daySection = document.createElement('div');
+            daySection.className = 'day-section';
+            daySection.id = `section-${dayKey}`;
 
-                return dateA.localeCompare(dateB);
-            });
+            const isToday = (dayData.isoDate === todayStr);
+            if (isToday) daySection.classList.add('today-card');
 
-            uniqueDayKeys.forEach((dayKey) => {
-                let dayData = database[dayKey];
-                if (!dayData.isoDate) dayData.isoDate = todayStr;
+            let currentProfileKey = getAutoProfileForDay(dayData);
+            let activeTimeSlots = timeSlotProfiles[currentProfileKey];
+            let shiftBadgeText = currentProfileKey === 'profile_2' ? 'SHIFT 2' : 'SHIFT 1';
 
-                let daySection = document.createElement('div');
-                daySection.className = 'day-section';
-                daySection.id = `section-${dayKey}`;
-
-                const isToday = (dayData.isoDate === todayStr);
-                if (isToday) daySection.classList.add('today-card');
-
-                let currentProfileKey = getAutoProfileForDay(dayData);
-                let activeTimeSlots = timeSlotProfiles[currentProfileKey];
-                let shiftBadgeText = currentProfileKey === 'profile_2' ? 'SHIFT 2' : 'SHIFT 1';
-
-                let titleHTML = `
-                    <div class="day-title-area">
-                        <div class="day-title-left">
-                            <span class="date-picker-wrapper">
-                                📅 
-                                <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="updateDayDate('${dayKey}', this.value)">
-                                <span class="shift-badge-label">${shiftBadgeText}</span>
-                            </span>
-                            ${isToday ? '<span class="today-badge">Today</span>' : ''}
-                            <div class="reminder-box-wrapper">
-                                <span>📌</span>
-                                <input type="text" class="reminder-box-input" placeholder="Meeting Reminders / Notes..." value="${dayData.reminder || ''}" onchange="updateReminderText('${dayKey}', this.value)">
-                            </div>
-                        </div>
-                        <div class="no-print" style="display:flex; gap:10px; align-items:center;">
-                            <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🎲 Auto Assign Tasks</button>
-                            <button class="btn btn-secondary" onclick="reshuffleTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px; background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">🔀 Re-Shuffle Tasks</button>
-                            <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:4px 8px; font-size:11px;">🧹 Clear Day</button>
-                            <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🗑️ Delete Day</button>
+            // FROZEN UPPER PANEL TITLE AREA WITH MANUAL SAVE BUTTON
+            let titleHTML = `
+                <div class="day-title-area">
+                    <div class="day-title-left">
+                        <button class="btn btn-secondary no-print" onclick="changeViewDate(-1)" title="Previous Day">◀ Previous</button>
+                        <span class="date-picker-wrapper">
+                            📅 
+                            <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="activeViewIsoDate=this.value; updateDayDate('${dayKey}', this.value)">
+                            <span class="shift-badge-label">${shiftBadgeText}</span>
+                        </span>
+                        <button class="btn btn-secondary no-print" onclick="changeViewDate(1)" title="Next Day">Next ▶</button>
+                        ${isToday ? '<span class="today-badge">Today</span>' : `<button class="btn btn-secondary no-print" onclick="resetToTodayView()">Today 📍</button>`}
+                        <div class="reminder-box-wrapper">
+                            <span>📌</span>
+                            <input type="text" class="reminder-box-input" placeholder="Meeting Reminders / Notes..." value="${dayData.reminder || ''}" onchange="updateReminderText('${dayKey}', this.value)">
                         </div>
                     </div>
-                `;
-                daySection.innerHTML += titleHTML;
+                    <div class="no-print" style="display:flex; gap:8px; align-items:center;">
+                        <button class="btn btn-success" onclick="manualSaveDatabase()" style="padding:5px 12px; font-size:11px; font-weight:800;" title="Permanently Commit Changes">💾 Save Changes</button>
+                        <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:5px 10px; font-size:11px;">🎲 Auto Assign Tasks</button>
+                        <button class="btn btn-secondary" onclick="reshuffleTasksForDay('${dayKey}')" style="padding:5px 10px; font-size:11px; background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">🔀 Re-Shuffle Tasks</button>
+                        <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:5px 10px; font-size:11px;">🧹 Clear Day</button>
+                        <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:5px 10px; font-size:11px;">🗑️ Delete Day</button>
+                    </div>
+                </div>
+            `;
+            daySection.innerHTML += titleHTML;
+            
+            let contentWrapper = document.createElement('div');
+            contentWrapper.className = 'day-content-wrapper';
+
+            let tableWrapper = document.createElement('div');
+            tableWrapper.className = 'table-responsive-wrapper';
+
+            let table = document.createElement('table');
+            table.className = 'schedule-table';
+            
+            let thead = `
+                <thead>
+                    <tr>
+                        <th class="col-member">TEAM & DUTY COUNTER</th>
+                        <th class="col-shift">SHIFT</th>
+                        ${activeTimeSlots.map(s => `<th>${s.label}</th>`).join('')}
+                    </tr>
+                </thead>
+            `;
+            table.innerHTML += thead;
+
+            let tbody = document.createElement('tbody');
+            members.forEach(m => {
+                let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
+                let memberGrid = (dayData.grid && dayData.grid[m.id]) ? dayData.grid[m.id] : { shift: defaultForProfile, slots: {} };
+                let tr = document.createElement('tr');
                 
-                let contentWrapper = document.createElement('div');
-                contentWrapper.className = 'day-content-wrapper';
-
-                let tableWrapper = document.createElement('div');
-                tableWrapper.className = 'table-responsive-wrapper';
-
-                let table = document.createElement('table');
-                table.className = 'schedule-table';
+                const taskCounts = getMemberDutyCountsForDay(dayData, m.id);
                 
-                let thead = `
-                    <thead>
-                        <tr>
-                            <th class="col-member">TEAM</th>
-                            <th class="col-shift">SHIFT</th>
-                            ${activeTimeSlots.map(s => `<th>${s.label}</th>`).join('')}
-                        </tr>
-                    </thead>
-                `;
-                table.innerHTML += thead;
-                
-                let tbody = document.createElement('tbody');
-                members.forEach(m => {
-                    let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
-                    let memberGrid = (dayData.grid && dayData.grid[m.id]) ? dayData.grid[m.id] : { shift: defaultForProfile, slots: {} };
-                    let tr = document.createElement('tr');
-                    
-                    let memberCell = `<td><div class="team-member-cell">${m.name}</div></td>`;
-                    let shiftOptions = shifts.map(s => 
-                        `<option value="${s.id}" ${memberGrid.shift === s.id ? 'selected' : ''}>${s.label}</option>`
-                    ).join('');
+                let counterRowsHtml = '';
+                let colorClasses = ['pill-c0', 'pill-c1', 'pill-c2', 'pill-c3'];
+                let colorIdx = 0;
 
-                    let shiftCell = `
-                        <td>
-                            <div class="shift-select-container">
-                                <select class="shift-select no-print" onchange="changeShift('${dayKey}', '${m.id}', this.value)">
-                                    ${shiftOptions}
-                                </select>
-                            </div>
-                        </td>
-                    `;
-                    
-                    tr.innerHTML += memberCell + shiftCell;
-                    
-                    activeTimeSlots.forEach(slot => {
-                        let isSlotOffDuty = isOffDuty(memberGrid.shift, slot.id);
-                        let selectedTaskList = (memberGrid.slots && memberGrid.slots[slot.id]) ? memberGrid.slots[slot.id] : [];
-                        let formattedText = isSlotOffDuty ? '' : selectedTaskList.join('\n');
-                        let offDutyClass = isSlotOffDuty ? 'off-duty-active' : '';
-                        
-                        let td = document.createElement('td');
-                        
-                        let taskCheckboxes = availableTasks.map(t => {
-                            let isChecked = selectedTaskList.includes(t) ? 'checked' : '';
-                            return `
-                                <label class="task-option-label" onclick="event.stopPropagation();">
-                                    <input type="checkbox" value="${t}" ${isChecked} onchange="toggleTask('${dayKey}', '${m.id}', '${slot.id}', this, event)">
-                                    ${t}
-                                </label>
-                            `;
-                        }).join('');
-
-                        let dropdownOpenClass = (activeOpenDropdownId === `${dayKey}-${m.id}-${slot.id}`) ? 'show' : '';
-
-                        td.innerHTML = `
-                            <div class="task-card ${memberGrid.shift} ${offDutyClass}">
-                                <div class="task-dropdown-container no-print" onclick="event.stopPropagation();">
-                                    <button type="button" class="task-dropdown-btn" onclick="toggleDropdown(event, '${dayKey}-${m.id}-${slot.id}')">
-                                        <span>▼ Tasks</span>
-                                    </button>
-                                    <div id="dropdown-${dayKey}-${m.id}-${slot.id}" class="task-dropdown-content ${dropdownOpenClass}" onclick="event.stopPropagation();">
-                                        ${taskCheckboxes}
-                                    </div>
-                                </div>
-                                <div class="editable-content-area" id="editor-${dayKey}-${m.id}-${slot.id}" contenteditable="${!isSlotOffDuty}" oninput="updateCellTextDebounced('${dayKey}', '${m.id}', '${slot.id}', this)">${formattedText}</div>
+                availableTasks.forEach(tName => {
+                    const cnt = taskCounts[tName] || 0;
+                    if (cnt > 0) {
+                        const pillClass = colorClasses[colorIdx % colorClasses.length];
+                        colorIdx++;
+                        counterRowsHtml += `
+                            <div class="duty-counter-row">
+                                <span class="duty-counter-row-name" title="${tName}">${tName}:</span>
+                                <span class="duty-counter-pill ${pillClass}">${cnt}</span>
                             </div>
                         `;
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
+                    }
                 });
+
+                if (!counterRowsHtml) {
+                    counterRowsHtml = `<div style="text-align:center; color:#9ca3af; font-size:9px; padding:2px 0;">No tasks assigned</div>`;
+                }
+
+                let memberCell = `
+                    <td>
+                        <div class="team-member-container">
+                            <div class="member-avatar-circle ${m.avatarClass}">${m.initial}</div>
+                            <div class="member-name-label">${m.name}</div>
+                            
+                            <div class="duty-counter-card">
+                                <div class="duty-counter-title">Daily Summary</div>
+                                <div class="duty-counter-list">
+                                    ${counterRowsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                let shiftOptions = shifts.map(s => 
+                    `<option value="${s.id}" ${memberGrid.shift === s.id ? 'selected' : ''}>${s.label}</option>`
+                ).join('');
+
+                let shiftCell = `
+                    <td>
+                        <div class="shift-select-container">
+                            <select class="shift-select no-print" onchange="changeShift('${dayKey}', '${m.id}', this.value)">
+                                ${shiftOptions}
+                            </select>
+                        </div>
+                    </td>
+                `;
                 
-                table.appendChild(tbody);
-                tableWrapper.appendChild(table);
-                contentWrapper.appendChild(tableWrapper);
+                tr.innerHTML += memberCell + shiftCell;
+                
+                activeTimeSlots.forEach(slot => {
+                    let isSlotOffDuty = isOffDuty(memberGrid.shift, slot.id);
+                    let selectedTaskList = (memberGrid.slots && memberGrid.slots[slot.id]) ? memberGrid.slots[slot.id] : [];
+                    let formattedText = isSlotOffDuty ? '' : selectedTaskList.join('\n');
+                    let offDutyClass = isSlotOffDuty ? 'off-duty-active' : '';
+                    
+                    let td = document.createElement('td');
+                    
+                    let taskCheckboxes = availableTasks.map(t => {
+                        let isChecked = selectedTaskList.includes(t) ? 'checked' : '';
+                        return `
+                            <label class="task-option-label" onclick="event.stopPropagation();">
+                                <input type="checkbox" value="${t}" ${isChecked} onchange="toggleTask('${dayKey}', '${m.id}', '${slot.id}', this, event)">
+                                ${t}
+                            </label>
+                        `;
+                    }).join('');
 
-                let summarySidebar = document.createElement('div');
-                summarySidebar.innerHTML = renderTaskSummarySidebar(dayData.isoDate);
-                contentWrapper.appendChild(summarySidebar.firstElementChild);
+                    let dropdownOpenClass = (activeOpenDropdownId === `${dayKey}-${m.id}-${slot.id}`) ? 'show' : '';
 
-                daySection.appendChild(contentWrapper);
-                container.appendChild(daySection);
+                    td.innerHTML = `
+                        <div class="task-card ${memberGrid.shift} ${offDutyClass}">
+                            <div class="task-dropdown-container no-print" onclick="event.stopPropagation();">
+                                <button type="button" class="task-dropdown-btn" onclick="toggleDropdown(event, '${dayKey}-${m.id}-${slot.id}')">
+                                    <span>▼ Tasks</span>
+                                </button>
+                                <div id="dropdown-${dayKey}-${m.id}-${slot.id}" class="task-dropdown-content ${dropdownOpenClass}" onclick="event.stopPropagation();">
+                                    ${taskCheckboxes}
+                                </div>
+                            </div>
+                            <div class="editable-content-area" id="editor-${dayKey}-${m.id}-${slot.id}" contenteditable="${!isSlotOffDuty}" oninput="updateCellTextDebounced('${dayKey}', '${m.id}', '${slot.id}', this)">${formattedText}</div>
+                        </div>
+                    `;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
             });
+            
+            table.appendChild(tbody);
+            tableWrapper.appendChild(table);
+            contentWrapper.appendChild(tableWrapper);
 
-            if (!hasAutoScrolledToToday) {
-                setTimeout(() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    hasAutoScrolledToToday = true;
-                }, 300);
-            }
+            daySection.appendChild(contentWrapper);
+            container.appendChild(daySection);
         }
 
         function toggleDropdown(event, id) {
@@ -1323,6 +1369,7 @@
             if (event) event.stopPropagation();
 
             getValidatedUser();
+            isLocalActionPending = true;
 
             if (!database[dayKey]) database[dayKey] = { grid: {} };
             let currentProfileKey = getAutoProfileForDay(database[dayKey]);
@@ -1347,6 +1394,9 @@
 
             saveToDatabase();
             logActivity("TOGGLE_TASK", { targetDay: dayKey, member: memberId, slot: slotId, task: checkbox.value, checked: checkbox.checked });
+            renderAllPages();
+
+            setTimeout(() => { isLocalActionPending = false; }, 300);
         }
 
         function syncActiveDropdownCheckboxes() {
@@ -1370,6 +1420,7 @@
 
         function changeShift(dayKey, memberId, newShift) {
             getValidatedUser();
+            isLocalActionPending = true;
 
             if (!database[dayKey]) database[dayKey] = { grid: {} };
             if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { slots: {} };
@@ -1377,6 +1428,8 @@
             saveToDatabase();
             logActivity("CHANGE_SHIFT", { targetDay: dayKey, member: memberId, newShift: newShift });
             renderAllPages();
+
+            setTimeout(() => { isLocalActionPending = false; }, 300);
         }
 
         function updateCellTextDebounced(dayKey, memberId, slotId, element) {
@@ -1394,6 +1447,7 @@
                 database[dayKey].grid[memberId].slots[slotId] = lines;
                 saveToDatabase();
                 isLocalActionPending = false;
+                renderAllPages();
             }, 500);
         }
 
@@ -1464,36 +1518,6 @@
             }
         }
 
-        function addNewDay() {
-            let user = getValidatedUser();
-
-            if (!database || typeof database !== 'object' || Object.keys(database).length === 0) {
-                database = createDefaultDatabase();
-            } else {
-                let dayKeys = Object.keys(database);
-                let lastKey = dayKeys[dayKeys.length - 1];
-                let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : getLocalDateString();
-                
-                let dateParts = lastIsoStr.split('-');
-                let lastDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-                lastDate.setDate(lastDate.getDate() + 1);
-                
-                let newIsoDate = getLocalDateString(lastDate);
-                let newDayNum = parseInt(lastKey.split('_')[1] || '1') + 1;
-                let newDayId = "day_" + newDayNum;
-                
-                database[newDayId] = { isoDate: newIsoDate, reminder: "", grid: {} };
-                members.forEach(m => {
-                    database[newDayId].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
-                });
-            }
-            
-            saveToDatabase();
-            logActivity("ADD_NEW_DAY", { createdBy: user });
-            syncShiftsFromRotaMaster();
-            renderAllPages();
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             if (localStorage.getItem('sb_theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
@@ -1501,7 +1525,7 @@
 
             toggleMobileView(false);
 
-            renderAllPages();
+            resetToTodayView();
             listenToLiveDatabase();
             setupPresenceSystem();
             
