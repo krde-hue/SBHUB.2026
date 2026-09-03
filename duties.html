@@ -239,7 +239,6 @@
             justify-content: flex-end;
         }
 
-        /* Clean Summed Pill Badge */
         .summed-total-badge {
             padding: 3px 12px;
             border-radius: 16px;
@@ -475,23 +474,6 @@
             ]
         };
 
-        const profileSlotMappings = {
-            'profile_1_to_2': {
-                'slot_7_10': 'slot_9_12',
-                'slot_10_12': 'slot_9_12',
-                'slot_12_16': 'slot_12_15',
-                'slot_16_19': 'slot_15_18',
-                'slot_19_21': 'slot_18_21',
-                'slot_22_1': 'slot_18_21'
-            },
-            'profile_2_to_1': {
-                'slot_9_12': 'slot_10_12',
-                'slot_12_15': 'slot_12_16',
-                'slot_15_18': 'slot_16_19',
-                'slot_18_21': 'slot_19_21'
-            }
-        };
-
         const strict9amSlotTasks = [
             "@Sportsbook Escalation check",
             "Big Winners Check",
@@ -568,7 +550,6 @@
                 "day_1": {
                     isoDate: getLocalDateString(),
                     reminder: "",
-                    shiftProfile: "profile_1",
                     grid: {
                         "ann": {
                             shift: "shift-7-16",
@@ -614,6 +595,23 @@
         let hasAutoScrolledToToday = false;
         let isLocalActionPending = false;
         let debounceInputTimer = null;
+
+        // DYNAMIC SHIFT PROFILE DETECTOR
+        function getAutoProfileForDay(dayData) {
+            if (!dayData || !dayData.grid) return 'profile_1';
+            let profile2ShiftCount = 0;
+            let totalActive = 0;
+
+            members.forEach(m => {
+                let s = dayData.grid[m.id]?.shift;
+                if (s && !['shift-rd', 'shift-vl', 'shift-sl'].includes(s)) {
+                    totalActive++;
+                    if (s === 'shift-9-18') profile2ShiftCount++;
+                }
+            });
+
+            return (totalActive > 0 && profile2ShiftCount >= 2) ? 'profile_2' : 'profile_1';
+        }
 
         function getValidatedUser() {
             let storedUser = localStorage.getItem('sb_user_name');
@@ -926,62 +924,6 @@
             logActivity("UPDATE_REMINDER", { targetDay: dayKey, text: newText });
         }
 
-        function updateShiftProfile(dayKey, newProfile) {
-            getValidatedUser();
-            isLocalActionPending = true;
-
-            if (!database[dayKey]) database[dayKey] = { grid: {} };
-
-            let oldProfile = database[dayKey].shiftProfile || 'profile_1';
-            
-            if (oldProfile !== newProfile) {
-                let mapKey = `${oldProfile}_to_${newProfile.split('_')[1]}`;
-                let mapping = profileSlotMappings[mapKey] || {};
-
-                members.forEach(m => {
-                    let memberGrid = database[dayKey].grid[m.id];
-                    
-                    if (newProfile === 'profile_2') {
-                        if (!memberGrid || memberGrid.shift === 'shift-7-16' || memberGrid.shift === 'shift-10-19') {
-                            memberGrid.shift = m.defaultShiftProfile2;
-                        }
-                    } else if (newProfile === 'profile_1') {
-                        if (!memberGrid || memberGrid.shift === 'shift-9-18') {
-                            memberGrid.shift = m.defaultShiftProfile1;
-                        }
-                    }
-
-                    if (memberGrid && memberGrid.slots) {
-                        let newSlots = {};
-                        Object.keys(memberGrid.slots).forEach(oldSlotId => {
-                            let tasks = memberGrid.slots[oldSlotId];
-                            let targetSlotId = mapping[oldSlotId] || oldSlotId;
-
-                            if (!newSlots[targetSlotId]) {
-                                newSlots[targetSlotId] = [];
-                            }
-
-                            tasks.forEach(t => {
-                                if (!newSlots[targetSlotId].includes(t)) {
-                                    newSlots[targetSlotId].push(t);
-                                }
-                            });
-                        });
-                        database[dayKey].grid[m.id].slots = newSlots;
-                    }
-                });
-            }
-
-            database[dayKey].shiftProfile = newProfile;
-            archiveSnapshot(`SHIFT_PROFILE_CHANGE_${newProfile}`);
-            saveToDatabase();
-            logActivity("UPDATE_SHIFT_PROFILE", { targetDay: dayKey, profile: newProfile });
-            
-            renderAllPages();
-
-            setTimeout(() => { isLocalActionPending = false; }, 300);
-        }
-
         function shuffleArray(arr) {
             let a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
@@ -1001,8 +943,8 @@
 
             isLocalActionPending = true;
 
-            let currentProfileKey = database[dayKey].shiftProfile || 'profile_1';
-            let activeSlots = timeSlotProfiles[currentProfileKey] || timeSlotProfiles['profile_1'];
+            let currentProfileKey = getAutoProfileForDay(database[dayKey]);
+            let activeSlots = timeSlotProfiles[currentProfileKey];
 
             members.forEach(m => {
                 let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
@@ -1138,7 +1080,6 @@
             return counts;
         }
 
-        // RENDER MONTHLY TOTALS WITH SUMMED PILL BADGES
         function renderTaskSummarySidebar(dayIsoDate) {
             const counts = getMonthlyTaskCounts(dayIsoDate);
             const monthLabel = dayIsoDate ? new Date(dayIsoDate).toLocaleString('default', { month: 'short', year: 'numeric' }) : 'Month';
@@ -1224,9 +1165,9 @@
                 const isToday = (dayData.isoDate === todayStr);
                 if (isToday) daySection.classList.add('today-card');
 
-                let currentProfileKey = dayData.shiftProfile || 'profile_1';
-                let activeTimeSlots = timeSlotProfiles[currentProfileKey] || timeSlotProfiles['profile_1'];
-                let shiftTitleLabel = currentProfileKey === 'profile_2' ? 'SHIFT 2' : 'SHIFT 1';
+                // DYNAMIC AUTO PROFILE SELECTION
+                let currentProfileKey = getAutoProfileForDay(dayData);
+                let activeTimeSlots = timeSlotProfiles[currentProfileKey];
 
                 let titleHTML = `
                     <div class="day-title-area">
@@ -1234,7 +1175,6 @@
                             <span class="date-picker-wrapper">
                                 📅 
                                 <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="updateDayDate('${dayKey}', this.value)">
-                                <span class="shift-badge-label">${shiftTitleLabel}</span>
                             </span>
                             ${isToday ? '<span class="today-badge">Today</span>' : ''}
                             <div class="reminder-box-wrapper">
@@ -1245,10 +1185,6 @@
                         <div class="no-print" style="display:flex; gap:10px; align-items:center;">
                             <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🎲 Auto Assign Tasks</button>
                             <button class="btn btn-secondary" onclick="reshuffleTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px; background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">🔀 Re-Shuffle Tasks</button>
-                            <select class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onchange="updateShiftProfile('${dayKey}', this.value)">
-                                <option value="profile_1" ${currentProfileKey === 'profile_1' ? 'selected' : ''}>Shift 1 (7:00 - 1:00)</option>
-                                <option value="profile_2" ${currentProfileKey === 'profile_2' ? 'selected' : ''}>Shift 2 (9:00 - 21:00)</option>
-                            </select>
                             <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:4px 8px; font-size:11px;">🧹 Clear Day</button>
                             <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🗑️ Delete Day</button>
                         </div>
@@ -1378,7 +1314,7 @@
             getValidatedUser();
 
             if (!database[dayKey]) database[dayKey] = { grid: {} };
-            let currentProfileKey = database[dayKey].shiftProfile || 'profile_1';
+            let currentProfileKey = getAutoProfileForDay(database[dayKey]);
             let mObj = members.find(m => m.id === memberId);
             let defaultForProfile = currentProfileKey === 'profile_2' ? mObj.defaultShiftProfile2 : mObj.defaultShiftProfile1;
 
@@ -1438,7 +1374,7 @@
             debounceInputTimer = setTimeout(() => {
                 let lines = element.innerText.split('\n').filter(l => l.trim() !== '');
                 if (!database[dayKey]) database[dayKey] = { grid: {} };
-                let currentProfileKey = database[dayKey].shiftProfile || 'profile_1';
+                let currentProfileKey = getAutoProfileForDay(database[dayKey]);
                 let mObj = members.find(m => m.id === memberId);
                 let defaultForProfile = currentProfileKey === 'profile_2' ? mObj.defaultShiftProfile2 : mObj.defaultShiftProfile1;
 
@@ -1470,7 +1406,7 @@
                 members.forEach(m => {
                     if (database[dayKey] && database[dayKey].grid[m.id]) {
                         database[dayKey].grid[m.id].slots = {};
-                        let activeProfileSlots = timeSlotProfiles[database[dayKey].shiftProfile || 'profile_1'];
+                        let activeProfileSlots = timeSlotProfiles[getAutoProfileForDay(database[dayKey])];
                         activeProfileSlots.forEach(s => {
                             database[dayKey].grid[m.id].slots[s.id] = [];
                         });
@@ -1492,7 +1428,7 @@
                     members.forEach(m => {
                         if (database[dayKey] && database[dayKey].grid[m.id]) {
                             database[dayKey].grid[m.id].slots = {};
-                            let currentSlots = timeSlotProfiles[database[dayKey].shiftProfile || 'profile_1'];
+                            let currentSlots = timeSlotProfiles[getAutoProfileForDay(database[dayKey])];
                             currentSlots.forEach(s => {
                                 database[dayKey].grid[m.id].slots[s.id] = [];
                             });
@@ -1535,7 +1471,7 @@
                 let newDayNum = parseInt(lastKey.split('_')[1] || '1') + 1;
                 let newDayId = "day_" + newDayNum;
                 
-                database[newDayId] = { isoDate: newIsoDate, reminder: "", shiftProfile: "profile_1", grid: {} };
+                database[newDayId] = { isoDate: newIsoDate, reminder: "", grid: {} };
                 members.forEach(m => {
                     database[newDayId].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
                 });
