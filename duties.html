@@ -45,7 +45,6 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); padding: 20px; color: var(--text-color); transition: background-color 0.3s; }
         
-        /* FROZEN / STICKY TOP HEADER PANE */
         .header-container { 
             position: sticky;
             top: 0;
@@ -165,12 +164,78 @@
             padding: 0 !important;
         }
 
-        .table-responsive-wrapper {
+        .day-content-wrapper {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
             width: 100%;
+        }
+
+        .table-responsive-wrapper {
+            flex: 1;
             overflow-x: auto;
         }
 
-        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 750px; }
+        .task-summary-card {
+            width: 280px;
+            min-width: 250px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .task-summary-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--header-text);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-summary-list {
+            max-height: 480px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+        }
+
+        .task-summary-item {
+            font-size: 11px;
+            background: var(--bg-color);
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .task-summary-name {
+            font-weight: 700;
+            color: var(--header-text);
+            margin-bottom: 4px;
+        }
+
+        .task-summary-counts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            color: var(--text-color);
+        }
+
+        .member-badge {
+            background: var(--accent-btn);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 700px; }
         th { background-color: var(--card-bg); color: var(--header-text); padding: 10px 4px; text-align: center; font-weight: 700; border: 1px solid var(--border-color); font-size: 13px; }
         th.col-member { width: 110px; }
         th.col-shift { width: 120px; }
@@ -231,95 +296,29 @@
             text-align: center;
         }
 
-        /* MOBILE VIEW OPTIMIZATIONS */
-        body.mobile-view-active {
-            padding: 8px;
-        }
-
-        body.mobile-view-active .header-container {
-            flex-direction: column;
-            align-items: stretch;
-            padding: 12px;
-            gap: 10px;
-        }
-
-        body.mobile-view-active .btn-controls {
-            justify-content: flex-start;
-            gap: 6px;
-        }
-
-        body.mobile-view-active .btn {
-            padding: 6px 10px;
-            font-size: 11px;
-        }
-
-        body.mobile-view-active .day-section {
-            padding: 12px;
-            margin-bottom: 16px;
-        }
-
-        body.mobile-view-active .day-title-area {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 10px;
-        }
-
-        body.mobile-view-active .date-picker-input {
-            font-size: 15px;
-            width: 130px;
-        }
-
-        body.mobile-view-active .reminder-box-wrapper {
-            min-width: 100%;
-            padding: 4px 8px;
-        }
-
-        body.mobile-view-active .reminder-box-input {
-            font-size: 12px !important;
-        }
-
-        body.mobile-view-active .schedule-table {
-            min-width: 620px;
-        }
-
-        body.mobile-view-active th {
-            font-size: 11px;
-            padding: 6px 2px;
-        }
-
-        body.mobile-view-active .team-member-cell {
-            font-size: 12px;
-            min-height: 90px;
-            padding: 6px 2px;
-        }
-
-        body.mobile-view-active .shift-select {
-            font-size: 10px;
-            padding: 3px;
-        }
-
-        body.mobile-view-active .task-card {
-            min-height: 90px;
-            padding: 4px;
-        }
-
-        body.mobile-view-active .editable-content-area {
-            font-size: 10px;
-            min-height: 45px;
-        }
-
-        body.mobile-view-active .legend-footer {
-            gap: 10px;
-            padding: 8px;
-        }
-
-        body.mobile-view-active .legend-item {
-            font-size: 10px;
-        }
+        body.mobile-view-active { padding: 8px; }
+        body.mobile-view-active .header-container { flex-direction: column; align-items: stretch; padding: 12px; gap: 10px; }
+        body.mobile-view-active .btn-controls { justify-content: flex-start; gap: 6px; }
+        body.mobile-view-active .btn { padding: 6px 10px; font-size: 11px; }
+        body.mobile-view-active .day-section { padding: 12px; margin-bottom: 16px; }
+        body.mobile-view-active .day-title-area { flex-direction: column; align-items: stretch; gap: 10px; }
+        body.mobile-view-active .date-picker-input { font-size: 15px; width: 130px; }
+        body.mobile-view-active .reminder-box-wrapper { min-width: 100%; padding: 4px 8px; }
+        body.mobile-view-active .reminder-box-input { font-size: 12px !important; }
+        body.mobile-view-active .day-content-wrapper { flex-direction: column; }
+        body.mobile-view-active .task-summary-card { width: 100%; min-width: 100%; }
+        body.mobile-view-active .schedule-table { min-width: 620px; }
+        body.mobile-view-active th { font-size: 11px; padding: 6px 2px; }
+        body.mobile-view-active .team-member-cell { font-size: 12px; min-height: 90px; padding: 6px 2px; }
+        body.mobile-view-active .shift-select { font-size: 10px; padding: 3px; }
+        body.mobile-view-active .task-card { min-height: 90px; padding: 4px; }
+        body.mobile-view-active .editable-content-area { font-size: 10px; min-height: 45px; }
+        body.mobile-view-active .legend-footer { gap: 10px; padding: 8px; }
+        body.mobile-view-active .legend-item { font-size: 10px; }
 
         @media print {
             body { background: white; padding: 0; color: black; }
-            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .shift-end-banner { display: none !important; }
+            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .shift-end-banner, .task-summary-card { display: none !important; }
             .task-card { min-height: 100px; }
             .schedule-table { border: 2px solid #000 !important; }
             td, th { border: 1px solid #000 !important; }
@@ -349,7 +348,6 @@
             <button class="btn btn-secondary" onclick="addNewDay()">➕ Add Next Day</button>
             <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
 
-            <!-- SWAPPED TO THE VERY END & ENLARGED -->
             <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
         </div>
     </div>
@@ -386,7 +384,6 @@
             appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
         };
 
-        // Safe Firebase Initialization
         let db = null;
         try {
             if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -406,43 +403,73 @@
             { id: 'kriztel', name: 'KRIZTEL', index: 3, defaultShift: 'shift-16-1' }
         ];
 
-        const timeSlots = [
-            { id: 'slot_7_10', label: '7:00 - 10:00' },
-            { id: 'slot_10_12', label: '10:00 - 12:00' },
-            { id: 'slot_12_16', label: '12:00 - 16:00' },
-            { id: 'slot_16_19', label: '16:00 - 19:00' },
-            { id: 'slot_19_21', label: '19:00 - 21:00' },
-            { id: 'slot_22_1', label: '22:00 - 1:00' }
+        const timeSlotProfiles = {
+            'profile_1': [
+                { id: 'slot_7_10', label: '7:00 - 10:00' },
+                { id: 'slot_10_12', label: '10:00 - 12:00' },
+                { id: 'slot_12_16', label: '12:00 - 16:00' },
+                { id: 'slot_16_19', label: '16:00 - 19:00' },
+                { id: 'slot_19_21', label: '19:00 - 21:00' },
+                { id: 'slot_22_1', label: '22:00 - 1:00' }
+            ],
+            'profile_2': [
+                { id: 'slot_9_12', label: '9:00 - 12:00' },
+                { id: 'slot_12_15', label: '12:00 - 15:00' },
+                { id: 'slot_15_18', label: '15:00 - 18:00' },
+                { id: 'slot_18_21', label: '18:00 - 21:00' }
+            ]
+        };
+
+        // EXPLICIT 9:00 - 12:00 EARLY PRIORITY TASKS
+        const early9amPriorities = [
+            "Big Winners Check",
+            "@Sportsbook Escalation check",
+            "Boost Check",
+            "Sports Events Booking Check (BR Portal)",
+            "Overnight Bets",
+            "Others (As instructed)"
         ];
 
-        const availableTasks = [
-            "Edge Prediction Market Ticker",
-            "Pubs Prediction Market Ticker",
-            "Pubs Tickers",
-            "@Sportsbook Escalation check",
-            "Rejected Bets Monitoring",
-            "Site Checking (Web/Mobile)",
-            "Big Winners Check",
-            "Boost Check",
-            "ALL Tickers",
+        const amTasksPool = [
+            "7A Boosts",
+            "iBet Boost",
+            "Edge Boost / Banner creation",
             "Qbet tickers",
             "30Bet tickers",
             "55Bet tickers",
             "Ibet tickers",
+            "Pubs Tickers",
             "7A/BVB/GQBET tickers",
+            "Edge Prediction Market Ticker",
+            "Pubs Prediction Market Ticker",
             "SoftSwiss Files",
+            "Telegram Channel Monitoring",
+            "Rejected Bets Monitoring"
+        ];
+
+        const pmTasksPool = [
+            "Edge Boost / Banner creation",
+            "7A Boosts",
+            "iBet Boost",
             "SB Files checking (Client's Tracking/VIP files/CRM files)",
+            "Site Checking (Web/Mobile)",
+            "Qbet tickers",
+            "30Bet tickers",
+            "55Bet tickers",
+            "Ibet tickers",
+            "Pubs Tickers",
+            "7A/BVB/GQBET tickers",
+            "Edge Prediction Market Ticker",
+            "Pubs Prediction Market Ticker",
+            "SoftSwiss Files",
             "Sports Events Booking Check (BR Portal)",
             "Telegram Channel Monitoring",
-            "Friendlies Checking",
-            "Handover Report AM",
-            "Handover Report PM",
-            "Overnight Bets",
-            "Edge Boost / Banner creation",
-            "iBet Boost",
-            "7A Boosts",
+            "@Sportsbook Escalation check",
+            "Rejected Bets Monitoring",
             "Others (As instructed)"
         ];
+
+        const availableTasks = Array.from(new Set([...early9amPriorities, ...amTasksPool, ...pmTasksPool, "Handover Report AM", "Handover Report PM"]));
 
         const shifts = [
             { id: 'shift-7-16', label: '7:00 - 16:00', endHour: 16, endMinute: 0 },
@@ -460,18 +487,18 @@
         ];
 
         const shiftOffDutyMap = {
-            'shift-7-16': ['slot_16_19', 'slot_19_21', 'slot_22_1'],
-            'shift-9-18': ['slot_7_10', 'slot_19_21', 'slot_22_1'],
+            'shift-7-16': ['slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_18_21'],
+            'shift-9-18': ['slot_7_10', 'slot_19_21', 'slot_22_1', 'slot_18_21'],
             'shift-10-19': ['slot_7_10', 'slot_19_21', 'slot_22_1'],
-            'shift-12-21': ['slot_7_10', 'slot_10_12', 'slot_22_1'],
-            'shift-14-23': ['slot_7_10', 'slot_10_12', 'slot_22_1'],
-            'shift-16-1': ['slot_7_10', 'slot_10_12', 'slot_12_16'],
-            'shift-7-10-wfh': ['slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1'],
-            'shift-7-16-wfh': ['slot_16_19', 'slot_19_21', 'slot_22_1'],
+            'shift-12-21': ['slot_7_10', 'slot_10_12', 'slot_22_1', 'slot_9_12'],
+            'shift-14-23': ['slot_7_10', 'slot_10_12', 'slot_22_1', 'slot_9_12'],
+            'shift-16-1': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_9_12', 'slot_12_15'],
+            'shift-7-10-wfh': ['slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_12_15', 'slot_15_18', 'slot_18_21'],
+            'shift-7-16-wfh': ['slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_18_21'],
             'shift-adjusted': [],
-            'shift-rd': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1'],
-            'shift-vl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1'],
-            'shift-sl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1']
+            'shift-rd': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21'],
+            'shift-vl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21'],
+            'shift-sl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21']
         };
 
         let database = createDefaultDatabase();
@@ -504,6 +531,7 @@
                 "day_1": {
                     isoDate: new Date().toISOString().split('T')[0],
                     reminder: "",
+                    shiftProfile: "profile_1",
                     grid: {}
                 }
             };
@@ -549,7 +577,26 @@
             db.ref('roster_data').on('value', (snapshot) => {
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
-                    database = liveData;
+                    // PRESERVE EXISTING USER DATA: MERGE LIVE DATA RATHER THAN OVERWRITING
+                    Object.keys(liveData).forEach(dayKey => {
+                        if (!database[dayKey]) {
+                            database[dayKey] = liveData[dayKey];
+                        } else {
+                            database[dayKey].isoDate = liveData[dayKey].isoDate || database[dayKey].isoDate;
+                            database[dayKey].reminder = liveData[dayKey].reminder || database[dayKey].reminder;
+                            database[dayKey].shiftProfile = liveData[dayKey].shiftProfile || database[dayKey].shiftProfile;
+                            if (liveData[dayKey].grid) {
+                                Object.keys(liveData[dayKey].grid).forEach(mId => {
+                                    if (!database[dayKey].grid[mId]) {
+                                        database[dayKey].grid[mId] = liveData[dayKey].grid[mId];
+                                    } else {
+                                        database[dayKey].grid[mId].shift = liveData[dayKey].grid[mId].shift || database[dayKey].grid[mId].shift;
+                                        database[dayKey].grid[mId].slots = liveData[dayKey].grid[mId].slots || database[dayKey].grid[mId].slots;
+                                    }
+                                });
+                            }
+                        }
+                    });
                 } else {
                     database = createDefaultDatabase();
                     saveToDatabase();
@@ -568,20 +615,13 @@
 
         function parseRotaShiftToShiftId(rawShiftText) {
             if (!rawShiftText) return null;
-
             let text = rawShiftText.trim();
-
-            if (text.startsWith("Adjusted:") || text === "Adjusted") {
-                return "shift-adjusted";
-            }
-
+            if (text.startsWith("Adjusted:") || text === "Adjusted") return "shift-adjusted";
             if (text === "RD") return "shift-rd";
             if (text === "VL") return "shift-vl";
             if (text === "SL") return "shift-sl";
-
             if (text === "7:00 - 10:00 (WFH)") return "shift-7-10-wfh";
             if (text === "7:00 - 16:00 (WFH)") return "shift-7-16-wfh";
-
             if (text.includes("7:00") && text.includes("16:00")) return "shift-7-16";
             if (text.includes("9:00") && text.includes("18:00")) return "shift-9-18";
             if (text.includes("10:00") && text.includes("19:00")) return "shift-10-19";
@@ -615,7 +655,6 @@
 
                                 if (matchedShiftId) {
                                     if (!dayData.grid[m.id]) dayData.grid[m.id] = { slots: {} };
-                                    
                                     if (dayData.grid[m.id].shift !== matchedShiftId) {
                                         dayData.grid[m.id].shift = matchedShiftId;
                                         updated = true;
@@ -627,9 +666,7 @@
                 }
             });
 
-            if (updated) {
-                renderAllPages();
-            }
+            if (updated) renderAllPages();
         }
 
         function saveToDatabase() {
@@ -666,13 +703,11 @@
 
                 if (shiftObj && shiftObj.endHour !== null) {
                     let endMinutesOfDay = shiftObj.endHour * 60 + shiftObj.endMinute;
-                    
                     if (shiftObj.endHour === 1 && currentMinutesOfDay > 12 * 60) {
                         endMinutesOfDay += 24 * 60;
                     }
 
                     let minutesRemaining = endMinutesOfDay - currentMinutesOfDay;
-
                     if (minutesRemaining > 0 && minutesRemaining <= 20) {
                         endingMembers.push(m.name);
                     }
@@ -711,6 +746,170 @@
             saveToDatabase();
         }
 
+        function updateShiftProfile(dayKey, newProfile) {
+            if (!database[dayKey]) database[dayKey] = { grid: {} };
+            database[dayKey].shiftProfile = newProfile;
+            saveToDatabase();
+            renderAllPages();
+        }
+
+        function shuffleArray(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // AUTO-ASSIGN ENGINE (FORCES 9:00 - 12:00 EARLY PRIORITIES)
+        function autoAssignTasksForDay(dayKey) {
+            if (!database[dayKey]) return;
+
+            let currentProfileKey = database[dayKey].shiftProfile || 'profile_1';
+            let activeSlots = timeSlotProfiles[currentProfileKey] || timeSlotProfiles['profile_1'];
+
+            let memberFirstSlot = {};
+            let memberLastSlot = {};
+
+            members.forEach(m => {
+                let memberShift = database[dayKey].grid[m.id]?.shift || m.defaultShift;
+                let activeForMember = activeSlots.filter(s => !isOffDuty(memberShift, s.id)).map(s => s.id);
+                if (activeForMember.length > 0) {
+                    memberFirstSlot[m.id] = activeForMember[0];
+                    memberLastSlot[m.id] = activeForMember[activeForMember.length - 1];
+                }
+            });
+
+            activeSlots.forEach(slot => {
+                let slotId = slot.id;
+
+                let activeMembersInSlot = members.filter(m => {
+                    let memberShift = database[dayKey].grid[m.id]?.shift || m.defaultShift;
+                    return !isOffDuty(memberShift, slotId);
+                });
+
+                let isSoloSlot = (activeMembersInSlot.length === 1);
+                let assignedTasksInSlot = new Set();
+
+                activeMembersInSlot.forEach(m => {
+                    let memberShift = database[dayKey].grid[m.id]?.shift || m.defaultShift;
+                    let isPMShift = memberShift.includes('12') || memberShift.includes('14') || memberShift.includes('16');
+                    let isFirstActiveSlot = (memberFirstSlot[m.id] === slotId);
+                    let isLastActiveSlot = (memberLastSlot[m.id] === slotId);
+
+                    let pool = [];
+
+                    // Explicit Priority Rule: Target 9:00 AM (or early slot) for Early Priorities
+                    if ((slotId === 'slot_9_12' || (slotId === 'slot_7_10' && isFirstActiveSlot)) && !isPMShift) {
+                        pool = [...early9amPriorities, ...shuffleArray(amTasksPool)];
+                    } else if (isPMShift) {
+                        pool = shuffleArray(pmTasksPool);
+                    } else {
+                        pool = shuffleArray(amTasksPool);
+                    }
+
+                    if (memberShift === 'shift-12-21' && slotId.includes('12')) {
+                        pool = ["Edge Boost / Banner creation", "7A Boosts", "iBet Boost", ...pool.filter(t => !t.includes("Boost"))];
+                    }
+
+                    let availableTasksForMember = isSoloSlot 
+                        ? pool 
+                        : pool.filter(t => !assignedTasksInSlot.has(t));
+
+                    let taskBatchSize = isSoloSlot ? Math.min(8, availableTasksForMember.length) : Math.min(6, availableTasksForMember.length);
+                    let selectedTasks = availableTasksForMember.slice(0, Math.max(3, taskBatchSize));
+
+                    if (!isSoloSlot) {
+                        selectedTasks.forEach(t => assignedTasksInSlot.add(t));
+                    }
+
+                    // Handover always at the end of shift
+                    if (isLastActiveSlot) {
+                        let handoverTask = isPMShift ? "Handover Report PM" : "Handover Report AM";
+                        selectedTasks = selectedTasks.filter(t => !t.includes("Handover Report"));
+                        selectedTasks.push(handoverTask);
+                    }
+
+                    if (!database[dayKey].grid[m.id].slots) {
+                        database[dayKey].grid[m.id].slots = {};
+                    }
+
+                    database[dayKey].grid[m.id].slots[slotId] = selectedTasks;
+                });
+            });
+
+            saveToDatabase();
+            renderAllPages();
+        }
+
+        function getMonthlyTaskCounts(targetIsoDate) {
+            if (!targetIsoDate) return {};
+            const [targetYear, targetMonth] = targetIsoDate.split('-');
+            const counts = {};
+
+            Object.keys(database || {}).forEach(dayKey => {
+                const dayData = database[dayKey];
+                if (!dayData || !dayData.isoDate) return;
+
+                const [year, month] = dayData.isoDate.split('-');
+                if (year === targetYear && month === targetMonth) {
+                    Object.keys(dayData.grid || {}).forEach(memberId => {
+                        const memberSlots = dayData.grid[memberId].slots || {};
+                        Object.keys(memberSlots).forEach(slotId => {
+                            const taskList = memberSlots[slotId] || [];
+                            taskList.forEach(taskName => {
+                                if (!counts[taskName]) counts[taskName] = {};
+                                counts[taskName][memberId] = (counts[taskName][memberId] || 0) + 1;
+                            });
+                        });
+                    });
+                }
+            });
+
+            return counts;
+        }
+
+        function renderTaskSummarySidebar(dayIsoDate) {
+            const counts = getMonthlyTaskCounts(dayIsoDate);
+            const monthLabel = dayIsoDate ? new Date(dayIsoDate).toLocaleString('default', { month: 'short', year: 'numeric' }) : 'Month';
+            
+            let html = `
+                <div class="task-summary-card">
+                    <div class="task-summary-title">
+                        📊 Monthly Totals (${monthLabel})
+                    </div>
+                    <div class="task-summary-list">
+            `;
+
+            const sortedTasks = Object.keys(counts).sort();
+
+            if (sortedTasks.length === 0) {
+                html += `<div style="font-size:11px; color:var(--credit-text); text-align:center;">No tasks recorded for this month.</div>`;
+            } else {
+                sortedTasks.forEach(taskName => {
+                    const memberCounts = counts[taskName];
+                    const badges = members.map(m => {
+                        const count = memberCounts[m.id] || 0;
+                        if (count === 0) return '';
+                        return `<span class="member-badge">${m.name} (${count})</span>`;
+                    }).filter(Boolean).join(' ');
+
+                    if (badges) {
+                        html += `
+                            <div class="task-summary-item">
+                                <div class="task-summary-name">${taskName}</div>
+                                <div class="task-summary-counts">${badges}</div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            html += `</div></div>`;
+            return html;
+        }
+
         function renderAllPages() {
             const container = document.getElementById('pagesContainer');
             if (!container) return;
@@ -719,10 +918,6 @@
 
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // STRICT SORTING ALGORITHM:
-            // 1. TODAY's Date is explicitly pinned to the top.
-            // 2. FUTURE Dates follow below Today (sorted ascending: tomorrow, next day...).
-            // 3. PAST Dates appear at the bottom (sorted descending: yesterday, day before...).
             const sortedDayKeys = Object.keys(database).sort((a, b) => {
                 const dateA = database[a].isoDate || '';
                 const dateB = database[b].isoDate || '';
@@ -743,8 +938,6 @@
                 }
             });
 
-            let todayTargetElem = null;
-
             sortedDayKeys.forEach((dayKey) => {
                 let dayData = database[dayKey];
                 let daySection = document.createElement('div');
@@ -752,9 +945,10 @@
                 daySection.id = `section-${dayKey}`;
 
                 const isToday = (dayData.isoDate === todayStr);
-                if (isToday) {
-                    daySection.classList.add('today-card');
-                }
+                if (isToday) daySection.classList.add('today-card');
+
+                let currentProfileKey = dayData.shiftProfile || 'profile_1';
+                let activeTimeSlots = timeSlotProfiles[currentProfileKey] || timeSlotProfiles['profile_1'];
 
                 let titleHTML = `
                     <div class="day-title-area">
@@ -771,6 +965,11 @@
                             </div>
                         </div>
                         <div class="no-print" style="display:flex; gap:10px; align-items:center;">
+                            <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🎲 Auto Assign Tasks</button>
+                            <select class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onchange="updateShiftProfile('${dayKey}', this.value)">
+                                <option value="profile_1" ${currentProfileKey === 'profile_1' ? 'selected' : ''}>Shift 1 (7:00 - 1:00)</option>
+                                <option value="profile_2" ${currentProfileKey === 'profile_2' ? 'selected' : ''}>Shift 2 (9:00 - 21:00)</option>
+                            </select>
                             <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:4px 8px; font-size:11px;">🧹 Clear Day</button>
                             <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:4px 8px; font-size:11px;">🗑️ Delete Day</button>
                         </div>
@@ -778,6 +977,9 @@
                 `;
                 daySection.innerHTML += titleHTML;
                 
+                let contentWrapper = document.createElement('div');
+                contentWrapper.className = 'day-content-wrapper';
+
                 let tableWrapper = document.createElement('div');
                 tableWrapper.className = 'table-responsive-wrapper';
 
@@ -789,7 +991,7 @@
                         <tr>
                             <th class="col-member">TEAM</th>
                             <th class="col-shift">SHIFT</th>
-                            ${timeSlots.map(s => `<th>${s.label}</th>`).join('')}
+                            ${activeTimeSlots.map(s => `<th>${s.label}</th>`).join('')}
                         </tr>
                     </thead>
                 `;
@@ -817,7 +1019,7 @@
                     
                     tr.innerHTML += memberCell + shiftCell;
                     
-                    timeSlots.forEach(slot => {
+                    activeTimeSlots.forEach(slot => {
                         let isSlotOffDuty = isOffDuty(memberGrid.shift, slot.id);
                         let selectedTaskList = (memberGrid.slots && memberGrid.slots[slot.id]) ? memberGrid.slots[slot.id] : [];
                         let formattedText = isSlotOffDuty ? '' : selectedTaskList.join('\n');
@@ -857,15 +1059,16 @@
                 
                 table.appendChild(tbody);
                 tableWrapper.appendChild(table);
-                daySection.appendChild(tableWrapper);
-                container.appendChild(daySection);
+                contentWrapper.appendChild(tableWrapper);
 
-                if (isToday) {
-                    todayTargetElem = daySection;
-                }
+                let summarySidebar = document.createElement('div');
+                summarySidebar.innerHTML = renderTaskSummarySidebar(dayData.isoDate);
+                contentWrapper.appendChild(summarySidebar.firstElementChild);
+
+                daySection.appendChild(contentWrapper);
+                container.appendChild(daySection);
             });
 
-            // ENSURE THE VIEW IS PINNED AT THE VERY TOP OF THE PAGE ON LOAD
             if (!hasAutoScrolledToToday) {
                 setTimeout(() => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1000,7 +1203,7 @@
                 let newDayNum = parseInt(lastKey.split('_')[1] || '1') + 1;
                 let newDayId = "day_" + newDayNum;
                 
-                database[newDayId] = { isoDate: newIsoDate, reminder: "", grid: {} };
+                database[newDayId] = { isoDate: newIsoDate, reminder: "", shiftProfile: "profile_1", grid: {} };
                 members.forEach(m => {
                     database[newDayId].grid[m.id] = { shift: m.defaultShift, slots: {} };
                 });
@@ -1011,7 +1214,6 @@
             renderAllPages();
         }
 
-        // Initialize application after DOM is fully parsed
         document.addEventListener('DOMContentLoaded', function() {
             if (localStorage.getItem('sb_theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
