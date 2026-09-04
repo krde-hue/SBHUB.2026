@@ -19,7 +19,6 @@
       --accent-tier-bg: #fef08a;
       --accent-hot: #ef4444;
       --accent-hot-bg: #fecaca;
-      --accent-green: #10b981;
       --pill-bg: #0f2744;
       --pill-border: #1d4ed8;
       --btn-blue: #2563eb;
@@ -161,6 +160,7 @@
       cursor: pointer;
     }
 
+    /* Date Banner & Pop-up Menu */
     .date-banner {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -175,7 +175,8 @@
     }
 
     .date-title { font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
-    .date-actions { display: flex; gap: 6px; }
+    .date-actions { display: flex; gap: 6px; align-items: center; position: relative; }
+    
     .date-btn {
       background: var(--control-bg);
       border: 1px solid var(--card-border);
@@ -191,6 +192,47 @@
       transition: background 0.2s;
     }
     .date-btn:hover { background: var(--primary-blue); color: #fff; border-color: var(--primary-blue); }
+    
+    .date-btn.import-master {
+      background: #059669;
+      color: #ffffff;
+      border-color: #047857;
+      font-weight: 800;
+    }
+    .date-btn.import-master:hover { background: #047857; }
+
+    /* Dropdown Pop-up Menu */
+    .import-menu {
+      display: none;
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background-color: #0d1b2e;
+      border: 1px solid var(--primary-blue);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      z-index: 100;
+      min-width: 150px;
+      overflow: hidden;
+    }
+    .import-menu.show { display: block; }
+    .import-option {
+      width: 100%;
+      padding: 8px 12px;
+      background: none;
+      border: none;
+      color: #ffffff;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .import-option:hover { background: var(--primary-blue); }
+    .import-option.both-opt { border-bottom: 1px solid var(--card-border); }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
 
@@ -232,13 +274,6 @@
     .boost-sub-header { color: var(--text-muted); font-size: 0.68rem; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
     .pills-container { display: flex; flex-wrap: wrap; gap: 6px; }
     .market-pill { background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--text-main); font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; display: inline-block; }
-
-    .import-actions { display: flex; gap: 4px; margin-top: 4px; border-top: 1px solid var(--card-border); padding-top: 8px; }
-    .import-btn { flex: 1; color: #ffffff; border: none; padding: 5px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; cursor: pointer; text-align: center; }
-    .import-btn.ibet { background-color: var(--btn-blue); }
-    .import-btn.edge { background-color: var(--btn-purple); }
-    .import-btn.both { background-color: var(--btn-green); }
-    .import-btn:hover { opacity: 0.88; }
 
     .empty-msg { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 0.95rem; background: var(--card-bg); border: 1px dashed var(--border-dashed); border-radius: 6px; margin-top: 16px; }
 
@@ -422,83 +457,37 @@
       };
 
       return [
-        // ==================== DAY 0 ====================
+        // DAY 0
         { id: 'fb-dfb-leipzig-frankfurt-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Germany DFB Pokal', title: 'RB Leipzig vs Eintracht Frankfurt', isoTime: getExactTime(0, 20, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Goalscorer: Marmoush", "Goalscorer: Openda", "Match Winner & BTTS"] },
         { id: 'fb-ligue1-psg-monaco-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'France Ligue 1', title: 'Paris Saint-Germain vs Monaco', isoTime: getExactTime(0, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Dembele", "PSG To Win"] },
         { id: 'fb-mls-miami-galaxy-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'MLS Regular Season', title: 'Inter Miami vs LA Galaxy', isoTime: getExactTime(0, 23, 30), isTopTier: false, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Lionel Messi", "Goalscorer: Luis Suarez"] },
         { id: 'fb-sweden-malmo-aik-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Sweden Allsvenskan', title: 'Malmö FF vs AIK', isoTime: getExactTime(0, 21, 0), isTopTier: false, isHot: false, isOutright: false, suggestedMarkets: ["Match Winner: Malmö", "Both Teams To Score"] },
         { id: 'fb-portugal-sporting-benfica-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Portugal Liga Portugal', title: 'Sporting CP vs Benfica', isoTime: getExactTime(0, 23, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Gyökeres", "Goalscorer: Pavlidis"] },
 
-        { id: 'os-nfl-chiefs-ravens-0', category: 'OTHER', sportCategory: 'NFL', league: 'NFL Kickoff Season', title: 'Kansas City Chiefs vs Baltimore Ravens', isoTime: getExactTime(0, 20, 15), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Patrick Mahomes 2+ Passing TDs", "Travis Kelce Anytime TD", "Point Spread (-3.0)"] },
-        { id: 'os-mlb-yankees-redsox-0', category: 'OTHER', sportCategory: 'MLB', league: 'MLB Regular Season', title: 'New York Yankees vs Boston Red Sox', isoTime: getExactTime(0, 19, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Aaron Judge Home Run", "Yankees Moneyline", "Total Runs Over 8.5"] },
-        { id: 'os-wnba-fever-aces-0', category: 'OTHER', sportCategory: 'BASKETBALL WNBA', league: 'WNBA Regular Season', title: 'Indiana Fever vs Las Vegas Aces', isoTime: getExactTime(0, 22, 0), isTopTier: false, isHot: true, isOutright: false, suggestedMarkets: ["Caitlin Clark 20+ Points", "A'ja Wilson 10+ Rebounds", "Point Spread (+5.5)"] },
+        { id: 'os-nfl-chiefs-ravens-0', category: 'OTHER', sportCategory: 'NFL', league: 'NFL Kickoff Season', title: 'Kansas City Chiefs vs Baltimore Ravens', isoTime: getExactTime(0, 20, 15), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Patrick Mahomes 2+ Passing TDs", "Travis Kelce Anytime TD"] },
+        { id: 'os-mlb-yankees-redsox-0', category: 'OTHER', sportCategory: 'MLB', league: 'MLB Regular Season', title: 'New York Yankees vs Boston Red Sox', isoTime: getExactTime(0, 19, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Aaron Judge Home Run", "Yankees Moneyline"] },
+        { id: 'os-wnba-fever-aces-0', category: 'OTHER', sportCategory: 'BASKETBALL WNBA', league: 'WNBA Regular Season', title: 'Indiana Fever vs Las Vegas Aces', isoTime: getExactTime(0, 22, 0), isTopTier: false, isHot: true, isOutright: false, suggestedMarkets: ["Caitlin Clark 20+ Points", "A'ja Wilson 10+ Rebounds"] },
 
-        // ==================== DAY 1 ====================
+        // DAY 1
         { id: 'fb-epl-arsenal-chelsea-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Arsenal vs Chelsea', isoTime: getExactTime(1, 22, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Bukayo Saka", "Goalscorer: Cole Palmer"] },
         { id: 'fb-epl-everton-manutd-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Everton vs Manchester United', isoTime: getExactTime(1, 20, 0), isTopTier: true, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Bruno Fernandes", "Over 2.5 Goals"] },
         { id: 'fb-laliga-real-barca-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Spain La Liga', title: 'Real Madrid vs Barcelona', isoTime: getExactTime(1, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Vinicius Jr", "Goalscorer: Lamine Yamal"] },
         { id: 'fb-bundesliga-bayern-dortmund-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Germany Bundesliga', title: 'Bayern Munich vs Borussia Dortmund', isoTime: getExactTime(1, 21, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Harry Kane", "Goalscorer: Serhou Guirassy"] },
         { id: 'fb-seriea-inter-milan-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Italy Serie A', title: 'Inter Milan vs AC Milan', isoTime: getExactTime(1, 23, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Lautaro Martinez", "Match Winner & BTTS"] },
 
-        { id: 'os-lck-t1-geng-1', category: 'OTHER', sportCategory: 'ESPORT LCK', league: 'LCK Summer Playoffs', title: 'T1 vs Gen.G Esports', isoTime: getExactTime(1, 16, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Faker First Blood", "Gen.G Map Handicap (-1.5)", "Total Maps Over 3.5"] },
-        { id: 'os-nfl-eagles-packers-1', category: 'OTHER', sportCategory: 'NFL', league: 'NFL International Series', title: 'Philadelphia Eagles vs Green Bay Packers', isoTime: getExactTime(1, 21, 15), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Jalen Hurts Rushing TD", "Jordan Love 250+ Passing Yds", "Eagles Moneyline"] },
+        { id: 'os-lck-t1-geng-1', category: 'OTHER', sportCategory: 'ESPORT LCK', league: 'LCK Summer Playoffs', title: 'T1 vs Gen.G Esports', isoTime: getExactTime(1, 16, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Faker First Blood", "Gen.G Map Handicap (-1.5)"] },
 
-        // ==================== DAY 2 ====================
+        // DAY 2
         { id: 'fb-epl-liverpool-mancity-2', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Liverpool vs Manchester City', isoTime: getExactTime(2, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Mohamed Salah", "Goalscorer: Erling Haaland"] },
-        { id: 'fb-epl-tottenham-astonvilla-2', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Tottenham Hotspur vs Aston Villa', isoTime: getExactTime(2, 21, 0), isTopTier: true, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Son Heung-min", "Goalscorer: Ollie Watkins"] },
-        { id: 'fb-laliga-atletico-sevilla-2', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Spain La Liga', title: 'Atletico Madrid vs Sevilla', isoTime: getExactTime(2, 22, 15), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Antoine Griezmann", "Match Winner: Atletico"] },
-        { id: 'fb-seriea-juventus-napoli-2', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Italy Serie A', title: 'Juventus vs Napoli', isoTime: getExactTime(2, 23, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Dusan Vlahovic", "Goalscorer: Romelu Lukaku"] },
-        { id: 'fb-eredivisie-ajax-feyenoord-2', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Netherlands Eredivisie', title: 'Ajax vs Feyenoord', isoTime: getExactTime(2, 20, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Wout Weghorst", "Match Winner & BTTS"] },
 
-        { id: 'os-lakers-celtics-2', category: 'OTHER', sportCategory: 'BASKETBALL NBA', league: 'NBA Regular Season Showcase', title: 'LA Lakers vs Boston Celtics', isoTime: getExactTime(2, 10, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["LeBron James 25+ Pts", "Jayson Tatum 3+ Threes", "Celtics Moneyline"] },
-        { id: 'os-ufc-jones-miocic-2', category: 'OTHER', sportCategory: 'MMA UFC', league: 'UFC Heavyweight Championship', title: 'Jon Jones vs Stipe Miocic', isoTime: getExactTime(2, 22, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Jon Jones By KO/TKO", "Over 2.5 Rounds", "Fight To Go Distance: No"] },
-        { id: 'os-nhl-oilers-panthers-2', category: 'OTHER', sportCategory: 'NHL', league: 'NHL Preseason Series', title: 'Edmonton Oilers vs Florida Panthers', isoTime: getExactTime(2, 19, 30), isTopTier: true, isHot: false, isOutright: false, suggestedMarkets: ["Connor McDavid Anytime Goal", "Oilers Puck Line (-1.5)", "Over 6.5 Total Goals"] },
+        // DAY 4
+        { id: 'fb-efl-leeds-sunderland-4', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'EFL Championship', title: 'Leeds United vs Sunderland', isoTime: getExactTime(4, 22, 30), isTopTier: false, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Joel Piroe", "Leeds To Win"] },
 
-        // ==================== DAY 3 ====================
-        { id: 'fb-ucl-realmadrid-juventus-3', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Europa Champions League', title: 'Real Madrid vs Juventus', isoTime: getExactTime(3, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Kylian Mbappé", "Real Madrid To Win & BTTS"] },
-        { id: 'fb-ucl-arsenal-psg-3', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Europa Champions League', title: 'Arsenal vs Paris Saint-Germain', isoTime: getExactTime(3, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Kai Havertz", "Goalscorer: Ousmane Dembélé"] },
-        { id: 'fb-ucl-bayern-benfica-3', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Europa Champions League', title: 'Bayern Munich vs Benfica', isoTime: getExactTime(3, 21, 0), isTopTier: true, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Harry Kane", "Bayern To Win (-1.5)"] },
-        { id: 'fb-scotland-celtic-rangers-3', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Scotland Premiership', title: 'Celtic vs Rangers', isoTime: getExactTime(3, 19, 30), isTopTier: false, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Kyogo Furuhashi", "Match Winner: Celtic"] },
-        { id: 'fb-veikkausliiga-hjk-kups-3', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Veikkausliiga', title: 'HJK Helsinki vs KuPS', isoTime: getExactTime(3, 22, 0), isTopTier: false, isHot: false, isOutright: false, suggestedMarkets: ["Match Winner: HJK", "Under 2.5 Goals"] },
-
-        { id: 'os-boxing-fury-usyk-3', category: 'OTHER', sportCategory: 'BOXING', league: 'World Heavyweight Championship', title: 'Tyson Fury vs Oleksandr Usyk', isoTime: getExactTime(3, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Tyson Fury By Decision", "Bout To Go The Distance", "Total Rounds Over 10.5"] },
-        { id: 'os-mlb-dodgers-padres-3', category: 'OTHER', sportCategory: 'MLB', league: 'MLB Pennant Series', title: 'Los Angeles Dodgers vs San Diego Padres', isoTime: getExactTime(3, 20, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Shohei Ohtani Home Run", "Dodgers Moneyline", "Total Runs Over 7.5"] },
-
-        // ==================== DAY 4 ====================
-        { id: 'fb-uel-manutd-porto-4', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Europa League', title: 'Manchester United vs FC Porto', isoTime: getExactTime(4, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Rasmus Højlund", "Goalscorer: Samu Omorodion"] },
-        { id: 'fb-uel-tottenham-roma-4', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Europa League', title: 'Tottenham Hotspur vs AS Roma', isoTime: getExactTime(4, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Dominic Solanke", "Goalscorer: Artem Dovbyk"] },
-        { id: 'fb-uecl-chelsea-betis-4', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Europa League Conference', title: 'Chelsea vs Real Betis', isoTime: getExactTime(4, 21, 0), isTopTier: true, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Christopher Nkunku", "Chelsea To Win"] },
-        { id: 'fb-denmark-fck-brondby-4', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Denmark Superliga', title: 'FC Copenhagen vs Brøndby IF', isoTime: getExactTime(4, 20, 0), isTopTier: false, isHot: true, isOutright: false, suggestedMarkets: ["Match Winner: FC Copenhagen", "BTTS & Over 2.5"] },
-        { id: 'fb-efl-leeds-sunderland-4', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'EFL Championship', title: 'Leeds United vs Sunderland', isoTime: getExactTime(4, 22, 30), isTopTier: false, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Joel Piroe", "Leeds To Win", "Over 2.5 Goals"] },
-
-        { id: 'os-nfl-cowboys-giants-4', category: 'OTHER', sportCategory: 'NFL', league: 'NFL Thursday Night Football', title: 'Dallas Cowboys vs New York Giants', isoTime: getExactTime(4, 20, 15), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Dak Prescott 2+ Pass TDs", "CeeDee Lamb 80+ Rec Yds", "Cowboys Moneyline"] },
-        { id: 'os-lck-hanwha-kt-4', category: 'OTHER', sportCategory: 'ESPORT LCK', league: 'LCK Regional Finals', title: 'Hanwha Life Esports vs KT Rolster', isoTime: getExactTime(4, 17, 0), isTopTier: false, isHot: false, isOutright: false, suggestedMarkets: ["Viper First Blood", "HLE Map Handicap (-1.5)"] },
-
-        // ==================== DAY 5 ====================
-        { id: 'fb-epl-newcastle-mancity-5', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Newcastle United vs Manchester City', isoTime: getExactTime(5, 21, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Alexander Isak", "Goalscorer: Erling Haaland"] },
-        { id: 'fb-laliga-bilbao-sociedad-5', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Spain La Liga', title: 'Athletic Club vs Real Sociedad', isoTime: getExactTime(5, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Inaki Williams", "Match Winner: Bilbao"] },
-        { id: 'fb-bundesliga-frankfurt-gladbach-5', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Germany Bundesliga', title: 'Eintracht Frankfurt vs Borussia M\'gladbach', isoTime: getExactTime(5, 22, 0), isTopTier: true, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Omar Marmoush", "Over 2.5 Goals"] },
-        { id: 'fb-seriea-lazio-roma-5', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Italy Serie A', title: 'Lazio vs AS Roma', isoTime: getExactTime(5, 23, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Taty Castellanos", "Goalscorer: Paulo Dybala"] },
-        { id: 'fb-ligue1-marseille-lyon-5', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'France Ligue 1', title: 'Marseille vs Lyon', isoTime: getExactTime(5, 22, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Mason Greenwood", "Goalscorer: Alexandre Lacazette"] },
-
-        { id: 'os-nba-warriors-bucks-5', category: 'OTHER', sportCategory: 'BASKETBALL NBA', league: 'NBA Regular Season', title: 'Golden State Warriors vs Milwaukee Bucks', isoTime: getExactTime(5, 20, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Stephen Curry 30+ Points", "Giannis Antetokounmpo Double-Double", "Bucks Spread (-2.5)"] },
-
-        // ==================== DAY 6 ====================
-        { id: 'fb-epl-arsenal-liverpool-6', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Arsenal vs Liverpool', isoTime: getExactTime(6, 23, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Bukayo Saka", "Goalscorer: Mohamed Salah"] },
-        { id: 'fb-laliga-barca-atletico-6', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Spain La Liga', title: 'Barcelona vs Atletico Madrid', isoTime: getExactTime(6, 22, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Robert Lewandowski", "Goalscorer: Julian Alvarez"] },
-        { id: 'fb-bundesliga-dortmund-leipzig-6', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Germany Bundesliga', title: 'Borussia Dortmund vs RB Leipzig', isoTime: getExactTime(6, 21, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Serhou Guirassy", "Goalscorer: Lois Openda"] },
-        { id: 'fb-seriea-milan-juventus-6', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Italy Serie A', title: 'AC Milan vs Juventus', isoTime: getExactTime(6, 23, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Rafael Leão", "Goalscorer: Dusan Vlahovic"] },
-        { id: 'fb-portugal-benfica-porto-6', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Portugal Liga Portugal', title: 'Benfica vs FC Porto', isoTime: getExactTime(6, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Vangelis Pavlidis", "Goalscorer: Samu Omorodion"] },
-
-        { id: 'os-nfl-49ers-rams-6', category: 'OTHER', sportCategory: 'NFL', league: 'NFL Sunday Night Football', title: 'San Francisco 49ers vs Los Angeles Rams', isoTime: getExactTime(6, 20, 20), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Christian McCaffrey Anytime TD", "Matthew Stafford 2+ Pass TDs", "49ers Moneyline"] },
-
-        // ==================== TENNIS ====================
+        // TENNIS
         { id: 'tn-alcaraz-wuyibing', category: 'TENNIS', sportCategory: 'ATP TENNIS', league: 'ATP US Open Singles - 1/16-finals', title: 'Carlos Alcaraz vs Wu Yibing', isoTime: getExactTime(1, 2, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Match Winner & Over 3.5 Sets", "First Set Winner"] },
-        { id: 'tn-swiatek-bouzkova', category: 'TENNIS', sportCategory: 'WTA TENNIS', league: 'WTA US Open Singles - 1/16-finals', title: 'Iga Swiatek vs Marie Bouzkova', isoTime: getExactTime(1, 8, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Match Winner", "Under 19.5 Total Games"] },
 
-        // ==================== OUTRIGHTS ====================
-        { id: 'out-epl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Outright Winner Specials 2026/27', isoTime: getExactTime(5, 18, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["League Winner", "Top 4 Finish", "To Be Relegated"] },
-        { id: 'out-nba-champ', category: 'OUTRIGHTS', sportCategory: 'BASKETBALL NBA', league: 'NBA Championship', title: 'NBA Outright Champion 2026/27', isoTime: getExactTime(6, 20, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["Outright Winner", "Conference Champion"] }
+        // OUTRIGHTS
+        { id: 'out-epl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Outright Winner Specials 2026/27', isoTime: getExactTime(5, 18, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["League Winner", "Top 4 Finish"] }
       ];
     }
 
@@ -562,6 +551,7 @@
 
       Object.keys(grouped).forEach(dateStr => {
         const dayItems = grouped[dateStr];
+        const dateKeySanitized = dateStr.replace(/[^a-zA-Z0-9]/g, '');
 
         const banner = document.createElement("div");
         banner.className = "date-banner";
@@ -570,6 +560,16 @@
           <div class="date-actions">
             <button class="date-btn" onclick="bulkSelectDay('${dateStr}', true)">☑ Select Day</button>
             <button class="date-btn" onclick="bulkSelectDay('${dateStr}', false)">☐ Deselect Day</button>
+            
+            <!-- Import Dropdown Menu -->
+            <button class="date-btn import-master" onclick="toggleImportMenu(event, '${dateKeySanitized}')">
+              📥 IMPORT ▾
+            </button>
+            <div class="import-menu" id="menu-${dateKeySanitized}">
+              <button class="import-option both-opt" onclick="executeBatchImport('BOTH', '${dateStr}')">⚡ Import Both</button>
+              <button class="import-option" onclick="executeBatchImport('EDGE', '${dateStr}')">🟣 Import Edge</button>
+              <button class="import-option" onclick="executeBatchImport('IBET', '${dateStr}')">🔵 Import iBET</button>
+            </div>
           </div>
         `;
         container.appendChild(banner);
@@ -608,12 +608,6 @@
               <div class="boost-sub-header">📌 Popular Markets to Offer:</div>
               <div class="pills-container">${pillsHTML}</div>
             </div>
-
-            <div class="import-actions">
-              <button class="import-btn ibet" onclick="importSingle('ibet_boosts', '${item.id}')">+ ibet_boosts</button>
-              <button class="import-btn edge" onclick="importSingle('edge_boosts', '${item.id}')">+ Edge boosts</button>
-              <button class="import-btn both" onclick="importSingle('BOTH', '${item.id}')">+ BOTH</button>
-            </div>
           `;
           grid.appendChild(card);
         });
@@ -621,6 +615,20 @@
         container.appendChild(grid);
       });
     }
+
+    // Toggle Dropdown Import Menu
+    function toggleImportMenu(event, dateKeySanitized) {
+      event.stopPropagation();
+      document.querySelectorAll('.import-menu').forEach(m => {
+        if (m.id !== `menu-${dateKeySanitized}`) m.classList.remove('show');
+      });
+      const menu = document.getElementById(`menu-${dateKeySanitized}`);
+      if (menu) menu.classList.toggle('show');
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.import-menu').forEach(m => m.classList.remove('show'));
+    });
 
     function switchTab(tab) {
       currentTab = tab;
@@ -668,28 +676,44 @@
       };
     }
 
-    function saveToStorageTop(storageKey, newPayload) {
+    function saveToStorageTop(storageKey, itemsArray) {
       const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      existing.unshift(newPayload);
+      itemsArray.reverse().forEach(payload => existing.unshift(payload));
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    function importSingle(destination, itemId) {
-      const item = scheduleDatabase.find(i => i.id === itemId);
-      if (!item) return;
+    // Execute Batch Import for Selected Day (Data transfer without page navigation)
+    function executeBatchImport(destination, dateStr) {
+      // Find checked games for this date; if none checked, import all games on this date
+      let targetItems = scheduleDatabase.filter(item => {
+        const dateObj = parseIsoDate(item.isoTime);
+        return formatGMT8Date(dateObj) === dateStr && selectedItemIds.has(item.id);
+      });
 
-      const payload = prepareImportPayload(item);
+      if (targetItems.length === 0) {
+        targetItems = scheduleDatabase.filter(item => {
+          const dateObj = parseIsoDate(item.isoTime);
+          return formatGMT8Date(dateObj) === dateStr;
+        });
+      }
 
-      if (destination === 'ibet_boosts') {
-        saveToStorageTop('ibet_boosts_list', payload);
-        window.location.href = 'ibet_boosts.html';
-      } else if (destination === 'edge_boosts') {
-        saveToStorageTop('edge_boosts_list', payload);
-        window.location.href = 'edge_boosts.html';
+      if (targetItems.length === 0) {
+        alert("No games available to import for this date.");
+        return;
+      }
+
+      const payloads = targetItems.map(prepareImportPayload);
+
+      if (destination === 'IBET') {
+        saveToStorageTop('ibet_boosts_list', payloads);
+        alert(`Successfully imported ${payloads.length} game(s) to iBET Boosts!`);
+      } else if (destination === 'EDGE') {
+        saveToStorageTop('edge_boosts_list', payloads);
+        alert(`Successfully imported ${payloads.length} game(s) to Edge Boosts!`);
       } else if (destination === 'BOTH') {
-        saveToStorageTop('ibet_boosts_list', payload);
-        saveToStorageTop('edge_boosts_list', payload);
-        window.location.href = 'ibet_boosts.html';
+        saveToStorageTop('ibet_boosts_list', payloads);
+        saveToStorageTop('edge_boosts_list', payloads);
+        alert(`Successfully imported ${payloads.length} game(s) to BOTH iBET and Edge Boosts!`);
       }
     }
 
