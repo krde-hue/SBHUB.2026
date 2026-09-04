@@ -306,10 +306,11 @@
             transition: background-color 0.15s, color 0.15s;
         }
 
-        /* UPDATED SHIFT STYLES & COLOR PALETTE */
-        .shift-bg-6-15 { background-color: #86efac !important; color: #064e3b !important; }
+        /* UPDATED SHIFT STYLES & COLOR PALETTE (ORANGE FOR 6:00 - 15:00) */
+        .shift-bg-6-15 { background-color: #fb923c !important; color: #431407 !important; }
         .shift-bg-9-18 { background-color: #a7f3d0 !important; color: #065f46 !important; }
         .shift-bg-12-21 { background-color: #bae6fd !important; color: #0c4a6e !important; }
+        .shift-bg-14-23 { background-color: #e9d5ff !important; color: #581c87 !important; }
         .shift-bg-15-00 { background-color: #fed7aa !important; color: #7c2d12 !important; }
 
         .shift-bg-6-15-wfh { background-color: #fbcfe8 !important; color: #831843 !important; } /* Light Pink */
@@ -322,9 +323,10 @@
         .shift-bg-sl { background-color: #c084fc !important; color: #3b0764 !important; }
         .shift-bg-adjusted { background-color: #facc15 !important; color: #000000 !important; }
 
-        .item-6-15:hover { background-color: #86efac !important; color: #064e3b !important; }
+        .item-6-15:hover { background-color: #fb923c !important; color: #431407 !important; }
         .item-9-18:hover { background-color: #a7f3d0 !important; color: #065f46 !important; }
         .item-12-21:hover { background-color: #bae6fd !important; color: #0c4a6e !important; }
+        .item-14-23:hover { background-color: #e9d5ff !important; color: #581c87 !important; }
         .item-15-00:hover { background-color: #fed7aa !important; color: #7c2d12 !important; }
 
         .item-6-15-wfh:hover { background-color: #fbcfe8 !important; color: #831843 !important; }
@@ -337,7 +339,7 @@
         .item-sl:hover { background-color: #c084fc !important; color: #3b0764 !important; }
         .item-adjusted:hover { background-color: #facc15 !important; color: #000000 !important; }
 
-        .custom-editable-input, .miguel-editable-cell {
+        .custom-editable-input {
             width: 100%;
             padding: 4px;
             font-size: 10px;
@@ -348,11 +350,6 @@
             background: #facc15;
             color: #000000;
             outline: none;
-        }
-
-        .miguel-editable-cell {
-            background: var(--bg-color);
-            color: var(--text-color);
         }
 
         .leave-section {
@@ -609,8 +606,7 @@
             padding: 3px;
         }
 
-        body.mobile-view-active .custom-editable-input, 
-        body.mobile-view-active .miguel-editable-cell {
+        body.mobile-view-active .custom-editable-input {
             font-size: 10px;
             padding: 3px;
         }
@@ -713,6 +709,7 @@
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
+                                    <option value="14:00 - 23:00">14:00 - 23:00</option>
                                     <option value="15:00 - 00:00">15:00 - 00:00</option>
                                     <option value="6:00 - 15:00 (WFH)">6:00 - 15:00 (WFH)</option>
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
@@ -733,6 +730,7 @@
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
+                                    <option value="14:00 - 23:00">14:00 - 23:00</option>
                                     <option value="15:00 - 00:00">15:00 - 00:00</option>
                                     <option value="6:00 - 15:00 (WFH)">6:00 - 15:00 (WFH)</option>
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
@@ -753,6 +751,7 @@
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
+                                    <option value="14:00 - 23:00">14:00 - 23:00</option>
                                     <option value="15:00 - 00:00">15:00 - 00:00</option>
                                     <option value="6:00 - 15:00 (WFH)">6:00 - 15:00 (WFH)</option>
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
@@ -773,6 +772,7 @@
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
+                                    <option value="14:00 - 23:00">14:00 - 23:00</option>
                                     <option value="15:00 - 00:00">15:00 - 00:00</option>
                                     <option value="6:00 - 15:00 (WFH)">6:00 - 15:00 (WFH)</option>
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
@@ -790,6 +790,7 @@
                                 <select class="bulk-select" onchange="bulkSetShift(4, this)">
                                     <option value="">-- Set All Month --</option>
                                     <option value="CLEAR">-- Clear Month --</option>
+                                    <option value="14:00 - 23:00" selected>14:00 - 23:00</option>
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
@@ -936,12 +937,13 @@
             ]
         };
 
-        /* UPDATED SHIFT OPTIONS LIST (6:00, 9:00, 12:00, 15:00 SHIFTS & COLOR MAP) */
+        /* UPDATED SHIFT OPTIONS LIST (ORANGE FOR 6:00 - 15:00) */
         const shiftList = [
             { text: "", bgClass: "", itemClass: "", start: null, end: null },
             { text: "6:00 - 15:00", bgClass: "shift-bg-6-15", itemClass: "item-6-15", start: 6, end: 15 },
             { text: "9:00 - 18:00", bgClass: "shift-bg-9-18", itemClass: "item-9-18", start: 9, end: 18 },
             { text: "12:00 - 21:00", bgClass: "shift-bg-12-21", itemClass: "item-12-21", start: 12, end: 21 },
+            { text: "14:00 - 23:00", bgClass: "shift-bg-14-23", itemClass: "item-14-23", start: 14, end: 23 },
             { text: "15:00 - 00:00", bgClass: "shift-bg-15-00", itemClass: "item-15-00", start: 15, end: 0 },
             { text: "6:00 - 15:00 (WFH)", bgClass: "shift-bg-6-15-wfh", itemClass: "item-6-15-wfh", start: 6, end: 15 },
             { text: "9:00 - 18:00 (WFH)", bgClass: "shift-bg-9-18-wfh", itemClass: "item-9-18-wfh", start: 9, end: 18 },
@@ -1287,23 +1289,7 @@
                     
                     let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
 
-                    if (member === "Miguel") {
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.className = 'miguel-editable-cell';
-                        input.value = formatShiftForTimezone(activeShift);
-                        input.placeholder = "8:00-17:00";
-                        if (isViewOnlyMode) input.disabled = true;
-
-                        input.addEventListener('change', () => {
-                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                            rotaData[d][memberIdx] = input.value;
-                            saveRotaToDatabase();
-                        });
-
-                        tdShift.appendChild(input);
-                    } 
-                    else if (activeShift.startsWith("Adjusted:") || activeShift === "Adjusted") {
+                    if (activeShift.startsWith("Adjusted:") || activeShift === "Adjusted") {
                         const customVal = activeShift.replace("Adjusted:", "").trim();
                         const input = document.createElement('input');
                         input.type = 'text';
