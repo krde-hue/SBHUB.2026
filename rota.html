@@ -75,6 +75,7 @@
             opacity: 0.85;
         }
 
+        /* HOLIDAY DISPLAY BANNER IN HEADER */
         .ph-holiday-banner {
             flex: 1 1 380px;
             max-width: 580px;
@@ -90,9 +91,36 @@
             backdrop-filter: blur(8px);
         }
 
-        .ph-holiday-icon { font-size: 20px; flex-shrink: 0; }
-        .ph-holiday-text-area { display: flex; flex-direction: column; gap: 2px; }
-        .ph-holiday-title { font-weight: 800; font-size: 12px; color: var(--accent-btn); display: flex; align-items: center; gap: 6px; }
+        .ph-holiday-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .ph-holiday-text-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .ph-holiday-title {
+            font-weight: 800;
+            font-size: 12px;
+            color: var(--accent-btn);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ph-holiday-list-item {
+            display: inline-block;
+            background: var(--holiday-badge-bg);
+            color: var(--holiday-badge-text);
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-right: 4px;
+        }
 
         .header-top-controls {
             display: flex;
@@ -120,6 +148,7 @@
         .btn-warning { background-color: #eab308; color: #000000; }
         .btn-admin { background-color: #22c55e; color: #ffffff; }
         .btn-mobile-toggle { background-color: #a855f7; color: #ffffff; }
+        .btn-mobile-toggle.active { background-color: #ec4899; }
 
         .viewer-badge {
             background-color: rgba(255, 255, 255, 0.15);
@@ -134,6 +163,9 @@
             gap: 6px;
             cursor: pointer;
             user-select: none;
+        }
+        .viewer-badge:hover {
+            background-color: rgba(255, 255, 255, 0.25);
         }
 
         .view-only-banner {
@@ -168,6 +200,7 @@
             font-weight: bold;
         }
 
+        /* STRICT SIDE-BY-SIDE LAYOUT (PREVENTS DESKTOP WRAPPING) */
         .main-layout {
             display: flex;
             gap: 20px;
@@ -203,25 +236,125 @@
             font-weight: bold;
         }
 
-        .bulk-set-container { margin-top: 3px; display: flex; flex-direction: column; gap: 2px; }
-        .bulk-select { font-size: 9px !important; padding: 1px !important; width: 100%; }
+        .day-col, .date-col { width: 55px; }
 
-        /* SHIFT COLOR CLASSES */
+        .bulk-set-container {
+            margin-top: 3px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .bulk-select {
+            font-size: 9px !important;
+            padding: 1px !important;
+            width: 100%;
+        }
+
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+            user-select: none;
+        }
+
+        .custom-dropdown-btn {
+            width: 100%;
+            padding: 4px 2px;
+            border-radius: 3px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            background-color: #ffffff;
+            color: #000000;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .custom-dropdown-btn::after {
+            content: '▼';
+            font-size: 7px;
+            margin-left: 2px;
+        }
+
+        .custom-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 2px;
+        }
+
+        .custom-dropdown-menu.show {
+            display: block;
+        }
+
+        .custom-dropdown-item {
+            padding: 5px 6px;
+            font-weight: bold;
+            font-size: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.15s, color 0.15s;
+        }
+
+        /* UPDATED SHIFT STYLES & COLOR PALETTE */
         .shift-bg-6-15 { background-color: #86efac !important; color: #064e3b !important; }
         .shift-bg-9-18 { background-color: #a7f3d0 !important; color: #065f46 !important; }
         .shift-bg-12-21 { background-color: #bae6fd !important; color: #0c4a6e !important; }
         .shift-bg-15-00 { background-color: #fed7aa !important; color: #7c2d12 !important; }
 
-        .shift-bg-6-15-wfh { background-color: #fbcfe8 !important; color: #831843 !important; }
-        .shift-bg-9-18-wfh { background-color: #f472b6 !important; color: #831843 !important; }
-        .shift-bg-12-21-wfh { background-color: #e9d5ff !important; color: #581c87 !important; }
-        .shift-bg-15-00-wfh { background-color: #c084fc !important; color: #3b0764 !important; }
+        .shift-bg-6-15-wfh { background-color: #fbcfe8 !important; color: #831843 !important; } /* Light Pink */
+        .shift-bg-9-18-wfh { background-color: #f472b6 !important; color: #831843 !important; } /* Pink */
+        .shift-bg-12-21-wfh { background-color: #e9d5ff !important; color: #581c87 !important; } /* Light Purple */
+        .shift-bg-15-00-wfh { background-color: #c084fc !important; color: #3b0764 !important; } /* Purple */
 
         .shift-bg-rd { background-color: #9ca3af !important; color: #111827 !important; }
         .shift-bg-vl { background-color: #fde047 !important; color: #713f12 !important; }
-        .shift-bg-sl { background-color: #f87171 !important; color: #7f1d1d !important; }
+        .shift-bg-sl { background-color: #c084fc !important; color: #3b0764 !important; }
+        .shift-bg-adjusted { background-color: #facc15 !important; color: #000000 !important; }
 
-        /* RIGHT SECTION LAYOUT */
+        .item-6-15:hover { background-color: #86efac !important; color: #064e3b !important; }
+        .item-9-18:hover { background-color: #a7f3d0 !important; color: #065f46 !important; }
+        .item-12-21:hover { background-color: #bae6fd !important; color: #0c4a6e !important; }
+        .item-15-00:hover { background-color: #fed7aa !important; color: #7c2d12 !important; }
+
+        .item-6-15-wfh:hover { background-color: #fbcfe8 !important; color: #831843 !important; }
+        .item-9-18-wfh:hover { background-color: #f472b6 !important; color: #831843 !important; }
+        .item-12-21-wfh:hover { background-color: #e9d5ff !important; color: #581c87 !important; }
+        .item-15-00-wfh:hover { background-color: #c084fc !important; color: #3b0764 !important; }
+
+        .item-rd:hover { background-color: #9ca3af !important; color: #111827 !important; }
+        .item-vl:hover { background-color: #fde047 !important; color: #713f12 !important; }
+        .item-sl:hover { background-color: #c084fc !important; color: #3b0764 !important; }
+        .item-adjusted:hover { background-color: #facc15 !important; color: #000000 !important; }
+
+        .custom-editable-input, .miguel-editable-cell {
+            width: 100%;
+            padding: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: #facc15;
+            color: #000000;
+            outline: none;
+        }
+
+        .miguel-editable-cell {
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
         .leave-section {
             background: var(--card-bg);
             padding: 15px;
@@ -236,10 +369,10 @@
         }
 
         .leave-section-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
-            color: #38bdf8;
-            margin-bottom: 8px;
+            color: #ef4444;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -260,61 +393,237 @@
             position: relative;
             width: 100%;
             max-width: 280px;
-            height: 250px;
+            height: 280px;
         }
 
-        .leave-table-wrapper { overflow-x: auto; width: 100%; }
-        .leave-table { width: 100%; min-width: 450px; border-collapse: collapse; }
+        .leave-table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
 
-        .badge-vl-type { background-color: #22c55e; color: #ffffff; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
-        .badge-sl-type { background-color: #ef4444; color: #ffffff; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
-        
-        .date-chip {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid var(--border-color);
+        .leave-table {
+            width: 100%;
+            min-width: 350px;
+        }
+
+        .badge-vl {
+            background-color: #86efac;
+            color: #064e3b;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .badge-sl {
+            background-color: #ef4444;
             color: #ffffff;
             font-weight: bold;
             padding: 2px 6px;
             border-radius: 3px;
-            font-size: 11px;
-            display: inline-block;
         }
 
-        .wfh-chip {
+        .badge-wfh {
             background-color: #38bdf8;
             color: #0b2240;
             font-weight: bold;
             padding: 2px 6px;
             border-radius: 3px;
-            font-size: 11px;
             display: inline-block;
             margin: 1px;
         }
 
-        .ph-holiday-tag {
-            background: #facc15;
-            color: #000000;
-            font-weight: 800;
-            padding: 2px 6px;
+        .date-input-cell {
+            width: 100%;
+            padding: 3px;
+            font-size: 11px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            outline: none;
+            border-radius: 3px;
+        }
+
+        /* VIEWER LIST MODAL STYLES */
+        .viewer-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .viewer-modal-backdrop.show { display: flex; }
+
+        .viewer-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            width: 280px;
+            max-width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: var(--text-color);
+        }
+
+        .viewer-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .viewer-modal-close {
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.7;
+        }
+        .viewer-modal-close:hover { opacity: 1; }
+
+        .viewer-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .viewer-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 4px;
-            font-size: 10px;
-            margin-right: 5px;
+        }
+
+        .viewer-item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .viewer-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
             display: inline-block;
         }
 
-        .shift-select-cell {
-            width: 100%;
+        .reset-name-btn {
+            background: transparent;
+            border: none;
+            color: #ef4444;
             font-size: 10px;
-            padding: 2px;
-            font-weight: bold;
-            border-radius: 3px;
-            border: 1px solid var(--border-color);
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
             text-align: center;
+        }
+
+        /* MOBILE OPTIMIZED MODE STYLES */
+        body.mobile-view-active {
+            padding: 8px;
+        }
+
+        body.mobile-view-active .header-top {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        body.mobile-view-active .ph-holiday-banner {
+            max-width: 100%;
+        }
+
+        body.mobile-view-active .header-top-controls {
+            justify-content: flex-start;
+            gap: 6px;
+        }
+
+        body.mobile-view-active .btn {
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        body.mobile-view-active .controls {
+            padding: 10px;
+            gap: 8px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        body.mobile-view-active .controls > div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        body.mobile-view-active .controls select, 
+        body.mobile-view-active .controls input {
+            font-size: 12px;
+            padding: 4px 6px;
+        }
+
+        body.mobile-view-active .main-layout {
+            flex-direction: column;
+            gap: 15px;
+            flex-wrap: wrap !important;
+        }
+
+        body.mobile-view-active .table-container {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        body.mobile-view-active .leave-section {
+            width: 100%;
+            min-width: 100%;
+            padding: 10px;
+        }
+
+        body.mobile-view-active th, 
+        body.mobile-view-active td {
+            padding: 3px 2px;
+            font-size: 11px;
+        }
+
+        body.mobile-view-active .day-col, 
+        body.mobile-view-active .date-col {
+            width: 50px;
+        }
+
+        body.mobile-view-active .custom-dropdown-btn {
+            font-size: 10px;
+            padding: 3px;
+        }
+
+        body.mobile-view-active .custom-editable-input, 
+        body.mobile-view-active .miguel-editable-cell {
+            font-size: 10px;
+            padding: 3px;
+        }
+
+        body.mobile-view-active .chart-container-inner {
+            max-width: 240px;
+            height: 240px;
         }
     </style>
 </head>
 <body>
 
+    <!-- VIEW ONLY WARNING BANNER -->
     <div id="viewOnlyBanner" class="view-only-banner">
         🔒 View-Only Mode Active: Editing actions are disabled, but local Timezone switching is available below.
     </div>
@@ -325,6 +634,7 @@
             <span class="title-credit">kr!ztel_2026 model</span>
         </div>
 
+        <!-- PHILIPPINES HOLIDAY TRACKER BANNER (RED BOX REFERENCE AREA) -->
         <div class="ph-holiday-banner" id="phHolidayBanner">
             <span class="ph-holiday-icon">🇵🇭</span>
             <div class="ph-holiday-text-area">
@@ -334,13 +644,13 @@
         </div>
 
         <div class="header-top-controls">
-            <span class="viewer-badge" title="Click to view online members">
+            <span class="viewer-badge" title="Click to view online members" onclick="toggleViewerModal()">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
-            <button id="mobileToggleBtn" class="btn btn-mobile-toggle">📱 Mobile View: OFF</button>
-            <button id="adminAuthBtn" class="btn btn-admin">🔑 Admin Login</button>
-            <button class="btn btn-secondary">🌓 Mode</button>
-            <button class="btn btn-warning" title="Generate View-Only Link">🔗 Share View-Only</button>
+            <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View: OFF</button>
+            <button id="adminAuthBtn" class="btn btn-admin" onclick="handleAdminAuth()">🔑 Admin Login</button>
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+            <button class="btn btn-warning" onclick="copyViewOnlyLink()" title="Generate View-Only Link">🔗 Share View-Only</button>
             <a id="btnBackToDashboard" href="index.html" class="btn btn-back">🏠 Back to Dashboard</a>
         </div>
     </div>
@@ -349,7 +659,7 @@
         <button class="btn btn-secondary" onclick="changeMonth(-1)">◀ Prev Month</button>
         <div>
             <label for="month-select">Month: </label>
-            <select id="month-select" onchange="onMonthOrYearChange()">
+            <select id="month-select">
                 <option value="0">January</option><option value="1">February</option>
                 <option value="2">March</option><option value="3">April</option>
                 <option value="4">May</option><option value="5">June</option>
@@ -360,11 +670,11 @@
         </div>
         <div>
             <label for="year-input">Year: </label>
-            <input type="number" id="year-input" value="2026" min="2020" max="2035" style="width: 80px;" onchange="onMonthOrYearChange()">
+            <input type="number" id="year-input" value="2026" min="2020" max="2035" style="width: 80px;">
         </div>
         <div>
             <label for="timezone-select">🌐 Global Timezone: </label>
-            <select id="timezone-select">
+            <select id="timezone-select" onchange="changeTimezoneGlobal(this.value)">
                 <option value="-10">HST - Hawaii (-10)</option>
                 <option value="-8">PST / PDT (-8)</option>
                 <option value="-7">MST / MDT (-7)</option>
@@ -400,9 +710,6 @@
                                 <select class="bulk-select" onchange="bulkSetShift(0, this)">
                                     <option value="">-- Set All Month --</option>
                                     <option value="CLEAR">-- Clear Month --</option>
-                                    <option value="RD">RD</option>
-                                    <option value="VL">VL</option>
-                                    <option value="SL">SL</option>
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
@@ -411,6 +718,9 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="15:00 - 00:00 (WFH)">15:00 - 00:00 (WFH)</option>
+                                    <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -420,9 +730,6 @@
                                 <select class="bulk-select" onchange="bulkSetShift(1, this)">
                                     <option value="">-- Set All Month --</option>
                                     <option value="CLEAR">-- Clear Month --</option>
-                                    <option value="RD">RD</option>
-                                    <option value="VL">VL</option>
-                                    <option value="SL">SL</option>
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
@@ -431,6 +738,9 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="15:00 - 00:00 (WFH)">15:00 - 00:00 (WFH)</option>
+                                    <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -440,9 +750,6 @@
                                 <select class="bulk-select" onchange="bulkSetShift(2, this)">
                                     <option value="">-- Set All Month --</option>
                                     <option value="CLEAR">-- Clear Month --</option>
-                                    <option value="RD">RD</option>
-                                    <option value="VL">VL</option>
-                                    <option value="SL">SL</option>
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
@@ -451,6 +758,9 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="15:00 - 00:00 (WFH)">15:00 - 00:00 (WFH)</option>
+                                    <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -460,9 +770,6 @@
                                 <select class="bulk-select" onchange="bulkSetShift(3, this)">
                                     <option value="">-- Set All Month --</option>
                                     <option value="CLEAR">-- Clear Month --</option>
-                                    <option value="RD">RD</option>
-                                    <option value="VL">VL</option>
-                                    <option value="SL">SL</option>
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
@@ -471,6 +778,9 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="15:00 - 00:00 (WFH)">15:00 - 00:00 (WFH)</option>
+                                    <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -480,9 +790,6 @@
                                 <select class="bulk-select" onchange="bulkSetShift(4, this)">
                                     <option value="">-- Set All Month --</option>
                                     <option value="CLEAR">-- Clear Month --</option>
-                                    <option value="RD">RD</option>
-                                    <option value="VL">VL</option>
-                                    <option value="SL">SL</option>
                                     <option value="6:00 - 15:00">6:00 - 15:00</option>
                                     <option value="9:00 - 18:00">9:00 - 18:00</option>
                                     <option value="12:00 - 21:00">12:00 - 21:00</option>
@@ -491,6 +798,9 @@
                                     <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
                                     <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
                                     <option value="15:00 - 00:00 (WFH)">15:00 - 00:00 (WFH)</option>
+                                    <option value="RD">RD</option>
+                                    <option value="VL">VL</option>
+                                    <option value="SL">SL</option>
                                 </select>
                             </div>
                         </th>
@@ -501,7 +811,6 @@
         </div>
 
         <div class="leave-section">
-            <!-- PIE CHART CARD -->
             <div>
                 <div class="leave-section-title">📊 Team VL Usage by Month</div>
                 <div class="chart-box">
@@ -511,324 +820,748 @@
                 </div>
             </div>
 
-            <!-- VACATION & SICK LEAVE DATES GRID -->
             <div>
                 <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Cumulative 2026)</div>
                 <div class="leave-table-wrapper">
                     <table class="leave-table">
                         <thead>
                             <tr>
-                                <th>Type</th>
-                                <th style="color: #ffc0cb;">Ann</th>
-                                <th style="color: #9cc2e5;">Dave</th>
-                                <th style="color: #b4c6e7;">Kenneth</th>
-                                <th style="color: #c6e0b4;">Kriztel</th>
-                                <th style="color: #ffffff;">Miguel</th>
+                                <th style="width: 50px;">Type</th>
+                                <th>Ann</th>
+                                <th>Dave</th>
+                                <th>Kenneth</th>
+                                <th>Kriztel</th>
                             </tr>
                         </thead>
-                        <tbody id="leaveGridBody"></tbody>
+                        <tbody id="leave-dates-body"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- WFH ALLOWANCE TRACKER -->
             <div>
-                <div class="leave-section-title">🏡 WFH Allowance Tracker</div>
+                <div class="leave-section-title" style="color: #38bdf8;">🏠 WFH Allowance Tracker</div>
                 <div class="leave-table-wrapper">
                     <table class="leave-table">
                         <thead>
                             <tr>
                                 <th>Team Member</th>
                                 <th>WFH Dates Taken</th>
-                                <th>Total Used</th>
+                                <th style="width: 90px;">Total Used</th>
                             </tr>
                         </thead>
-                        <tbody id="wfhTrackerBody"></tbody>
+                        <tbody id="wfh-tracker-body"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        const teamMembers = ['Ann', 'Dave', 'Kenneth', 'Kriztel', 'Miguel'];
-        const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const monthNamesLong = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const monthChartColors = [
-            '#f87171', '#fb923c', '#facc15', '#4ade80', 
-            '#2dd4bf', '#38bdf8', '#818cf8', '#c084fc', 
-            '#f472b6', '#e879f9', '#a7f3d0', '#fbcfe8'
-        ];
+    <!-- VIEWER LIST POPUP MODAL -->
+    <div id="viewerModal" class="viewer-modal-backdrop" onclick="closeViewerModal(event)">
+        <div class="viewer-modal" onclick="event.stopPropagation()">
+            <div class="viewer-modal-header">
+                <span>👁️ Active Viewers (<span id="modalViewerCount">0</span>)</span>
+                <span class="viewer-modal-close" onclick="toggleViewerModal()">✕</span>
+            </div>
+            <ul id="viewerListContainer" class="viewer-list">
+                <!-- Dynamic Viewer Names inserted here -->
+            </ul>
+            <button class="reset-name-btn" onclick="resetMyViewerName()">Change My Saved Name</button>
+        </div>
+    </div>
 
-        const phHolidays2026 = {
-            0: [{ date: 'Jan 1', name: 'New Year\'s Day' }],
-            1: [{ date: 'Feb 17', name: 'Chinese New Year' }, { date: 'Feb 25', name: 'EDSA Revolution Anniversary' }],
-            2: [{ date: 'Mar 20', name: 'Eid\'l Fitr (Tentative)' }],
-            3: [{ date: 'Apr 2', name: 'Maundy Thursday' }, { date: 'Apr 3', name: 'Good Friday' }, { date: 'Apr 4', name: 'Black Saturday' }, { date: 'Apr 9', name: 'Araw ng Kagitingan' }],
-            4: [{ date: 'May 1', name: 'Labor Day' }, { date: 'May 27', name: 'Eid\'l Adha (Tentative)' }],
-            5: [{ date: 'Jun 12', name: 'Independence Day' }],
-            6: [],
-            7: [{ date: 'Aug 21', name: 'Ninoy Aquino Day' }, { date: 'Aug 31', name: 'National Heroes Day' }],
-            8: [],
-            9: [],
-            10: [{ date: 'Nov 1', name: 'All Saints\' Day' }, { date: 'Nov 2', name: 'All Souls\' Day' }, { date: 'Nov 30', name: 'Bonifacio Day' }],
-            11: [{ date: 'Dec 8', name: 'Feast of the Immaculate Conception' }, { date: 'Dec 24', name: 'Christmas Eve' }, { date: 'Dec 25', name: 'Christmas Day' }, { date: 'Dec 30', name: 'Rizal Day' }, { date: 'Dec 31', name: 'Last Day of the Year' }]
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
         };
 
-        let annualScheduleStore = {};
-        let vlChartInstance = null;
-        let lastSelectedMonth = '8';
-        let lastSelectedYear = '2026';
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        function getShiftClass(shiftVal) {
-            if (!shiftVal) return '';
-            switch (shiftVal) {
-                case '6:00 - 15:00': return 'shift-bg-6-15';
-                case '9:00 - 18:00': return 'shift-bg-9-18';
-                case '12:00 - 21:00': return 'shift-bg-12-21';
-                case '15:00 - 00:00': return 'shift-bg-15-00';
-                case '6:00 - 15:00 (WFH)': return 'shift-bg-6-15-wfh';
-                case '9:00 - 18:00 (WFH)': return 'shift-bg-9-18-wfh';
-                case '12:00 - 21:00 (WFH)': return 'shift-bg-12-21-wfh';
-                case '15:00 - 00:00 (WFH)': return 'shift-bg-15-00-wfh';
-                case 'RD': return 'shift-bg-rd';
-                case 'VL': return 'shift-bg-vl';
-                case 'SL': return 'shift-bg-sl';
-                default: return '';
+        const team = ["Ann", "Dave", "Kenneth", "Kriztel", "Miguel"];
+        const leaveTrackedTeam = ["Ann", "Dave", "Kenneth", "Kriztel"];
+
+        // OFFICIAL PHILIPPINES 2026 HOLIDAYS LOOKUP DATABASE
+        const phHolidays2026 = {
+            0: [
+                { date: "Jan 1", name: "New Year's Day (Regular)" },
+                { date: "Jan 23", name: "First Philippine Republic Day" }
+            ],
+            1: [
+                { date: "Feb 17", name: "Chinese New Year (Special Non-Working)" },
+                { date: "Feb 25", name: "EDSA People Power Revolution Anniversary" }
+            ],
+            2: [
+                { date: "Mar 20", name: "Eid'l Fitr (Feast of Ramadhan - Tentative)" }
+            ],
+            3: [
+                { date: "Apr 2", name: "Maundy Thursday (Regular)" },
+                { date: "Apr 3", name: "Good Friday (Regular)" },
+                { date: "Apr 4", name: "Black Saturday (Special Non-Working)" },
+                { date: "Apr 9", name: "Araw ng Kagitingan / Day of Valor (Regular)" }
+            ],
+            4: [
+                { date: "May 1", name: "Labor Day (Regular)" },
+                { date: "May 27", name: "Eid'l Adha (Feast of Sacrifice - Tentative)" }
+            ],
+            5: [
+                { date: "Jun 12", name: "Independence Day (Regular)" }
+            ],
+            6: [], // July
+            7: [
+                { date: "Aug 21", name: "Ninoy Aquino Day (Special Non-Working)" },
+                { date: "Aug 31", name: "National Heroes Day (Regular)" }
+            ],
+            8: [], // September - No National Holidays
+            9: [
+                { date: "Oct 31", name: "All Saints' Day Eve (Special Non-Working)" }
+            ],
+            10: [
+                { date: "Nov 1", name: "All Saints' Day (Special Non-Working)" },
+                { date: "Nov 2", name: "All Souls' Day (Special Non-Working)" },
+                { date: "Nov 30", name: "Bonifacio Day (Regular)" }
+            ],
+            11: [
+                { date: "Dec 8", name: "Feast of the Immaculate Conception (Special Non-Working)" },
+                { date: "Dec 24", name: "Christmas Eve (Special Non-Working)" },
+                { date: "Dec 25", name: "Christmas Day (Regular)" },
+                { date: "Dec 30", name: "Rizal Day (Regular)" },
+                { date: "Dec 31", name: "Last Day of the Year (Special Non-Working)" }
+            ]
+        };
+
+        /* UPDATED SHIFT OPTIONS LIST (6:00, 9:00, 12:00, 15:00 SHIFTS & COLOR MAP) */
+        const shiftList = [
+            { text: "", bgClass: "", itemClass: "", start: null, end: null },
+            { text: "6:00 - 15:00", bgClass: "shift-bg-6-15", itemClass: "item-6-15", start: 6, end: 15 },
+            { text: "9:00 - 18:00", bgClass: "shift-bg-9-18", itemClass: "item-9-18", start: 9, end: 18 },
+            { text: "12:00 - 21:00", bgClass: "shift-bg-12-21", itemClass: "item-12-21", start: 12, end: 21 },
+            { text: "15:00 - 00:00", bgClass: "shift-bg-15-00", itemClass: "item-15-00", start: 15, end: 0 },
+            { text: "6:00 - 15:00 (WFH)", bgClass: "shift-bg-6-15-wfh", itemClass: "item-6-15-wfh", start: 6, end: 15 },
+            { text: "9:00 - 18:00 (WFH)", bgClass: "shift-bg-9-18-wfh", itemClass: "item-9-18-wfh", start: 9, end: 18 },
+            { text: "12:00 - 21:00 (WFH)", bgClass: "shift-bg-12-21-wfh", itemClass: "item-12-21-wfh", start: 12, end: 21 },
+            { text: "15:00 - 00:00 (WFH)", bgClass: "shift-bg-15-00-wfh", itemClass: "item-15-00-wfh", start: 15, end: 0 },
+            { text: "Adjusted", bgClass: "shift-bg-adjusted", itemClass: "item-adjusted", start: null, end: null },
+            { text: "RD", bgClass: "shift-bg-rd", itemClass: "item-rd", start: null, end: null },
+            { text: "VL", bgClass: "shift-bg-vl", itemClass: "item-vl", start: null, end: null },
+            { text: "SL", bgClass: "shift-bg-sl", itemClass: "item-sl", start: null, end: null }
+        ];
+
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        const monthSelect = document.getElementById('month-select');
+        const yearInput = document.getElementById('year-input');
+        const timezoneSelect = document.getElementById('timezone-select');
+        const tbody = document.getElementById('schedule-body');
+        const leaveDatesBody = document.getElementById('leave-dates-body');
+        const wfhTrackerBody = document.getElementById('wfh-tracker-body');
+        const mobileToggleBtn = document.getElementById('mobileToggleBtn');
+        const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
+
+        let vlChartInstance = null;
+        let globalTzOffset = 8;
+        let rotaData = {};
+        let leaveMatrixData = {};
+        let allRotaDataYear = {};
+        
+        let isViewOnlyMode = true;
+        let isMobileView = false;
+        const ADMIN_PASSWORD = "sportsbook2026";
+
+        function updatePhilippineHolidaysDisplay() {
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+            const titleElem = document.getElementById('phHolidayTitle');
+            const detailsElem = document.getElementById('phHolidayDetails');
+
+            if (!titleElem || !detailsElem) return;
+
+            const monthName = monthNames[selectedMonth];
+            titleElem.innerText = `PH Holidays — ${monthName} ${selectedYear}`;
+
+            if (selectedYear === 2026 && phHolidays2026[selectedMonth]) {
+                const holidays = phHolidays2026[selectedMonth];
+                if (holidays.length > 0) {
+                    detailsElem.innerHTML = holidays.map(h => 
+                        `<div><span class="ph-holiday-list-item">${h.date}</span> ${h.name}</div>`
+                    ).join('');
+                } else {
+                    detailsElem.innerHTML = `There are no national regular or nationwide special non-working holidays in the Philippines for ${monthName} ${selectedYear}.`;
+                }
+            } else {
+                detailsElem.innerHTML = `No specific holiday records logged for ${monthName} ${selectedYear}.`;
             }
         }
 
-        function onMonthOrYearChange() {
-            saveMonthData(lastSelectedYear, lastSelectedMonth);
+        function toggleMobileView() {
+            isMobileView = !isMobileView;
+            if (isMobileView) {
+                document.body.classList.add('mobile-view-active');
+                mobileToggleBtn.innerText = '📱 Mobile View: ON';
+                mobileToggleBtn.classList.add('active');
+            } else {
+                document.body.classList.remove('mobile-view-active');
+                mobileToggleBtn.innerText = '📱 Mobile View: OFF';
+                mobileToggleBtn.classList.remove('active');
+            }
+            localStorage.setItem('rota_mobile_view', isMobileView ? 'true' : 'false');
+            if (vlChartInstance) renderVLPieChart();
+        }
+
+        function checkViewOnlyMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('viewonly') === 'true' || sessionStorage.getItem("admin_authenticated") !== "true") {
+                isViewOnlyMode = true;
+            } else {
+                isViewOnlyMode = false;
+            }
+            updateAdminUI();
+        }
+
+        function handleAdminAuth() {
+            if (isViewOnlyMode) {
+                const password = prompt("Enter Admin Password to Unlock Editing:");
+                if (password === ADMIN_PASSWORD) {
+                    isViewOnlyMode = false;
+                    sessionStorage.setItem("admin_authenticated", "true");
+                    alert("Admin Mode Unlocked! Editing permissions granted.");
+                    updateAdminUI();
+                    renderCalendar();
+                    buildLeaveTables();
+                } else if (password !== null) {
+                    alert("Incorrect Password!");
+                }
+            } else {
+                isViewOnlyMode = true;
+                sessionStorage.removeItem("admin_authenticated");
+                alert("Locked to View-Only Mode.");
+                updateAdminUI();
+                renderCalendar();
+                buildLeaveTables();
+            }
+        }
+
+        function updateAdminUI() {
+            const banner = document.getElementById('viewOnlyBanner');
+            const authBtn = document.getElementById('adminAuthBtn');
+            const btnBackToDashboard = document.getElementById('btnBackToDashboard');
+            const bulkSelects = document.querySelectorAll('.bulk-select');
+
+            if (isViewOnlyMode) {
+                banner.style.display = 'block';
+                if (btnBackToDashboard) btnBackToDashboard.style.display = 'none';
+                authBtn.innerText = '🔑 Admin Login';
+                authBtn.className = 'btn btn-admin';
+                bulkSelects.forEach(el => el.disabled = true);
+            } else {
+                banner.style.display = 'none';
+                if (btnBackToDashboard) btnBackToDashboard.style.display = 'inline-flex';
+                authBtn.innerText = '🔒 Lock Schedule';
+                authBtn.className = 'btn btn-warning';
+                bulkSelects.forEach(el => el.disabled = false);
+            }
+            timezoneSelect.disabled = false;
+        }
+
+        function copyViewOnlyLink() {
+            const viewOnlyUrl = `${window.location.origin}${window.location.pathname}?viewonly=true`;
+            navigator.clipboard.writeText(viewOnlyUrl).then(() => {
+                alert("✓ View-Only Rota Link copied to clipboard!\nShare this link to restrict edits.");
+            });
+        }
+
+        function toggleViewerModal() {
+            const modal = document.getElementById('viewerModal');
+            modal.classList.toggle('show');
+        }
+
+        function closeViewerModal(e) {
+            if (e.target.id === 'viewerModal') {
+                document.getElementById('viewerModal').classList.remove('show');
+            }
+        }
+
+        function resetMyViewerName() {
+            localStorage.removeItem('rota_viewer_name');
+            location.reload();
+        }
+
+        function setupPresenceSystem() {
+            const presenceRef = db.ref('rota_active_sessions');
+            const connectedRef = db.ref('.info/connected');
+
+            let sessionToken = sessionStorage.getItem('rota_session_token');
+            if (!sessionToken) {
+                sessionToken = 'session_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+                sessionStorage.setItem('rota_session_token', sessionToken);
+            }
+
+            let viewerName = localStorage.getItem('rota_viewer_name');
+            if (!viewerName) {
+                viewerName = prompt("Enter your name to appear on active viewer list:", "Guest") || "Guest User";
+                localStorage.setItem('rota_viewer_name', viewerName.trim());
+            }
+
+            const myPresenceRef = db.ref(`rota_active_sessions/${sessionToken}`);
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    myPresenceRef.onDisconnect().remove();
+
+                    myPresenceRef.set({
+                        online: true,
+                        name: viewerName,
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            });
+
+            window.addEventListener('beforeunload', () => {
+                myPresenceRef.remove();
+            });
+
+            presenceRef.on('value', (snap) => {
+                const activeUsers = snap.val() || {};
+                const countElem = document.getElementById('activeViewersCount');
+                const modalCountElem = document.getElementById('modalViewerCount');
+                const viewerListContainer = document.getElementById('viewerListContainer');
+
+                viewerListContainer.innerHTML = '';
+                
+                const uniqueNames = new Set();
+                Object.keys(activeUsers).forEach(key => {
+                    const u = activeUsers[key];
+                    if (u && u.name) {
+                        uniqueNames.add(u.name);
+                    }
+                });
+
+                uniqueNames.forEach(name => {
+                    const li = document.createElement('li');
+                    li.className = 'viewer-list-item';
+                    li.innerHTML = `
+                        <div class="viewer-item-left">
+                            <span class="viewer-dot"></span> 
+                            <span>${name}</span>
+                        </div>
+                    `;
+                    viewerListContainer.appendChild(li);
+                });
+
+                const displayCount = uniqueNames.size > 0 ? uniqueNames.size : 1;
+                if (countElem) countElem.innerText = displayCount;
+                if (modalCountElem) modalCountElem.innerText = displayCount;
+            });
+        }
+
+        function listenToDatabase() {
+            const currentYear = yearInput.value;
+            const monthKey = `${currentYear}_${parseInt(monthSelect.value) + 1}`;
             
-            const currentMonth = document.getElementById('month-select').value;
-            const currentYear = document.getElementById('year-input').value;
+            updatePhilippineHolidaysDisplay();
 
-            lastSelectedMonth = currentMonth;
-            lastSelectedYear = currentYear;
+            db.ref(`rota_data`).on('value', (snapshot) => {
+                allRotaDataYear = snapshot.val() || {};
+                rotaData = allRotaDataYear[monthKey] || {};
+                renderCalendar();
+                renderWFHTracker();
+                aggregateCumulativeLeavesAcrossMonths();
+            });
 
-            renderActiveMonthTable();
-            recalculateSummaries();
-            updatePHHolidayBanner();
-        }
-
-        function changeMonth(delta) {
-            const mSelect = document.getElementById('month-select');
-            const yInput = document.getElementById('year-input');
-            let m = parseInt(mSelect.value) + delta;
-            let y = parseInt(yInput.value);
-
-            if (m < 0) { m = 11; y--; }
-            else if (m > 11) { m = 0; y++; }
-
-            mSelect.value = m;
-            yInput.value = y;
-            onMonthOrYearChange();
-        }
-
-        function saveMonthData(y, m) {
-            const rows = document.querySelectorAll('#schedule-body tr');
-            if (!annualScheduleStore[y]) annualScheduleStore[y] = {};
-            if (!annualScheduleStore[y][m]) annualScheduleStore[y][m] = {};
-
-            rows.forEach((row, dayIdx) => {
-                const day = dayIdx + 1;
-                annualScheduleStore[y][m][day] = [];
-                for (let memIdx = 0; memIdx < 5; memIdx++) {
-                    const select = row.cells[memIdx + 2]?.querySelector('select');
-                    annualScheduleStore[y][m][day][memIdx] = select ? select.value : '';
+            db.ref('rota_global_timezone').on('value', (snapshot) => {
+                if (snapshot.val() !== null) {
+                    globalTzOffset = parseFloat(snapshot.val());
+                    timezoneSelect.value = globalTzOffset.toString();
+                    renderCalendar();
                 }
             });
         }
 
-        function renderActiveMonthTable() {
-            const m = parseInt(document.getElementById('month-select').value);
-            const y = parseInt(document.getElementById('year-input').value);
-            const daysInMonth = new Date(y, m + 1, 0).getDate();
-            const monthShort = monthNamesShort[m];
+        function saveRotaToDatabase() {
+            if (isViewOnlyMode) return;
+            const monthKey = `${yearInput.value}_${parseInt(monthSelect.value) + 1}`;
+            db.ref(`rota_data/${monthKey}`).set(rotaData);
+        }
 
-            const tbody = document.getElementById('schedule-body');
-            tbody.innerHTML = '';
+        function changeTimezoneGlobal(val) {
+            globalTzOffset = parseFloat(val);
+            if (!isViewOnlyMode) {
+                db.ref('rota_global_timezone').set(globalTzOffset);
+            }
+            renderCalendar();
+        }
 
-            const shiftOptions = [
-                "", "RD", "VL", "SL",
-                "6:00 - 15:00", "9:00 - 18:00", "12:00 - 21:00", "15:00 - 00:00",
-                "6:00 - 15:00 (WFH)", "9:00 - 18:00 (WFH)", "12:00 - 21:00 (WFH)", "15:00 - 00:00 (WFH)"
-            ];
+        function toggleDarkMode() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('rota_theme', newTheme);
+            renderVLPieChart();
+        }
 
-            const daysArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        function changeMonth(offset) {
+            let currentMonth = parseInt(monthSelect.value);
+            let currentYear = parseInt(yearInput.value);
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayOfWeek = daysArr[new Date(y, m, day).getDay()];
-                const tr = document.createElement('tr');
-                let dayCellsHTML = `<td style="font-size:10px; font-weight:bold;">${dayOfWeek}</td><td>${day}-${monthShort}</td>`;
+            currentMonth += offset;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
 
-                for (let memIdx = 0; memIdx < 5; memIdx++) {
-                    const savedVal = annualScheduleStore[y]?.[m]?.[day]?.[memIdx] || '';
-                    const shiftClass = getShiftClass(savedVal);
+            monthSelect.value = currentMonth;
+            yearInput.value = currentYear;
+            listenToDatabase();
+        }
 
-                    dayCellsHTML += `
-                        <td>
-                            <select class="shift-select-cell ${shiftClass}" onchange="onShiftChange(this)">
-                                ${shiftOptions.map(opt => `<option value="${opt}" ${opt === savedVal ? 'selected' : ''}>${opt || '-- Select --'}</option>`).join('')}
-                            </select>
-                        </td>
-                    `;
+        function formatShiftForTimezone(shiftText) {
+            if (!shiftText || ["RD", "VL", "SL", "Adjusted"].includes(shiftText)) return shiftText;
+
+            if (shiftText.includes("-") && !shiftList.some(s => s.text === shiftText)) {
+                const parts = shiftText.split("-").map(p => p.trim());
+                if (parts.length === 2 && parts[0].includes(":") && parts[1].includes(":")) {
+                    const startH = parseInt(parts[0].split(":")[0]);
+                    const endH = parseInt(parts[1].split(":")[0]);
+                    const diff = globalTzOffset - 8;
+                    let newStart = (startH + diff + 24) % 24;
+                    let newEnd = (endH + diff + 24) % 24;
+                    return `${newStart}:00 - ${newEnd}:00`;
                 }
-                tr.innerHTML = dayCellsHTML;
+                return shiftText;
+            }
+
+            const baseShift = shiftList.find(s => s.text === shiftText);
+            if (!baseShift || baseShift.start === null) return shiftText;
+
+            const diff = globalTzOffset - 8;
+            let newStart = (baseShift.start + diff + 24) % 24;
+            let newEnd = (baseShift.end + diff + 24) % 24;
+
+            const isWFH = shiftText.includes("(WFH)") ? " (WFH)" : "";
+            return `${newStart}:00 - ${newEnd}:00${isWFH}`;
+        }
+
+        function getShiftInfo(val) {
+            if (val && val.startsWith("Adjusted:")) return { bgClass: "shift-bg-adjusted" };
+            return shiftList.find(s => s.text === val) || shiftList[0];
+        }
+
+        function renderCalendar() {
+            tbody.innerHTML = '';
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+
+            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dateObj = new Date(selectedYear, selectedMonth, d);
+                const dayName = weekdays[dateObj.getDay()];
+
+                const tr = document.createElement('tr');
+
+                const tdDay = document.createElement('td');
+                tdDay.className = 'day-col';
+                tdDay.textContent = dayName;
+                tr.appendChild(tdDay);
+
+                const tdDate = document.createElement('td');
+                tdDate.className = 'date-col';
+                tdDate.textContent = `${d}-${monthLabel}`;
+                tr.appendChild(tdDate);
+
+                team.forEach((member, memberIdx) => {
+                    const tdShift = document.createElement('td');
+                    
+                    let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
+
+                    if (member === "Miguel") {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'miguel-editable-cell';
+                        input.value = formatShiftForTimezone(activeShift);
+                        input.placeholder = "8:00-17:00";
+                        if (isViewOnlyMode) input.disabled = true;
+
+                        input.addEventListener('change', () => {
+                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                            rotaData[d][memberIdx] = input.value;
+                            saveRotaToDatabase();
+                        });
+
+                        tdShift.appendChild(input);
+                    } 
+                    else if (activeShift.startsWith("Adjusted:") || activeShift === "Adjusted") {
+                        const customVal = activeShift.replace("Adjusted:", "").trim();
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'custom-editable-input';
+                        input.value = customVal || "13:30-22:30";
+                        if (isViewOnlyMode) input.disabled = true;
+
+                        input.addEventListener('change', () => {
+                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                            rotaData[d][memberIdx] = `Adjusted: ${input.value}`;
+                            saveRotaToDatabase();
+                        });
+
+                        tdShift.appendChild(input);
+                    }
+                    else {
+                        const activeInfo = getShiftInfo(activeShift);
+                        const convertedText = formatShiftForTimezone(activeShift);
+
+                        const dropdownContainer = document.createElement('div');
+                        dropdownContainer.className = 'custom-dropdown';
+
+                        const btn = document.createElement('div');
+                        btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
+                        btn.textContent = convertedText === "" ? "-- Select --" : convertedText;
+
+                        const menu = document.createElement('div');
+                        menu.className = 'custom-dropdown-menu';
+
+                        shiftList.forEach(s => {
+                            const item = document.createElement('div');
+                            item.className = `custom-dropdown-item ${s.itemClass}`;
+                            const displayShift = formatShiftForTimezone(s.text);
+                            item.textContent = displayShift === "" ? "-- Select --" : displayShift;
+
+                            item.addEventListener('click', (e) => {
+                                if (isViewOnlyMode) return;
+                                e.stopPropagation();
+                                
+                                if (s.text === "Adjusted") {
+                                    if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                                    rotaData[d][memberIdx] = "Adjusted: ";
+                                    saveRotaToDatabase();
+                                    renderCalendar();
+                                    return;
+                                }
+
+                                btn.textContent = displayShift === "" ? "-- Select --" : displayShift;
+                                btn.className = `custom-dropdown-btn ${s.bgClass}`;
+                                menu.classList.remove('show');
+
+                                if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                                rotaData[d][memberIdx] = s.text;
+
+                                saveRotaToDatabase();
+                                aggregateCumulativeLeavesAcrossMonths();
+                            });
+
+                            menu.appendChild(item);
+                        });
+
+                        btn.addEventListener('click', (e) => {
+                            if (isViewOnlyMode) return;
+                            e.stopPropagation();
+                            document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+                                if (m !== menu) m.classList.remove('show');
+                            });
+                            menu.classList.toggle('show');
+                        });
+
+                        dropdownContainer.appendChild(btn);
+                        dropdownContainer.appendChild(menu);
+                        tdShift.appendChild(dropdownContainer);
+                    }
+
+                    tr.appendChild(tdShift);
+                });
+
                 tbody.appendChild(tr);
             }
         }
 
-        function onShiftChange(selectElem) {
-            selectElem.className = 'shift-select-cell ' + getShiftClass(selectElem.value);
-            saveMonthData(lastSelectedYear, lastSelectedMonth);
-            recalculateSummaries();
-        }
+        function bulkSetShift(memberIdx, selectElem) {
+            if (isViewOnlyMode) return;
+            const shiftValue = selectElem.value;
+            if (!shiftValue) return;
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 
-        function bulkSetShift(memberIndex, selectElem) {
-            const val = selectElem.value;
-            if (!val) return;
-            const targetVal = val === 'CLEAR' ? '' : val;
-            const rows = document.querySelectorAll('#schedule-body tr');
+            let applyValue = (shiftValue === 'CLEAR') ? '' : shiftValue;
 
-            rows.forEach(row => {
-                const select = row.cells[memberIndex + 2]?.querySelector('select');
-                if (select) {
-                    select.value = targetVal;
-                    select.className = 'shift-select-cell ' + getShiftClass(targetVal);
-                }
-            });
-            selectElem.value = '';
-            saveMonthData(lastSelectedYear, lastSelectedMonth);
-            recalculateSummaries();
-        }
-
-        function updatePHHolidayBanner() {
-            const m = parseInt(document.getElementById('month-select').value);
-            const y = document.getElementById('year-input').value;
-            const titleElem = document.getElementById('phHolidayTitle');
-            const detailsElem = document.getElementById('phHolidayDetails');
-
-            titleElem.textContent = `PH Holidays — ${monthNamesLong[m]} ${y}`;
-
-            const monthHolidays = phHolidays2026[m] || [];
-            if (monthHolidays.length === 0) {
-                detailsElem.innerHTML = '<em>There are no national regular or nationwide special non-working holidays in the Philippines for this month.</em>';
-            } else {
-                detailsElem.innerHTML = monthHolidays.map(h => 
-                    `<span class="ph-holiday-tag">${h.date}</span>${h.name}`
-                ).join(' &nbsp;•&nbsp; ');
+            for (let d = 1; d <= totalDays; d++) {
+                if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                rotaData[d][memberIdx] = applyValue;
             }
+
+            saveRotaToDatabase();
+            renderCalendar();
+
+            selectElem.value = "";
         }
 
-        function recalculateSummaries() {
-            const currentYear = document.getElementById('year-input').value;
-            const currentMonth = document.getElementById('month-select').value;
+        /* DYNAMICALLY CUMULATIVE LEAVE SCANNER FOR JAN 1 - DEC 31 OF SELECTED YEAR */
+        function aggregateCumulativeLeavesAcrossMonths() {
+            let tempMatrix = {};
+            leaveTrackedTeam.forEach(m => tempMatrix[m] = { vl: [], sl: [] });
 
-            let annualVLDates = [[], [], [], [], []];
-            let annualSLDates = [[], [], [], [], []];
-            let vlPerMonth = new Array(12).fill(0);
+            const targetYear = parseInt(yearInput.value);
 
-            let monthlyWFHDates = [[], [], [], [], []];
+            for (let m = 0; m < 12; m++) {
+                let mKey = `${targetYear}_${m + 1}`;
+                let mData = allRotaDataYear[mKey];
 
-            if (annualScheduleStore[currentYear]) {
-                for (let m = 0; m < 12; m++) {
-                    const monthData = annualScheduleStore[currentYear][m];
-                    if (monthData) {
-                        const mName = monthNamesShort[m];
-                        Object.keys(monthData).forEach(day => {
-                            const dayShifts = monthData[day];
-                            dayShifts.forEach((shift, memIdx) => {
-                                const dateLabel = `${day}-${mName}`;
-                                if (shift === 'VL') {
-                                    annualVLDates[memIdx].push(dateLabel);
-                                    vlPerMonth[m]++;
-                                }
-                                if (shift === 'SL') {
-                                    annualSLDates[memIdx].push(dateLabel);
+                if (mData) {
+                    let mLabel = monthNames[m].substring(0, 3);
+                    
+                    let sortedDays = Object.keys(mData).map(Number).sort((a, b) => a - b);
+
+                    sortedDays.forEach(day => {
+                        let row = mData[day];
+                        if (row && Array.isArray(row)) {
+                            team.forEach((member, memberIdx) => {
+                                if (member === "Miguel") return;
+
+                                let shiftVal = row[memberIdx];
+                                if (shiftVal === 'VL') {
+                                    tempMatrix[member].vl.push(`${day}-${mLabel}`);
+                                } else if (shiftVal === 'SL') {
+                                    tempMatrix[member].sl.push(`${day}-${mLabel}`);
                                 }
                             });
-                        });
-                    }
-                }
-            }
-
-            // Current Month WFH Tracker
-            if (annualScheduleStore[currentYear]?.[currentMonth]) {
-                const monthData = annualScheduleStore[currentYear][currentMonth];
-                const mName = monthNamesShort[currentMonth];
-                Object.keys(monthData).forEach(day => {
-                    const dayShifts = monthData[day];
-                    dayShifts.forEach((shift, memIdx) => {
-                        if (shift && shift.includes('(WFH)')) {
-                            monthlyWFHDates[memIdx].push(`${day}-${mName}`);
                         }
                     });
-                });
-            }
-
-            // Render Vacation & Sick Leave Dates Table Grid
-            const leaveGridBody = document.getElementById('leaveGridBody');
-            leaveGridBody.innerHTML = '';
-
-            // 10 VL Rows
-            for (let rowIdx = 0; rowIdx < 10; rowIdx++) {
-                const tr = document.createElement('tr');
-                let rowHTML = `<td><span class="badge-vl-type">VL</span></td>`;
-                for (let memIdx = 0; memIdx < 5; memIdx++) {
-                    const dateVal = annualVLDates[memIdx][rowIdx] || '';
-                    rowHTML += `<td>${dateVal ? `<span class="date-chip">${dateVal}</span>` : ''}</td>`;
                 }
-                tr.innerHTML = rowHTML;
-                leaveGridBody.appendChild(tr);
             }
 
-            // 5 SL Rows
-            for (let rowIdx = 0; rowIdx < 5; rowIdx++) {
-                const tr = document.createElement('tr');
-                let rowHTML = `<td><span class="badge-sl-type">SL</span></td>`;
-                for (let memIdx = 0; memIdx < 5; memIdx++) {
-                    const dateVal = annualSLDates[memIdx][rowIdx] || '';
-                    rowHTML += `<td>${dateVal ? `<span class="date-chip">${dateVal}</span>` : ''}</td>`;
-                }
-                tr.innerHTML = rowHTML;
-                leaveGridBody.appendChild(tr);
-            }
-
-            // Render WFH Tracker Table
-            const wfhBody = document.getElementById('wfhTrackerBody');
-            wfhBody.innerHTML = '';
-
-            teamMembers.forEach((member, memIdx) => {
-                const dates = monthlyWFHDates[memIdx];
-                const chips = dates.length > 0 
-                    ? dates.map(d => `<span class="wfh-chip">${d}</span>`).join(' ') 
-                    : '<span style="opacity:0.6; font-size:11px;">None</span>';
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight: bold;">${member}</td>
-                    <td>${chips}</td>
-                    <td style="font-weight: bold;">${dates.length} WFH</td>
-                `;
-                wfhBody.appendChild(tr);
+            leaveTrackedTeam.forEach(m => {
+                while (tempMatrix[m].vl.length < 10) tempMatrix[m].vl.push('');
+                while (tempMatrix[m].sl.length < 5) tempMatrix[m].sl.push('');
             });
 
-            renderPieChart(vlPerMonth);
+            leaveMatrixData = tempMatrix;
+            buildLeaveTables();
+            renderWFHTracker();
+            renderVLPieChart();
         }
 
-        function renderPieChart(vlPerMonth) {
-            const ctxVL = document.getElementById('vlPieChart').getContext('2d');
-            if (vlChartInstance) vlChartInstance.destroy();
+        function buildLeaveTables() {
+            leaveDatesBody.innerHTML = '';
 
-            vlChartInstance = new Chart(ctxVL, {
+            for (let rowIdx = 0; rowIdx < 15; rowIdx++) {
+                let tr = document.createElement('tr');
+                let isVL = rowIdx < 10;
+                let leaveType = isVL ? 'vl' : 'sl';
+                let arrayIdx = isVL ? rowIdx : rowIdx - 10;
+
+                let tdType = document.createElement('td');
+                tdType.innerHTML = isVL ? '<span class="badge-vl">VL</span>' : '<span class="badge-sl">SL</span>';
+                tr.appendChild(tdType);
+
+                leaveTrackedTeam.forEach((member) => {
+                    let tdDate = document.createElement('td');
+                    let input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'date-input-cell';
+                    input.readOnly = true;
+
+                    let val = (leaveMatrixData[member] && leaveMatrixData[member][leaveType] && leaveMatrixData[member][leaveType][arrayIdx]) ? leaveMatrixData[member][leaveType][arrayIdx] : '';
+                    input.value = val;
+
+                    tdDate.appendChild(input);
+                    tr.appendChild(tdDate);
+                });
+
+                leaveDatesBody.appendChild(tr);
+            }
+        }
+
+        function renderWFHTracker() {
+            wfhTrackerBody.innerHTML = '';
+
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
+
+            leaveTrackedTeam.forEach((member) => {
+                const memberIdx = team.indexOf(member);
+                let wfhDates = [];
+
+                for (let d = 1; d <= totalDays; d++) {
+                    const shiftVal = (rotaData[d] && rotaData[d][memberIdx]) ? rotaData[d][memberIdx] : '';
+                    if (shiftVal.includes('WFH')) {
+                        wfhDates.push(`${d}-${monthLabel}`);
+                    }
+                }
+
+                const usedWFH = wfhDates.length;
+
+                let wfhBadges = wfhDates.length > 0 
+                    ? wfhDates.map(dStr => `<span class="badge-wfh">${dStr}</span>`).join(' ')
+                    : '<span style="opacity: 0.6;">None</span>';
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:bold;">${member}</td>
+                    <td>${wfhBadges}</td>
+                    <td><strong>${usedWFH} WFH</strong></td>
+                `;
+                wfhTrackerBody.appendChild(tr);
+            });
+        }
+
+        function renderVLPieChart() {
+            let monthVLCounts = Array(12).fill(0);
+            const targetYear = parseInt(yearInput.value);
+
+            for (let m = 0; m < 12; m++) {
+                let mKey = `${targetYear}_${m + 1}`;
+                let mData = allRotaDataYear[mKey];
+
+                if (mData) {
+                    Object.keys(mData).forEach(day => {
+                        let row = mData[day];
+                        if (row && Array.isArray(row)) {
+                            team.forEach((member, memberIdx) => {
+                                if (row[memberIdx] === 'VL') {
+                                    monthVLCounts[m]++;
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+
+            const ctx = document.getElementById('vlPieChart').getContext('2d');
+            const activeTheme = document.body.getAttribute('data-theme') || 'dark';
+            const fontColor = activeTheme === 'light' ? '#333333' : '#ffffff';
+
+            if (vlChartInstance) {
+                vlChartInstance.destroy();
+            }
+
+            vlChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: monthNamesLong,
+                    labels: monthNames,
                     datasets: [{
-                        data: vlPerMonth.some(v => v > 0) ? vlPerMonth : new Array(12).fill(0),
-                        backgroundColor: monthChartColors
+                        label: 'Total Team VL Days',
+                        data: monthVLCounts,
+                        backgroundColor: [
+                            '#f87171', '#fb923c', '#fbbf24', '#facc15',
+                            '#a3e635', '#4ade80', '#34d399', '#2dd4bf',
+                            '#38bdf8', '#60a5fa', '#818cf8', '#c084fc'
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#0b2240'
                     }]
                 },
                 options: {
@@ -837,17 +1570,50 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { color: '#ffffff', font: { size: 9 }, boxWidth: 10 }
+                            labels: {
+                                color: fontColor,
+                                font: { size: 10, weight: 'bold' },
+                                boxWidth: 12
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.parsed || 0;
+                                    return `${label}: ${value} VL Day(s)`;
+                                }
+                            }
                         }
                     }
                 }
             });
         }
 
-        // Initialize setup for September 2026
-        renderActiveMonthTable();
-        recalculateSummaries();
-        updatePHHolidayBanner();
+        monthSelect.addEventListener('change', () => {
+            listenToDatabase();
+        });
+
+        yearInput.addEventListener('input', () => {
+            listenToDatabase();
+        });
+
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.custom-dropdown-menu').forEach(m => m.classList.remove('show'));
+        });
+
+        window.onload = function() {
+            checkViewOnlyMode();
+            if (localStorage.getItem('rota_theme') === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+            }
+            if (localStorage.getItem('rota_mobile_view') === 'true' || window.innerWidth < 768) {
+                isMobileView = false;
+                toggleMobileView();
+            }
+            setupPresenceSystem();
+            listenToDatabase();
+        };
     </script>
 </body>
 </html>
