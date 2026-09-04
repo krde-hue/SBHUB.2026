@@ -47,7 +47,6 @@
             --input-bg: #1b3d5a;
         }
 
-        /* Light Theme Color Overrides */
         body.light-theme {
             --bg-color: #f1f5f9;
             --text-color: #0f172a;
@@ -77,7 +76,6 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Top Header Area */
         .header {
             display: flex;
             flex-wrap: wrap;
@@ -155,10 +153,9 @@
         .btn-warning { background-color: #f59e0b; color: #1e293b; }
         .btn-theme { background-color: #8b5cf6; }
 
-        /* Scheduler Layout Grid */
         .scheduler-grid {
             display: grid;
-            grid-template-columns: 200px repeat(4, 1fr);
+            grid-template-columns: 220px repeat(4, 1fr);
             border: 1px dashed var(--border-color);
             border-radius: 6px;
             overflow: hidden;
@@ -200,7 +197,7 @@
         }
 
         .shift-select-box {
-            width: 90px;
+            width: 115px;
         }
 
         .shift-select-box select {
@@ -214,6 +211,12 @@
             font-weight: bold;
             cursor: pointer;
         }
+
+        /* Shift Dropdown WFH Option Color Indicators */
+        .wfh-6am { background-color: #fbcfe8 !important; color: #831843 !important; }
+        .wfh-9am { background-color: #f472b6 !important; color: #831843 !important; }
+        .wfh-12pm { background-color: #e9d5ff !important; color: #581c87 !important; }
+        .wfh-3pm { background-color: #a855f7 !important; color: #ffffff !important; }
 
         .bg-ann { background-color: #db2777; }
         .bg-dave { background-color: #0284c7; }
@@ -240,18 +243,20 @@
             background-color: var(--off-day-bg);
         }
 
-        .rd-badge {
+        .status-badge {
             margin: auto;
-            color: #ef4444;
             font-weight: bold;
             font-size: 11px;
             letter-spacing: 1px;
-            border: 1px dashed #ef4444;
             padding: 4px 8px;
             border-radius: 4px;
+            text-align: center;
         }
 
-        /* Multi-Select Dropdown */
+        .badge-rd { color: #ef4444; border: 1px dashed #ef4444; }
+        .badge-vl { color: #f59e0b; border: 1px dashed #f59e0b; }
+        .badge-sl { color: #06b6d4; border: 1px dashed #06b6d4; }
+
         .dropdown-wrapper {
             position: relative;
             width: 100%;
@@ -324,7 +329,6 @@
         .handover-tag { color: #f59e0b; font-weight: bold; }
         .strict-tag { color: #10b981; }
 
-        /* Responsive Mobile Layout */
         @media (max-width: 850px) {
             .header {
                 flex-direction: column;
@@ -407,6 +411,20 @@
 
         const TIME_SLOTS = ["9:00 - 12:00", "12:00 - 15:00", "15:00 - 18:00", "18:00 - 21:00"];
 
+        const SHIFT_OPTIONS = [
+            { label: "6:00 - 15:00", class: "" },
+            { label: "9:00 - 18:00", class: "" },
+            { label: "12:00 - 21:00", class: "" },
+            { label: "15:00 - 00:00", class: "" },
+            { label: "6:00 - 15:00 (WFH)", class: "wfh-6am" },
+            { label: "9:00 - 18:00 (WFH)", class: "wfh-9am" },
+            { label: "12:00 - 21:00 (WFH)", class: "wfh-12pm" },
+            { label: "15:00 - 00:00 (WFH)", class: "wfh-3pm" },
+            { label: "RD", class: "" },
+            { label: "VL", class: "" },
+            { label: "SL", class: "" }
+        ];
+
         const STRICT_9AM = [
             "Telegram Channel Monitoring",
             "Sports Events Booking Check (BR Portal)",
@@ -453,7 +471,6 @@
 
         document.getElementById('scheduleDate').valueAsDate = new Date();
 
-        // Theme Toggle Persistence
         if (localStorage.getItem('theme_mode') === 'light') {
             document.body.classList.add('light-theme');
         }
@@ -464,7 +481,6 @@
             localStorage.setItem('theme_mode', mode);
         }
 
-        // View Only with Password "2026"
         function toggleViewOnlyWithPassword() {
             const password = prompt("Enter View-Only Mode Password:");
             if (password === "2026") {
@@ -477,7 +493,6 @@
             }
         }
 
-        // Sync shift entries from rota.html
         function detectShiftFromRota(memberId, date) {
             try {
                 const rotaHistory = JSON.parse(localStorage.getItem('rota_schedules') || '{}');
@@ -518,13 +533,36 @@
             }
         }
 
+        // Clean shift string by removing WFH suffix
+        function getBaseShiftTime(shift) {
+            if (!shift) return '';
+            return shift.replace(' (WFH)', '').trim();
+        }
+
+        function isSlotActiveForShift(shift, slotIndex) {
+            const baseShift = getBaseShiftTime(shift);
+            if (['RD', 'OFF (RD)', 'VL', 'SL'].includes(baseShift)) return false;
+            if (baseShift === '6:00 - 15:00') return slotIndex === 0 || slotIndex === 1;
+            if (baseShift === '9:00 - 18:00') return slotIndex === 0 || slotIndex === 1 || slotIndex === 2;
+            if (baseShift === '12:00 - 21:00') return slotIndex === 1 || slotIndex === 2 || slotIndex === 3;
+            if (baseShift === '15:00 - 00:00') return slotIndex === 2 || slotIndex === 3;
+            return true;
+        }
+
+        function getShiftColorStyle(shift) {
+            if (shift.includes("6:00 - 15:00 (WFH)")) return 'background-color: #fbcfe8; color: #831843;';
+            if (shift.includes("9:00 - 18:00 (WFH)")) return 'background-color: #f472b6; color: #831843;';
+            if (shift.includes("12:00 - 21:00 (WFH)")) return 'background-color: #e9d5ff; color: #581c87;';
+            if (shift.includes("15:00 - 00:00 (WFH)")) return 'background-color: #a855f7; color: #ffffff;';
+            return '';
+        }
+
         function initGrid() {
             const date = document.getElementById('scheduleDate').value;
             const gridBody = document.getElementById('gridBody');
             gridBody.innerHTML = '';
 
             MEMBERS.forEach(member => {
-                // Check if rota.html has set a shift for this member on this date
                 const rotaShift = detectShiftFromRota(member.id, date);
                 if (!currentSchedule[member.id]) {
                     currentSchedule[member.id] = { shift: rotaShift || member.defaultShift };
@@ -533,16 +571,21 @@
                 }
 
                 const memberShift = currentSchedule[member.id].shift || member.defaultShift;
+                const shiftStyle = getShiftColorStyle(memberShift);
+
+                const selectOptionsHtml = SHIFT_OPTIONS.map(opt => `
+                    <option value="${opt.label}" class="${opt.class}" ${memberShift === opt.label ? 'selected' : ''}>
+                        ${opt.label}
+                    </option>
+                `).join('');
 
                 const memberDiv = document.createElement('div');
                 memberDiv.className = 'team-col';
                 memberDiv.innerHTML = `
                     <div class="member-card ${member.class}">${member.name}</div>
                     <div class="shift-select-box">
-                        <select onchange="updateMemberShift('${member.id}', this.value)" ${isViewOnly ? 'disabled' : ''}>
-                            <option value="9:00 - 18:00" ${memberShift === '9:00 - 18:00' ? 'selected' : ''}>9:00 - 18:00</option>
-                            <option value="12:00 - 21:00" ${memberShift === '12:00 - 21:00' ? 'selected' : ''}>12:00 - 21:00</option>
-                            <option value="OFF (RD)" ${memberShift === 'OFF (RD)' ? 'selected' : ''}>OFF (RD)</option>
+                        <select style="${shiftStyle}" onchange="updateMemberShift('${member.id}', this.value)" ${isViewOnly ? 'disabled' : ''}>
+                            ${selectOptionsHtml}
                         </select>
                     </div>
                 `;
@@ -555,12 +598,12 @@
 
                     const slotData = currentSchedule[member.id][slot];
                     const slotDiv = document.createElement('div');
+                    const baseShift = getBaseShiftTime(memberShift);
                     
                     let cellClass = 'time-slot-cell';
-                    if (memberShift === 'OFF (RD)') {
+                    if (['RD', 'OFF (RD)', 'VL', 'SL'].includes(baseShift)) {
                         cellClass += ' off-day';
-                    } else if ((memberShift === '9:00 - 18:00' && slot === '18:00 - 21:00') ||
-                               (memberShift === '12:00 - 21:00' && slot === '9:00 - 12:00')) {
+                    } else if (!isSlotActiveForShift(memberShift, index)) {
                         cellClass += ' off-shift';
                     }
 
@@ -568,8 +611,12 @@
                     slotDiv.setAttribute('data-time', slot);
                     const slotKey = `${member.id}_${index}`;
 
-                    if (memberShift === 'OFF (RD)') {
-                        slotDiv.innerHTML = `<div class="rd-badge">OFF (REST DAY)</div>`;
+                    if (['RD', 'OFF (RD)'].includes(baseShift)) {
+                        slotDiv.innerHTML = `<div class="status-badge badge-rd">OFF (REST DAY)</div>`;
+                    } else if (baseShift === 'VL') {
+                        slotDiv.innerHTML = `<div class="status-badge badge-vl">VACATION LEAVE</div>`;
+                    } else if (baseShift === 'SL') {
+                        slotDiv.innerHTML = `<div class="status-badge badge-sl">SICK LEAVE</div>`;
                     } else {
                         const dropdownItems = ALL_TASKS.map(task => {
                             const checked = slotData.assignedList.includes(task) ? 'checked' : '';
@@ -605,7 +652,8 @@
 
         function updateMemberShift(memberId, newShift) {
             currentSchedule[memberId].shift = newShift;
-            if (newShift === 'OFF (RD)') {
+            const baseShift = getBaseShiftTime(newShift);
+            if (['RD', 'OFF (RD)', 'VL', 'SL'].includes(baseShift)) {
                 TIME_SLOTS.forEach(s => {
                     currentSchedule[memberId][s].assignedList = [];
                 });
@@ -647,8 +695,11 @@
                 });
             });
 
-            const activeAmMembers = MEMBERS.filter(m => currentSchedule[m.id].shift === '9:00 - 18:00');
-            const activePmMembers = MEMBERS.filter(m => currentSchedule[m.id].shift === '12:00 - 21:00');
+            // 1. Assign 9:00 AM Strict Tasks
+            const activeAmMembers = MEMBERS.filter(m => {
+                const baseShift = getBaseShiftTime(currentSchedule[m.id].shift);
+                return baseShift === '6:00 - 15:00' || baseShift === '9:00 - 18:00';
+            });
 
             if (activeAmMembers.length > 0) {
                 let shuffled9am = [...STRICT_9AM].sort(() => 0.5 - Math.random());
@@ -658,7 +709,8 @@
                 });
             }
 
-            const activeNoonMembers = [...activeAmMembers, ...activePmMembers];
+            // 2. Assign 12:00 PM Strict Tasks
+            const activeNoonMembers = MEMBERS.filter(m => isSlotActiveForShift(currentSchedule[m.id].shift, 1));
             if (activeNoonMembers.length > 0) {
                 let shuffled12pm = [...STRICT_12PM].sort(() => 0.5 - Math.random());
                 activeNoonMembers.forEach((m, idx) => {
@@ -667,16 +719,11 @@
                 });
             }
 
+            // 3. Flexible Monitoring Tasks
             const flexTasksOnly = FLEXIBLE_TASKS.filter(t => !t.includes('Handover'));
 
             TIME_SLOTS.forEach((slot, slotIdx) => {
-                const workingMembers = MEMBERS.filter(m => {
-                    const shift = currentSchedule[m.id].shift;
-                    if (shift === 'OFF (RD)') return false;
-                    if (slotIdx === 0 && shift === '12:00 - 21:00') return false;
-                    if (slotIdx === 3 && shift === '9:00 - 18:00') return false;
-                    return true;
-                });
+                const workingMembers = MEMBERS.filter(m => isSlotActiveForShift(currentSchedule[m.id].shift, slotIdx));
 
                 if (workingMembers.length > 0) {
                     let shuffledFlex = [...flexTasksOnly].sort(() => 0.5 - Math.random());
@@ -694,10 +741,16 @@
                 }
             });
 
+            // 4. Handover Reports
             if (activeAmMembers.length > 0) {
                 const amHandoverMember = activeAmMembers[Math.floor(Math.random() * activeAmMembers.length)].id;
-                currentSchedule[amHandoverMember][TIME_SLOTS[2]].assignedList.push("Handover Report AM");
+                currentSchedule[amHandoverMember][TIME_SLOTS[1]].assignedList.push("Handover Report AM");
             }
+
+            const activePmMembers = MEMBERS.filter(m => {
+                const baseShift = getBaseShiftTime(currentSchedule[m.id].shift);
+                return baseShift === '12:00 - 21:00' || baseShift === '15:00 - 00:00';
+            });
 
             if (activePmMembers.length > 0) {
                 const pmHandoverMember = activePmMembers[Math.floor(Math.random() * activePmMembers.length)].id;
