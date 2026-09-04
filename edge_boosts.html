@@ -664,6 +664,7 @@
         let workbookData = JSON.parse(JSON.stringify(embeddedData));
 
         // AUTOMATED IMPORT RECEIVER LISTENER FROM DASHBOARD SCHEDULE
+        // Sets BO & PUB checkboxes to false (unchecked) by default for newly imported items
         function loadImportedEdgeBoosts() {
             const importedItems = JSON.parse(localStorage.getItem('edge_boosts_list') || '[]');
             if (!importedItems || importedItems.length === 0) return;
@@ -687,8 +688,8 @@
 
                 if (targetSheetKey === "Edge Football") {
                     newRow = [
-                        true,                    // BO Checkbox (Checked by Default)
-                        true,                    // PUB Checkbox (Checked by Default)
+                        false,                   // BO Checkbox (UNCHECKED by default)
+                        false,                   // PUB Checkbox (UNCHECKED by default)
                         "7Abet/BVBet",          // Default Brand
                         item.koDate || "",       // Transposed Kickoff Date
                         item.koTime || "",       // Transposed Kickoff Time
@@ -705,7 +706,7 @@
                     ];
                 } else if (targetSheetKey === "Edge Tennis") {
                     newRow = [
-                        true, true, "7Abet/BVBet", 
+                        false, false, "7Abet/BVBet", 
                         item.koDate || "", item.koTime || "", "Tennis", 
                         item.league || "", item.event || "", 
                         "Bet Builder", item.market || "", "", "", 
@@ -713,7 +714,7 @@
                     ];
                 } else { // Edge Other Sports
                     newRow = [
-                        true, true, "7Abet/BVBet", 
+                        false, false, "7Abet/BVBet", 
                         item.koDate || "", item.sport || "Other", 
                         item.league || "", item.event || "", 
                         "Bet Builder", item.market || "", 
