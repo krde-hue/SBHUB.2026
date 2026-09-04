@@ -3,525 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automated SB Team Operational Duty Roster - Per Day View</title>
+    <title>Shift Task Scheduler - Duties</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-    <!-- Firebase Realtime Database SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                const app = initializeApp(firebaseConfig);
+                const db = getDatabase(app);
+                window.firebaseDB = db;
+                window.fbRef = ref;
+                window.fbOnValue = onValue;
+                window.fbSet = set;
+            }
+        } catch (e) {
+            console.warn("Firebase fallback to local mode.", e);
+        }
+    </script>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --header-text: #0d233a;
-            --credit-text: #64748b;
-            --border-color: #cbd5e0;
-            --table-border: #2d3748;
-            --accent-btn: #edf2f7;
-            --accent-btn-text: #4a5568;
-            --reminder-text: #0d233a;
-            --reminder-bg: #e2e8f0;
+            --bg-color: #0f2537;
+            --text-color: #ffffff;
+            --header-bg: #143149;
+            --card-bg: #112d44;
+            --slot-bg: #0f2537;
+            --border-color: #3a5a7a;
+            --dropdown-bg: #16334d;
+            --dropdown-btn-bg: #183854;
+            --text-muted: #cbd5e1;
+            --off-shift-bg: #0a1926;
+            --off-day-bg: #050d14;
+            --input-bg: #1b3d5a;
+        }
+
+        /* Light Theme Color Overrides */
+        body.light-theme {
+            --bg-color: #f1f5f9;
+            --text-color: #0f172a;
+            --header-bg: #ffffff;
+            --card-bg: #e2e8f0;
+            --slot-bg: #ffffff;
+            --border-color: #cbd5e1;
             --dropdown-bg: #ffffff;
-            --dropdown-text: #0f172a;
+            --dropdown-btn-bg: #e2e8f0;
+            --text-muted: #334155;
+            --off-shift-bg: #f8fafc;
+            --off-day-bg: #f1f5f9;
+            --input-bg: #f8fafc;
         }
 
-        [data-theme="dark"] {
-            --bg-color: #111827;
-            --card-bg: #1f2937;
-            --text-color: #f3f4f6;
-            --header-text: #60a5fa;
-            --credit-text: #94a3b8;
-            --border-color: #374151;
-            --table-border: #4b5563;
-            --accent-btn: #374151;
-            --accent-btn-text: #f3f4f6;
-            --reminder-text: #facc15;
-            --reminder-bg: #374151;
-            --dropdown-bg: #1e293b;
-            --dropdown-text: #f8fafc;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); padding: 20px; color: var(--text-color); transition: background-color 0.3s; }
-        
-        .header-container { 
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-            background: var(--card-bg); 
-            padding: 15px 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            flex-wrap: wrap; 
-            gap: 12px; 
-        }
-        .title-group { display: flex; flex-direction: column; gap: 2px; }
-        h1 { font-size: 20px; color: var(--header-text); }
-        
-        .title-credit { 
-            font-size: 10px; 
-            font-weight: 500; 
-            color: var(--credit-text); 
-            letter-spacing: 0.2px; 
-            opacity: 0.85;
-        }
-        
-        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        
-        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-primary { background-color: #0d233a; color: white; }
-        .btn-primary:hover { background-color: #173b61; }
-        .btn-secondary { background-color: var(--accent-btn); color: var(--accent-btn-text); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { opacity: 0.85; }
-        .btn-success { background-color: #059669; color: white; }
-        .btn-success:hover { background-color: #047857; }
-        .btn-danger { background-color: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
-        .btn-danger:hover { background-color: #fed7d7; }
-        .btn-mobile-toggle { background-color: #a855f7; color: #ffffff; }
-        .btn-mobile-toggle.active { background-color: #ec4899; }
-
-        .btn-dashboard {
-            background-color: #0d233a !important;
-            color: #ffffff !important;
-            border: 2px solid #38bdf8 !important;
-            padding: 8px 16px !important;
-            font-size: 13px !important;
-            font-weight: 800 !important;
-            border-radius: 6px !important;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-            margin-left: 4px;
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 15px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .btn-dashboard:hover {
-            background-color: #173b61 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
-        }
-        
-        .day-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; scroll-margin-top: 100px; }
-        .day-section.today-card { border: 2px solid #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); }
-        
-        .day-title-area { 
-            position: sticky;
-            top: 70px;
-            z-index: 900;
-            background: var(--card-bg);
-            font-size: 18px; 
-            font-weight: bold; 
-            color: var(--header-text); 
-            margin-bottom: 15px; 
-            padding: 12px 15px; 
-            border-bottom: 2px solid var(--border-color); 
-            border-radius: 6px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .day-title-left {
+        /* Top Header Area */
+        .header {
             display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: var(--header-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+        }
+
+        .meta-info {
+            display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 12px;
-            flex-wrap: wrap;
-            flex: 1;
         }
 
-        .date-picker-wrapper { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
-        .date-picker-input { border: none; font-size: 18px; font-weight: bold; color: var(--header-text); width: 160px; outline: none; border-bottom: 1px dashed var(--border-color); background: transparent; cursor: pointer; }
-
-        .shift-badge-label {
-            font-weight: 800;
-            color: var(--header-text);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 14px;
-            background: var(--accent-btn);
-            padding: 3px 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .today-badge {
-            background-color: #38bdf8;
-            color: #0d233a;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .reminder-box-wrapper {
-            display: inline-flex;
+        .date-picker-group {
+            display: flex;
             align-items: center;
             gap: 6px;
-            background-color: var(--reminder-bg);
-            padding: 5px 12px;
+            background-color: var(--input-bg);
+            padding: 4px 8px;
             border-radius: 6px;
-            border: 1px dashed var(--border-color);
-            min-width: 260px;
-            flex: 1;
-            max-width: 500px;
+            border: 1px solid var(--border-color);
         }
 
-        .reminder-box-input {
-            border: none !important;
-            background: transparent !important;
-            font-size: 14px !important;
-            font-weight: 800 !important;
-            color: var(--reminder-text) !important;
-            outline: none !important;
-            width: 100% !important;
-            padding: 0 !important;
-        }
-
-        .day-content-wrapper {
-            width: 100%;
-        }
-
-        .table-responsive-wrapper {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; border: 2px solid var(--table-border); min-width: 850px; }
-        th { background-color: var(--card-bg); color: var(--header-text); padding: 10px 4px; text-align: center; font-weight: 700; border: 1px solid var(--border-color); font-size: 13px; }
-        th.col-member { width: 185px; }
-        th.col-shift { width: 120px; }
-        
-        td { vertical-align: top; border: 1px solid var(--table-border); background-color: var(--card-bg); color: var(--text-color); }
-        
-        .team-member-container {
-            padding: 10px 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 8px;
-            height: 100%;
-            min-height: 140px;
-        }
-
-        .member-avatar-circle {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: #ffffff;
-            font-size: 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-        .avatar-ann { background-color: #059669; }
-        .avatar-dave { background-color: #2563eb; }
-        .avatar-ken { background-color: #7c3aed; }
-        .avatar-kriztel { background-color: #ea580c; }
-
-        .member-name-label {
-            font-weight: 800;
-            font-size: 13px;
+        .date-btn {
+            background: var(--border-color);
             color: var(--text-color);
-            text-transform: uppercase;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
-        .duty-counter-card {
-            width: 100%;
-            background: #111827;
-            border: 1px solid #374151;
-            border-radius: 8px;
-            padding: 8px;
-            color: #f3f4f6;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-
-        .duty-counter-title {
-            font-weight: 800;
-            font-size: 11px;
-            color: #38bdf8;
-            text-align: center;
-            border-bottom: 1px solid #374151;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
-        }
-
-        .duty-counter-list {
-            max-height: 180px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding-right: 2px;
-        }
-
-        .duty-counter-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 10px;
-            font-weight: 600;
-            color: #e5e7eb;
-            line-height: 1.2;
-        }
-
-        .duty-counter-row-name {
-            flex: 1;
-            padding-right: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .duty-counter-pill {
-            padding: 1px 7px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 10px;
-            min-width: 20px;
-            text-align: center;
-            display: inline-block;
-        }
-        .pill-c0 { background: #d1fae5; color: #065f46; }
-        .pill-c1 { background: #fef3c7; color: #92400e; }
-        .pill-c2 { background: #f3e8ff; color: #6b21a8; }
-        .pill-c3 { background: #e0f2fe; color: #075985; }
-
-        .shift-select-container { padding: 8px; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 140px; }
-        .shift-select { border: 1px solid var(--border-color); background: var(--dropdown-bg); font-weight: 600; font-size: 12px; cursor: pointer; outline: none; width: 100%; padding: 6px; border-radius: 4px; color: var(--dropdown-text); text-align: center; }
-        .shift-select option { background-color: var(--dropdown-bg); color: var(--dropdown-text); }
-
-        .task-card { padding: 6px; min-height: 140px; height: 100%; display: flex; flex-direction: column; gap: 4px; position: relative; transition: background-color 0.2s; }
-        
-        .task-dropdown-container { position: relative; width: 100%; }
-        .task-dropdown-btn { border: 1px solid var(--border-color); background: var(--dropdown-bg); font-weight: 600; font-size: 10px; cursor: pointer; outline: none; width: 100%; padding: 4px 6px; border-radius: 3px; text-align: left; display: flex; justify-content: space-between; align-items: center; color: var(--dropdown-text); }
-        .task-dropdown-content { display: none; position: absolute; top: 100%; left: 0; right: 0; background-color: var(--dropdown-bg); border: 1.5px solid var(--border-color); border-radius: 4px; box-shadow: 0 6px 16px rgba(0,0,0,0.35); z-index: 100; max-height: 220px; overflow-y: auto; padding: 4px 0; margin-top: 2px; }
-        .task-dropdown-content.show { display: block; }
-        .task-option-label { display: flex; align-items: center; padding: 5px 8px; font-size: 11px; cursor: pointer; color: var(--dropdown-text); gap: 6px; user-select: none; font-weight: 600; }
-        .task-option-label:hover { background-color: rgba(56, 189, 248, 0.2); }
-
-        .task-card.off-duty-active { background-color: #9ca3af !important; border-color: #4b5563 !important; pointer-events: none; opacity: 0.85; }
-        .task-card.off-duty-active .editable-content-area { color: #ffffff !important; font-weight: bold; }
-        .task-card.off-duty-active .task-dropdown-container { display: none !important; }
-
-        .editable-content-area { font-size: 11px; font-weight: 700; color: var(--text-color); width: 100%; flex: 1; min-height: 60px; outline: none; line-height: 1.35; word-break: break-word; white-space: pre-wrap; padding: 4px; margin-top: 2px; background: transparent; }
-
-        .legend-footer { margin-top: 10px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-color); }
-        .legend-color { width: 20px; height: 10px; border-radius: 2px; border: 1px solid #ccc; }
-
-        .autosave-badge { font-size: 11px; color: #2f855a; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #c6f6d5; padding: 3px 8px; border-radius: 12px; display: inline-block; }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-card {
-            background: var(--card-bg);
-            width: 90%;
-            max-width: 650px;
-            border-radius: 8px;
-            padding: 20px;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 12px;
-        }
-        .modal-body {
-            overflow-y: auto;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .log-entry {
-            font-size: 11px;
-            padding: 8px;
+        .meta-info input[type="date"], .meta-info select {
+            padding: 6px 10px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
-            background: var(--bg-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            outline: none;
+            font-size: 13px;
         }
 
-        body.mobile-view-active { padding: 8px; }
-        body.mobile-view-active .header-container { flex-direction: column; align-items: stretch; padding: 12px; gap: 10px; }
-        body.mobile-view-active .btn-controls { justify-content: flex-start; gap: 6px; }
-        body.mobile-view-active .btn { padding: 6px 10px; font-size: 11px; }
-        body.mobile-view-active .day-section { padding: 12px; margin-bottom: 16px; }
-        body.mobile-view-active .day-title-area { flex-direction: column; align-items: stretch; gap: 10px; top: 0; }
-        body.mobile-view-active .date-picker-input { font-size: 15px; width: 130px; }
-        body.mobile-view-active .reminder-box-wrapper { min-width: 100%; padding: 4px 8px; }
-        body.mobile-view-active .reminder-box-input { font-size: 12px !important; }
-        body.mobile-view-active .schedule-table { min-width: 620px; }
-        body.mobile-view-active th { font-size: 11px; padding: 6px 2px; }
-        body.mobile-view-active .team-member-container { font-size: 12px; min-height: 100px; padding: 6px 2px; }
-        body.mobile-view-active .shift-select { font-size: 10px; padding: 3px; }
-        body.mobile-view-active .task-card { min-height: 90px; padding: 4px; }
-        body.mobile-view-active .editable-content-area { font-size: 10px; min-height: 45px; }
-        body.mobile-view-active .legend-footer { gap: 10px; padding: 8px; }
-        body.mobile-view-active .legend-item { font-size: 10px; }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
 
-        @media print {
-            body { background: white; padding: 0; color: black; }
-            .header-container, .legend-footer, .btn-controls, .no-print, .task-dropdown-container, .modal-overlay { display: none !important; }
-            .task-card { min-height: 100px; }
-            .schedule-table { border: 2px solid #000 !important; }
-            td, th { border: 1px solid #000 !important; }
-            .day-section { box-shadow: none; padding: 0; margin-bottom: 20px; page-break-after: always; border: none !important; }
-            .task-card.off-duty-active { background-color: #9ca3af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .reminder-box-wrapper { border: none !important; background: transparent !important; }
-            .reminder-box-input { color: black !important; }
+        .btn {
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            color: #ffffff;
+        }
+
+        .btn-primary { background-color: #2563eb; }
+        .btn-secondary { background-color: #475569; }
+        .btn-success { background-color: #10b981; }
+        .btn-danger { background-color: #ef4444; }
+        .btn-warning { background-color: #f59e0b; color: #1e293b; }
+        .btn-theme { background-color: #8b5cf6; }
+
+        /* Scheduler Layout Grid */
+        .scheduler-grid {
+            display: grid;
+            grid-template-columns: 200px repeat(4, 1fr);
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: var(--slot-bg);
+        }
+
+        .grid-header {
+            border: 1px dashed var(--border-color);
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: bold;
+            background-color: var(--header-bg);
+            color: #38bdf8;
+        }
+
+        .team-col {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            background-color: var(--card-bg);
+        }
+
+        .member-card {
+            flex: 1;
+            height: 100%;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0px 1px 2px rgba(0,0,0,0.6);
+            text-transform: uppercase;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .shift-select-box {
+            width: 90px;
+        }
+
+        .shift-select-box select {
+            width: 100%;
+            padding: 5px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bg-ann { background-color: #db2777; }
+        .bg-dave { background-color: #0284c7; }
+        .bg-kenneth { background-color: #65a30d; }
+        .bg-kriztel { background-color: #ea580c; }
+
+        .time-slot-cell {
+            border: 1px dashed var(--border-color);
+            padding: 8px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--slot-bg);
+            position: relative;
+        }
+
+        .time-slot-cell.off-shift {
+            opacity: 0.4;
+            background-color: var(--off-shift-bg);
+        }
+
+        .time-slot-cell.off-day {
+            opacity: 0.3;
+            background-color: var(--off-day-bg);
+        }
+
+        .rd-badge {
+            margin: auto;
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: 1px;
+            border: 1px dashed #ef4444;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Multi-Select Dropdown */
+        .dropdown-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .dropdown-btn {
+            width: 100%;
+            background-color: var(--dropdown-btn-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            font-size: 11px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 220px;
+            overflow-y: auto;
+            background-color: var(--dropdown-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+            z-index: 100;
+            padding: 5px 0;
+            border-radius: 4px;
+        }
+
+        .dropdown-wrapper.open .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--text-color);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--border-color);
+        }
+
+        .task-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding-left: 18px;
+        }
+
+        .task-list li {
+            margin-bottom: 4px;
+        }
+
+        .handover-tag { color: #f59e0b; font-weight: bold; }
+        .strict-tag { color: #10b981; }
+
+        /* Responsive Mobile Layout */
+        @media (max-width: 850px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls {
+                justify-content: space-between;
+            }
+
+            .scheduler-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-header {
+                display: none;
+            }
+
+            .team-col {
+                margin-top: 15px;
+                border-radius: 4px;
+            }
+
+            .time-slot-cell {
+                min-height: auto;
+                padding: 12px 8px;
+            }
+
+            .time-slot-cell::before {
+                content: attr(data-time);
+                font-weight: bold;
+                font-size: 12px;
+                color: #38bdf8;
+                margin-bottom: 6px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="header-container">
-        <div class="title-group">
-            <h1>SB DUTIES — PER DAY ROSTER MASTER</h1>
-            <span class="title-credit">kdv_2026 model</span>
+    <div class="header">
+        <div class="meta-info">
+            <div class="date-picker-group">
+                <button class="date-btn" onclick="changeDate(-1)">&#9664;</button>
+                <input type="date" id="scheduleDate" onchange="loadDateSchedule()">
+                <button class="date-btn" onclick="changeDate(1)">&#9654;</button>
+            </div>
+            <div>
+                <select id="historySelect"><option value="">Schedule History...</option></select>
+            </div>
         </div>
-        <div class="btn-controls">
-            <span id="activeViewersBadge" class="btn btn-secondary" style="cursor: default; pointer-events: none;" title="Active Viewers">
-                👁️ <span id="activeViewersCount">1</span>
-            </span>
-            <span id="saveStatus" class="autosave-badge">✓ Live Synced</span>
-            
-            <button class="btn btn-secondary" onclick="viewSecurityLogs()">📜 History Logs</button>
-            <button class="btn btn-secondary" onclick="viewArchivesModal()">📦 Archives</button>
-            <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView(true)">📱 Mobile View: OFF</button>
-            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-            <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
-            <button class="btn btn-primary" onclick="window.print()">🖨️ Print / PDF</button>
 
-            <a href="index.html" class="btn btn-dashboard">🏠 Dashboard</a>
+        <div class="controls">
+            <button class="btn btn-theme" onclick="toggleTheme()">Day/Night</button>
+            <button class="btn btn-primary" onclick="autoAssignTasks()">Shuffle Task</button>
+            <button class="btn btn-success" onclick="saveDay()">Save Changes</button>
+            <button class="btn btn-secondary" onclick="clearDay()">Clear Day</button>
+            <button class="btn btn-warning" onclick="toggleViewOnlyWithPassword()" id="viewOnlyBtn">View Only</button>
+            <button class="btn btn-danger" onclick="deleteDay()">Delete Day</button>
         </div>
     </div>
 
-    <div id="pagesContainer"></div>
+    <div class="scheduler-grid">
+        <div class="grid-header">Team Member / Shift</div>
+        <div class="grid-header">9:00 - 12:00</div>
+        <div class="grid-header">12:00 - 15:00</div>
+        <div class="grid-header">15:00 - 18:00</div>
+        <div class="grid-header">18:00 - 21:00</div>
 
-    <div id="logModalOverlay" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 id="modalTitle" style="font-size:16px;">📜 Audit & Security Log</h3>
-                <button class="btn btn-danger" style="padding:2px 8px;" onclick="closeLogModal()">✕</button>
-            </div>
-            <div id="modalLogBody" class="modal-body">
-                <div style="text-align:center; padding:10px; font-size:12px;">Loading logs...</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="legend-footer">
-        <div class="legend-item"><div class="legend-color" style="background-color: #ffffff;"></div><span>7:00 - 16:00</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #a7f3d0;"></div><span>9:00 - 18:00</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #fefce8;"></div><span>10:00 - 19:00</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #fef9c3;"></div><span>12:00 - 21:00</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #e9d5ff;"></div><span>14:00 - 23:00</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #ffedd5;"></div><span>16:00 - 1:00</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #fbcfe8;"></div><span>7:00 - 10:00 (WFH)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #f472b6;"></div><span>7:00 - 16:00 (WFH)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #e5e7eb;"></div><span>RD (Rest Day)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #9ca3af;"></div><span>Off-Duty</span></div>
+        <div id="gridBody" style="display: contents;"></div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
-            authDomain: "test-daily-task--sb.firebaseapp.com",
-            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
-            projectId: "test-daily-task--sb",
-            storageBucket: "test-daily-task--sb.firebasestorage.app",
-            messagingSenderId: "928476661919",
-            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
-        };
-
-        let db = null;
-        try {
-            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-            } else if (typeof firebase !== 'undefined') {
-                db = firebase.database();
-            }
-        } catch(e) {
-            console.error("Firebase init fallback:", e);
-        }
-
-        function getLocalDateString(d = new Date()) {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        // KEY SANITIZER FOR FIREBASE PERSISTENCE (SAFE FROM ARRAY CONVERSION)
-        function formatFirebaseKey(isoDate) {
-            return "date_" + isoDate.replace(/-/g, "_");
-        }
-
-        function parseIsoFromFirebaseKey(fbKey, fallbackIso) {
-            if (!fbKey) return fallbackIso;
-            if (fbKey.startsWith("date_")) {
-                return fbKey.replace("date_", "").replace(/_/g, "-");
-            }
-            return fbKey;
-        }
-
-        const members = [
-            { id: 'ann', name: 'Ann', initial: 'A', avatarClass: 'avatar-ann', index: 0, defaultShiftProfile1: 'shift-7-16', defaultShiftProfile2: 'shift-9-18' },
-            { id: 'dave', name: 'Dave', initial: 'D', avatarClass: 'avatar-dave', index: 1, defaultShiftProfile1: 'shift-10-19', defaultShiftProfile2: 'shift-9-18' },
-            { id: 'ken', name: 'Ken', initial: 'K', avatarClass: 'avatar-ken', index: 2, defaultShiftProfile1: 'shift-12-21', defaultShiftProfile2: 'shift-12-21' },
-            { id: 'kriztel', name: 'Kriztel', initial: 'K', avatarClass: 'avatar-kriztel', index: 3, defaultShiftProfile1: 'shift-16-1', defaultShiftProfile2: 'shift-12-21' }
+        const MEMBERS = [
+            { id: 'ANN', name: 'ANN', class: 'bg-ann', defaultShift: '12:00 - 21:00' },
+            { id: 'DAVE', name: 'DAVE', class: 'bg-dave', defaultShift: '9:00 - 18:00' },
+            { id: 'KENNETH', name: 'KENNETH', class: 'bg-kenneth', defaultShift: '12:00 - 21:00' },
+            { id: 'KRIZTEL', name: 'KRIZTEL', class: 'bg-kriztel', defaultShift: '9:00 - 18:00' }
         ];
 
-        const timeSlotProfiles = {
-            'profile_1': [
-                { id: 'slot_7_10', label: '7:00 - 10:00' },
-                { id: 'slot_10_12', label: '10:00 - 12:00' },
-                { id: 'slot_12_16', label: '12:00 - 16:00' },
-                { id: 'slot_16_19', label: '16:00 - 19:00' },
-                { id: 'slot_19_21', label: '19:00 - 21:00' },
-                { id: 'slot_22_1', label: '22:00 - 1:00' }
-            ],
-            'profile_2': [
-                { id: 'slot_9_12', label: '9:00 - 12:00' },
-                { id: 'slot_12_15', label: '12:00 - 15:00' },
-                { id: 'slot_15_18', label: '15:00 - 18:00' },
-                { id: 'slot_18_21', label: '18:00 - 21:00' }
-            ]
-        };
+        const TIME_SLOTS = ["9:00 - 12:00", "12:00 - 15:00", "15:00 - 18:00", "18:00 - 21:00"];
 
-        const availableTasks = [
+        const STRICT_9AM = [
+            "Telegram Channel Monitoring",
+            "Sports Events Booking Check (BR Portal)",
+            "7A/BVB/GQBET tickers",
+            "Rejected Bets Monitoring",
+            "Site Checking (Web/Mobile)",
+            "Big Winners check",
+            "Boost Display"
+        ];
+
+        const STRICT_12PM = [
+            "Boost & Banner Creation",
+            "Overnight Bets",
+            "Others (As instructed)"
+        ];
+
+        const FLEXIBLE_TASKS = [
             "Edge Prediction Market Ticker",
             "Pubs Prediction Market Ticker",
             "Pubs Tickers",
             "@Sportsbook Escalation check",
             "Rejected Bets Monitoring",
             "Site Checking (Web/Mobile)",
-            "Big Winners Check",
-            "Boost Check",
             "ALL Tickers",
             "Qbet tickers",
             "30Bet tickers",
@@ -530,1029 +438,355 @@
             "7A/BVB/GQBET tickers",
             "SoftSwiss Files",
             "SB Files checking (Client's Tracking/VIP files/CRM files)",
-            "Sports Events Booking Check (BR Portal)",
-            "Telegram Channel Monitoring",
             "Friendlies Checking",
-            "Handover Report AM",
-            "Handover Report PM",
             "Overnight Bets",
-            "Edge Boost / Banner creation",
-            "iBet Boost",
-            "7A Boosts",
-            "Others (As instructed)"
+            "Others (As instructed)",
+            "Handover Report AM",
+            "Handover Report PM"
         ];
 
-        const strict9amSlotTasks = [
-            "iBet Boost",
-            "Big Winners Check",
-            "ALL Tickers",
-            "@Sportsbook Escalation check",
-            "Telegram Channel Monitoring",
-            "Sports Events Booking Check (BR Portal)",
-            "Boost Check"
-        ];
+        const ALL_TASKS = Array.from(new Set([...STRICT_9AM, ...STRICT_12PM, ...FLEXIBLE_TASKS]));
 
-        const strict12pmSlotTasks = [
-            "Edge Boost / Banner creation",
-            "7A Boosts",
-            "Rejected Bets Monitoring",
-            "Telegram Channel Monitoring",
-            "ALL Tickers"
-        ];
+        let currentSchedule = {};
+        let activeOpenDropdown = null;
+        let isViewOnly = false;
 
-        const generalUnmentionedTasks = availableTasks.filter(t => 
-            !strict9amSlotTasks.includes(t) && 
-            !strict12pmSlotTasks.includes(t) && 
-            !t.includes("Handover Report")
-        );
+        document.getElementById('scheduleDate').valueAsDate = new Date();
 
-        const shifts = [
-            { id: 'shift-7-16', label: '7:00 - 16:00', endHour: 16, endMinute: 0 },
-            { id: 'shift-9-18', label: '9:00 - 18:00', endHour: 18, endMinute: 0 },
-            { id: 'shift-10-19', label: '10:00 - 19:00', endHour: 19, endMinute: 0 },
-            { id: 'shift-12-21', label: '12:00 - 21:00', endHour: 21, endMinute: 0 },
-            { id: 'shift-14-23', label: '14:00 - 23:00', endHour: 23, endMinute: 0 },
-            { id: 'shift-16-1', label: '16:00 - 1:00', endHour: 1, endMinute: 0 },
-            { id: 'shift-7-10-wfh', label: '7:00 - 10:00 (WFH)', endHour: 10, endMinute: 0 },
-            { id: 'shift-7-16-wfh', label: '7:00 - 16:00 (WFH)', endHour: 16, endMinute: 0 },
-            { id: 'shift-adjusted', label: 'Adjusted', endHour: null, endMinute: null },
-            { id: 'shift-rd', label: 'RD', endHour: null, endMinute: null },
-            { id: 'shift-vl', label: 'VL', endHour: null, endMinute: null },
-            { id: 'shift-sl', label: 'SL', endHour: null, endMinute: null }
-        ];
-
-        const shiftOffDutyMap = {
-            'shift-7-16': ['slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_18_21'],
-            'shift-9-18': ['slot_7_10', 'slot_19_21', 'slot_22_1', 'slot_18_21'],
-            'shift-10-19': ['slot_7_10', 'slot_19_21', 'slot_22_1'],
-            'shift-12-21': ['slot_7_10', 'slot_10_12', 'slot_22_1', 'slot_9_12'],
-            'shift-14-23': ['slot_7_10', 'slot_10_12', 'slot_22_1', 'slot_9_12'],
-            'shift-16-1': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_9_12', 'slot_12_15'],
-            'shift-7-10-wfh': ['slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_12_15', 'slot_15_18', 'slot_18_21'],
-            'shift-7-16-wfh': ['slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_18_21'],
-            'shift-adjusted': [],
-            'shift-rd': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21'],
-            'shift-vl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21'],
-            'shift-sl': ['slot_7_10', 'slot_10_12', 'slot_12_16', 'slot_16_19', 'slot_19_21', 'slot_22_1', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21']
-        };
-
-        function createDefaultDatabase() {
-            let todayIso = getLocalDateString();
-            let fbKey = formatFirebaseKey(todayIso);
-            let dbObj = {};
-            dbObj[fbKey] = {
-                isoDate: todayIso,
-                reminder: "",
-                grid: {
-                    "ann": { shift: "shift-7-16", slots: {} },
-                    "dave": { shift: "shift-10-19", slots: {} },
-                    "ken": { shift: "shift-12-21", slots: {} },
-                    "kriztel": { shift: "shift-16-1", slots: {} }
-                }
-            };
-            return dbObj;
+        // Theme Toggle Persistence
+        if (localStorage.getItem('theme_mode') === 'light') {
+            document.body.classList.add('light-theme');
         }
 
-        // LOAD FROM LOCAL STORAGE FAILSAFE BACKUP IMMEDIATELY ON REFRESH
-        let database = (function() {
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const mode = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+            localStorage.setItem('theme_mode', mode);
+        }
+
+        // View Only with Password "2026"
+        function toggleViewOnlyWithPassword() {
+            const password = prompt("Enter View-Only Mode Password:");
+            if (password === "2026") {
+                isViewOnly = !isViewOnly;
+                const btn = document.getElementById('viewOnlyBtn');
+                btn.innerText = isViewOnly ? 'EDIT MODE' : 'VIEW ONLY';
+                initGrid();
+            } else if (password !== null) {
+                alert("Incorrect Password!");
+            }
+        }
+
+        // Sync shift entries from rota.html
+        function detectShiftFromRota(memberId, date) {
             try {
-                let localStr = localStorage.getItem('sb_roster_data_backup');
-                if (localStr) {
-                    let parsed = JSON.parse(localStr);
-                    if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-                        return parsed;
-                    }
+                const rotaHistory = JSON.parse(localStorage.getItem('rota_schedules') || '{}');
+                if (rotaHistory[date] && rotaHistory[date][memberId]) {
+                    return rotaHistory[date][memberId];
                 }
             } catch(e) {}
-            return createDefaultDatabase();
-        })();
-
-        let masterRotaCalendar = {};
-        let activeOpenDropdownId = null;
-        let isMobileView = false;
-        let isLocalActionPending = false;
-        let debounceInputTimer = null;
-        
-        let activeViewIsoDate = localStorage.getItem('sb_active_view_date') || getLocalDateString();
-
-        function getAutoProfileForDay(dayData) {
-            if (!dayData || !dayData.grid) return 'profile_1';
-            let has9amShift = false;
-
-            members.forEach(m => {
-                let s = dayData.grid[m.id]?.shift;
-                if (s === 'shift-9-18') {
-                    has9amShift = true;
-                }
-            });
-
-            return has9amShift ? 'profile_2' : 'profile_1';
+            return null;
         }
 
-        function getValidatedUser() {
-            let storedUser = localStorage.getItem('sb_user_name');
-            if (!storedUser || storedUser.trim() === "") {
-                storedUser = prompt("Security Check: Please enter your name to verify changes:", "Operator");
-                if (storedUser && storedUser.trim() !== "") {
-                    localStorage.setItem('sb_user_name', storedUser.trim());
-                } else {
-                    storedUser = "System User";
-                }
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-wrapper')) {
+                activeOpenDropdown = null;
+                document.querySelectorAll('.dropdown-wrapper').forEach(dw => dw.classList.remove('open'));
             }
-            return storedUser;
-        }
-
-        function archiveSnapshot(reason = "AUTO_SAVE") {
-            if (!db || !database) return;
-            const currentUser = localStorage.getItem('sb_user_name') || 'Operator';
-            db.ref('roster_archive').push({
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                formattedTime: new Date().toLocaleString(),
-                savedBy: currentUser,
-                action: reason,
-                snapshot: database
-            });
-        }
-
-        function logActivity(actionType, details = {}) {
-            if (!db) return;
-            let currentUser = localStorage.getItem('sb_user_name') || 'Anonymous User';
-            db.ref('activity_logs').push({
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                formattedTime: new Date().toLocaleString(),
-                user: currentUser,
-                action: actionType,
-                details: details
-            });
-        }
-
-        function manualSaveDatabase() {
-            let user = getValidatedUser();
-            isLocalActionPending = true;
-
-            archiveSnapshot("MANUAL_USER_SAVE");
-            saveToDatabase();
-            logActivity("MANUAL_SAVE_DATA", { savedBy: user, activeDate: activeViewIsoDate });
-
-            let statusBadge = document.getElementById('saveStatus');
-            if (statusBadge) {
-                statusBadge.innerText = "✓ Data Secured!";
-                statusBadge.style.opacity = '1';
-                setTimeout(() => { 
-                    statusBadge.style.opacity = '0';
-                    setTimeout(() => { statusBadge.innerText = "✓ Live Synced"; }, 300);
-                }, 1800);
-            }
-
-            setTimeout(() => { isLocalActionPending = false; }, 800);
-        }
-
-        function viewSecurityLogs() {
-            const overlay = document.getElementById('logModalOverlay');
-            const logContainer = document.getElementById('modalLogBody');
-            const titleElem = document.getElementById('modalTitle');
-            if (!overlay || !logContainer) return;
-
-            if (titleElem) titleElem.innerText = "📜 Audit & Action Security Log";
-            overlay.style.display = 'flex';
-            logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px;">Loading live audit logs...</div>';
-
-            if (!db) {
-                logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px; color:red;">Database offline.</div>';
-                return;
-            }
-
-            db.ref('activity_logs').limitToLast(25).once('value', (snap) => {
-                const logs = snap.val();
-                if (!logs) {
-                    logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px;">No historical records found.</div>';
-                    return;
-                }
-
-                let entries = [];
-                Object.keys(logs).forEach(key => entries.push(logs[key]));
-                entries.reverse();
-
-                logContainer.innerHTML = entries.map(item => `
-                    <div class="log-entry">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--header-text);">
-                            <span>👤 ${item.user || 'Unknown'}</span>
-                            <span style="font-size:10px; color:var(--credit-text);">${item.formattedTime || ''}</span>
-                        </div>
-                        <div style="margin-top:2px; font-weight:700; color:#38bdf8;">📌 ${item.action}</div>
-                        ${item.details && item.details.targetDay ? `<div style="font-size:10px; color:var(--text-color);">Day: ${item.details.targetDay}</div>` : ''}
-                    </div>
-                `).join('');
-            });
-        }
-
-        function viewArchivesModal() {
-            const overlay = document.getElementById('logModalOverlay');
-            const logContainer = document.getElementById('modalLogBody');
-            const titleElem = document.getElementById('modalTitle');
-            if (!overlay || !logContainer) return;
-
-            if (titleElem) titleElem.innerText = "📦 Historical Database Archives";
-            overlay.style.display = 'flex';
-            logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px;">Loading automated backups...</div>';
-
-            if (!db) {
-                logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px; color:red;">Database offline.</div>';
-                return;
-            }
-
-            db.ref('roster_archive').limitToLast(15).once('value', (snap) => {
-                const archives = snap.val();
-                if (!archives) {
-                    logContainer.innerHTML = '<div style="text-align:center; padding:10px; font-size:12px;">No archives available.</div>';
-                    return;
-                }
-
-                let archiveKeys = Object.keys(archives).reverse();
-                logContainer.innerHTML = archiveKeys.map(key => {
-                    let item = archives[key];
-                    return `
-                        <div class="log-entry" style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div style="font-weight:bold; color:var(--header-text);">💾 ${item.action || 'Archive'}</div>
-                                <div style="font-size:10px; color:var(--credit-text);">${item.formattedTime || ''} by ${item.savedBy || 'System'}</div>
-                            </div>
-                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="restoreArchive('${key}')">🔄 Restore</button>
-                        </div>
-                    `;
-                }).join('');
-            });
-        }
-
-        function restoreArchive(archiveKey) {
-            if (!confirm("Are you sure you want to restore this archival snapshot? Current data will be safely backed up first.")) return;
-            archiveSnapshot("PRE_RESTORE_BACKUP");
-            db.ref(`roster_archive/${archiveKey}/snapshot`).once('value', (snap) => {
-                const restoredData = snap.val();
-                if (restoredData) {
-                    database = restoredData;
-                    saveToDatabase();
-                    renderAllPages();
-                    closeLogModal();
-                    alert("Archive restored successfully!");
-                }
-            });
-        }
-
-        function closeLogModal() {
-            const overlay = document.getElementById('logModalOverlay');
-            if (overlay) overlay.style.display = 'none';
-        }
-
-        function toggleMobileView(isUserClick = false) {
-            const btn = document.getElementById('mobileToggleBtn');
-            if (isUserClick) {
-                isMobileView = !isMobileView;
-                localStorage.setItem('duties_mobile_view', isMobileView ? 'true' : 'false');
-            } else {
-                const storedView = localStorage.getItem('duties_mobile_view');
-                if (storedView !== null) {
-                    isMobileView = (storedView === 'true');
-                } else {
-                    isMobileView = false;
-                }
-            }
-
-            if (isMobileView) {
-                document.body.classList.add('mobile-view-active');
-                if (btn) {
-                    btn.innerText = '📱 Mobile View: ON';
-                    btn.classList.add('active');
-                }
-            } else {
-                document.body.classList.remove('mobile-view-active');
-                if (btn) {
-                    btn.innerText = '📱 Mobile View: OFF';
-                    btn.classList.remove('active');
-                }
-            }
-        }
-
-        function setupPresenceSystem() {
-            if (!db) return;
-            const presenceRef = db.ref('active_sessions');
-            const connectedRef = db.ref('.info/connected');
-
-            connectedRef.on('value', (snap) => {
-                if (snap.val() === true) {
-                    const userSessionRef = presenceRef.push();
-                    userSessionRef.onDisconnect().remove();
-
-                    userSessionRef.set({
-                        online: true,
-                        joinedAt: firebase.database.ServerValue.TIMESTAMP
-                    });
-                }
-            });
-
-            presenceRef.on('value', (snap) => {
-                const count = snap.numChildren();
-                const countElem = document.getElementById('activeViewersCount');
-                if (countElem) {
-                    countElem.innerText = count > 0 ? count : 1;
-                }
-            });
-        }
-
-        function listenToLiveDatabase() {
-            if (!db) return;
-            db.ref('rota_data').on('value', (snapshot) => {
-                masterRotaCalendar = snapshot.val() || {};
-                syncShiftsFromRotaMaster();
-            });
-
-            db.ref('roster_data').on('value', (snapshot) => {
-                const liveData = snapshot.val();
-                
-                if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
-                    if (!isLocalActionPending) {
-                        database = liveData;
-                        try { localStorage.setItem('sb_roster_data_backup', JSON.stringify(database)); } catch(e){}
-                        syncShiftsFromRotaMaster();
-                        if (!activeOpenDropdownId) {
-                            renderAllPages();
-                        } else {
-                            syncActiveDropdownCheckboxes();
-                        }
-                    }
-                }
-            });
-        }
-
-        function parseRotaShiftToShiftId(rawShiftText) {
-            if (!rawShiftText) return null;
-            let text = rawShiftText.trim();
-            if (text.startsWith("Adjusted:") || text === "Adjusted") return "shift-adjusted";
-            if (text === "RD") return "shift-rd";
-            if (text === "VL") return "shift-vl";
-            if (text === "SL") return "shift-sl";
-            if (text === "7:00 - 10:00 (WFH)") return "shift-7-10-wfh";
-            if (text === "7:00 - 16:00 (WFH)") return "shift-7-16-wfh";
-            if (text.includes("7:00") && text.includes("16:00")) return "shift-7-16";
-            if (text.includes("9:00") && text.includes("18:00")) return "shift-9-18";
-            if (text.includes("10:00") && text.includes("19:00")) return "shift-10-19";
-            if (text.includes("12:00") && text.includes("21:00")) return "shift-12-21";
-            if (text.includes("14:00") && text.includes("23:00")) return "shift-14-23";
-            if (text.includes("16:00") && text.includes("1:00")) return "shift-16-1";
-
-            return "shift-adjusted";
-        }
-
-        function syncShiftsFromRotaMaster() {
-            if (!masterRotaCalendar || Object.keys(masterRotaCalendar).length === 0) return;
-
-            let updated = false;
-            Object.keys(database || {}).forEach(fbKey => {
-                let dayData = database[fbKey];
-                if (dayData && dayData.isoDate) {
-                    let dateParts = dayData.isoDate.split('-');
-                    if (dateParts.length === 3) {
-                        let year = dateParts[0];
-                        let monthInt = parseInt(dateParts[1], 10);
-                        let dayNum = parseInt(dateParts[2], 10);
-
-                        let monthPadded = String(monthInt).padStart(2, '0');
-                        let rotaMonthKey1 = `${year}_${monthInt}`;
-                        let rotaMonthKey2 = `${year}_${monthPadded}`;
-
-                        let rotaMonthData = masterRotaCalendar[rotaMonthKey1] || masterRotaCalendar[rotaMonthKey2] || null;
-                        let rotaDayRow = rotaMonthData ? (rotaMonthData[dayNum] || rotaMonthData[String(dayNum)]) : null;
-
-                        if (rotaDayRow) {
-                            members.forEach(m => {
-                                let rawRotaShift = rotaDayRow[m.index] || rotaDayRow[m.id];
-                                let matchedShiftId = parseRotaShiftToShiftId(rawRotaShift);
-
-                                if (matchedShiftId) {
-                                    if (!dayData.grid) dayData.grid = {};
-                                    if (!dayData.grid[m.id]) {
-                                        dayData.grid[m.id] = { shift: matchedShiftId, slots: {} };
-                                        updated = true;
-                                    } else if (dayData.grid[m.id].shift !== matchedShiftId) {
-                                        dayData.grid[m.id].shift = matchedShiftId;
-                                        dayData.grid[m.id].slots = dayData.grid[m.id].slots || {};
-                                        updated = true;
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            });
-
-            if (updated) {
-                saveToDatabase();
-            }
-        }
-
-        function saveToDatabase() {
-            if (!database) database = createDefaultDatabase();
-            try {
-                localStorage.setItem('sb_roster_data_backup', JSON.stringify(database));
-            } catch(e){}
-            
-            if (db) db.ref('roster_data').set(database);
-            
-            let statusBadge = document.getElementById('saveStatus');
-            if (statusBadge) {
-                statusBadge.style.opacity = '1';
-                setTimeout(() => { statusBadge.style.opacity = '0'; }, 1000);
-            }
-        }
-
-        function toggleDarkMode() {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('sb_theme', newTheme);
-        }
-
-        function isOffDuty(shiftId, slotId) {
-            return (shiftOffDutyMap[shiftId] || []).includes(slotId);
-        }
-
-        function updateReminderText(dayKey, newText) {
-            getValidatedUser();
-            isLocalActionPending = true;
-            if (!database[dayKey]) database[dayKey] = { grid: {} };
-            database[dayKey].reminder = newText;
-            saveToDatabase();
-            logActivity("UPDATE_REMINDER", { targetDay: dayKey, text: newText });
-            setTimeout(() => { isLocalActionPending = false; }, 300);
-        }
-
-        function shuffleArray(arr) {
-            let a = [...arr];
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
-
-        function reshuffleTasksForDay(dayKey) {
-            autoAssignTasksForDay(dayKey);
-        }
-
-        function autoAssignTasksForDay(dayKey) {
-            getValidatedUser();
-            if (!database[dayKey]) return;
-
-            isLocalActionPending = true;
-
-            let currentProfileKey = getAutoProfileForDay(database[dayKey]);
-            let activeSlots = timeSlotProfiles[currentProfileKey];
-
-            members.forEach(m => {
-                let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
-                if (!database[dayKey].grid[m.id]) {
-                    database[dayKey].grid[m.id] = { shift: defaultForProfile, slots: {} };
-                } else {
-                    database[dayKey].grid[m.id].slots = {};
-                }
-            });
-
-            let memberLastSlot = {};
-            let endSlotMemberMap = {};
-
-            members.forEach(m => {
-                let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
-                let memberShift = database[dayKey].grid[m.id]?.shift || defaultForProfile;
-                let activeForMember = activeSlots.filter(s => !isOffDuty(memberShift, s.id)).map(s => s.id);
-                if (activeForMember.length > 0) {
-                    let lastSlotId = activeForMember[activeForMember.length - 1];
-                    memberLastSlot[m.id] = lastSlotId;
-
-                    if (!endSlotMemberMap[lastSlotId]) endSlotMemberMap[lastSlotId] = [];
-                    endSlotMemberMap[lastSlotId].push(m.id);
-                }
-            });
-
-            let handoverAssignees = {};
-            Object.keys(endSlotMemberMap).forEach(slotId => {
-                let candidates = endSlotMemberMap[slotId];
-                let chosenMember = candidates[Math.floor(Math.random() * candidates.length)];
-                handoverAssignees[chosenMember] = slotId;
-            });
-
-            const tickerFallbackPool = [
-                "ALL Tickers", "Pubs Tickers", "Qbet tickers", "30Bet tickers", 
-                "55Bet tickers", "Ibet tickers", "7A/BVB/GQBET tickers", 
-                "Edge Prediction Market Ticker", "Pubs Prediction Market Ticker"
-            ];
-
-            activeSlots.forEach(slot => {
-                let slotId = slot.id;
-
-                let activeMembersInSlot = members.filter(m => {
-                    let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
-                    let memberShift = database[dayKey].grid[m.id]?.shift || defaultForProfile;
-                    return !isOffDuty(memberShift, slotId);
-                });
-
-                let isSoloSlot = (activeMembersInSlot.length === 1);
-                let assignedTasksInSlot = new Set();
-
-                activeMembersInSlot.forEach(m => {
-                    let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
-                    let memberShift = database[dayKey].grid[m.id]?.shift || defaultForProfile;
-                    let isLateShift = ['shift-12-21', 'shift-14-23', 'shift-16-1'].includes(memberShift);
-
-                    let pool = [];
-                    
-                    let isExact9amSlot = (slotId === 'slot_7_10' || slotId === 'slot_9_12');
-                    let isExact12pmSlot = (slotId === 'slot_12_16' || slotId === 'slot_12_15');
-
-                    if (isExact9amSlot && !isLateShift) {
-                        pool = shuffleArray([...strict9amSlotTasks, ...generalUnmentionedTasks]);
-                    } else if (isExact12pmSlot && isLateShift) {
-                        pool = shuffleArray([...strict12pmSlotTasks, ...generalUnmentionedTasks]);
-                    } else {
-                        pool = shuffleArray(generalUnmentionedTasks);
-                    }
-
-                    let availableTasksForMember = isSoloSlot 
-                        ? pool 
-                        : pool.filter(t => !assignedTasksInSlot.has(t));
-
-                    let taskBatchSize = isSoloSlot ? Math.min(8, availableTasksForMember.length) : Math.min(5, availableTasksForMember.length);
-                    let selectedTasks = availableTasksForMember.slice(0, taskBatchSize);
-
-                    if (selectedTasks.length === 0) {
-                        let shuffledTickers = shuffleArray(tickerFallbackPool);
-                        let unassignedTickers = shuffledTickers.filter(t => !assignedTasksInSlot.has(t));
-                        
-                        selectedTasks = unassignedTickers.length >= 2 
-                            ? unassignedTickers.slice(0, 3) 
-                            : shuffledTickers.slice(0, 3);
-                    }
-
-                    if (!isSoloSlot) {
-                        selectedTasks.forEach(t => assignedTasksInSlot.add(t));
-                    }
-
-                    selectedTasks = selectedTasks.filter(t => !t.includes("Handover Report"));
-
-                    if (handoverAssignees[m.id] === slotId) {
-                        let handoverTask = (isLateShift || memberShift === 'shift-10-19') ? "Handover Report PM" : "Handover Report AM";
-                        selectedTasks.push(handoverTask);
-                    }
-
-                    database[dayKey].grid[m.id].slots[slotId] = selectedTasks;
-                });
-            });
-
-            archiveSnapshot(`AUTO_ASSIGN_${dayKey}`);
-            renderAllPages();
-            saveToDatabase();
-            logActivity("AUTO_ASSIGN_TASKS", { targetDay: dayKey });
-
-            setTimeout(() => {
-                isLocalActionPending = false;
-            }, 300);
-        }
-
-        function getMemberDutyCountsForDay(dayData, memberId) {
-            const taskCounts = {};
-            availableTasks.forEach(t => taskCounts[t] = 0);
-
-            if (!dayData || !dayData.grid || !dayData.grid[memberId]) return taskCounts;
-
-            const slots = dayData.grid[memberId].slots || {};
-            Object.keys(slots).forEach(slotId => {
-                const taskList = slots[slotId] || [];
-                taskList.forEach(taskName => {
-                    if (taskCounts.hasOwnProperty(taskName)) {
-                        taskCounts[taskName]++;
-                    } else {
-                        const matched = availableTasks.find(t => t.toLowerCase() === taskName.toLowerCase());
-                        if (matched) taskCounts[matched]++;
-                    }
-                });
-            });
-
-            return taskCounts;
-        }
-
-        function changeViewDate(offsetDays) {
-            let parts = activeViewIsoDate.split('-');
-            let d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-            d.setDate(d.getDate() + offsetDays);
-            activeViewIsoDate = getLocalDateString(d);
-            
-            try { localStorage.setItem('sb_active_view_date', activeViewIsoDate); } catch(e){}
-            ensureDayExists(activeViewIsoDate);
-            renderAllPages();
-        }
-
-        function resetToTodayView() {
-            activeViewIsoDate = getLocalDateString();
-            try { localStorage.setItem('sb_active_view_date', activeViewIsoDate); } catch(e){}
-            ensureDayExists(activeViewIsoDate);
-            renderAllPages();
-        }
-
-        // SAFE DATE KEY SANITIZER TO PREVENT FIREBASE OVERWRITES
-        function ensureDayExists(targetIsoDate) {
-            if (!database) database = {};
-            let targetKey = formatFirebaseKey(targetIsoDate);
-
-            // Find either formatted key or raw iso string key
-            let existingKey = Object.keys(database).find(k => {
-                return k === targetKey || database[k].isoDate === targetIsoDate;
-            });
-
-            if (!existingKey) {
-                database[targetKey] = { isoDate: targetIsoDate, reminder: "", grid: {} };
-                members.forEach(m => {
-                    database[targetKey].grid[m.id] = { shift: m.defaultShiftProfile1, slots: {} };
-                });
-                saveToDatabase();
-                syncShiftsFromRotaMaster();
-            }
-        }
-
-        function renderAllPages() {
-            const container = document.getElementById('pagesContainer');
-            if (!container) return;
-            container.innerHTML = '';
-            if (!database) database = createDefaultDatabase();
-
-            const todayStr = getLocalDateString();
-
-            ensureDayExists(activeViewIsoDate);
-            let dayKey = Object.keys(database).find(k => {
-                return k === formatFirebaseKey(activeViewIsoDate) || database[k].isoDate === activeViewIsoDate;
-            }) || formatFirebaseKey(activeViewIsoDate);
-
-            let dayData = database[dayKey] || { isoDate: activeViewIsoDate, reminder: "", grid: {} };
-            let daySection = document.createElement('div');
-            daySection.className = 'day-section';
-            daySection.id = `section-${dayKey}`;
-
-            const isToday = (dayData.isoDate === todayStr);
-            if (isToday) daySection.classList.add('today-card');
-
-            let currentProfileKey = getAutoProfileForDay(dayData);
-            let activeTimeSlots = timeSlotProfiles[currentProfileKey];
-            let shiftBadgeText = currentProfileKey === 'profile_2' ? 'SHIFT 2' : 'SHIFT 1';
-
-            let titleHTML = `
-                <div class="day-title-area">
-                    <div class="day-title-left">
-                        <button class="btn btn-secondary no-print" onclick="changeViewDate(-1)" title="Previous Day">◀ Previous</button>
-                        <span class="date-picker-wrapper">
-                            📅 
-                            <input type="date" class="date-picker-input" value="${dayData.isoDate}" onchange="activeViewIsoDate=this.value; localStorage.setItem('sb_active_view_date', this.value); updateDayDate('${dayKey}', this.value)">
-                            <span class="shift-badge-label">${shiftBadgeText}</span>
-                        </span>
-                        <button class="btn btn-secondary no-print" onclick="changeViewDate(1)" title="Next Day">Next ▶</button>
-                        ${isToday ? '<span class="today-badge">Today</span>' : `<button class="btn btn-secondary no-print" onclick="resetToTodayView()">Today 📍</button>`}
-                        <div class="reminder-box-wrapper">
-                            <span>📌</span>
-                            <input type="text" class="reminder-box-input" placeholder="Meeting Reminders / Notes..." value="${dayData.reminder || ''}" onchange="updateReminderText('${dayKey}', this.value)">
-                        </div>
-                    </div>
-                    <div class="no-print" style="display:flex; gap:8px; align-items:center;">
-                        <button class="btn btn-success" onclick="manualSaveDatabase()" style="padding:5px 12px; font-size:11px; font-weight:800;" title="Permanently Commit Changes">💾 Save Changes</button>
-                        <button class="btn btn-primary" onclick="autoAssignTasksForDay('${dayKey}')" style="padding:5px 10px; font-size:11px;">🎲 Auto Assign Tasks</button>
-                        <button class="btn btn-secondary" onclick="reshuffleTasksForDay('${dayKey}')" style="padding:5px 10px; font-size:11px; background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">🔀 Re-Shuffle Tasks</button>
-                        <button class="btn btn-secondary" onclick="clearDayDuties('${dayKey}')" style="padding:5px 10px; font-size:11px;">🧹 Clear Day</button>
-                        <button class="btn btn-danger" onclick="deleteDay('${dayKey}')" style="padding:5px 10px; font-size:11px;">🗑️ Delete Day</button>
-                    </div>
-                </div>
-            `;
-            daySection.innerHTML += titleHTML;
-            
-            let contentWrapper = document.createElement('div');
-            contentWrapper.className = 'day-content-wrapper';
-
-            let tableWrapper = document.createElement('div');
-            tableWrapper.className = 'table-responsive-wrapper';
-
-            let table = document.createElement('table');
-            table.className = 'schedule-table';
-            
-            let thead = `
-                <thead>
-                    <tr>
-                        <th class="col-member">TEAM & DUTY COUNTER</th>
-                        <th class="col-shift">SHIFT</th>
-                        ${activeTimeSlots.map(s => `<th>${s.label}</th>`).join('')}
-                    </tr>
-                </thead>
-            `;
-            table.innerHTML += thead;
-
-            let tbody = document.createElement('tbody');
-            members.forEach(m => {
-                let defaultForProfile = currentProfileKey === 'profile_2' ? m.defaultShiftProfile2 : m.defaultShiftProfile1;
-                let memberGrid = (dayData.grid && dayData.grid[m.id]) ? dayData.grid[m.id] : { shift: defaultForProfile, slots: {} };
-                let tr = document.createElement('tr');
-                
-                const taskCounts = getMemberDutyCountsForDay(dayData, m.id);
-                
-                let counterRowsHtml = '';
-                let colorClasses = ['pill-c0', 'pill-c1', 'pill-c2', 'pill-c3'];
-                let colorIdx = 0;
-
-                availableTasks.forEach(tName => {
-                    const cnt = taskCounts[tName] || 0;
-                    if (cnt > 0) {
-                        const pillClass = colorClasses[colorIdx % colorClasses.length];
-                        colorIdx++;
-                        counterRowsHtml += `
-                            <div class="duty-counter-row">
-                                <span class="duty-counter-row-name" title="${tName}">${tName}:</span>
-                                <span class="duty-counter-pill ${pillClass}">${cnt}</span>
-                            </div>
-                        `;
-                    }
-                });
-
-                if (!counterRowsHtml) {
-                    counterRowsHtml = `<div style="text-align:center; color:#9ca3af; font-size:9px; padding:2px 0;">No tasks assigned</div>`;
-                }
-
-                let memberCell = `
-                    <td>
-                        <div class="team-member-container">
-                            <div class="member-avatar-circle ${m.avatarClass}">${m.initial}</div>
-                            <div class="member-name-label">${m.name}</div>
-                            
-                            <div class="duty-counter-card">
-                                <div class="duty-counter-title">Daily Summary</div>
-                                <div class="duty-counter-list">
-                                    ${counterRowsHtml}
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                `;
-
-                let shiftOptions = shifts.map(s => 
-                    `<option value="${s.id}" ${memberGrid.shift === s.id ? 'selected' : ''}>${s.label}</option>`
-                ).join('');
-
-                let shiftCell = `
-                    <td>
-                        <div class="shift-select-container">
-                            <select class="shift-select no-print" onchange="changeShift('${dayKey}', '${m.id}', this.value)">
-                                ${shiftOptions}
-                            </select>
-                        </div>
-                    </td>
-                `;
-                
-                tr.innerHTML += memberCell + shiftCell;
-                
-                activeTimeSlots.forEach(slot => {
-                    let isSlotOffDuty = isOffDuty(memberGrid.shift, slot.id);
-                    let selectedTaskList = (memberGrid.slots && memberGrid.slots[slot.id]) ? memberGrid.slots[slot.id] : [];
-                    let formattedText = isSlotOffDuty ? '' : selectedTaskList.join('\n');
-                    let offDutyClass = isSlotOffDuty ? 'off-duty-active' : '';
-                    
-                    let td = document.createElement('td');
-                    
-                    let taskCheckboxes = availableTasks.map(t => {
-                        let isChecked = selectedTaskList.includes(t) ? 'checked' : '';
-                        return `
-                            <label class="task-option-label" onclick="event.stopPropagation();">
-                                <input type="checkbox" value="${t}" ${isChecked} onchange="toggleTask('${dayKey}', '${m.id}', '${slot.id}', this, event)">
-                                ${t}
-                            </label>
-                        `;
-                    }).join('');
-
-                    let dropdownOpenClass = (activeOpenDropdownId === `${dayKey}-${m.id}-${slot.id}`) ? 'show' : '';
-
-                    td.innerHTML = `
-                        <div class="task-card ${memberGrid.shift} ${offDutyClass}">
-                            <div class="task-dropdown-container no-print" onclick="event.stopPropagation();">
-                                <button type="button" class="task-dropdown-btn" onclick="toggleDropdown(event, '${dayKey}-${m.id}-${slot.id}')">
-                                    <span>▼ Tasks</span>
-                                </button>
-                                <div id="dropdown-${dayKey}-${m.id}-${slot.id}" class="task-dropdown-content ${dropdownOpenClass}" onclick="event.stopPropagation();">
-                                    ${taskCheckboxes}
-                                </div>
-                            </div>
-                            <div class="editable-content-area" id="editor-${dayKey}-${m.id}-${slot.id}" contenteditable="${!isSlotOffDuty}" oninput="updateCellTextDebounced('${dayKey}', '${m.id}', '${slot.id}', this)">${formattedText}</div>
-                        </div>
-                    `;
-                    tr.appendChild(td);
-                });
-                tbody.appendChild(tr);
-            });
-            
-            table.appendChild(tbody);
-            tableWrapper.appendChild(table);
-            contentWrapper.appendChild(tableWrapper);
-
-            daySection.appendChild(contentWrapper);
-            container.appendChild(daySection);
-        }
-
-        function toggleDropdown(event, id) {
-            event.stopPropagation();
-            const targetContent = document.getElementById(`dropdown-${id}`);
-            const isCurrentlyShown = targetContent ? targetContent.classList.contains('show') : false;
-            
-            document.querySelectorAll('.task-dropdown-content').forEach(el => el.classList.remove('show'));
-            
-            if (!isCurrentlyShown && targetContent) {
-                targetContent.classList.add('show');
-                activeOpenDropdownId = id;
-            } else {
-                activeOpenDropdownId = null;
-            }
-        }
-
-        function toggleTask(dayKey, memberId, slotId, checkbox, event) {
-            if (event) event.stopPropagation();
-
-            getValidatedUser();
-            isLocalActionPending = true;
-
-            if (!database[dayKey]) database[dayKey] = { grid: {} };
-            let currentProfileKey = getAutoProfileForDay(database[dayKey]);
-            let mObj = members.find(m => m.id === memberId);
-            let defaultForProfile = currentProfileKey === 'profile_2' ? mObj.defaultShiftProfile2 : mObj.defaultShiftProfile1;
-
-            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: defaultForProfile, slots: {} };
-            let dayGrid = database[dayKey].grid[memberId];
-            if (!dayGrid.slots) dayGrid.slots = {};
-            if (!dayGrid.slots[slotId]) dayGrid.slots[slotId] = [];
-
-            if (checkbox.checked) {
-                if (!dayGrid.slots[slotId].includes(checkbox.value)) dayGrid.slots[slotId].push(checkbox.value);
-            } else {
-                dayGrid.slots[slotId] = dayGrid.slots[slotId].filter(t => t !== checkbox.value);
-            }
-
-            let editor = document.getElementById(`editor-${dayKey}-${memberId}-${slotId}`);
-            if (editor) {
-                editor.innerText = dayGrid.slots[slotId].join('\n');
-            }
-
-            saveToDatabase();
-            logActivity("TOGGLE_TASK", { targetDay: dayKey, member: memberId, slot: slotId, task: checkbox.value, checked: checkbox.checked });
-            renderAllPages();
-
-            setTimeout(() => { isLocalActionPending = false; }, 300);
-        }
-
-        function syncActiveDropdownCheckboxes() {
-            if (!activeOpenDropdownId) return;
-            let parts = activeOpenDropdownId.split('-');
-            if (parts.length < 3) return;
-            let dayKey = parts[0];
-            let memberId = parts[1];
-            let slotId = parts[2];
-
-            let selectedList = (database[dayKey] && database[dayKey].grid[memberId] && database[dayKey].grid[memberId].slots[slotId]) 
-                ? database[dayKey].grid[memberId].slots[slotId] : [];
-
-            let dropdown = document.getElementById(`dropdown-${activeOpenDropdownId}`);
-            if (dropdown) {
-                dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                    cb.checked = selectedList.includes(cb.value);
-                });
-            }
-        }
-
-        function changeShift(dayKey, memberId, newShift) {
-            getValidatedUser();
-            isLocalActionPending = true;
-
-            if (!database[dayKey]) database[dayKey] = { grid: {} };
-            if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { slots: {} };
-            database[dayKey].grid[memberId].shift = newShift;
-            saveToDatabase();
-            logActivity("CHANGE_SHIFT", { targetDay: dayKey, member: memberId, newShift: newShift });
-            renderAllPages();
-
-            setTimeout(() => { isLocalActionPending = false; }, 300);
-        }
-
-        function updateCellTextDebounced(dayKey, memberId, slotId, element) {
-            isLocalActionPending = true;
-            clearTimeout(debounceInputTimer);
-            debounceInputTimer = setTimeout(() => {
-                let lines = element.innerText.split('\n').filter(l => l.trim() !== '');
-                if (!database[dayKey]) database[dayKey] = { grid: {} };
-                let currentProfileKey = getAutoProfileForDay(database[dayKey]);
-                let mObj = members.find(m => m.id === memberId);
-                let defaultForProfile = currentProfileKey === 'profile_2' ? mObj.defaultShiftProfile2 : mObj.defaultShiftProfile1;
-
-                if (!database[dayKey].grid[memberId]) database[dayKey].grid[memberId] = { shift: defaultForProfile, slots: {} };
-                if (!database[dayKey].grid[memberId].slots) database[dayKey].grid[memberId].slots = {};
-                database[dayKey].grid[memberId].slots[slotId] = lines;
-                saveToDatabase();
-                isLocalActionPending = false;
-                renderAllPages();
-            }, 500);
-        }
-
-        function updateDayDate(dayKey, newIsoDate) { 
-            getValidatedUser();
-
-            if (!database[dayKey]) return;
-            
-            let oldData = database[dayKey];
-            delete database[dayKey];
-            
-            let newKey = formatFirebaseKey(newIsoDate);
-            oldData.isoDate = newIsoDate;
-            database[newKey] = oldData;
-            
-            saveToDatabase(); 
-            logActivity("UPDATE_DATE", { oldKey: dayKey, newDate: newIsoDate });
-            syncShiftsFromRotaMaster();
-            renderAllPages();
-        }
-
-        function clearDayDuties(dayKey) {
-            getValidatedUser();
-            if (confirm(`Clear all assigned tasks for day (${dayKey})?`)) {
-                archiveSnapshot(`CLEAR_DAY_${dayKey}`);
-                logActivity("CLEAR_DAY_DUTIES", { targetDay: dayKey, backupData: JSON.stringify(database[dayKey]) });
-                
-                members.forEach(m => {
-                    if (database[dayKey] && database[dayKey].grid[m.id]) {
-                        database[dayKey].grid[m.id].slots = {};
-                        let activeProfileSlots = timeSlotProfiles[getAutoProfileForDay(database[dayKey])];
-                        activeProfileSlots.forEach(s => {
-                            database[dayKey].grid[m.id].slots[s.id] = [];
-                        });
-                    }
-                });
-                
-                saveToDatabase();
-                renderAllPages();
-            }
-        }
-
-        function clearAllData() {
-            let user = getValidatedUser();
-
-            if (confirm(`CRITICAL WARNING! Are you sure you want to clear ALL duties across ALL days? This event will be logged in the Security Audit Trail.`)) {
-                archiveSnapshot("CLEAR_ALL_DATA");
-                logActivity("CLEAR_ALL_DATA", { clearedBy: user, fullBackup: JSON.stringify(database) });
-                Object.keys(database || {}).forEach(dayKey => {
-                    members.forEach(m => {
-                        if (database[dayKey] && database[dayKey].grid[m.id]) {
-                            database[dayKey].grid[m.id].slots = {};
-                            let currentSlots = timeSlotProfiles[getAutoProfileForDay(database[dayKey])];
-                            currentSlots.forEach(s => {
-                                database[dayKey].grid[m.id].slots[s.id] = [];
-                            });
-                        }
-                    });
-                });
-                saveToDatabase();
-                renderAllPages();
-            }
-        }
-
-        function deleteDay(dayKey) {
-            getValidatedUser();
-
-            if (Object.keys(database || {}).length <= 1) return alert("You must keep at least one day sheet.");
-            if (confirm(`Warning! Are you sure you want to delete this day sheet?`)) {
-                archiveSnapshot(`DELETE_DAY_${dayKey}`);
-                logActivity("DELETE_DAY_SHEET", { targetDay: dayKey, backupData: JSON.stringify(database[dayKey]) });
-                delete database[dayKey];
-                saveToDatabase();
-                renderAllPages();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (localStorage.getItem('sb_theme') === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-            }
-
-            toggleMobileView(false);
-
-            // 1. Render immediately from local memory/LocalStorage backup
-            renderAllPages();
-
-            // 2. Establish live database connection safely
-            listenToLiveDatabase();
-            setupPresenceSystem();
-            
-            window.addEventListener('click', function(e) {
-                if (!e.target.closest('.task-dropdown-container')) {
-                    document.querySelectorAll('.task-dropdown-content').forEach(el => el.classList.remove('show'));
-                    activeOpenDropdownId = null;
-                }
-            });
         });
+
+        function changeDate(days) {
+            const dateInput = document.getElementById('scheduleDate');
+            const currentDate = new Date(dateInput.value || new Date());
+            currentDate.setDate(currentDate.getDate() + days);
+            dateInput.value = currentDate.toISOString().split('T')[0];
+            loadDateSchedule();
+        }
+
+        function toggleDropdown(button) {
+            if (isViewOnly) return;
+            const wrapper = button.closest('.dropdown-wrapper');
+            const slotKey = wrapper.dataset.slotKey;
+            
+            if (activeOpenDropdown === slotKey) {
+                activeOpenDropdown = null;
+                wrapper.classList.remove('open');
+            } else {
+                activeOpenDropdown = slotKey;
+                document.querySelectorAll('.dropdown-wrapper').forEach(dw => dw.classList.remove('open'));
+                wrapper.classList.add('open');
+            }
+        }
+
+        function initGrid() {
+            const date = document.getElementById('scheduleDate').value;
+            const gridBody = document.getElementById('gridBody');
+            gridBody.innerHTML = '';
+
+            MEMBERS.forEach(member => {
+                // Check if rota.html has set a shift for this member on this date
+                const rotaShift = detectShiftFromRota(member.id, date);
+                if (!currentSchedule[member.id]) {
+                    currentSchedule[member.id] = { shift: rotaShift || member.defaultShift };
+                } else if (rotaShift) {
+                    currentSchedule[member.id].shift = rotaShift;
+                }
+
+                const memberShift = currentSchedule[member.id].shift || member.defaultShift;
+
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'team-col';
+                memberDiv.innerHTML = `
+                    <div class="member-card ${member.class}">${member.name}</div>
+                    <div class="shift-select-box">
+                        <select onchange="updateMemberShift('${member.id}', this.value)" ${isViewOnly ? 'disabled' : ''}>
+                            <option value="9:00 - 18:00" ${memberShift === '9:00 - 18:00' ? 'selected' : ''}>9:00 - 18:00</option>
+                            <option value="12:00 - 21:00" ${memberShift === '12:00 - 21:00' ? 'selected' : ''}>12:00 - 21:00</option>
+                            <option value="OFF (RD)" ${memberShift === 'OFF (RD)' ? 'selected' : ''}>OFF (RD)</option>
+                        </select>
+                    </div>
+                `;
+                gridBody.appendChild(memberDiv);
+
+                TIME_SLOTS.forEach((slot, index) => {
+                    if (!currentSchedule[member.id][slot]) {
+                        currentSchedule[member.id][slot] = { assignedList: [] };
+                    }
+
+                    const slotData = currentSchedule[member.id][slot];
+                    const slotDiv = document.createElement('div');
+                    
+                    let cellClass = 'time-slot-cell';
+                    if (memberShift === 'OFF (RD)') {
+                        cellClass += ' off-day';
+                    } else if ((memberShift === '9:00 - 18:00' && slot === '18:00 - 21:00') ||
+                               (memberShift === '12:00 - 21:00' && slot === '9:00 - 12:00')) {
+                        cellClass += ' off-shift';
+                    }
+
+                    slotDiv.className = cellClass;
+                    slotDiv.setAttribute('data-time', slot);
+                    const slotKey = `${member.id}_${index}`;
+
+                    if (memberShift === 'OFF (RD)') {
+                        slotDiv.innerHTML = `<div class="rd-badge">OFF (REST DAY)</div>`;
+                    } else {
+                        const dropdownItems = ALL_TASKS.map(task => {
+                            const checked = slotData.assignedList.includes(task) ? 'checked' : '';
+                            return `
+                                <label class="dropdown-item" onclick="event.stopPropagation()">
+                                    <input type="checkbox" value="${task}" ${checked} 
+                                        onchange="toggleTaskSelection('${member.id}', '${slot}', '${task}', this.checked)">
+                                    <span>${task}</span>
+                                </label>
+                            `;
+                        }).join('');
+
+                        const isOpenClass = activeOpenDropdown === slotKey ? 'open' : '';
+
+                        slotDiv.innerHTML = `
+                            <div class="dropdown-wrapper ${isOpenClass}" data-slot-key="${slotKey}">
+                                <button class="dropdown-btn" onclick="toggleDropdown(this)">
+                                    Assigned Tasks (${slotData.assignedList.length}) &#9660;
+                                </button>
+                                <div class="dropdown-content">
+                                    ${dropdownItems}
+                                </div>
+                            </div>
+                            <ul class="task-list">
+                                ${renderTaskList(slotData.assignedList)}
+                            </ul>
+                        `;
+                    }
+                    gridBody.appendChild(slotDiv);
+                });
+            });
+        }
+
+        function updateMemberShift(memberId, newShift) {
+            currentSchedule[memberId].shift = newShift;
+            if (newShift === 'OFF (RD)') {
+                TIME_SLOTS.forEach(s => {
+                    currentSchedule[memberId][s].assignedList = [];
+                });
+            }
+            initGrid();
+            saveLocal();
+        }
+
+        function toggleTaskSelection(memberId, slot, task, isChecked) {
+            let list = currentSchedule[memberId][slot].assignedList;
+            if (isChecked) {
+                if (!list.includes(task)) list.push(task);
+            } else {
+                currentSchedule[memberId][slot].assignedList = list.filter(t => t !== task);
+            }
+            initGrid();
+            saveLocal();
+        }
+
+        function renderTaskList(list) {
+            if (!list || list.length === 0) return '';
+            return list.map(item => {
+                let styleClass = '';
+                if (item.includes('Handover')) styleClass = 'handover-tag';
+                else if (STRICT_9AM.includes(item) || STRICT_12PM.includes(item)) styleClass = 'strict-tag';
+                return `<li class="${styleClass}">${item}</li>`;
+            }).join('');
+        }
+
+        function autoAssignTasks() {
+            const date = document.getElementById('scheduleDate').value;
+
+            MEMBERS.forEach(m => {
+                const rotaShift = detectShiftFromRota(m.id, date);
+                const currentShift = rotaShift || currentSchedule[m.id]?.shift || m.defaultShift;
+                currentSchedule[m.id] = { shift: currentShift };
+                TIME_SLOTS.forEach(s => {
+                    currentSchedule[m.id][s] = { assignedList: [] };
+                });
+            });
+
+            const activeAmMembers = MEMBERS.filter(m => currentSchedule[m.id].shift === '9:00 - 18:00');
+            const activePmMembers = MEMBERS.filter(m => currentSchedule[m.id].shift === '12:00 - 21:00');
+
+            if (activeAmMembers.length > 0) {
+                let shuffled9am = [...STRICT_9AM].sort(() => 0.5 - Math.random());
+                activeAmMembers.forEach((m, idx) => {
+                    const count = Math.ceil(shuffled9am.length / activeAmMembers.length);
+                    currentSchedule[m.id][TIME_SLOTS[0]].assignedList.push(...shuffled9am.slice(idx * count, (idx + 1) * count));
+                });
+            }
+
+            const activeNoonMembers = [...activeAmMembers, ...activePmMembers];
+            if (activeNoonMembers.length > 0) {
+                let shuffled12pm = [...STRICT_12PM].sort(() => 0.5 - Math.random());
+                activeNoonMembers.forEach((m, idx) => {
+                    const count = Math.ceil(shuffled12pm.length / activeNoonMembers.length);
+                    currentSchedule[m.id][TIME_SLOTS[1]].assignedList.push(...shuffled12pm.slice(idx * count, (idx + 1) * count));
+                });
+            }
+
+            const flexTasksOnly = FLEXIBLE_TASKS.filter(t => !t.includes('Handover'));
+
+            TIME_SLOTS.forEach((slot, slotIdx) => {
+                const workingMembers = MEMBERS.filter(m => {
+                    const shift = currentSchedule[m.id].shift;
+                    if (shift === 'OFF (RD)') return false;
+                    if (slotIdx === 0 && shift === '12:00 - 21:00') return false;
+                    if (slotIdx === 3 && shift === '9:00 - 18:00') return false;
+                    return true;
+                });
+
+                if (workingMembers.length > 0) {
+                    let shuffledFlex = [...flexTasksOnly].sort(() => 0.5 - Math.random());
+                    
+                    workingMembers.forEach((m, memberIdx) => {
+                        const itemsPerMember = Math.min(3, Math.ceil(shuffledFlex.length / workingMembers.length));
+                        const assignedSlice = shuffledFlex.slice(memberIdx * itemsPerMember, (memberIdx + 1) * itemsPerMember);
+                        
+                        assignedSlice.forEach(task => {
+                            if (!currentSchedule[m.id][slot].assignedList.includes(task)) {
+                                currentSchedule[m.id][slot].assignedList.push(task);
+                            }
+                        });
+                    });
+                }
+            });
+
+            if (activeAmMembers.length > 0) {
+                const amHandoverMember = activeAmMembers[Math.floor(Math.random() * activeAmMembers.length)].id;
+                currentSchedule[amHandoverMember][TIME_SLOTS[2]].assignedList.push("Handover Report AM");
+            }
+
+            if (activePmMembers.length > 0) {
+                const pmHandoverMember = activePmMembers[Math.floor(Math.random() * activePmMembers.length)].id;
+                currentSchedule[pmHandoverMember][TIME_SLOTS[3]].assignedList.push("Handover Report PM");
+            }
+
+            initGrid();
+            saveDay();
+        }
+
+        function loadDateSchedule() {
+            const date = document.getElementById('scheduleDate').value;
+            let history = JSON.parse(localStorage.getItem('shift_schedules') || '{}');
+            if (history[date]) {
+                currentSchedule = history[date];
+            } else {
+                currentSchedule = {};
+            }
+            initGrid();
+        }
+
+        function saveDay() {
+            const date = document.getElementById('scheduleDate').value;
+            if (!date) return alert('Please select a date.');
+
+            let history = JSON.parse(localStorage.getItem('shift_schedules') || '{}');
+            history[date] = currentSchedule;
+            localStorage.setItem('shift_schedules', JSON.stringify(history));
+
+            if (window.firebaseDB && window.fbRef && window.fbSet) {
+                window.fbSet(window.fbRef(window.firebaseDB, 'schedules/' + date), currentSchedule)
+                    .then(() => alert('Saved locally and synced to Firebase!'))
+                    .catch(err => console.error("Firebase sync error:", err));
+            } else {
+                alert('Saved locally!');
+            }
+            updateHistoryDropdown();
+        }
+
+        function clearDay() {
+            MEMBERS.forEach(m => {
+                const shift = currentSchedule[m.id]?.shift || m.defaultShift;
+                currentSchedule[m.id] = { shift: shift };
+                TIME_SLOTS.forEach(s => {
+                    currentSchedule[m.id][s] = { assignedList: [] };
+                });
+            });
+            initGrid();
+        }
+
+        function deleteDay() {
+            const date = document.getElementById('scheduleDate').value;
+            let history = JSON.parse(localStorage.getItem('shift_schedules') || '{}');
+            delete history[date];
+            localStorage.setItem('shift_schedules', JSON.stringify(history));
+            clearDay();
+            updateHistoryDropdown();
+            alert('Day deleted.');
+        }
+
+        function updateHistoryDropdown() {
+            const historySelect = document.getElementById('historySelect');
+            let history = JSON.parse(localStorage.getItem('shift_schedules') || '{}');
+            historySelect.innerHTML = '<option value="">Schedule History...</option>';
+            Object.keys(history).sort().reverse().forEach(date => {
+                historySelect.innerHTML += `<option value="${date}">${date}</option>`;
+            });
+
+            historySelect.onchange = (e) => {
+                if (e.target.value && history[e.target.value]) {
+                    document.getElementById('scheduleDate').value = e.target.value;
+                    currentSchedule = history[e.target.value];
+                    initGrid();
+                }
+            };
+        }
+
+        function saveLocal() {
+            const date = document.getElementById('scheduleDate').value;
+            if (!date) return;
+            let history = JSON.parse(localStorage.getItem('shift_schedules') || '{}');
+            history[date] = currentSchedule;
+            localStorage.setItem('shift_schedules', JSON.stringify(history));
+        }
+
+        window.onload = () => {
+            loadDateSchedule();
+            updateHistoryDropdown();
+        };
     </script>
 </body>
 </html>
