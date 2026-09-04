@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -384,7 +382,7 @@
             pointer-events: none;
             cursor: pointer;
             z-index: 35;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
             overflow: visible;
             -webkit-tap-highlight-color: transparent;
             border: 1px solid rgba(148, 163, 184, 0.3);
@@ -467,14 +465,16 @@
             color: #ffffff !important;
         }
 
-        .menu-item[data-id="edge-boost"]:hover, .menu-item[data-id="edge-boost"].touch-active {
+        .menu-item[data-id="edge-boost"]:hover, .menu-item[data-id="edge-boost"].touch-active,
+        .menu-item[data-id="edge-boost-v1"]:hover, .menu-item[data-id="edge-boost-v1"].touch-active {
             background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
             border-color: #fcd34d;
             box-shadow: 0 0 30px rgba(252, 211, 77, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
             color: #ffffff !important;
         }
 
-        .menu-item[data-id="ibet-boost"]:hover, .menu-item[data-id="ibet-boost"].touch-active {
+        .menu-item[data-id="ibet-boost"]:hover, .menu-item[data-id="ibet-boost"].touch-active,
+        .menu-item[data-id="ibet-boost-v1"]:hover, .menu-item[data-id="ibet-boost-v1"].touch-active {
             background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
             border-color: #7dd3fc;
             box-shadow: 0 0 30px rgba(125, 211, 252, 0.7), 0 12px 25px rgba(0, 0, 0, 0.6);
@@ -746,10 +746,8 @@
 </head>
 <body>
 
-    <!-- TRADING CANVAS BACKGROUND -->
     <canvas id="trading-bg"></canvas>
 
-    <!-- TOP CONTROL BUTTONS -->
     <div class="top-controls">
         <select class="select-dropdown game-dropdown" id="game-selector" onchange="switchGame(this.value)">
             <option value="" disabled selected>🎮 Select Game...</option>
@@ -781,7 +779,6 @@
         </button>
     </div>
 
-    <!-- BOTTOM RIGHT LOGO BRANDING -->
     <div class="bottom-right-brand">
         <div class="brand-card">
             <svg class="brand-icon-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -841,7 +838,6 @@
         </div>
     </div>
 
-    <!-- LOGIN AUTH MODAL -->
     <div class="login-modal-overlay" id="login-modal">
         <div class="login-card" id="login-card">
             <i class="fa-solid fa-shield-halved login-icon"></i>
@@ -865,6 +861,8 @@
             { id: "big-winners", icon: "fa-solid fa-trophy", label: "BIG WINNERS", url: "big-winners.html" },
             { id: "edge-boost", icon: "fa-solid fa-bolt", label: "EDGE BOOST", url: "edge_boosts.html" },
             { id: "ibet-boost", icon: "fa-solid fa-chart-line", label: "IBET BOOST", url: "ibet_boosts.html" },
+            { id: "edge-boost-v1", icon: "fa-solid fa-bolt-lightning", label: "EDGE BOOST V1", url: "https://docs.google.com/spreadsheets/d/1Pl8XVaYNEaupKx57HlXbWibsIeR7a28UfemRasxJ8RY/edit?gid=606091991#gid=606091991", customPos: { x: 450, y: -100 } },
+            { id: "ibet-boost-v1", icon: "fa-solid fa-arrow-trend-up", label: "IBET BOOST V1", url: "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=784209986#gid=784209986", customPos: { x: 450, y: 100 } },
             { id: "green-tracking", letter: "G", label: "GREEN TRACKING", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410", color: "green" },
             { id: "red-tracking", letter: "R", label: "RED TRACKING", url: "https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468", color: "red" },
             { id: "orange-tracking", letter: "O", label: "ORANGE TRACKING", url: "https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695", color: "orange" },
@@ -995,13 +993,24 @@
         function buildMenuFromJSON(items) {
             if (!menuItemsContainer) return;
             menuItemsContainer.innerHTML = '';
-            const total = items.length;
+            
+            const standardItems = items.filter(item => !item.customPos);
+            const total = standardItems.length;
             const radius = getRadius();
 
+            let stdIndex = 0;
             items.forEach((item, index) => {
-                const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2);
-                const x = Math.round(radius * Math.cos(angle));
-                const y = Math.round(radius * Math.sin(angle));
+                let x, y;
+                if (item.customPos) {
+                    const scaleFactor = isMobileView ? 0.45 : 1;
+                    x = Math.round(item.customPos.x * scaleFactor);
+                    y = Math.round(item.customPos.y * scaleFactor);
+                } else {
+                    const angle = (stdIndex / total) * (2 * Math.PI) - (Math.PI / 2);
+                    x = Math.round(radius * Math.cos(angle));
+                    y = Math.round(radius * Math.sin(angle));
+                    stdIndex++;
+                }
 
                 const a = document.createElement('a');
                 a.href = item.url;
