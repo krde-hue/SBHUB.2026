@@ -75,7 +75,6 @@
             opacity: 0.85;
         }
 
-        /* HOLIDAY DISPLAY BANNER IN HEADER */
         .ph-holiday-banner {
             flex: 1 1 380px;
             max-width: 580px;
@@ -91,25 +90,9 @@
             backdrop-filter: blur(8px);
         }
 
-        .ph-holiday-icon {
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .ph-holiday-text-area {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .ph-holiday-title {
-            font-weight: 800;
-            font-size: 12px;
-            color: var(--accent-btn);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .ph-holiday-icon { font-size: 20px; flex-shrink: 0; }
+        .ph-holiday-text-area { display: flex; flex-direction: column; gap: 2px; }
+        .ph-holiday-title { font-weight: 800; font-size: 12px; color: var(--accent-btn); display: flex; align-items: center; gap: 6px; }
 
         .header-top-controls {
             display: flex;
@@ -220,17 +203,8 @@
             font-weight: bold;
         }
 
-        .bulk-set-container {
-            margin-top: 3px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .bulk-select {
-            font-size: 9px !important;
-            padding: 1px !important;
-            width: 100%;
-        }
+        .bulk-set-container { margin-top: 3px; display: flex; flex-direction: column; gap: 2px; }
+        .bulk-select { font-size: 9px !important; padding: 1px !important; width: 100%; }
 
         /* SHIFT COLOR CLASSES */
         .shift-bg-6-15 { background-color: #86efac !important; color: #064e3b !important; }
@@ -238,17 +212,16 @@
         .shift-bg-12-21 { background-color: #bae6fd !important; color: #0c4a6e !important; }
         .shift-bg-15-00 { background-color: #fed7aa !important; color: #7c2d12 !important; }
 
-        /* WFH SHIFTS WITH SPECIFIED COLOR PALETTE */
-        .shift-bg-6-15-wfh { background-color: #fbcfe8 !important; color: #831843 !important; } /* Light Pink */
-        .shift-bg-9-18-wfh { background-color: #f472b6 !important; color: #831843 !important; } /* Pink */
-        .shift-bg-12-21-wfh { background-color: #e9d5ff !important; color: #581c87 !important; } /* Light Purple */
-        .shift-bg-15-00-wfh { background-color: #c084fc !important; color: #3b0764 !important; } /* Purple */
+        .shift-bg-6-15-wfh { background-color: #fbcfe8 !important; color: #831843 !important; }
+        .shift-bg-9-18-wfh { background-color: #f472b6 !important; color: #831843 !important; }
+        .shift-bg-12-21-wfh { background-color: #e9d5ff !important; color: #581c87 !important; }
+        .shift-bg-15-00-wfh { background-color: #c084fc !important; color: #3b0764 !important; }
 
-        /* LEAVE / OFF DAY SHIFTS */
         .shift-bg-rd { background-color: #9ca3af !important; color: #111827 !important; }
         .shift-bg-vl { background-color: #fde047 !important; color: #713f12 !important; }
         .shift-bg-sl { background-color: #f87171 !important; color: #7f1d1d !important; }
 
+        /* LEAVE & WFH SUMMARY SECTION STYLES */
         .leave-section {
             background: var(--card-bg);
             padding: 15px;
@@ -289,6 +262,21 @@
             max-width: 280px;
             height: 280px;
         }
+
+        .leave-table-wrapper { overflow-x: auto; width: 100%; }
+        .leave-table { width: 100%; min-width: 400px; }
+
+        .badge-vl { background-color: #fde047; color: #713f12; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
+        .badge-sl { background-color: #ef4444; color: #ffffff; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
+        .badge-limit-exceeded { background-color: #dc2626; color: #ffffff; font-size: 9px; padding: 2px 4px; border-radius: 3px; margin-left: 4px; }
+
+        .date-chip-vl { background-color: #fde047; color: #713f12; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; display: inline-block; margin: 1px; }
+        .date-chip-sl { background-color: #f87171; color: #7f1d1d; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; display: inline-block; margin: 1px; }
+
+        .badge-wfh-6 { background-color: #fbcfe8; color: #831843; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
+        .badge-wfh-9 { background-color: #f472b6; color: #831843; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
+        .badge-wfh-12 { background-color: #e9d5ff; color: #581c87; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
+        .badge-wfh-15 { background-color: #c084fc; color: #3b0764; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
 
         .shift-select-cell {
             width: 100%;
@@ -334,10 +322,10 @@
     </div>
     
     <div class="controls">
-        <button class="btn btn-secondary">◀ Prev Month</button>
+        <button class="btn btn-secondary" onclick="changeMonth(-1)">◀ Prev Month</button>
         <div>
             <label for="month-select">Month: </label>
-            <select id="month-select">
+            <select id="month-select" onchange="onMonthOrYearChange()">
                 <option value="0">January</option><option value="1">February</option>
                 <option value="2">March</option><option value="3">April</option>
                 <option value="4">May</option><option value="5">June</option>
@@ -348,7 +336,7 @@
         </div>
         <div>
             <label for="year-input">Year: </label>
-            <input type="number" id="year-input" value="2026" min="2020" max="2035" style="width: 80px;">
+            <input type="number" id="year-input" value="2026" min="2020" max="2035" style="width: 80px;" onchange="onMonthOrYearChange()">
         </div>
         <div>
             <label for="timezone-select">🌐 Global Timezone: </label>
@@ -370,7 +358,7 @@
                 <option value="12">NZST - New Zealand (+12)</option>
             </select>
         </div>
-        <button class="btn btn-secondary">Next Month ▶</button>
+        <button class="btn btn-secondary" onclick="changeMonth(1)">Next Month ▶</button>
         <div style="margin-left: auto; font-size: 12px; opacity: 0.9;">
             ⚡ Realtime Synced to Firebase
         </div>
@@ -382,7 +370,6 @@
                 <thead>
                     <tr>
                         <th colspan="2">Date</th>
-                        <!-- ANN -->
                         <th style="color: #ffc0cb;">
                             Ann
                             <div class="bulk-set-container">
@@ -403,7 +390,6 @@
                                 </select>
                             </div>
                         </th>
-                        <!-- DAVE -->
                         <th style="color: #9cc2e5;">
                             Dave
                             <div class="bulk-set-container">
@@ -424,7 +410,6 @@
                                 </select>
                             </div>
                         </th>
-                        <!-- KENNETH -->
                         <th style="color: #b4c6e7;">
                             Kenneth
                             <div class="bulk-set-container">
@@ -445,7 +430,6 @@
                                 </select>
                             </div>
                         </th>
-                        <!-- KRIZTEL -->
                         <th style="color: #c6e0b4;">
                             Kriztel
                             <div class="bulk-set-container">
@@ -466,7 +450,6 @@
                                 </select>
                             </div>
                         </th>
-                        <!-- MIGUEL -->
                         <th style="color: #ffffff;">
                             Miguel
                             <div class="bulk-set-container">
@@ -502,11 +485,36 @@
                     </div>
                 </div>
             </div>
+
+            <div>
+                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Cumulative 2026)</div>
+                <div class="leave-table-wrapper">
+                    <table class="leave-table">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th><span class="badge-vl">VL</span> Dates Taken (Max 10)</th>
+                                <th><span class="badge-sl">SL</span> Dates Taken (Max 5)</th>
+                                <th>Monthly WFH Summary</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaveSummaryBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Helper function to convert shift values into matching CSS classes
+        const teamMembers = ['Ann', 'Dave', 'Kenneth', 'Kriztel', 'Miguel'];
+        const memberColors = ['#ffc0cb', '#9cc2e5', '#b4c6e7', '#c6e0b4', '#ffffff'];
+        const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const MAX_VL = 10;
+        const MAX_SL = 5;
+
+        // Stores schedule data per year/month/day/member
+        let annualScheduleStore = {};
+
         function getShiftClass(shiftVal) {
             if (!shiftVal) return '';
             switch (shiftVal) {
@@ -525,7 +533,86 @@
             }
         }
 
-        // Bulk apply shift changes across member columns
+        function onMonthOrYearChange() {
+            saveCurrentMonthToStore();
+            renderActiveMonthTable();
+            recalculateSummaries();
+        }
+
+        function changeMonth(delta) {
+            const mSelect = document.getElementById('month-select');
+            const yInput = document.getElementById('year-input');
+            let m = parseInt(mSelect.value) + delta;
+            let y = parseInt(yInput.value);
+
+            if (m < 0) { m = 11; y--; }
+            else if (m > 11) { m = 0; y++; }
+
+            mSelect.value = m;
+            yInput.value = y;
+            onMonthOrYearChange();
+        }
+
+        function saveCurrentMonthToStore() {
+            const m = document.getElementById('month-select').value;
+            const y = document.getElementById('year-input').value;
+            const rows = document.querySelectorAll('#schedule-body tr');
+
+            if (!annualScheduleStore[y]) annualScheduleStore[y] = {};
+            if (!annualScheduleStore[y][m]) annualScheduleStore[y][m] = {};
+
+            rows.forEach((row, dayIdx) => {
+                const day = dayIdx + 1;
+                annualScheduleStore[y][m][day] = [];
+                for (let memIdx = 0; memIdx < 5; memIdx++) {
+                    const select = row.cells[memIdx + 2]?.querySelector('select');
+                    annualScheduleStore[y][m][day][memIdx] = select ? select.value : '';
+                }
+            });
+        }
+
+        function renderActiveMonthTable() {
+            const m = parseInt(document.getElementById('month-select').value);
+            const y = parseInt(document.getElementById('year-input').value);
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const monthShort = monthNamesShort[m];
+
+            const tbody = document.getElementById('schedule-body');
+            tbody.innerHTML = '';
+
+            const shiftOptions = [
+                "", "RD", "VL", "SL",
+                "6:00 - 15:00", "9:00 - 18:00", "12:00 - 21:00", "15:00 - 00:00",
+                "6:00 - 15:00 (WFH)", "9:00 - 18:00 (WFH)", "12:00 - 21:00 (WFH)", "15:00 - 00:00 (WFH)"
+            ];
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const tr = document.createElement('tr');
+                let dayCellsHTML = `<td>${day}</td><td>${monthShort}</td>`;
+
+                for (let memIdx = 0; memIdx < 5; memIdx++) {
+                    const savedVal = annualScheduleStore[y]?.[m]?.[day]?.[memIdx] || '';
+                    const shiftClass = getShiftClass(savedVal);
+
+                    dayCellsHTML += `
+                        <td>
+                            <select class="shift-select-cell ${shiftClass}" onchange="onShiftChange(this)">
+                                ${shiftOptions.map(opt => `<option value="${opt}" ${opt === savedVal ? 'selected' : ''}>${opt || '-- Select --'}</option>`).join('')}
+                            </select>
+                        </td>
+                    `;
+                }
+                tr.innerHTML = dayCellsHTML;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function onShiftChange(selectElem) {
+            selectElem.className = 'shift-select-cell ' + getShiftClass(selectElem.value);
+            saveCurrentMonthToStore();
+            recalculateSummaries();
+        }
+
         function bulkSetShift(memberIndex, selectElem) {
             const val = selectElem.value;
             if (!val) return;
@@ -540,38 +627,104 @@
                 }
             });
             selectElem.value = '';
+            saveCurrentMonthToStore();
+            recalculateSummaries();
         }
 
-        // Render example table row generator
-        function buildTableRows(daysInMonth) {
-            const tbody = document.getElementById('schedule-body');
-            tbody.innerHTML = '';
+        function recalculateSummaries() {
+            const currentYear = document.getElementById('year-input').value;
+            const currentMonth = document.getElementById('month-select').value;
 
-            const shiftOptions = [
-                "", "RD", "VL", "SL",
-                "6:00 - 15:00", "9:00 - 18:00", "12:00 - 21:00", "15:00 - 00:00",
-                "6:00 - 15:00 (WFH)", "9:00 - 18:00 (WFH)", "12:00 - 21:00 (WFH)", "15:00 - 00:00 (WFH)"
+            let annualVLDates = [[], [], [], [], []];
+            let annualSLDates = [[], [], [], [], []];
+            let monthlyWFH = [
+                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
+                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
+                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
+                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
+                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 }
             ];
 
-            for (let day = 1; day <= daysInMonth; day++) {
+            // 1. Gather all VL & SL Dates across entire year
+            if (annualScheduleStore[currentYear]) {
+                for (let m = 0; m < 12; m++) {
+                    const monthData = annualScheduleStore[currentYear][m];
+                    if (monthData) {
+                        const mName = monthNamesShort[m];
+                        Object.keys(monthData).forEach(day => {
+                            const dayShifts = monthData[day];
+                            dayShifts.forEach((shift, memIdx) => {
+                                const dateLabel = `${mName} ${day}`;
+                                if (shift === 'VL') annualVLDates[memIdx].push(dateLabel);
+                                if (shift === 'SL') annualSLDates[memIdx].push(dateLabel);
+                            });
+                        });
+                    }
+                }
+            }
+
+            // 2. Calculate Active Month WFH Counts
+            if (annualScheduleStore[currentYear]?.[currentMonth]) {
+                const monthData = annualScheduleStore[currentYear][currentMonth];
+                Object.keys(monthData).forEach(day => {
+                    const dayShifts = monthData[day];
+                    dayShifts.forEach((shift, memIdx) => {
+                        if (monthlyWFH[memIdx][shift] !== undefined) {
+                            monthlyWFH[memIdx][shift]++;
+                        }
+                    });
+                });
+            }
+
+            // Render Table Summary
+            const summaryTbody = document.getElementById('leaveSummaryBody');
+            summaryTbody.innerHTML = '';
+
+            teamMembers.forEach((member, i) => {
+                const vlCount = annualVLDates[i].length;
+                const slCount = annualSLDates[i].length;
+                const vlExceeded = vlCount > MAX_VL;
+                const slExceeded = slCount > MAX_SL;
+
+                const vlChips = annualVLDates[i].length > 0 
+                    ? annualVLDates[i].map(d => `<span class="date-chip-vl">${d}</span>`).join('') 
+                    : '<span style="opacity:0.6; font-size:11px;">None</span>';
+
+                const slChips = annualSLDates[i].length > 0 
+                    ? annualSLDates[i].map(d => `<span class="date-chip-sl">${d}</span>`).join('') 
+                    : '<span style="opacity:0.6; font-size:11px;">None</span>';
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${day}</td>
-                    <td>Sep</td>
-                    ${[0, 1, 2, 3, 4].map(() => `
-                        <td>
-                            <select class="shift-select-cell" onchange="this.className='shift-select-cell ' + getShiftClass(this.value)">
-                                ${shiftOptions.map(opt => `<option value="${opt}">${opt || '-- Select --'}</option>`).join('')}
-                            </select>
-                        </td>
-                    `).join('')}
+                    <td style="font-weight: bold; color: ${memberColors[i]};">${member}</td>
+                    <td>
+                        <div style="font-size:11px; font-weight:bold; margin-bottom:2px;">
+                            ${vlCount}/${MAX_VL} Days
+                            ${vlExceeded ? `<span class="badge-limit-exceeded">EXCEEDED</span>` : ''}
+                        </div>
+                        <div>${vlChips}</div>
+                    </td>
+                    <td>
+                        <div style="font-size:11px; font-weight:bold; margin-bottom:2px;">
+                            ${slCount}/${MAX_SL} Days
+                            ${slExceeded ? `<span class="badge-limit-exceeded">EXCEEDED</span>` : ''}
+                        </div>
+                        <div>${slChips}</div>
+                    </td>
+                    <td>
+                        <span class="badge-wfh-6">6-15: ${monthlyWFH[i]['6:00 - 15:00 (WFH)']}</span>
+                        <span class="badge-wfh-9">9-18: ${monthlyWFH[i]['9:00 - 18:00 (WFH)']}</span>
+                        <span class="badge-wfh-12">12-21: ${monthlyWFH[i]['12:00 - 21:00 (WFH)']}</span>
+                        <span class="badge-wfh-15">15-0: ${monthlyWFH[i]['15:00 - 00:00 (WFH)']}</span>
+                    </td>
                 `;
-                tbody.appendChild(tr);
-            }
+                summaryTbody.appendChild(tr);
+            });
         }
 
-        // Default initialization for September (30 days)
-        buildTableRows(30);
+        // Initialize setup for September 2026
+        renderActiveMonthTable();
+        recalculateSummaries();
     </script>
 </body>
 </html>
