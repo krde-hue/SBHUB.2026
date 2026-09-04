@@ -469,6 +469,18 @@
             width: 100%;
             text-align: center;
         }
+
+        /* MOBILE VIEW OVERRIDES */
+        body.mobile-view-active { padding: 8px; }
+        body.mobile-view-active .header-top { flex-direction: column; align-items: stretch; gap: 10px; }
+        body.mobile-view-active .ph-holiday-banner { max-width: 100%; }
+        body.mobile-view-active .header-top-controls { justify-content: flex-start; gap: 6px; }
+        body.mobile-view-active .btn { padding: 6px 10px; font-size: 11px; }
+        body.mobile-view-active .controls { padding: 10px; gap: 8px; flex-direction: column; align-items: stretch; }
+        body.mobile-view-active .controls > div { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        body.mobile-view-active .main-layout { flex-direction: column; gap: 15px; flex-wrap: wrap !important; }
+        body.mobile-view-active .table-container { max-width: 100%; width: 100%; }
+        body.mobile-view-active .leave-section { width: 100%; min-width: 100%; padding: 10px; }
     </style>
 </head>
 <body>
@@ -661,6 +673,21 @@
         let isMobileView = false;
         const ADMIN_PASSWORD = "sportsbook2026";
 
+        function toggleMobileView() {
+            isMobileView = !isMobileView;
+            if (isMobileView) {
+                document.body.classList.add('mobile-view-active');
+                mobileToggleBtn.innerText = '📱 Mobile View: ON';
+                mobileToggleBtn.classList.add('active');
+            } else {
+                document.body.classList.remove('mobile-view-active');
+                mobileToggleBtn.innerText = '📱 Mobile View: OFF';
+                mobileToggleBtn.classList.remove('active');
+            }
+            localStorage.setItem('rota_mobile_view', isMobileView ? 'true' : 'false');
+            if (vlChartInstance) renderVLPieChart();
+        }
+
         function renderTableHeader() {
             const headerRow = document.getElementById('table-header-row');
             const leaveHead = document.getElementById('leave-table-head');
@@ -732,7 +759,7 @@
             }
 
             let memberList = team.map((m, i) => `${i + 1}. ${m}`).join("\n");
-            let choice = prompt(`Select employee index to delete (1-${team.length}):\n\n${memberList}`);
+            let choice = prompt(`Select employee number to delete (1-${team.length}):\n\n${memberList}`);
             
             if (choice !== null) {
                 let idx = parseInt(choice) - 1;
@@ -751,7 +778,7 @@
         function listenToDatabase() {
             const currentYear = yearInput.value;
             const monthKey = `${currentYear}_${parseInt(monthSelect.value) + 1}`;
-            
+
             db.ref('rota_team_list').on('value', (snapshot) => {
                 if (snapshot.val() && Array.isArray(snapshot.val())) {
                     team = snapshot.val();
