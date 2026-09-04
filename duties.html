@@ -4,33 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shift Task Scheduler - Duties</title>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+    <!-- Shared Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-        try {
-            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-                const app = initializeApp(firebaseConfig);
-                const db = getDatabase(app);
-                window.firebaseDB = db;
-                window.fbRef = ref;
-                window.fbOnValue = onValue;
-                window.fbSet = set;
-            }
-        } catch (e) {
-            console.warn("Firebase fallback to local mode.", e);
-        }
-    </script>
     <style>
         :root {
             --bg-color: #0f2537;
@@ -117,7 +95,7 @@
             font-weight: bold;
         }
 
-        .meta-info input[type="date"], .meta-info select {
+        .meta-info input[type="date"], .meta-info select, .meta-info input[type="text"], .meta-info input[type="time"] {
             padding: 6px 10px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
@@ -125,6 +103,16 @@
             color: var(--text-color);
             outline: none;
             font-size: 13px;
+        }
+
+        .meeting-input-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--input-bg);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
         }
 
         .controls {
@@ -212,7 +200,6 @@
             cursor: pointer;
         }
 
-        /* Shift Dropdown WFH Option Color Indicators */
         .wfh-6am { background-color: #fbcfe8 !important; color: #831843 !important; }
         .wfh-9am { background-color: #f472b6 !important; color: #831843 !important; }
         .wfh-12pm { background-color: #e9d5ff !important; color: #581c87 !important; }
@@ -329,6 +316,40 @@
         .handover-tag { color: #f59e0b; font-weight: bold; }
         .strict-tag { color: #10b981; }
 
+        /* Bottom Alert Container Styling */
+        .bottom-alert-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification-banner {
+            display: none;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .meeting-alert-banner {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border: 2px solid #60a5fa;
+            color: #ffffff;
+        }
+
+        .shift-end-alert-banner {
+            background: linear-gradient(135deg, #065f46, #10b981);
+            border: 2px solid #34d399;
+            color: #ffffff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 850px) {
             .header {
                 flex-direction: column;
@@ -379,6 +400,11 @@
             <div>
                 <select id="historySelect"><option value="">Schedule History...</option></select>
             </div>
+            <!-- Added Meeting Details Input Group -->
+            <div class="meeting-input-group">
+                <input type="text" id="meetingTitle" placeholder="Meeting Topic..." style="width: 140px;" onchange="saveMeetingDetails()">
+                <input type="time" id="meetingTime" onchange="saveMeetingDetails()">
+            </div>
         </div>
 
         <div class="controls">
@@ -401,7 +427,35 @@
         <div id="gridBody" style="display: contents;"></div>
     </div>
 
+    <!-- Red Box Guidance Container: Popups & Alerts Render Here -->
+    <div class="bottom-alert-container">
+        <!-- Meeting Notification Banner -->
+        <div id="meetingAlertBanner" class="notification-banner meeting-alert-banner">
+            📅 <strong style="font-size: 16px; text-transform: uppercase;">MEETING REMINDER</strong>
+            <div id="meetingAlertText" style="margin-top: 4px; font-weight: 600;"></div>
+        </div>
+
+        <!-- Shift End Motivation Banner -->
+        <div id="shiftEndAlertBanner" class="notification-banner shift-end-alert-banner">
+            🎉 <strong style="font-size: 16px;">GREAT JOB & WELL DONE!</strong>
+            <div id="shiftEndAlertText" style="margin-top: 4px; font-weight: 600;"></div>
+        </div>
+    </div>
+
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const MEMBERS = [
             { id: 'ANN', name: 'ANN', class: 'bg-ann', defaultShift: '12:00 - 21:00' },
             { id: 'DAVE', name: 'DAVE', class: 'bg-dave', defaultShift: '9:00 - 18:00' },
@@ -468,6 +522,8 @@
         let currentSchedule = {};
         let activeOpenDropdown = null;
         let isViewOnly = false;
+        let liveRotaData = {};
+        let liveRotaTeam = ["Ann", "Dave", "Kenneth", "Kriztel", "Miguel"];
 
         document.getElementById('scheduleDate').valueAsDate = new Date();
 
@@ -493,27 +549,54 @@
             }
         }
 
-        // Helper to map rota shift variations to SHIFT_OPTIONS labels
         function normalizeShift(shiftStr) {
             if (!shiftStr) return null;
+            if (shiftStr.startsWith("Adjusted:")) return "RD";
             const clean = shiftStr.trim().toUpperCase();
             if (clean === 'OFF' || clean === 'OFF (RD)' || clean === 'REST DAY' || clean === 'RD') return 'RD';
             if (clean === 'VACATION LEAVE' || clean === 'VL') return 'VL';
             if (clean === 'SICK LEAVE' || clean === 'SL') return 'SL';
             
-            // Match standard shift option string exactly if possible
             const match = SHIFT_OPTIONS.find(opt => opt.label.toUpperCase() === clean);
             return match ? match.label : shiftStr;
         }
 
-        function detectShiftFromRota(memberId, date) {
+        function detectShiftFromRota(memberId, dateStr) {
+            if (!dateStr) return null;
+            const [year, month, day] = dateStr.split('-');
+            const monthKey = `${year}_${parseInt(month, 10)}`;
+            const dayNum = parseInt(day, 10);
+
+            if (liveRotaData[monthKey] && liveRotaData[monthKey][dayNum]) {
+                const dayShifts = liveRotaData[monthKey][dayNum];
+                const memberIndex = liveRotaTeam.findIndex(name => name.toUpperCase() === memberId.toUpperCase());
+                if (memberIndex !== -1 && dayShifts[memberIndex] !== undefined) {
+                    return normalizeShift(dayShifts[memberIndex]);
+                }
+            }
+
             try {
                 const rotaHistory = JSON.parse(localStorage.getItem('rota_schedules') || '{}');
-                if (rotaHistory[date] && rotaHistory[date][memberId]) {
-                    return normalizeShift(rotaHistory[date][memberId]);
+                if (rotaHistory[dateStr] && rotaHistory[dateStr][memberId]) {
+                    return normalizeShift(rotaHistory[dateStr][memberId]);
                 }
             } catch(e) {}
+
             return null;
+        }
+
+        function syncFirebaseRota() {
+            db.ref('rota_team_list').on('value', (snapshot) => {
+                if (snapshot.val() && Array.isArray(snapshot.val())) {
+                    liveRotaTeam = snapshot.val();
+                    initGrid();
+                }
+            });
+
+            db.ref('rota_data').on('value', (snapshot) => {
+                liveRotaData = snapshot.val() || {};
+                initGrid();
+            });
         }
 
         document.addEventListener('click', (e) => {
@@ -581,7 +664,6 @@
                 if (!currentSchedule[member.id]) {
                     currentSchedule[member.id] = { shift: rotaShift || member.defaultShift };
                 } else if (rotaShift) {
-                    // Override shift from Rota if present
                     currentSchedule[member.id].shift = rotaShift;
                 }
 
@@ -663,6 +745,7 @@
                     gridBody.appendChild(slotDiv);
                 });
             });
+            loadMeetingDetails();
         }
 
         function updateMemberShift(memberId, newShift) {
@@ -712,7 +795,6 @@
                 });
             });
 
-            // 1. Assign 9:00 AM Strict Tasks
             const activeAmMembers = MEMBERS.filter(m => {
                 const baseShift = getBaseShiftTime(currentSchedule[m.id].shift);
                 return baseShift === '6:00 - 15:00' || baseShift === '9:00 - 18:00';
@@ -726,7 +808,6 @@
                 });
             }
 
-            // 2. Assign 12:00 PM Strict Tasks
             const activeNoonMembers = MEMBERS.filter(m => isSlotActiveForShift(currentSchedule[m.id].shift, 1));
             if (activeNoonMembers.length > 0) {
                 let shuffled12pm = [...STRICT_12PM].sort(() => 0.5 - Math.random());
@@ -736,7 +817,6 @@
                 });
             }
 
-            // 3. Flexible Monitoring Tasks
             const flexTasksOnly = FLEXIBLE_TASKS.filter(t => !t.includes('Handover'));
 
             TIME_SLOTS.forEach((slot, slotIdx) => {
@@ -758,7 +838,6 @@
                 }
             });
 
-            // 4. Handover Reports
             if (activeAmMembers.length > 0) {
                 const amHandoverMember = activeAmMembers[Math.floor(Math.random() * activeAmMembers.length)].id;
                 currentSchedule[amHandoverMember][TIME_SLOTS[1]].assignedList.push("Handover Report AM");
@@ -797,13 +876,10 @@
             history[date] = currentSchedule;
             localStorage.setItem('shift_schedules', JSON.stringify(history));
 
-            if (window.firebaseDB && window.fbRef && window.fbSet) {
-                window.fbSet(window.fbRef(window.firebaseDB, 'schedules/' + date), currentSchedule)
-                    .then(() => alert('Saved locally and synced to Firebase!'))
-                    .catch(err => console.error("Firebase sync error:", err));
-            } else {
-                alert('Saved locally!');
-            }
+            db.ref('schedules/' + date).set(currentSchedule)
+                .then(() => alert('Saved locally and synced to Firebase!'))
+                .catch(err => alert('Saved locally!'));
+
             updateHistoryDropdown();
         }
 
@@ -853,9 +929,107 @@
             localStorage.setItem('shift_schedules', JSON.stringify(history));
         }
 
+        /* --- MEETING DETAILS STORAGE & BANNERS LOGIC --- */
+        function saveMeetingDetails() {
+            const date = document.getElementById('scheduleDate').value;
+            const title = document.getElementById('meetingTitle').value;
+            const time = document.getElementById('meetingTime').value;
+            if (!date) return;
+
+            let meetings = JSON.parse(localStorage.getItem('meeting_schedules') || '{}');
+            meetings[date] = { title, time };
+            localStorage.setItem('meeting_schedules', JSON.stringify(meetings));
+            checkScheduledAlerts();
+        }
+
+        function loadMeetingDetails() {
+            const date = document.getElementById('scheduleDate').value;
+            let meetings = JSON.parse(localStorage.getItem('meeting_schedules') || '{}');
+            if (meetings[date]) {
+                document.getElementById('meetingTitle').value = meetings[date].title || '';
+                document.getElementById('meetingTime').value = meetings[date].time || '';
+            } else {
+                document.getElementById('meetingTitle').value = '';
+                document.getElementById('meetingTime').value = '';
+            }
+        }
+
+        function parseShiftEndTimeInMinutes(shiftLabel) {
+            const base = getBaseShiftTime(shiftLabel);
+            if (!base || ['RD', 'OFF', 'VL', 'SL'].includes(base)) return null;
+            const parts = base.split('-');
+            if (parts.length < 2) return null;
+            const endTimeStr = parts[1].trim();
+            const [h, m] = endTimeStr.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function checkScheduledAlerts() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentDate = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${currentYear}-${currentMonth}-${currentDate}`;
+
+            const selectedDate = document.getElementById('scheduleDate').value;
+            if (selectedDate !== todayStr) {
+                document.getElementById('meetingAlertBanner').style.display = 'none';
+                document.getElementById('shiftEndAlertBanner').style.display = 'none';
+                return;
+            }
+
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            // 1. Meeting Reminder Logic (Triggers 5m before, disappears 15m after target time)
+            const meetingTitle = document.getElementById('meetingTitle').value;
+            const meetingTime = document.getElementById('meetingTime').value;
+
+            if (meetingTime) {
+                const [mH, mM] = meetingTime.split(':').map(Number);
+                const meetingMinutes = mH * 60 + mM;
+                const diffMeeting = meetingMinutes - currentMinutes;
+
+                if (diffMeeting <= 5 && diffMeeting >= -15) {
+                    const meetingBanner = document.getElementById('meetingAlertBanner');
+                    const meetingText = document.getElementById('meetingAlertText');
+                    meetingText.innerHTML = `Upcoming Meeting: <strong>${meetingTitle || 'Scheduled Team Sync'}</strong> at <strong>${meetingTime}</strong>`;
+                    meetingBanner.style.display = 'block';
+                } else {
+                    document.getElementById('meetingAlertBanner').style.display = 'none';
+                }
+            } else {
+                document.getElementById('meetingAlertBanner').style.display = 'none';
+            }
+
+            // 2. Shift Ending Motivation Banner (20 mins before shift ends, disappears when shift ends)
+            let finishingMembers = [];
+            MEMBERS.forEach(m => {
+                const shift = currentSchedule[m.id]?.shift || m.defaultShift;
+                const endMinutes = parseShiftEndTimeInMinutes(shift);
+                if (endMinutes !== null) {
+                    const diffShift = endMinutes - currentMinutes;
+                    if (diffShift > 0 && diffShift <= 20) {
+                        finishingMembers.push(m.name);
+                    }
+                }
+            });
+
+            if (finishingMembers.length > 0) {
+                const shiftBanner = document.getElementById('shiftEndAlertBanner');
+                const shiftText = document.getElementById('shiftEndAlertText');
+                shiftText.innerText = `${finishingMembers.join(' & ')} - 20 minutes remaining in your shift! Thank you for your hard work today! 👏🌟`;
+                shiftBanner.style.display = 'block';
+            } else {
+                document.getElementById('shiftEndAlertBanner').style.display = 'none';
+            }
+        }
+
         window.onload = () => {
+            syncFirebaseRota();
             loadDateSchedule();
             updateHistoryDropdown();
+            checkScheduledAlerts();
+            setInterval(checkScheduledAlerts, 10000); // Check desktop clock every 10 seconds
         };
     </script>
 </body>
