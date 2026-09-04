@@ -221,7 +221,7 @@
         .shift-bg-vl { background-color: #fde047 !important; color: #713f12 !important; }
         .shift-bg-sl { background-color: #f87171 !important; color: #7f1d1d !important; }
 
-        /* LEAVE & WFH SUMMARY SECTION STYLES */
+        /* RIGHT SECTION LAYOUT */
         .leave-section {
             background: var(--card-bg);
             padding: 15px;
@@ -236,10 +236,10 @@
         }
 
         .leave-section-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            color: #ef4444;
-            margin-bottom: 6px;
+            color: #38bdf8;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -260,23 +260,47 @@
             position: relative;
             width: 100%;
             max-width: 280px;
-            height: 280px;
+            height: 250px;
         }
 
         .leave-table-wrapper { overflow-x: auto; width: 100%; }
-        .leave-table { width: 100%; min-width: 400px; }
+        .leave-table { width: 100%; min-width: 450px; border-collapse: collapse; }
 
-        .badge-vl { background-color: #fde047; color: #713f12; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
-        .badge-sl { background-color: #ef4444; color: #ffffff; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
-        .badge-limit-exceeded { background-color: #dc2626; color: #ffffff; font-size: 9px; padding: 2px 4px; border-radius: 3px; margin-left: 4px; }
+        .badge-vl-type { background-color: #22c55e; color: #ffffff; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+        .badge-sl-type { background-color: #ef4444; color: #ffffff; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+        
+        .date-chip {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            display: inline-block;
+        }
 
-        .date-chip-vl { background-color: #fde047; color: #713f12; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; display: inline-block; margin: 1px; }
-        .date-chip-sl { background-color: #f87171; color: #7f1d1d; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-size: 10px; display: inline-block; margin: 1px; }
+        .wfh-chip {
+            background-color: #38bdf8;
+            color: #0b2240;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            display: inline-block;
+            margin: 1px;
+        }
 
-        .badge-wfh-6 { background-color: #fbcfe8; color: #831843; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
-        .badge-wfh-9 { background-color: #f472b6; color: #831843; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
-        .badge-wfh-12 { background-color: #e9d5ff; color: #581c87; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
-        .badge-wfh-15 { background-color: #c084fc; color: #3b0764; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-block; margin: 1px; }
+        .ph-holiday-tag {
+            background: #facc15;
+            color: #000000;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-right: 5px;
+            display: inline-block;
+        }
 
         .shift-select-cell {
             width: 100%;
@@ -477,6 +501,7 @@
         </div>
 
         <div class="leave-section">
+            <!-- PIE CHART CARD -->
             <div>
                 <div class="leave-section-title">📊 Team VL Usage by Month</div>
                 <div class="chart-box">
@@ -486,19 +511,39 @@
                 </div>
             </div>
 
+            <!-- VACATION & SICK LEAVE DATES GRID -->
             <div>
                 <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Cumulative 2026)</div>
                 <div class="leave-table-wrapper">
                     <table class="leave-table">
                         <thead>
                             <tr>
-                                <th>Member</th>
-                                <th><span class="badge-vl">VL</span> Dates Taken (Max 10)</th>
-                                <th><span class="badge-sl">SL</span> Dates Taken (Max 5)</th>
-                                <th>Monthly WFH Summary</th>
+                                <th>Type</th>
+                                <th style="color: #ffc0cb;">Ann</th>
+                                <th style="color: #9cc2e5;">Dave</th>
+                                <th style="color: #b4c6e7;">Kenneth</th>
+                                <th style="color: #c6e0b4;">Kriztel</th>
+                                <th style="color: #ffffff;">Miguel</th>
                             </tr>
                         </thead>
-                        <tbody id="leaveSummaryBody"></tbody>
+                        <tbody id="leaveGridBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- WFH ALLOWANCE TRACKER -->
+            <div>
+                <div class="leave-section-title">🏡 WFH Allowance Tracker</div>
+                <div class="leave-table-wrapper">
+                    <table class="leave-table">
+                        <thead>
+                            <tr>
+                                <th>Team Member</th>
+                                <th>WFH Dates Taken</th>
+                                <th>Total Used</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wfhTrackerBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -507,13 +552,33 @@
 
     <script>
         const teamMembers = ['Ann', 'Dave', 'Kenneth', 'Kriztel', 'Miguel'];
-        const memberColors = ['#ffc0cb', '#9cc2e5', '#b4c6e7', '#c6e0b4', '#ffffff'];
         const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const MAX_VL = 10;
-        const MAX_SL = 5;
+        const monthNamesLong = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthChartColors = [
+            '#f87171', '#fb923c', '#facc15', '#4ade80', 
+            '#2dd4bf', '#38bdf8', '#818cf8', '#c084fc', 
+            '#f472b6', '#e879f9', '#a7f3d0', '#fbcfe8'
+        ];
 
-        // Stores schedule data per year/month/day/member
+        const phHolidays2026 = {
+            0: [{ date: 'Jan 1', name: 'New Year\'s Day' }],
+            1: [{ date: 'Feb 17', name: 'Chinese New Year' }, { date: 'Feb 25', name: 'EDSA Revolution Anniversary' }],
+            2: [{ date: 'Mar 20', name: 'Eid\'l Fitr (Tentative)' }],
+            3: [{ date: 'Apr 2', name: 'Maundy Thursday' }, { date: 'Apr 3', name: 'Good Friday' }, { date: 'Apr 4', name: 'Black Saturday' }, { date: 'Apr 9', name: 'Araw ng Kagitingan' }],
+            4: [{ date: 'May 1', name: 'Labor Day' }, { date: 'May 27', name: 'Eid\'l Adha (Tentative)' }],
+            5: [{ date: 'Jun 12', name: 'Independence Day' }],
+            6: [],
+            7: [{ date: 'Aug 21', name: 'Ninoy Aquino Day' }, { date: 'Aug 31', name: 'National Heroes Day' }],
+            8: [],
+            9: [],
+            10: [{ date: 'Nov 1', name: 'All Saints\' Day' }, { date: 'Nov 2', name: 'All Souls\' Day' }, { date: 'Nov 30', name: 'Bonifacio Day' }],
+            11: [{ date: 'Dec 8', name: 'Feast of the Immaculate Conception' }, { date: 'Dec 24', name: 'Christmas Eve' }, { date: 'Dec 25', name: 'Christmas Day' }, { date: 'Dec 30', name: 'Rizal Day' }, { date: 'Dec 31', name: 'Last Day of the Year' }]
+        };
+
         let annualScheduleStore = {};
+        let vlChartInstance = null;
+        let lastSelectedMonth = '8';
+        let lastSelectedYear = '2026';
 
         function getShiftClass(shiftVal) {
             if (!shiftVal) return '';
@@ -534,9 +599,17 @@
         }
 
         function onMonthOrYearChange() {
-            saveCurrentMonthToStore();
+            saveMonthData(lastSelectedYear, lastSelectedMonth);
+            
+            const currentMonth = document.getElementById('month-select').value;
+            const currentYear = document.getElementById('year-input').value;
+
+            lastSelectedMonth = currentMonth;
+            lastSelectedYear = currentYear;
+
             renderActiveMonthTable();
             recalculateSummaries();
+            updatePHHolidayBanner();
         }
 
         function changeMonth(delta) {
@@ -553,11 +626,8 @@
             onMonthOrYearChange();
         }
 
-        function saveCurrentMonthToStore() {
-            const m = document.getElementById('month-select').value;
-            const y = document.getElementById('year-input').value;
+        function saveMonthData(y, m) {
             const rows = document.querySelectorAll('#schedule-body tr');
-
             if (!annualScheduleStore[y]) annualScheduleStore[y] = {};
             if (!annualScheduleStore[y][m]) annualScheduleStore[y][m] = {};
 
@@ -586,9 +656,12 @@
                 "6:00 - 15:00 (WFH)", "9:00 - 18:00 (WFH)", "12:00 - 21:00 (WFH)", "15:00 - 00:00 (WFH)"
             ];
 
+            const daysArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
             for (let day = 1; day <= daysInMonth; day++) {
+                const dayOfWeek = daysArr[new Date(y, m, day).getDay()];
                 const tr = document.createElement('tr');
-                let dayCellsHTML = `<td>${day}</td><td>${monthShort}</td>`;
+                let dayCellsHTML = `<td style="font-size:10px; font-weight:bold;">${dayOfWeek}</td><td>${day}-${monthShort}</td>`;
 
                 for (let memIdx = 0; memIdx < 5; memIdx++) {
                     const savedVal = annualScheduleStore[y]?.[m]?.[day]?.[memIdx] || '';
@@ -609,7 +682,7 @@
 
         function onShiftChange(selectElem) {
             selectElem.className = 'shift-select-cell ' + getShiftClass(selectElem.value);
-            saveCurrentMonthToStore();
+            saveMonthData(lastSelectedYear, lastSelectedMonth);
             recalculateSummaries();
         }
 
@@ -627,8 +700,26 @@
                 }
             });
             selectElem.value = '';
-            saveCurrentMonthToStore();
+            saveMonthData(lastSelectedYear, lastSelectedMonth);
             recalculateSummaries();
+        }
+
+        function updatePHHolidayBanner() {
+            const m = parseInt(document.getElementById('month-select').value);
+            const y = document.getElementById('year-input').value;
+            const titleElem = document.getElementById('phHolidayTitle');
+            const detailsElem = document.getElementById('phHolidayDetails');
+
+            titleElem.textContent = `PH Holidays — ${monthNamesLong[m]} ${y}`;
+
+            const monthHolidays = phHolidays2026[m] || [];
+            if (monthHolidays.length === 0) {
+                detailsElem.innerHTML = '<em>There are no national regular or nationwide special non-working holidays in the Philippines for this month.</em>';
+            } else {
+                detailsElem.innerHTML = monthHolidays.map(h => 
+                    `<span class="ph-holiday-tag">${h.date}</span>${h.name}`
+                ).join(' &nbsp;•&nbsp; ');
+            }
         }
 
         function recalculateSummaries() {
@@ -637,15 +728,10 @@
 
             let annualVLDates = [[], [], [], [], []];
             let annualSLDates = [[], [], [], [], []];
-            let monthlyWFH = [
-                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
-                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
-                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
-                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 },
-                { '6:00 - 15:00 (WFH)': 0, '9:00 - 18:00 (WFH)': 0, '12:00 - 21:00 (WFH)': 0, '15:00 - 00:00 (WFH)': 0 }
-            ];
+            let vlPerMonth = new Array(12).fill(0);
 
-            // 1. Gather all VL & SL Dates across entire year
+            let monthlyWFHDates = [[], [], [], [], []];
+
             if (annualScheduleStore[currentYear]) {
                 for (let m = 0; m < 12; m++) {
                     const monthData = annualScheduleStore[currentYear][m];
@@ -654,77 +740,114 @@
                         Object.keys(monthData).forEach(day => {
                             const dayShifts = monthData[day];
                             dayShifts.forEach((shift, memIdx) => {
-                                const dateLabel = `${mName} ${day}`;
-                                if (shift === 'VL') annualVLDates[memIdx].push(dateLabel);
-                                if (shift === 'SL') annualSLDates[memIdx].push(dateLabel);
+                                const dateLabel = `${day}-${mName}`;
+                                if (shift === 'VL') {
+                                    annualVLDates[memIdx].push(dateLabel);
+                                    vlPerMonth[m]++;
+                                }
+                                if (shift === 'SL') {
+                                    annualSLDates[memIdx].push(dateLabel);
+                                }
                             });
                         });
                     }
                 }
             }
 
-            // 2. Calculate Active Month WFH Counts
+            // Current Month WFH Tracker
             if (annualScheduleStore[currentYear]?.[currentMonth]) {
                 const monthData = annualScheduleStore[currentYear][currentMonth];
+                const mName = monthNamesShort[currentMonth];
                 Object.keys(monthData).forEach(day => {
                     const dayShifts = monthData[day];
                     dayShifts.forEach((shift, memIdx) => {
-                        if (monthlyWFH[memIdx][shift] !== undefined) {
-                            monthlyWFH[memIdx][shift]++;
+                        if (shift && shift.includes('(WFH)')) {
+                            monthlyWFHDates[memIdx].push(`${day}-${mName}`);
                         }
                     });
                 });
             }
 
-            // Render Table Summary
-            const summaryTbody = document.getElementById('leaveSummaryBody');
-            summaryTbody.innerHTML = '';
+            // Render Vacation & Sick Leave Dates Table Grid
+            const leaveGridBody = document.getElementById('leaveGridBody');
+            leaveGridBody.innerHTML = '';
 
-            teamMembers.forEach((member, i) => {
-                const vlCount = annualVLDates[i].length;
-                const slCount = annualSLDates[i].length;
-                const vlExceeded = vlCount > MAX_VL;
-                const slExceeded = slCount > MAX_SL;
+            // 10 VL Rows
+            for (let rowIdx = 0; rowIdx < 10; rowIdx++) {
+                const tr = document.createElement('tr');
+                let rowHTML = `<td><span class="badge-vl-type">VL</span></td>`;
+                for (let memIdx = 0; memIdx < 5; memIdx++) {
+                    const dateVal = annualVLDates[memIdx][rowIdx] || '';
+                    rowHTML += `<td>${dateVal ? `<span class="date-chip">${dateVal}</span>` : ''}</td>`;
+                }
+                tr.innerHTML = rowHTML;
+                leaveGridBody.appendChild(tr);
+            }
 
-                const vlChips = annualVLDates[i].length > 0 
-                    ? annualVLDates[i].map(d => `<span class="date-chip-vl">${d}</span>`).join('') 
-                    : '<span style="opacity:0.6; font-size:11px;">None</span>';
+            // 5 SL Rows
+            for (let rowIdx = 0; rowIdx < 5; rowIdx++) {
+                const tr = document.createElement('tr');
+                let rowHTML = `<td><span class="badge-sl-type">SL</span></td>`;
+                for (let memIdx = 0; memIdx < 5; memIdx++) {
+                    const dateVal = annualSLDates[memIdx][rowIdx] || '';
+                    rowHTML += `<td>${dateVal ? `<span class="date-chip">${dateVal}</span>` : ''}</td>`;
+                }
+                tr.innerHTML = rowHTML;
+                leaveGridBody.appendChild(tr);
+            }
 
-                const slChips = annualSLDates[i].length > 0 
-                    ? annualSLDates[i].map(d => `<span class="date-chip-sl">${d}</span>`).join('') 
+            // Render WFH Tracker Table
+            const wfhBody = document.getElementById('wfhTrackerBody');
+            wfhBody.innerHTML = '';
+
+            teamMembers.forEach((member, memIdx) => {
+                const dates = monthlyWFHDates[memIdx];
+                const chips = dates.length > 0 
+                    ? dates.map(d => `<span class="wfh-chip">${d}</span>`).join(' ') 
                     : '<span style="opacity:0.6; font-size:11px;">None</span>';
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="font-weight: bold; color: ${memberColors[i]};">${member}</td>
-                    <td>
-                        <div style="font-size:11px; font-weight:bold; margin-bottom:2px;">
-                            ${vlCount}/${MAX_VL} Days
-                            ${vlExceeded ? `<span class="badge-limit-exceeded">EXCEEDED</span>` : ''}
-                        </div>
-                        <div>${vlChips}</div>
-                    </td>
-                    <td>
-                        <div style="font-size:11px; font-weight:bold; margin-bottom:2px;">
-                            ${slCount}/${MAX_SL} Days
-                            ${slExceeded ? `<span class="badge-limit-exceeded">EXCEEDED</span>` : ''}
-                        </div>
-                        <div>${slChips}</div>
-                    </td>
-                    <td>
-                        <span class="badge-wfh-6">6-15: ${monthlyWFH[i]['6:00 - 15:00 (WFH)']}</span>
-                        <span class="badge-wfh-9">9-18: ${monthlyWFH[i]['9:00 - 18:00 (WFH)']}</span>
-                        <span class="badge-wfh-12">12-21: ${monthlyWFH[i]['12:00 - 21:00 (WFH)']}</span>
-                        <span class="badge-wfh-15">15-0: ${monthlyWFH[i]['15:00 - 00:00 (WFH)']}</span>
-                    </td>
+                    <td style="font-weight: bold;">${member}</td>
+                    <td>${chips}</td>
+                    <td style="font-weight: bold;">${dates.length} WFH</td>
                 `;
-                summaryTbody.appendChild(tr);
+                wfhBody.appendChild(tr);
+            });
+
+            renderPieChart(vlPerMonth);
+        }
+
+        function renderPieChart(vlPerMonth) {
+            const ctxVL = document.getElementById('vlPieChart').getContext('2d');
+            if (vlChartInstance) vlChartInstance.destroy();
+
+            vlChartInstance = new Chart(ctxVL, {
+                type: 'pie',
+                data: {
+                    labels: monthNamesLong,
+                    datasets: [{
+                        data: vlPerMonth.some(v => v > 0) ? vlPerMonth : new Array(12).fill(0),
+                        backgroundColor: monthChartColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#ffffff', font: { size: 9 }, boxWidth: 10 }
+                        }
+                    }
+                }
             });
         }
 
         // Initialize setup for September 2026
         renderActiveMonthTable();
         recalculateSummaries();
+        updatePHHolidayBanner();
     </script>
 </body>
 </html>
