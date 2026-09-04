@@ -493,11 +493,24 @@
             }
         }
 
+        // Helper to map rota shift variations to SHIFT_OPTIONS labels
+        function normalizeShift(shiftStr) {
+            if (!shiftStr) return null;
+            const clean = shiftStr.trim().toUpperCase();
+            if (clean === 'OFF' || clean === 'OFF (RD)' || clean === 'REST DAY' || clean === 'RD') return 'RD';
+            if (clean === 'VACATION LEAVE' || clean === 'VL') return 'VL';
+            if (clean === 'SICK LEAVE' || clean === 'SL') return 'SL';
+            
+            // Match standard shift option string exactly if possible
+            const match = SHIFT_OPTIONS.find(opt => opt.label.toUpperCase() === clean);
+            return match ? match.label : shiftStr;
+        }
+
         function detectShiftFromRota(memberId, date) {
             try {
                 const rotaHistory = JSON.parse(localStorage.getItem('rota_schedules') || '{}');
                 if (rotaHistory[date] && rotaHistory[date][memberId]) {
-                    return rotaHistory[date][memberId];
+                    return normalizeShift(rotaHistory[date][memberId]);
                 }
             } catch(e) {}
             return null;
@@ -533,7 +546,6 @@
             }
         }
 
-        // Clean shift string by removing WFH suffix
         function getBaseShiftTime(shift) {
             if (!shift) return '';
             return shift.replace(' (WFH)', '').trim();
@@ -541,7 +553,7 @@
 
         function isSlotActiveForShift(shift, slotIndex) {
             const baseShift = getBaseShiftTime(shift);
-            if (['RD', 'OFF (RD)', 'VL', 'SL'].includes(baseShift)) return false;
+            if (['RD', 'OFF (RD)', 'OFF', 'VL', 'SL'].includes(baseShift)) return false;
             if (baseShift === '6:00 - 15:00') return slotIndex === 0 || slotIndex === 1;
             if (baseShift === '9:00 - 18:00') return slotIndex === 0 || slotIndex === 1 || slotIndex === 2;
             if (baseShift === '12:00 - 21:00') return slotIndex === 1 || slotIndex === 2 || slotIndex === 3;
@@ -550,6 +562,7 @@
         }
 
         function getShiftColorStyle(shift) {
+            if (!shift) return '';
             if (shift.includes("6:00 - 15:00 (WFH)")) return 'background-color: #fbcfe8; color: #831843;';
             if (shift.includes("9:00 - 18:00 (WFH)")) return 'background-color: #f472b6; color: #831843;';
             if (shift.includes("12:00 - 21:00 (WFH)")) return 'background-color: #e9d5ff; color: #581c87;';
@@ -564,9 +577,11 @@
 
             MEMBERS.forEach(member => {
                 const rotaShift = detectShiftFromRota(member.id, date);
+                
                 if (!currentSchedule[member.id]) {
                     currentSchedule[member.id] = { shift: rotaShift || member.defaultShift };
                 } else if (rotaShift) {
+                    // Override shift from Rota if present
                     currentSchedule[member.id].shift = rotaShift;
                 }
 
@@ -601,7 +616,7 @@
                     const baseShift = getBaseShiftTime(memberShift);
                     
                     let cellClass = 'time-slot-cell';
-                    if (['RD', 'OFF (RD)', 'VL', 'SL'].includes(baseShift)) {
+                    if (['RD', 'OFF (RD)', 'OFF', 'VL', 'SL'].includes(baseShift)) {
                         cellClass += ' off-day';
                     } else if (!isSlotActiveForShift(memberShift, index)) {
                         cellClass += ' off-shift';
@@ -611,7 +626,7 @@
                     slotDiv.setAttribute('data-time', slot);
                     const slotKey = `${member.id}_${index}`;
 
-                    if (['RD', 'OFF (RD)'].includes(baseShift)) {
+                    if (['RD', 'OFF (RD)', 'OFF'].includes(baseShift)) {
                         slotDiv.innerHTML = `<div class="status-badge badge-rd">OFF (REST DAY)</div>`;
                     } else if (baseShift === 'VL') {
                         slotDiv.innerHTML = `<div class="status-badge badge-vl">VACATION LEAVE</div>`;
@@ -653,9 +668,11 @@
         function updateMemberShift(memberId, newShift) {
             currentSchedule[memberId].shift = newShift;
             const baseShift = getBaseShiftTime(newShift);
-            if (['RD', 'OFF (RD)', 'VL', 'SL'].includes(baseShift)) {
+            if (['RD', 'OFF (RD)', 'OFF', 'VL', 'SL'].includes(baseShift)) {
                 TIME_SLOTS.forEach(s => {
-                    currentSchedule[memberId][s].assignedList = [];
+                    if (currentSchedule[memberId][s]) {
+                        currentSchedule[memberId][s].assignedList = [];
+                    }
                 });
             }
             initGrid();
