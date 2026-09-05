@@ -661,9 +661,7 @@
             animation: shake 0.4s ease-in-out;
         }
 
-        /* ==========================================================================
-           MOBILE MODE ONLY OVERRIDES (Activated strictly via .is-mobile class on <body>)
-           ========================================================================== */
+        /* MOBILE OVERRIDES */
         body.is-mobile {
             overflow: hidden !important;
         }
@@ -702,7 +700,6 @@
             font-size: 0.68rem;
         }
 
-        /* Mobile Bottom Floating Action Arc Button */
         body.is-mobile .half-arc-menu {
             top: auto;
             bottom: -30px;
@@ -741,7 +738,6 @@
             top: -34px;
         }
 
-        /* Mobile Branch Grid Responsive Modal Drawer */
         body.is-mobile .centered-branch-modal {
             top: auto;
             bottom: 0;
@@ -867,7 +863,6 @@
     </div>
 
     <script>
-        // Detection Logic: Target strictly actual Mobile devices
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                    (window.innerWidth <= 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
@@ -907,8 +902,8 @@
                 items: [
                     { id: "edge-boost-v1", label: "EDGE BOOST (V1)", url: "https://docs.google.com/spreadsheets/d/1Pl8XVaYNEaupKx57HlXbWibsIeR7a28UfemRasxJ8RY/edit?gid=606091991#gid=606091991", color: "gold" },
                     { id: "ibet-boost-v1", label: "IBET BOOST (V1)", url: "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=784209986#gid=784209986", color: "blue" },
-                    { id: "edge-boost", label: "EDGE BOOST", url: "edge_boosts.html", color: "gold" },
-                    { id: "ibet-boost", label: "IBET BOOST", url: "ibet_boosts.html", color: "blue" }
+                    { id: "edge-boost-v2", label: "EDGE BOOST", url: "edge_boosts.html", color: "gold" },
+                    { id: "ibet-boost-v2", label: "IBET BOOST", url: "ibet_boosts.html", color: "blue" }
                 ]
             },
             {
@@ -1111,7 +1106,6 @@
             const total = dataset.length;
             const mobile = isMobileDevice();
 
-            // Radius and Angles tuned separately for Mobile vs Desktop
             const innerRadius = mobile ? 115 : 275; 
             const startAngle = mobile ? Math.PI * 1.15 : Math.PI * 1.42; 
             const endAngle = mobile ? Math.PI * 1.85 : Math.PI * 0.58;
