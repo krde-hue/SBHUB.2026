@@ -664,6 +664,7 @@
         /* COMPACT MOBILE OVERRIDES */
         body.is-mobile {
             overflow: hidden !important;
+            background-size: contain !important;
         }
 
         body.is-mobile .top-controls {
@@ -707,19 +708,20 @@
 
         body.is-mobile .half-arc-menu {
             top: auto;
-            bottom: -20px;
+            bottom: 0px;
             left: 50%;
             transform: translateX(-50%);
             width: 100vw;
-            height: 180px;
+            height: 260px;
         }
 
         body.is-mobile .toggle-btn-half {
             left: 50%;
-            top: 75%;
-            transform: translate(-50%, -50%);
-            width: 58px;
-            height: 58px;
+            top: auto;
+            bottom: 25px;
+            transform: translateX(-50%);
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             padding-left: 0;
             justify-content: center;
@@ -730,11 +732,11 @@
         }
 
         body.is-mobile .category-node {
-            width: 42px;
-            height: 42px;
-            margin-top: -21px;
-            margin-left: -21px;
-            font-size: 0.95rem;
+            width: 44px;
+            height: 44px;
+            margin-top: -22px;
+            margin-left: -22px;
+            font-size: 1rem;
         }
 
         body.is-mobile .category-node::after {
@@ -1122,9 +1124,9 @@
             const total = dataset.length;
             const mobile = isMobileDevice();
 
-            const innerRadius = mobile ? 80 : 275; 
-            const startAngle = mobile ? Math.PI * 1.15 : Math.PI * 1.42; 
-            const endAngle = mobile ? Math.PI * 1.85 : Math.PI * 0.58;
+            const innerRadius = mobile ? 140 : 275; 
+            const startAngle = mobile ? Math.PI * 1.08 : Math.PI * 1.42; 
+            const endAngle = mobile ? Math.PI * 1.92 : Math.PI * 0.58;
             const angleStep = (endAngle - startAngle) / (total - 1);
 
             dataset.forEach((group, index) => {
