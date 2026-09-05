@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportsbook Operations Hub - Dashboard</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -660,163 +660,33 @@
         .shake {
             animation: shake 0.4s ease-in-out;
         }
-
-        /* COMPACT MOBILE OVERRIDES */
-        body.is-mobile {
-            overflow: hidden !important;
-            background-size: contain !important;
-        }
-
-        body.is-mobile .top-controls {
-            top: 8px;
-            right: 8px;
-            left: 8px;
-            justify-content: space-between;
-            gap: 4px;
-            flex-wrap: nowrap;
-        }
-
-        body.is-mobile .control-btn, 
-        body.is-mobile .select-dropdown {
-            padding: 5px 8px;
-            font-size: 0.7rem;
-            border-radius: 12px;
-            gap: 3px;
-            max-width: 32%;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
-
-        body.is-mobile .bottom-right-brand {
-            bottom: 8px;
-            right: 10px;
-        }
-
-        body.is-mobile .brand-icon-svg {
-            width: 30px;
-            height: 30px;
-        }
-
-        body.is-mobile .brand-title {
-            font-size: 0.65rem;
-        }
-
-        body.is-mobile .brand-subtitle {
-            font-size: 0.55rem;
-        }
-
-        body.is-mobile .half-arc-menu {
-            top: auto;
-            bottom: 0px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100vw;
-            height: 260px;
-        }
-
-        body.is-mobile .toggle-btn-half {
-            left: 50%;
-            top: auto;
-            bottom: 25px;
-            transform: translateX(-50%);
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            padding-left: 0;
-            justify-content: center;
-            border-left: none;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            font-size: 1.4rem;
-            box-shadow: 0 0 20px rgba(255, 65, 108, 0.9);
-        }
-
-        body.is-mobile .category-node {
-            width: 44px;
-            height: 44px;
-            margin-top: -22px;
-            margin-left: -22px;
-            font-size: 1rem;
-        }
-
-        body.is-mobile .category-node::after {
-            font-size: 0.65rem;
-            padding: 2px 6px;
-            top: -28px;
-        }
-
-        body.is-mobile .centered-branch-modal {
-            top: auto;
-            bottom: 0;
-            left: 50%;
-            transform: translate(-50%, 100%);
-            width: 100vw;
-            max-width: 100vw;
-            max-height: 60vh;
-            overflow-y: auto;
-            border-radius: 20px 20px 0 0;
-            padding: 14px 12px;
-            gap: 10px;
-            border-bottom: none;
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-        }
-
-        body.is-mobile .centered-branch-modal.active {
-            transform: translate(-50%, 0);
-            opacity: 1;
-        }
-
-        body.is-mobile .modal-category-title {
-            font-size: 0.8rem;
-            margin-bottom: 2px;
-        }
-
-        body.is-mobile .branch-grid {
-            gap: 8px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        body.is-mobile .branch-item {
-            min-width: 0;
-            width: 100%;
-            height: 38px;
-            padding: 0 10px;
-            border-radius: 12px;
-        }
-
-        body.is-mobile .branch-label-text {
-            font-size: 0.72rem;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
     </style>
 </head>
 <body>
 
     <div class="top-controls">
         <select class="select-dropdown game-dropdown" id="game-selector" onchange="switchGame(this.value)">
-            <option value="" disabled selected>🎮 Games...</option>
-            <option value="mario">🎮 Mario Arcade ↗</option>
-            <option value="flappy">🎮 Flappy Bird ↗</option>
-            <option value="block">🎮 Block Puzzle ↗</option>
-            <option value="solitaire">🎮 Solitaire ↗</option>
-            <option value="word">🎮 Word Puzzle ↗</option>
+            <option value="" disabled selected>🎮 Select Entertainment...</option>
+            <option value="mario">🎮 Entertainment: Super Mario Arcade ↗</option>
+            <option value="flappy">🎮 Entertainment: Flappy Bird ↗</option>
+            <option value="block">🎮 Entertainment: Block Puzzle ↗</option>
+            <option value="solitaire">🎮 Entertainment: Solitaire ↗</option>
+            <option value="word">🎮 Entertainment: Word Puzzle ↗</option>
         </select>
 
         <select class="select-dropdown" id="user-profile-select" onchange="changeActiveUser(this.value)">
-            <option value="" disabled selected>-- Profile --</option>
+            <option value="" disabled selected>-- Select Your Name --</option>
             <option value="ANN">👤 USER: ANN</option>
             <option value="DAVE">👤 USER: DAVE</option>
             <option value="KENNETH">👤 USER: KENNETH</option>
             <option value="KRIZTEL">👤 USER: KRIZTEL</option>
             <option value="MIGUEL">👤 USER: MIGUEL</option>
-            <option value="CUSTOM">+ Custom...</option>
+            <option value="CUSTOM">+ Custom Name...</option>
         </select>
 
         <button class="control-btn" id="theme-toggle">
             <i class="fa-solid fa-moon" id="theme-icon"></i>
-            <span id="theme-text">Night</span>
+            <span id="theme-text">Night Mode</span>
         </button>
     </div>
 
@@ -881,15 +751,6 @@
     </div>
 
     <script>
-        function isMobileDevice() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                   (window.innerWidth <= 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
-        }
-
-        if (isMobileDevice()) {
-            document.body.classList.add('is-mobile');
-        }
-
         const categorisedMenuData = [
             {
                 id: "internal",
@@ -1122,11 +983,9 @@
             categoryNodesContainer.innerHTML = '';
 
             const total = dataset.length;
-            const mobile = isMobileDevice();
-
-            const innerRadius = mobile ? 140 : 275; 
-            const startAngle = mobile ? Math.PI * 1.08 : Math.PI * 1.42; 
-            const endAngle = mobile ? Math.PI * 1.92 : Math.PI * 0.58;
+            const innerRadius = 275; 
+            const startAngle = Math.PI * 1.42; 
+            const endAngle = Math.PI * 0.58;
             const angleStep = (endAngle - startAngle) / (total - 1);
 
             dataset.forEach((group, index) => {
@@ -1306,10 +1165,10 @@
             if (themeIcon && themeText) {
                 if (theme === 'dark') {
                     themeIcon.className = 'fa-solid fa-moon';
-                    themeText.textContent = 'Night';
+                    themeText.textContent = 'Night Mode';
                 } else {
                     themeIcon.className = 'fa-solid fa-sun';
-                    themeText.textContent = 'Daylight';
+                    themeText.textContent = 'Daylight Mode';
                 }
             }
             localStorage.setItem('dashboard_theme', theme);
