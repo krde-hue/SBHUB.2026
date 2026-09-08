@@ -399,13 +399,14 @@
                 <div style="flex: 1;">
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Brand</label>
                     <select id="logBrand" class="form-control" style="width: 100%;">
-                        <option value="7A">7A</option>
+                        <option value="QBET">QBET</option>
                         <option value="30BET">30BET</option>
                         <option value="55BET">55BET</option>
-                        <option value="GQBET">GQBET</option>
-                        <option value="BVBET">BVBET</option>
                         <option value="IBET">IBET</option>
-                        <option value="PUBS">PUBS</option>
+                        <option value="PUBS">Pubs</option>
+                        <option value="7A">7A</option>
+                        <option value="BVBET">BVBet</option>
+                        <option value="GQBET">GQBET</option>
                     </select>
                 </div>
             </div>
@@ -554,6 +555,7 @@
                         const escapedUrl = log.slackUrl ? escapeHtml(log.slackUrl) : '';
                         const safeJsUrl = log.slackUrl ? log.slackUrl.replace(/'/g, "\\'") : '';
 
+                        // Format brand display value to match case logic if needed, but it should inherently grab exactly what was saved
                         card.innerHTML = `
                             ${log.slackUrl ? `
                                 <div class="slack-link-header">
@@ -566,7 +568,7 @@
                                 <div class="slack-user-meta">
                                     <span class="slack-user-avatar">${posterInitial}</span>
                                     <span>${escapeHtml(log.poster || 'Team Member')}</span>
-                                    ${log.brand ? `<span class="brand-badge">${escapeHtml(log.brand)}</span>` : ''}
+                                    ${log.brand ? `<span class="brand-badge">${escapeHtml(log.brand === 'PUBS' ? 'Pubs' : (log.brand === 'BVBET' ? 'BVBet' : log.brand))}</span>` : ''}
                                 </div>
                                 <div class="slack-text-body">${escapeHtml(log.description || '')}</div>
                             </div>
@@ -603,7 +605,7 @@
             document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('logSlackUrl').value = '';
             document.getElementById('logPoster').value = localStorage.getItem('sb_active_user') || '';
-            document.getElementById('logBrand').value = '7A';
+            document.getElementById('logBrand').value = 'QBET';
             document.getElementById('logDescription').value = '';
             document.getElementById('logCategory').value = 'TECHNICAL';
             currentImageData = '';
@@ -690,7 +692,7 @@
             document.getElementById('logDate').value = log.date || new Date().toISOString().split('T')[0];
             document.getElementById('logSlackUrl').value = log.slackUrl || '';
             document.getElementById('logPoster').value = log.poster || '';
-            document.getElementById('logBrand').value = log.brand || '7A';
+            document.getElementById('logBrand').value = log.brand || 'QBET';
             document.getElementById('logDescription').value = log.description || '';
             document.getElementById('logCategory').value = log.category || 'TECHNICAL';
             currentImageData = log.image || '';
