@@ -371,7 +371,7 @@
   <script>
     const GOOGLE_SHEET_EDGE_URL = "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890";
     
-    // BOUND TO DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+    // BOUND TO DEPLOYED GOOGLE APPS SCRIPT WEB APP URL (VERSION 4)
     const GOOGLE_APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzwgPbvZ4VyteQ57DWcwv0MLjVP8HABy0hcCSyFemNLBLIw2YC4GHhMn4Ib_YhtdQ/exec";
 
     const ALLOWED_OTHER_SPORTS = ['BASKETBALL', 'NBA', 'WNBA', 'NFL', 'MLB', 'ESPORT', 'LCK', 'MMA', 'NHL', 'BOXING', 'UFC'];
@@ -989,8 +989,8 @@
           },
           body: JSON.stringify({ items: payloads })
         });
-        // 1.5 second buffer to allow Apps Script to process and append all rows
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // 2.0 second buffer to allow Google Apps Script Version 4 to process and append all rows
+        await new Promise(resolve => setTimeout(resolve, 2000));
       } catch (err) {
         console.error("Google Sheet import error:", err);
       }
