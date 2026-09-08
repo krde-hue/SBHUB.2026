@@ -171,12 +171,29 @@
         .slack-link-header {
             font-size: 12px;
             word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .slack-link-header a {
             color: var(--slack-link);
             text-decoration: underline;
             font-weight: 600;
+        }
+
+        .copy-icon {
+            cursor: pointer;
+            opacity: 0.75;
+            transition: opacity 0.2s, transform 0.2s;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .copy-icon:hover {
+            opacity: 1;
+            transform: scale(1.15);
+            color: var(--accent-btn);
         }
 
         .slack-message-box {
@@ -209,18 +226,15 @@
             font-size: 10px;
         }
 
-        .slack-timestamp {
+        .brand-badge {
             font-size: 10px;
-            font-weight: normal;
-            opacity: 0.6;
+            font-weight: 800;
+            background: var(--accent-btn);
+            color: #0b2240;
+            padding: 2px 7px;
+            border-radius: 4px;
             margin-left: auto;
-        }
-
-        .slack-text-body {
-            font-size: 12.5px;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            word-break: break-word;
+            letter-spacing: 0.5px;
         }
 
         .card-image-preview {
@@ -330,7 +344,7 @@
     <!-- FILTER & SEARCH BAR -->
     <div class="filter-bar">
         <i class="fa-solid fa-magnifying-glass" style="opacity: 0.7;"></i>
-        <input type="text" id="searchInput" placeholder="Search by title, Slack link, message, or user..." oninput="renderLogs()">
+        <input type="text" id="searchInput" placeholder="Search by title, Slack link, message, brand, or user..." oninput="renderLogs()">
         
         <select id="filterCategory" onchange="renderLogs()">
             <option value="ALL">All Categories</option>
@@ -383,8 +397,16 @@
                     <input type="text" id="logPoster" class="form-control" style="width: 100%;" placeholder="e.g., Miguel / Brian Grima">
                 </div>
                 <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Time Posted</label>
-                    <input type="text" id="logTime" class="form-control" style="width: 100%;" placeholder="e.g., 5:04 PM">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Brand</label>
+                    <select id="logBrand" class="form-control" style="width: 100%;">
+                        <option value="7A">7A</option>
+                        <option value="30BET">30BET</option>
+                        <option value="55BET">55BET</option>
+                        <option value="GQBET">GQBET</option>
+                        <option value="BVBET">BVBET</option>
+                        <option value="IBET">IBET</option>
+                        <option value="PUBS">PUBS</option>
+                    </select>
                 </div>
             </div>
 
@@ -441,6 +463,21 @@
             });
         }
 
+        function copyToClipboard(text, element) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalClass = element.className;
+                element.className = 'fa-solid fa-check copy-icon';
+                element.style.color = '#4ade80';
+                setTimeout(() => {
+                    element.className = originalClass;
+                    element.style.color = '';
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
         function renderLogs() {
             const container = document.getElementById('timelineContainer');
             container.innerHTML = '';
@@ -448,56 +485,80 @@
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const filterCat = document.getElementById('filterCategory').value;
 
-            // Group entries by Month -> Date
-            const grouped = {};
+            // Convert log object into an array for sorting
+            const logsArray = Object.keys(handoverLogs).map(id => ({ id, ...handoverLogs[id] }));
 
-            Object.keys(handoverLogs).forEach(id => {
-                const log = handoverLogs[id];
+            // Filter entries
+            const filteredLogs = logsArray.filter(log => {
                 const matchesSearch = (log.description && log.description.toLowerCase().includes(searchText)) ||
                                       (log.poster && log.poster.toLowerCase().includes(searchText)) ||
-                                      (log.slackUrl && log.slackUrl.toLowerCase().includes(searchText));
+                                      (log.slackUrl && log.slackUrl.toLowerCase().includes(searchText)) ||
+                                      (log.brand && log.brand.toLowerCase().includes(searchText));
                 const matchesCat = (filterCat === 'ALL' || log.category === filterCat);
-
-                if (matchesSearch && matchesCat) {
-                    const dateObj = new Date(log.date || log.timestamp);
-                    const monthName = monthNames[dateObj.getMonth()];
-                    const dayNum = dateObj.getDate();
-                    const monthShort = monthName.substring(0, 3);
-                    const dateKey = `${dayNum}-${monthShort}`;
-
-                    if (!grouped[monthName]) grouped[monthName] = {};
-                    if (!grouped[monthName][dateKey]) grouped[monthName][dateKey] = [];
-
-                    grouped[monthName][dateKey].push({ id, ...log });
-                }
+                return matchesSearch && matchesCat;
             });
 
-            const months = Object.keys(grouped);
+            // Sort newest first (Latest date & creation timestamp on top)
+            filteredLogs.sort((a, b) => {
+                const timeA = a.date ? new Date(a.date).getTime() : (a.timestamp || 0);
+                const timeB = b.date ? new Date(b.date).getTime() : (b.timestamp || 0);
+                if (timeB !== timeA) {
+                    return timeB - timeA;
+                }
+                return (b.timestamp || 0) - (a.timestamp || 0);
+            });
 
-            months.forEach(mName => {
+            // Group sequentially into array structure to preserve descending order
+            const groupedMonths = [];
+
+            filteredLogs.forEach(log => {
+                const dateObj = new Date(log.date || log.timestamp);
+                const monthName = monthNames[dateObj.getMonth()];
+                const dayNum = dateObj.getDate();
+                const monthShort = monthName.substring(0, 3);
+                const dateKey = `${dayNum}-${monthShort}`;
+
+                let lastMonth = groupedMonths[groupedMonths.length - 1];
+                if (!lastMonth || lastMonth.name !== monthName) {
+                    lastMonth = { name: monthName, dates: [] };
+                    groupedMonths.push(lastMonth);
+                }
+
+                let lastDate = lastMonth.dates[lastMonth.dates.length - 1];
+                if (!lastDate || lastDate.key !== dateKey) {
+                    lastDate = { key: dateKey, logs: [] };
+                    lastMonth.dates.push(lastDate);
+                }
+
+                lastDate.logs.push(log);
+            });
+
+            // Render descending timeline
+            groupedMonths.forEach(mGroup => {
                 const monthBlock = document.createElement('div');
-                monthBlock.innerHTML = `<div class="month-header">${mName}</div>`;
+                monthBlock.innerHTML = `<div class="month-header">${mGroup.name}</div>`;
 
-                const dateKeys = Object.keys(grouped[mName]);
-
-                dateKeys.forEach(dKey => {
+                mGroup.dates.forEach(dGroup => {
                     const dateSec = document.createElement('div');
                     dateSec.className = 'date-section';
-                    dateSec.innerHTML = `<div class="date-badge">${dKey}</div>`;
+                    dateSec.innerHTML = `<div class="date-badge">${dGroup.key}</div>`;
 
                     const grid = document.createElement('div');
                     grid.className = 'date-grid';
 
-                    grouped[mName][dKey].forEach(log => {
+                    dGroup.logs.forEach(log => {
                         const card = document.createElement('div');
                         card.className = 'handover-card';
 
                         const posterInitial = (log.poster || 'U').substring(0, 1).toUpperCase();
+                        const escapedUrl = log.slackUrl ? escapeHtml(log.slackUrl) : '';
+                        const safeJsUrl = log.slackUrl ? log.slackUrl.replace(/'/g, "\\'") : '';
 
                         card.innerHTML = `
                             ${log.slackUrl ? `
                                 <div class="slack-link-header">
-                                    <a href="${log.slackUrl}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> ${escapeHtml(log.slackUrl)}</a>
+                                    <a href="${escapedUrl}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> ${escapedUrl}</a>
+                                    <i class="fa-regular fa-copy copy-icon" title="Copy Link" onclick="copyToClipboard('${safeJsUrl}', this)"></i>
                                 </div>
                             ` : ''}
 
@@ -505,7 +566,7 @@
                                 <div class="slack-user-meta">
                                     <span class="slack-user-avatar">${posterInitial}</span>
                                     <span>${escapeHtml(log.poster || 'Team Member')}</span>
-                                    <span class="slack-timestamp">${escapeHtml(log.time || '')}</span>
+                                    ${log.brand ? `<span class="brand-badge">${escapeHtml(log.brand)}</span>` : ''}
                                 </div>
                                 <div class="slack-text-body">${escapeHtml(log.description || '')}</div>
                             </div>
@@ -542,7 +603,7 @@
             document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('logSlackUrl').value = '';
             document.getElementById('logPoster').value = localStorage.getItem('sb_active_user') || '';
-            document.getElementById('logTime').value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('logBrand').value = '7A';
             document.getElementById('logDescription').value = '';
             document.getElementById('logCategory').value = 'TECHNICAL';
             currentImageData = '';
@@ -592,7 +653,7 @@
             const date = document.getElementById('logDate').value;
             const slackUrl = document.getElementById('logSlackUrl').value.trim();
             const poster = document.getElementById('logPoster').value.trim();
-            const time = document.getElementById('logTime').value.trim();
+            const brand = document.getElementById('logBrand').value;
             const description = document.getElementById('logDescription').value.trim();
             const category = document.getElementById('logCategory').value;
             const editId = document.getElementById('editLogId').value;
@@ -605,7 +666,7 @@
                 date,
                 slackUrl,
                 poster,
-                time,
+                brand,
                 description,
                 category,
                 image: currentImageData,
@@ -629,7 +690,7 @@
             document.getElementById('logDate').value = log.date || new Date().toISOString().split('T')[0];
             document.getElementById('logSlackUrl').value = log.slackUrl || '';
             document.getElementById('logPoster').value = log.poster || '';
-            document.getElementById('logTime').value = log.time || '';
+            document.getElementById('logBrand').value = log.brand || '7A';
             document.getElementById('logDescription').value = log.description || '';
             document.getElementById('logCategory').value = log.category || 'TECHNICAL';
             currentImageData = log.image || '';
