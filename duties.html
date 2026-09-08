@@ -303,17 +303,13 @@
         th:last-child, td:last-child { border-right: none; }
         tr:last-child td { border-bottom: none; }
 
-        /* Column Width Distribution using exact percentages to fully fill screen space */
-        th.col-member, td:nth-child(1) { width: 11%; min-width: 90px; }
-        th.col-shift, td:nth-child(2) { width: 13%; min-width: 110px; }
+        /* Column Width Distribution for 6 slots (Team: 10%, Shift: 11%, 6 slots: ~13.16% each) */
+        th.col-member, td:nth-child(1) { width: 10%; min-width: 80px; }
+        th.col-shift, td:nth-child(2) { width: 11%; min-width: 100px; }
         
-        /* 5 Time Slots share remaining space perfectly (15.2% each) */
-        th:nth-child(3), td:nth-child(3),
-        th:nth-child(4), td:nth-child(4),
-        th:nth-child(5), td:nth-child(5),
-        th:nth-child(6), td:nth-child(6),
-        th:nth-child(7), td:nth-child(7) {
-            width: 15.2%;
+        /* 6 Time Slots share remaining 79% space (13.16% each) */
+        th:nth-child(n+3), td:nth-child(n+3) {
+            width: 13.16%;
         }
 
         th {
@@ -481,7 +477,7 @@
             <div>
                 <div class="sidebar-section-title">Schedule Days</div>
                 <div class="day-nav-list" id="sidebarDayNavList">
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -521,7 +517,7 @@
         </div>
 
         <div id="activeDayContainer" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
-            </div>
+        </div>
     </main>
 
     <div id="passwordModalContainer" style="display: none;"></div>
@@ -547,11 +543,13 @@
             { id: 'kriztel', name: 'KRIZTEL', index: 3, defaultShift: 'shift-15-0' }
         ];
 
+        /* Updated Hourly Distribution Time Slots */
         const timeSlots = [
-            { id: 'slot_7_9', label: '7:00 - 9:00', startHour: 7 },
+            { id: 'slot_6_9', label: '6:00 - 9:00', startHour: 6 },
             { id: 'slot_9_12', label: '9:00 - 12:00', startHour: 9 },
-            { id: 'slot_12_16', label: '12:00 - 16:00', startHour: 12 },
-            { id: 'slot_16_21', label: '16:00 - 21:00', startHour: 16 },
+            { id: 'slot_12_15', label: '12:00 - 15:00', startHour: 12 },
+            { id: 'slot_15_18', label: '15:00 - 18:00', startHour: 15 },
+            { id: 'slot_18_21', label: '18:00 - 21:00', startHour: 18 },
             { id: 'slot_21_0', label: '21:00 - 00:00', startHour: 21 }
         ];
 
@@ -594,19 +592,19 @@
             { id: 'shift-adjusted', label: 'Adjusted', endHour: null, endMinute: null }
         ];
 
-        // Updated off-duty mapping ensuring shifts end correctly (e.g., 7:00-16:00 ends at 16:00 so 16:00-21:00 is off; 12:00-21:00 ends at 21:00 so 21:00-00:00 is off)
+        /* Updated Off-Duty Mapping matching the new 6 slots */
         const shiftOffDutyMap = {
-            'shift-rd': ['slot_7_9', 'slot_9_12', 'slot_12_16', 'slot_16_21', 'slot_21_0'],
-            'shift-vl': ['slot_7_9', 'slot_9_12', 'slot_12_16', 'slot_16_21', 'slot_21_0'],
-            'shift-sl': ['slot_7_9', 'slot_9_12', 'slot_12_16', 'slot_16_21', 'slot_21_0'],
-            'shift-7-16': ['slot_16_21', 'slot_21_0'],
-            'shift-9-18': ['slot_7_9', 'slot_21_0'],
-            'shift-12-21': ['slot_7_9', 'slot_9_12', 'slot_21_0'],
-            'shift-15-0': ['slot_7_9', 'slot_9_12', 'slot_12_16'],
-            'shift-7-16-wfh': ['slot_16_21', 'slot_21_0'],
-            'shift-9-18-wfh': ['slot_7_9', 'slot_21_0'],
-            'shift-12-21-wfh': ['slot_7_9', 'slot_9_12', 'slot_21_0'],
-            'shift-15-0-wfh': ['slot_7_9', 'slot_9_12', 'slot_12_16'],
+            'shift-rd': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
+            'shift-vl': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
+            'shift-sl': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
+            'shift-7-16': ['slot_18_21', 'slot_21_0'],
+            'shift-9-18': ['slot_6_9', 'slot_18_21', 'slot_21_0'],
+            'shift-12-21': ['slot_6_9', 'slot_9_12', 'slot_21_0'],
+            'shift-15-0': ['slot_6_9', 'slot_9_12', 'slot_12_15'],
+            'shift-7-16-wfh': ['slot_18_21', 'slot_21_0'],
+            'shift-9-18-wfh': ['slot_6_9', 'slot_18_21', 'slot_21_0'],
+            'shift-12-21-wfh': ['slot_6_9', 'slot_9_12', 'slot_21_0'],
+            'shift-15-0-wfh': ['slot_6_9', 'slot_9_12', 'slot_12_15'],
             'shift-adjusted': []
         };
 
