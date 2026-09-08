@@ -92,16 +92,7 @@
     #weatherCard   { top: 20px; left: calc(var(--sidebar-width) + 385px); width: 335px; height: 165px; }
     #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
     #flashscoreCard{ top: 195px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 285px; }
-    
-    /* MODIFIED: Unrestricted resizing for Trend Chart */
-    #trendCard { 
-      top: 290px; 
-      left: calc(var(--sidebar-width) + 395px); 
-      width: 700px; 
-      height: 435px; 
-      min-width: 450px; 
-      min-height: 250px; 
-    }
+    #trendCard { top: 290px; left: calc(var(--sidebar-width) + 395px); width: 700px; height: 435px; min-width: 450px; min-height: 250px; }
 
     .tz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .tz-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
@@ -141,10 +132,7 @@
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); z-index: 200; justify-content: center; align-items: center; }
     .modal-content { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); padding: 24px; border-radius: 16px; width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: var(--glass-shadow); }
     .setting-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-    .palette-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
-    .palette-btn { height: 32px; border-radius: 8px; border: 2px solid var(--glass-border); cursor: pointer; transition: transform 0.2s ease; }
-    .palette-btn:hover { transform: scale(1.05); border-color: var(--accent-glow); }
-
+    
     .action-btn { width: 100%; margin-top: 10px; background: var(--accent-glow); color: #ffffff; border: none; padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .action-btn.logout-btn { background: linear-gradient(135deg, #f87171, #dc2626); margin-top: 14px; }
     .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
@@ -256,7 +244,7 @@
           <option value="all">📊 ALL BRANDS (Increase)</option>
           <option value="ibet">IBET TRACKER</option>
           <option value="edge">EDGE TRACKER</option>
-          <option value="tracker7a">7A TRACKER</option>
+          <option value="pubs">PUBS TRACKER</option>
         </select>
         
         <select id="timeframeSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 110px;" onchange="initTrendChart()">
@@ -304,9 +292,9 @@
           <input type="number" id="edgeLimInput" class="logger-input" placeholder="0">
         </div>
         <div class="entry-grid">
-          <div>7A</div>
-          <input type="number" id="sevenIncInput" class="logger-input" placeholder="0">
-          <input type="number" id="sevenLimInput" class="logger-input" placeholder="0">
+          <div>PUBS</div>
+          <input type="number" id="pubsIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="pubsLimInput" class="logger-input" placeholder="0">
         </div>
         <button class="action-btn" id="saveLogBtn" onclick="saveDailyLog()"><i class='bx bx-save'></i> SAVE DAILY DATA</button>
       </div>
@@ -447,7 +435,6 @@
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
     // --- CONTINUOUS DATA STORAGE LOGIC ---
-    
     function loadDataForDate(dateStr) {
       if (!dateStr) return;
       const appData = JSON.parse(localStorage.getItem('sbhub_chart_data')) || {};
@@ -458,15 +445,15 @@
         document.getElementById('ibetLimInput').value = dateData.ibet?.lim || 0;
         document.getElementById('edgeIncInput').value = dateData.edge?.inc || 0;
         document.getElementById('edgeLimInput').value = dateData.edge?.lim || 0;
-        document.getElementById('sevenIncInput').value = dateData.tracker7a?.inc || 0;
-        document.getElementById('sevenLimInput').value = dateData.tracker7a?.lim || 0;
+        document.getElementById('pubsIncInput').value = dateData.pubs?.inc || 0;
+        document.getElementById('pubsLimInput').value = dateData.pubs?.lim || 0;
       } else {
         document.getElementById('ibetIncInput').value = '';
         document.getElementById('ibetLimInput').value = '';
         document.getElementById('edgeIncInput').value = '';
         document.getElementById('edgeLimInput').value = '';
-        document.getElementById('sevenIncInput').value = '';
-        document.getElementById('sevenLimInput').value = '';
+        document.getElementById('pubsIncInput').value = '';
+        document.getElementById('pubsLimInput').value = '';
       }
     }
 
@@ -482,7 +469,7 @@
           baseData[dateStr] = {
             ibet: { inc: Math.floor(Math.random() * 8) + 8, lim: Math.floor(Math.random() * 4) + 2 },
             edge: { inc: Math.floor(Math.random() * 10) + 10, lim: Math.floor(Math.random() * 5) + 3 },
-            tracker7a: { inc: Math.floor(Math.random() * 7) + 6, lim: Math.floor(Math.random() * 3) + 1 }
+            pubs: { inc: Math.floor(Math.random() * 7) + 6, lim: Math.floor(Math.random() * 3) + 1 }
           };
         }
         localStorage.setItem('sbhub_chart_data', JSON.stringify(baseData));
@@ -508,9 +495,9 @@
           inc: Number(document.getElementById('edgeIncInput').value) || 0, 
           lim: Number(document.getElementById('edgeLimInput').value) || 0 
         },
-        tracker7a: { 
-          inc: Number(document.getElementById('sevenIncInput').value) || 0, 
-          lim: Number(document.getElementById('sevenLimInput').value) || 0 
+        pubs: { 
+          inc: Number(document.getElementById('pubsIncInput').value) || 0, 
+          lim: Number(document.getElementById('pubsLimInput').value) || 0 
         }
       };
 
@@ -554,12 +541,12 @@
       if (viewMode === "all") {
         const ibetInc = sortedDates.map(d => appData[d].ibet?.inc || 0);
         const edgeInc = sortedDates.map(d => appData[d].edge?.inc || 0);
-        const sevenInc = sortedDates.map(d => appData[d].tracker7a?.inc || 0);
+        const pubsInc = sortedDates.map(d => appData[d].pubs?.inc || 0);
 
         chartConfigData.datasets = [
           { label: 'IBET (Inc)', data: ibetInc, borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.08)', borderWidth: 2.5, tension: 0.4 },
           { label: 'EDGE (Inc)', data: edgeInc, borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.08)', borderWidth: 2.5, tension: 0.4 },
-          { label: '7A (Inc)', data: sevenInc, borderColor: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.08)', borderWidth: 2.5, tension: 0.4 }
+          { label: 'PUBS (Inc)', data: pubsInc, borderColor: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.08)', borderWidth: 2.5, tension: 0.4 }
         ];
         badge.className = "stat-badge up";
         badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative`;
@@ -696,6 +683,78 @@
     function changeTimezone(index, newZone) {
       selectedTimezones[index] = newZone;
       updateClocksTick();
+      saveBentoLayout(); // Save timezone choice
+    }
+
+    // --- URL LAYOUT SAVING AND LOADING ---
+    function getBentoLayoutObj() {
+      const layout = {};
+      document.querySelectorAll(".bento-card").forEach(card => { 
+        layout[card.id] = { top: card.style.top, left: card.style.left, width: card.style.width, height: card.style.height }; 
+      });
+      layout["selected_timezones"] = selectedTimezones; 
+      layout["mobile_view"] = document.body.classList.contains("mobile-view-active");
+      return layout;
+    }
+
+    function saveBentoLayout() {
+      const layout = getBentoLayoutObj();
+      localStorage.setItem("sbhub_bento_layout_clean_v10", JSON.stringify(layout));
+    }
+
+    function restoreBentoLayout() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const layoutFromURL = urlParams.get('layout');
+      let layoutToApply = null;
+
+      // 1. Try URL first
+      if (layoutFromURL) {
+        try {
+          layoutToApply = JSON.parse(atob(layoutFromURL));
+          localStorage.setItem("sbhub_bento_layout_clean_v10", JSON.stringify(layoutToApply)); // Save for them
+          window.history.replaceState({}, document.title, window.location.pathname); // Clean URL
+        } catch(e) { console.error("Invalid URL layout data."); }
+      }
+
+      // 2. Try LocalStorage second
+      if (!layoutToApply) {
+        const saved = localStorage.getItem("sbhub_bento_layout_clean_v10");
+        if (saved) {
+          try { layoutToApply = JSON.parse(saved); } catch(e){}
+        }
+      }
+
+      // Apply the chosen layout
+      if (layoutToApply) {
+        if (layoutToApply["mobile_view"]) { 
+          document.body.classList.add("mobile-view-active"); 
+          const mobileToggle = document.getElementById("mobileViewToggle");
+          if(mobileToggle) mobileToggle.checked = true; 
+        }
+        for (const id in layoutToApply) {
+          if (id === "selected_timezones" || id === "mobile_view") continue;
+          const el = document.getElementById(id);
+          if (el && layoutToApply[id].top) { 
+            el.style.top = layoutToApply[id].top; 
+            el.style.left = layoutToApply[id].left; 
+            if (layoutToApply[id].width) el.style.width = layoutToApply[id].width; 
+            if (layoutToApply[id].height) el.style.height = layoutToApply[id].height; 
+          }
+        }
+        if (layoutToApply["selected_timezones"]) selectedTimezones = layoutToApply["selected_timezones"];
+      }
+    }
+
+    function saveLayoutToURL() {
+      saveBentoLayout();
+      const layoutObj = getBentoLayoutObj();
+      const encodedLayout = btoa(JSON.stringify(layoutObj)); // Encode to base-64 string
+      const url = new URL(window.location.origin + window.location.pathname);
+      url.searchParams.set('layout', encodedLayout);
+
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        alert("Bento layout saved & URL copied! Anyone with this link will load your exact layout.");
+      });
     }
 
     // --- LAYOUT & UTILITIES ---
@@ -735,14 +794,16 @@
         e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY;
         element.style.top = (element.offsetTop - pos2) + "px"; element.style.left = (element.offsetLeft - pos1) + "px";
       }
-      function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
+      function closeDragElement() { document.onmouseup = null; document.onmousemove = null; saveBentoLayout(); }
     }
 
     document.querySelectorAll(".bento-card").forEach(makeElementDraggable);
     
-    // Auto-resize charts when dragged
     if (window.ResizeObserver) { 
-        const resizeObserver = new ResizeObserver(() => { if (trendChartInstance) trendChartInstance.resize(); }); 
+        const resizeObserver = new ResizeObserver(() => { 
+          if (trendChartInstance) trendChartInstance.resize(); 
+          saveBentoLayout(); // Save resizing changes
+        }); 
         document.querySelectorAll(".bento-card").forEach(card => resizeObserver.observe(card)); 
     }
     
@@ -751,6 +812,7 @@
     function toggleMobileView() { const mobileToggle = document.getElementById("mobileViewToggle"); if (mobileToggle && mobileToggle.checked) document.body.classList.add("mobile-view-active"); else document.body.classList.remove("mobile-view-active"); setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300); }
     
     // Boot up functions
+    restoreBentoLayout(); // MUST happen before clocks render
     checkRememberedSession();
     initDataStore();
     renderSidebar();
@@ -758,7 +820,6 @@
     renderClocks();
     initTrendChart();
     
-    // Proper interval for all clocks
     setInterval(updateClocksTick, 1000);
 
   </script>
