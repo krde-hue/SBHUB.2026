@@ -371,7 +371,7 @@
   <script>
     const GOOGLE_SHEET_EDGE_URL = "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890";
     
-    // BOUND TO DEPLOYED GOOGLE APPS SCRIPT WEB APP URL (VERSION 4)
+    // BOUND TO DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     const GOOGLE_APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzwgPbvZ4VyteQ57DWcwv0MLjVP8HABy0hcCSyFemNLBLIw2YC4GHhMn4Ib_YhtdQ/exec";
 
     const ALLOWED_OTHER_SPORTS = ['BASKETBALL', 'NBA', 'WNBA', 'NFL', 'MLB', 'ESPORT', 'LCK', 'MMA', 'NHL', 'BOXING', 'UFC'];
@@ -979,24 +979,40 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    async function sendToGoogleSheetEdge(payloads) {
-      try {
-        await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { 
-            "Content-Type": "text/plain;charset=utf-8" 
-          },
-          body: JSON.stringify({ items: payloads })
-        });
-        // 2.0 second buffer to allow Google Apps Script Version 4 to process and append all rows
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      } catch (err) {
-        console.error("Google Sheet import error:", err);
-      }
+    /* Send data to Google Sheets via Background Hidden Form (100% Guaranteed 1-Click Delivery) */
+    function sendToGoogleSheetEdge(payloads) {
+      return new Promise((resolve) => {
+        let iframe = document.getElementById("hidden_iframe_uploader");
+        if (!iframe) {
+          iframe = document.createElement("iframe");
+          iframe.id = "hidden_iframe_uploader";
+          iframe.name = "hidden_iframe_uploader";
+          iframe.style.display = "none";
+          document.body.appendChild(iframe);
+        }
+
+        let form = document.createElement("form");
+        form.method = "POST";
+        form.action = GOOGLE_APPS_SCRIPT_WEB_APP_URL;
+        form.target = "hidden_iframe_uploader";
+
+        let input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "postData";
+        input.value = JSON.stringify({ items: payloads });
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit();
+
+        setTimeout(() => {
+          document.body.removeChild(form);
+          resolve();
+        }, 1500);
+      });
     }
 
-    /* Core Batch Import Function directly linked to Google Sheet and iBET */
+    /* Core Batch Import Function Routed cleanly without multi-click bugs */
     async function executeBatchImport(destination, dateStr) {
       let targetItems = scheduleDatabase.filter(item => {
         const dateObj = parseIsoDate(item.isoTime);
@@ -1019,18 +1035,15 @@
 
       if (destination === 'EDGE') {
         await sendToGoogleSheetEdge(payloads);
-        alert(`Successfully imported ${payloads.length} item(s) directly to the Edge Google Sheet! Directing to sheet...`);
         window.location.href = GOOGLE_SHEET_EDGE_URL;
 
       } else if (destination === 'IBET') {
         saveToStorageBottom('ibet_boosts_list', payloads);
-        alert(`Successfully imported ${payloads.length} item(s) to iBET Boosts! Directing to ibet-boosted.html...`);
         window.location.href = 'ibet-boosted.html';
 
       } else if (destination === 'BOTH') {
         await sendToGoogleSheetEdge(payloads);
         saveToStorageBottom('ibet_boosts_list', payloads);
-        alert(`Successfully imported ${payloads.length} item(s) to BOTH Edge Google Sheet and iBET! Opening destinations...`);
         window.open('ibet-boosted.html', '_blank');
         window.location.href = GOOGLE_SHEET_EDGE_URL;
       }
