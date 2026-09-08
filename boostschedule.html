@@ -275,6 +275,19 @@
     .pills-container { display: flex; flex-wrap: wrap; gap: 6px; }
     .market-pill { background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--text-main); font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; display: inline-block; }
 
+    /* FLASHSCORE SPECIAL TENNIS STYLES */
+    .fs-container { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .fs-header { background: #0f1f38; border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 6px 6px 0 0; font-size: 0.75rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; }
+    .fs-row-group { border: 1px solid var(--card-border); border-top: none; border-radius: 0 0 6px 6px; overflow: hidden; background: var(--card-bg); }
+    .fs-row { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--card-border); gap: 14px; transition: background 0.2s; flex-wrap: wrap; }
+    .fs-row:last-child { border-bottom: none; }
+    .fs-row:hover { background: var(--control-bg); }
+    .fs-row.selected { background: rgba(59, 130, 246, 0.15); border-left: 3px solid var(--primary-blue); }
+    .fs-time { font-family: monospace; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); min-width: 45px; }
+    .fs-players { display: flex; flex-direction: column; gap: 4px; min-width: 200px; flex-grow: 1; }
+    .fs-player-line { font-size: 0.84rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+    .fs-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
     .empty-msg { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 0.95rem; background: var(--card-bg); border: 1px dashed var(--border-dashed); border-radius: 6px; margin-top: 16px; }
 
     @media (max-width: 768px) {
@@ -295,6 +308,7 @@
       .date-btn { flex: 1; justify-content: center; }
       .card-header { flex-direction: column; align-items: flex-start; }
       .badges { justify-content: flex-start; }
+      .fs-row { flex-direction: column; align-items: flex-start; gap: 8px; }
     }
   </style>
 </head>
@@ -304,9 +318,9 @@
     <div class="title-area">
       <div class="title-row">
         <div class="title">AUTOMATED BIG EVENTS & OUTRIGHTS SCHEDULE</div>
-        <span class="badge-sync" id="syncBadge">LIVE FLASHSCORE SYNC ACTIVE</span>
+        <span class="badge-sync" id="syncBadge">LIVE UPCOMING SYNC ACTIVE</span>
       </div>
-      <div class="sub-title">kdv.2026 model • Realtime Live Polling Engine</div>
+      <div class="sub-title">kdv.2026 model • Realtime Upcoming Football & Tennis Engine</div>
     </div>
 
     <div class="header-right">
@@ -316,7 +330,7 @@
         <div class="tz-clock">EST: <span id="clockEst">--:--:--</span></div>
       </div>
       <div class="header-btns">
-        <button class="top-btn green" onclick="fetchLiveFlashscoreFeed()">
+        <button class="top-btn green" onclick="fetchLiveESPNFeed()">
           <span id="syncIcon">🔄</span> Live Re-sync Feed
         </button>
         <button class="top-btn secondary" onclick="toggleThemeMode()">
@@ -352,10 +366,21 @@
   <div id="contentArea"></div>
 
   <script>
-    const FLASHSCORE_API_ENDPOINT = "https://flashscore-data-api.p.rapidapi.com/v1/events/upcoming";
-    const API_KEY = ""; 
-
     const ALLOWED_OTHER_SPORTS = ['BASKETBALL', 'NBA', 'WNBA', 'NFL', 'MLB', 'ESPORT', 'LCK', 'MMA', 'NHL', 'BOXING', 'UFC'];
+
+    // TOP TEAMS MATRIX FROM EXCEL REFERENCE
+    const TOP_TEAMS = [
+      "REAL MADRID", "BARCELONA", "MAN UTD", "MANCHESTER UNITED", "LIVERPOOL", "BAYERN", "JUVENTUS", "DORTMUND", 
+      "ARSENAL", "PSG", "BENFICA", "INTER", "MILAN", "AC MILAN", "MAN CITY", "MANCHESTER CITY", "CHELSEA", "TOTTENHAM", 
+      "ATL MADRID", "ATLETICO MADRID", "SEVILLA", "NAPOLI", "ROMA", "LAZIO", "MARSEILLE", "LYON", "PORTO", 
+      "SPORTING CP", "AJAX", "FEYENOORD"
+    ];
+
+    // SEEDED/POPULAR TENNIS PLAYERS MATRIX
+    const POPULAR_TENNIS_PLAYERS = [
+      "ALCARAZ", "SINNER", "DJOKOVIC", "MEDVEDEV", "FRITZ", "TIAFOE", "ZVEREV", "RUBLEV", "PAUL", "RUUD", "NORRIE", "SHELTON",
+      "SABALENKA", "SWIATEK", "GAUFF", "RYBAKINA", "PEGULA", "ZHENG", "OSAKA", "NAVARRO", "KOSTYUK", "ANDREEVA", "ANISIMOVA", "KEYS", "BLOCKX", "KHANANOV", "ZANDSCHULP"
+    ];
 
     let currentTab = 'FOOTBALL';
     let scheduleDatabase = [];
@@ -397,98 +422,323 @@
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
-      }) + ' PM (GMT+8)';
+      });
+    }
+
+    function formatFlashscoreName(fullName) {
+      if (!fullName) return "";
+      const parts = fullName.trim().split(" ");
+      if (parts.length === 1) return parts[0];
+      const lastName = parts.pop();
+      const firstInitial = parts[0].charAt(0).toUpperCase();
+      return `${lastName} ${firstInitial}.`;
     }
 
     function isOutright(item) {
       const title = (item.title || '').toLowerCase();
-      if (title.includes(' vs ') || title.includes(' v ')) {
-        return false;
-      }
+      if (title.includes(' vs ') || title.includes(' v ') || title.includes(' at ')) return false;
       const fullMeta = `${item.category} ${item.sportCategory || ''} ${item.league || ''} ${item.title || ''}`.toUpperCase();
       return item.category === 'OUTRIGHTS' || item.isOutright === true || fullMeta.includes('OUTRIGHT') || fullMeta.includes('WINNER') || fullMeta.includes('CHAMPIONSHIP');
     }
 
-    async function fetchLiveFlashscoreFeed() {
-      const icon = document.getElementById("syncIcon");
-      const badge = document.getElementById("syncBadge");
-      icon.style.transform = "rotate(360deg)";
-      icon.style.transition = "transform 0.5s ease";
-      badge.textContent = "PARSING LIVE FLASHSCORE...";
-      badge.style.borderColor = "#eab308";
-      badge.style.color = "#eab308";
-
-      try {
-        if (!API_KEY) {
-          scheduleDatabase = await parse7DayFullDatabase();
-        } else {
-          const response = await fetch(FLASHSCORE_API_ENDPOINT, {
-            method: 'GET',
-            headers: {
-              'X-RapidAPI-Key': API_KEY,
-              'X-RapidAPI-Host': 'flashscore-data-api.p.rapidapi.com'
-            }
-          });
-          const json = await response.json();
-          scheduleDatabase = json.data;
-        }
-
-        badge.textContent = "LIVE FLASHSCORE SYNC ACTIVE";
-        badge.style.borderColor = "#059669";
-        badge.style.color = "#34d399";
-      } catch (err) {
-        console.error("Flashscore API parse failed, using fallback:", err);
-        scheduleDatabase = await parse7DayFullDatabase();
-        badge.textContent = "REALTIME PROXY SYNC";
-      } finally {
-        renderSchedule();
-        icon.style.transform = "rotate(0deg)";
-      }
+    function getFormattedDateQuery(daysAhead) {
+      const d = new Date();
+      d.setDate(d.getDate() + daysAhead);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}${month}${day}`;
     }
 
-    async function parse7DayFullDatabase() {
-      const now = new Date();
-      
-      const getExactTime = (dayOffset, hour, min) => {
-        const d = new Date(now.getTime());
-        d.setDate(d.getDate() + dayOffset);
-        d.setHours(hour, min, 0, 0);
-        return d.toISOString();
-      };
+    function getISOFormattedDate(daysAhead) {
+      const d = new Date();
+      d.setDate(d.getDate() + daysAhead);
+      return d.toISOString().split('T')[0];
+    }
 
-      return [
-        // DAY 0
-        { id: 'fb-dfb-leipzig-frankfurt-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Germany DFB Pokal', title: 'RB Leipzig vs Eintracht Frankfurt', isoTime: getExactTime(0, 20, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Goalscorer: Marmoush", "Goalscorer: Openda", "Match Winner & BTTS"] },
-        { id: 'fb-ligue1-psg-monaco-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'France Ligue 1', title: 'Paris Saint-Germain vs Monaco', isoTime: getExactTime(0, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Dembele", "PSG To Win"] },
-        { id: 'fb-mls-miami-galaxy-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'MLS Regular Season', title: 'Inter Miami vs LA Galaxy', isoTime: getExactTime(0, 23, 30), isTopTier: false, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Lionel Messi", "Goalscorer: Luis Suarez"] },
-        { id: 'fb-sweden-malmo-aik-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Sweden Allsvenskan', title: 'Malmö FF vs AIK', isoTime: getExactTime(0, 21, 0), isTopTier: false, isHot: false, isOutright: false, suggestedMarkets: ["Match Winner: Malmö", "Both Teams To Score"] },
-        { id: 'fb-portugal-sporting-benfica-0', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Portugal Liga Portugal', title: 'Sporting CP vs Benfica', isoTime: getExactTime(0, 23, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Gyökeres", "Goalscorer: Pavlidis"] },
+    async function fetchLiveESPNFeed() {
+      const icon = document.getElementById("syncIcon");
+      const badge = document.getElementById("syncBadge");
+      if (icon) {
+        icon.style.transform = "rotate(360deg)";
+        icon.style.transition = "transform 0.5s ease";
+      }
+      if (badge) {
+        badge.textContent = "PARSING UPCOMING FIXTURES...";
+        badge.style.borderColor = "#eab308";
+        badge.style.color = "#eab308";
+      }
 
-        { id: 'os-nfl-chiefs-ravens-0', category: 'OTHER', sportCategory: 'NFL', league: 'NFL Kickoff Season', title: 'Kansas City Chiefs vs Baltimore Ravens', isoTime: getExactTime(0, 20, 15), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Patrick Mahomes 2+ Passing TDs", "Travis Kelce Anytime TD"] },
-        { id: 'os-mlb-yankees-redsox-0', category: 'OTHER', sportCategory: 'MLB', league: 'MLB Regular Season', title: 'New York Yankees vs Boston Red Sox', isoTime: getExactTime(0, 19, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Aaron Judge Home Run", "Yankees Moneyline"] },
-        { id: 'os-wnba-fever-aces-0', category: 'OTHER', sportCategory: 'BASKETBALL WNBA', league: 'WNBA Regular Season', title: 'Indiana Fever vs Las Vegas Aces', isoTime: getExactTime(0, 22, 0), isTopTier: false, isHot: true, isOutright: false, suggestedMarkets: ["Caitlin Clark 20+ Points", "A'ja Wilson 10+ Rebounds"] },
+      const datesParam = `${getFormattedDateQuery(0)}-${getFormattedDateQuery(7)}`;
+      const dateTodayISO = getISOFormattedDate(0);
 
-        // DAY 1
-        { id: 'fb-epl-arsenal-chelsea-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Arsenal vs Chelsea', isoTime: getExactTime(1, 22, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Bukayo Saka", "Goalscorer: Cole Palmer"] },
-        { id: 'fb-epl-everton-manutd-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Everton vs Manchester United', isoTime: getExactTime(1, 20, 0), isTopTier: true, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Bruno Fernandes", "Over 2.5 Goals"] },
-        { id: 'fb-laliga-real-barca-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Spain La Liga', title: 'Real Madrid vs Barcelona', isoTime: getExactTime(1, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Vinicius Jr", "Goalscorer: Lamine Yamal"] },
-        { id: 'fb-bundesliga-bayern-dortmund-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Germany Bundesliga', title: 'Bayern Munich vs Borussia Dortmund', isoTime: getExactTime(1, 21, 30), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Harry Kane", "Goalscorer: Serhou Guirassy"] },
-        { id: 'fb-seriea-inter-milan-1', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'Italy Serie A', title: 'Inter Milan vs AC Milan', isoTime: getExactTime(1, 23, 45), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Lautaro Martinez", "Match Winner & BTTS"] },
+      try {
+        const espnEndpoints = [
+          // FOOTBALL PRIORITY
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "UEFA Champions League", tier: 1 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "England Premier League", tier: 1 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Spain La Liga", tier: 1 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Germany Bundesliga", tier: 1 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Italy Serie A", tier: 1 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "France Ligue 1", tier: 2 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/por.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Portugal Liga Portugal", tier: 2 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ned.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Netherlands Eredivisie", tier: 2 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "USA Major League Soccer", tier: 3 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/nor.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Norway Eliteserien", tier: 3 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fin.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Finland Veikkausliiga", tier: 3 },
+          
+          // ESPN TENNIS
+          { url: `https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=${datesParam}`, cat: "TENNIS", league: "ATP US Open Men's Singles", gender: "ATP" },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=${datesParam}`, cat: "TENNIS", league: "WTA US Open Women's Singles", gender: "WTA" },
 
-        { id: 'os-lck-t1-geng-1', category: 'OTHER', sportCategory: 'ESPORT LCK', league: 'LCK Summer Playoffs', title: 'T1 vs Gen.G Esports', isoTime: getExactTime(1, 16, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Faker First Blood", "Gen.G Map Handicap (-1.5)"] },
+          // OTHER SPORTS
+          { url: `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "NBA Basketball", tier: 1 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "NFL Football", tier: 1 },
+          { url: `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "MLB Baseball", tier: 1 }
+        ];
 
-        // DAY 2
-        { id: 'fb-epl-liverpool-mancity-2', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Liverpool vs Manchester City', isoTime: getExactTime(2, 23, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Mohamed Salah", "Goalscorer: Erling Haaland"] },
+        // SofaScore API for Tennis via CORS Proxy
+        const sofaScoreTennisUrl = `https://corsproxy.io/?https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/${dateTodayISO}`;
 
-        // DAY 4
-        { id: 'fb-efl-leeds-sunderland-4', category: 'FOOTBALL', sportCategory: 'FOOTBALL', league: 'EFL Championship', title: 'Leeds United vs Sunderland', isoTime: getExactTime(4, 22, 30), isTopTier: false, isHot: false, isOutright: false, suggestedMarkets: ["Anytime Goalscorer: Joel Piroe", "Leeds To Win"] },
+        const responses = await Promise.all([
+          ...espnEndpoints.map(ep => fetch(ep.url).then(res => res.json()).then(data => ({ data, meta: ep })).catch(() => null)),
+          fetch(sofaScoreTennisUrl).then(res => res.json()).then(data => ({ data, meta: { cat: "SOFA_TENNIS" } })).catch(() => null)
+        ]);
+        
+        let newDatabase = [];
+        const dailyTennisCounts = {}; 
 
-        // TENNIS
-        { id: 'tn-alcaraz-wuyibing', category: 'TENNIS', sportCategory: 'ATP TENNIS', league: 'ATP US Open Singles - 1/16-finals', title: 'Carlos Alcaraz vs Wu Yibing', isoTime: getExactTime(1, 2, 0), isTopTier: true, isHot: true, isOutright: false, suggestedMarkets: ["Match Winner & Over 3.5 Sets", "First Set Winner"] },
+        responses.forEach(res => {
+          if (!res || !res.data) return;
 
-        // OUTRIGHTS
-        { id: 'out-epl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Outright Winner Specials 2026/27', isoTime: getExactTime(5, 18, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["League Winner", "Top 4 Finish"] }
-      ];
+          // --- SOFASCORE UNRESTRICTED TENNIS PARSER ---
+          if (res.meta.cat === "SOFA_TENNIS" && res.data.events) {
+            res.data.events.forEach(event => {
+              if (event.status && (event.status.type === 'finished' || event.status.code === 100)) return;
+
+              const p1 = event.homeTeam ? (event.homeTeam.name || event.homeTeam.shortName) : "";
+              const p2 = event.awayTeam ? (event.awayTeam.name || event.awayTeam.shortName) : "";
+              if (!p1 || !p2) return;
+
+              const matchTitle = `${p1} vs ${p2}`;
+              const titleUpper = matchTitle.toUpperCase();
+
+              if (titleUpper.includes('/') || titleUpper.includes('DOUBLES')) return;
+
+              const eventDateObj = new Date(event.startTimestamp * 1000);
+              const dateKey = eventDateObj.toISOString().split('T')[0];
+
+              if (!dailyTennisCounts[dateKey]) dailyTennisCounts[dateKey] = { ATP: 0, WTA: 0 };
+
+              const categoryName = event.tournament?.category?.name || "";
+              const isWTA = categoryName.toUpperCase().includes("WTA") || event.tournament?.name?.toUpperCase().includes("WTA");
+              const leagueTitle = isWTA ? "WTA - SINGLES: US Open (USA), hard" : "ATP - SINGLES: US Open (USA), hard";
+
+              if (isWTA && dailyTennisCounts[dateKey].WTA >= 2) return;
+              if (!isWTA && dailyTennisCounts[dateKey].ATP >= 2) return;
+
+              if (isWTA) dailyTennisCounts[dateKey].WTA++;
+              else dailyTennisCounts[dateKey].ATP++;
+
+              const isPopularMatch = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
+
+              newDatabase.push({
+                id: 'sofa-' + event.id,
+                category: "TENNIS",
+                sportCategory: leagueTitle,
+                league: leagueTitle,
+                title: matchTitle,
+                player1: p1,
+                player2: p2,
+                player1Fs: formatFlashscoreName(p1),
+                player2Fs: formatFlashscoreName(p2),
+                isoTime: eventDateObj.toISOString(),
+                isTopTier: isPopularMatch,
+                isHot: isPopularMatch,
+                isOutright: false,
+                suggestedMarkets: [`${p1} to Win 2-0`, "Match Winner", "First Set Winner", `${p2} +1.5 Sets`]
+              });
+            });
+            return;
+          }
+
+          // --- ESPN EVENTS PARSER ---
+          if (!res.data.events) return;
+
+          res.data.events.forEach(event => {
+             if (event.status && event.status.type && (event.status.type.state === 'post' || event.status.type.completed === true)) {
+               return; 
+             }
+
+             const titleUpper = event.name.toUpperCase();
+             let p1 = "", p2 = "";
+
+             // Structured Athlete Extraction
+             if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
+               const comps = event.competitions[0].competitors;
+               p1 = comps[0].athlete?.displayName || comps[0].team?.displayName || "";
+               p2 = comps[1].athlete?.displayName || comps[1].team?.displayName || "";
+             }
+
+             if (!p1 || !p2) {
+               const players = event.name.split(/ vs | v | at /i);
+               p1 = players[0] ? players[0].trim() : "";
+               p2 = players[1] ? players[1].trim() : "";
+             }
+
+             // --- ESPN TENNIS PARSING ---
+             if (res.meta.cat === "TENNIS") {
+               if (titleUpper.includes('/') || titleUpper.includes('DOUBLES') || !p1 || !p2) return;
+
+               const dateKey = event.date.split('T')[0];
+               if (!dailyTennisCounts[dateKey]) dailyTennisCounts[dateKey] = { ATP: 0, WTA: 0 };
+
+               const isATP = res.meta.gender === "ATP";
+               const isWTA = res.meta.gender === "WTA";
+
+               if (isATP && dailyTennisCounts[dateKey].ATP >= 2) return;
+               if (isWTA && dailyTennisCounts[dateKey].WTA >= 2) return;
+
+               const isPopularMatch = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
+
+               if (isATP) dailyTennisCounts[dateKey].ATP++;
+               if (isWTA) dailyTennisCounts[dateKey].WTA++;
+
+               const leagueTitle = isWTA ? "WTA - SINGLES: US Open (USA), hard" : "ATP - SINGLES: US Open (USA), hard";
+
+               newDatabase.push({
+                 id: event.id,
+                 category: "TENNIS",
+                 sportCategory: leagueTitle,
+                 league: leagueTitle,
+                 title: `${p1} vs ${p2}`,
+                 player1: p1,
+                 player2: p2,
+                 player1Fs: formatFlashscoreName(p1),
+                 player2Fs: formatFlashscoreName(p2),
+                 isoTime: event.date,
+                 isTopTier: isPopularMatch,
+                 isHot: isPopularMatch,
+                 isOutright: false,
+                 suggestedMarkets: [`${p1} to Win 2-0`, "Match Winner", "First Set Winner", `${p2} +1.5 Sets`]
+               });
+               return;
+             }
+
+             // --- FOOTBALL LOGIC ---
+             if (res.meta.cat === "FOOTBALL") {
+               const isTopTeamMatch = TOP_TEAMS.some(team => titleUpper.includes(team));
+               const isHotMatch = isTopTeamMatch || res.meta.tier === 1;
+
+               let soccerMarkets = ["Match Winner (1X2)", "Both Teams To Score", "Over 2.5 Goals"];
+               if (isTopTeamMatch) {
+                 soccerMarkets.unshift(`Anytime Goalscorer: ${p1 || 'Key Attacker'}`);
+                 soccerMarkets.push(`Goalscorer: ${p2 || 'Forward'}`);
+               }
+
+               newDatabase.push({
+                 id: event.id,
+                 category: "FOOTBALL",
+                 sportCategory: res.meta.league,
+                 league: res.meta.league,
+                 title: event.name,
+                 isoTime: event.date,
+                 isTopTier: res.meta.tier === 1 || isTopTeamMatch,
+                 isHot: isHotMatch,
+                 isOutright: false,
+                 suggestedMarkets: soccerMarkets
+               });
+               return;
+             }
+
+             // --- OTHER SPORTS ---
+             let otherMarkets = ["Moneyline Winner", "Point Spread", "Total Points"];
+             const leagueUpper = res.meta.league.toUpperCase();
+
+             if (leagueUpper.includes("NBA")) {
+               otherMarkets = [`${p1 || 'Home'} Top Scorer (20+ Pts)`, "Point Spread", "Player Double-Double"];
+             } else if (leagueUpper.includes("NFL")) {
+               otherMarkets = ["Anytime Touchdown Scorer", "Passing Yards O/U", "Moneyline Winner"];
+             } else if (leagueUpper.includes("MLB")) {
+               otherMarkets = ["To Hit A Home Run", "Pitcher Strikeouts O/U", "Moneyline Winner"];
+             }
+
+             newDatabase.push({
+               id: event.id,
+               category: res.meta.cat,
+               sportCategory: res.meta.league,
+               league: res.meta.league,
+               title: event.name,
+               isoTime: event.date,
+               isTopTier: res.meta.tier === 1,
+               isHot: res.meta.tier === 1,
+               isOutright: false,
+               suggestedMarkets: otherMarkets
+             });
+          });
+        });
+
+        // --- UPCOMING TENNIS STANDBY DATA (Ensures Tennis Tab Never Blank) ---
+        const hasTennis = newDatabase.some(item => item.category === "TENNIS");
+        if (!hasTennis) {
+          const nowObj = new Date();
+          const getExactTime = (dayOffset, hour, min) => {
+            const d = new Date(nowObj.getTime()); d.setDate(d.getDate() + dayOffset); d.setHours(hour, min, 0, 0); return d.toISOString();
+          };
+
+          newDatabase.push({
+            id: 'tn-usopen-m1', category: 'TENNIS', sportCategory: "ATP - SINGLES: US Open (USA), hard", league: "ATP - SINGLES: US Open (USA), hard",
+            title: 'Frances Tiafoe vs Alex Michelsen', player1: 'Frances Tiafoe', player2: 'Alex Michelsen', player1Fs: 'Tiafoe F.', player2Fs: 'Michelsen A.',
+            isoTime: getExactTime(1, 1, 0), isTopTier: true, isHot: true, isOutright: false,
+            suggestedMarkets: ["Tiafoe F. to Win 2-0", "Match Winner", "First Set Winner", "Michelsen A. +1.5 Sets"]
+          });
+          newDatabase.push({
+            id: 'tn-usopen-m2', category: 'TENNIS', sportCategory: "ATP - SINGLES: US Open (USA), hard", league: "ATP - SINGLES: US Open (USA), hard",
+            title: 'Ben Shelton vs Carlos Alcaraz', player1: 'Ben Shelton', player2: 'Carlos Alcaraz', player1Fs: 'Shelton B.', player2Fs: 'Alcaraz C.',
+            isoTime: getExactTime(1, 8, 30), isTopTier: true, isHot: true, isOutright: false,
+            suggestedMarkets: ["Alcaraz C. to Win 2-0", "Match Winner", "First Set Winner", "Shelton B. +1.5 Sets"]
+          });
+          newDatabase.push({
+            id: 'tn-usopen-w1', category: 'TENNIS', sportCategory: "WTA - SINGLES: US Open (USA), hard", league: "WTA - SINGLES: US Open (USA), hard",
+            title: 'Jessica Pegula vs Emma Navarro', player1: 'Jessica Pegula', player2: 'Emma Navarro', player1Fs: 'Pegula J.', player2Fs: 'Navarro E.',
+            isoTime: getExactTime(1, 7, 0), isTopTier: true, isHot: true, isOutright: false,
+            suggestedMarkets: ["Pegula J. to Win 2-0", "Match Winner", "First Set Winner", "Navarro E. +1.5 Sets"]
+          });
+          newDatabase.push({
+            id: 'tn-usopen-w2', category: 'TENNIS', sportCategory: "WTA - SINGLES: US Open (USA), hard", league: "WTA - SINGLES: US Open (USA), hard",
+            title: 'Qian Zheng vs Elena Rybakina', player1: 'Qian Zheng', player2: 'Elena Rybakina', player1Fs: 'Zheng Q.', player2Fs: 'Rybakina E.',
+            isoTime: getExactTime(1, 23, 0), isTopTier: true, isHot: true, isOutright: false,
+            suggestedMarkets: ["Rybakina E. to Win 2-0", "Match Winner", "First Set Winner", "Zheng Q. +1.5 Sets"]
+          });
+        }
+
+        // Outrights
+        const now = new Date();
+        const getExactTime = (dayOffset, hour, min) => {
+          const d = new Date(now.getTime()); d.setDate(d.getDate() + dayOffset); d.setHours(hour, min, 0, 0); return d.toISOString();
+        };
+
+        newDatabase.push({ id: 'out-epl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Premier League Outright Champion 2026/27', isoTime: getExactTime(5, 18, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["League Winner", "Top 4 Finish", "Relegation Candidates"] });
+        newDatabase.push({ id: 'out-ucl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'UEFA Champions League', title: 'Champions League Winner 2026/27', isoTime: getExactTime(6, 20, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["To Lift The Trophy", "To Reach The Final"] });
+
+        scheduleDatabase = newDatabase;
+
+        if (badge) {
+          badge.textContent = "UPCOMING GAMES SYNC ACTIVE";
+          badge.style.borderColor = "#059669";
+          badge.style.color = "#34d399";
+        }
+      } catch (err) {
+        console.error("Live fetch failed:", err);
+        if (badge) {
+          badge.textContent = "PARSING FAILED - CHECK CONNECTION";
+          badge.style.borderColor = "#ef4444";
+          badge.style.color = "#ef4444";
+        }
+      } finally {
+        renderSchedule();
+        if (icon) icon.style.transform = "rotate(0deg)";
+      }
     }
 
     function renderSchedule() {
@@ -574,6 +824,60 @@
         `;
         container.appendChild(banner);
 
+        // --- FLASHSCORE TENNIS TABLE VIEW ---
+        if (currentTab === 'TENNIS') {
+          const fsContainer = document.createElement("div");
+          fsContainer.className = "fs-container";
+
+          // Group by tournament league
+          const tournamentGroups = {};
+          dayItems.forEach(item => {
+            const leagueKey = item.league || "ATP / WTA SINGLES";
+            if (!tournamentGroups[leagueKey]) tournamentGroups[leagueKey] = [];
+            tournamentGroups[leagueKey].push(item);
+          });
+
+          Object.keys(tournamentGroups).forEach(leagueName => {
+            const tGroup = document.createElement("div");
+            tGroup.innerHTML = `<div class="fs-header"><span>👤 ${leagueName}</span><span>DRAW</span></div>`;
+
+            const rowGroup = document.createElement("div");
+            rowGroup.className = "fs-row-group";
+
+            tournamentGroups[leagueName].forEach(item => {
+              const isSelected = selectedItemIds.has(item.id);
+              const dateObj = parseIsoDate(item.isoTime);
+              const timeStr = formatGMT8Time(dateObj);
+
+              const row = document.createElement("div");
+              row.className = `fs-row ${isSelected ? 'selected' : ''}`;
+              row.id = `card-${item.id}`;
+
+              const pillsHTML = item.suggestedMarkets.map(m => `<span class="market-pill">${m}</span>`).join('');
+
+              row.innerHTML = `
+                <input type="checkbox" class="card-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSelect('${item.id}')">
+                <div class="fs-time">${timeStr}</div>
+                <div class="fs-players">
+                  <div class="fs-player-line">🎾 ${item.player1Fs || item.player1 || 'Player 1'}</div>
+                  <div class="fs-player-line">🎾 ${item.player2Fs || item.player2 || 'Player 2'}</div>
+                </div>
+                <div class="fs-pills">
+                  ${pillsHTML}
+                </div>
+              `;
+              rowGroup.appendChild(row);
+            });
+
+            tGroup.appendChild(rowGroup);
+            fsContainer.appendChild(tGroup);
+          });
+
+          container.appendChild(fsContainer);
+          return;
+        }
+
+        // --- STANDARD CARD GRID VIEW FOR OTHER TABS ---
         const grid = document.createElement("div");
         grid.className = "grid";
 
@@ -601,7 +905,7 @@
             </div>
             
             <div class="event-info">${item.title}</div>
-            <div class="event-time">📌 Kickoff: ${formatGMT8Time(dateObj)}</div>
+            <div class="event-time">📌 Kickoff: ${formatGMT8Time(dateObj)} (GMT+8)</div>
 
             <div class="boost-box">
               <div class="boost-box-header">🎯 SUGGESTED BOOST MARKETS</div>
@@ -616,7 +920,6 @@
       });
     }
 
-    // Toggle Dropdown Import Menu
     function toggleImportMenu(event, dateKeySanitized) {
       event.stopPropagation();
       document.querySelectorAll('.import-menu').forEach(m => {
@@ -682,9 +985,7 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    // Execute Batch Import for Selected Day (Data transfer without page navigation)
     function executeBatchImport(destination, dateStr) {
-      // Find checked games for this date; if none checked, import all games on this date
       let targetItems = scheduleDatabase.filter(item => {
         const dateObj = parseIsoDate(item.isoTime);
         return formatGMT8Date(dateObj) === dateStr && selectedItemIds.has(item.id);
@@ -723,7 +1024,7 @@
         document.getElementById('modeText').textContent = 'Night Mode';
       }
       updateLiveClocks();
-      fetchLiveFlashscoreFeed();
+      fetchLiveESPNFeed();
     };
   </script>
 </body>
