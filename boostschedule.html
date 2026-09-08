@@ -339,6 +339,9 @@
         <a href="https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890" target="_blank" class="top-btn secondary">
           📊 Open Edge Google Sheet
         </a>
+        <a href="https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=600196195#gid=600196195" target="_blank" class="top-btn secondary">
+          📊 Open iBET Google Sheet
+        </a>
         <a href="ibet-boosted.html" class="top-btn secondary">
           🏠 iBET Dashboard
         </a>
@@ -370,9 +373,11 @@
 
   <script>
     const GOOGLE_SHEET_EDGE_URL = "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890";
+    const GOOGLE_SHEET_IBET_URL = "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=600196195#gid=600196195";
     
-    // BOUND TO DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzwgPbvZ4VyteQ57DWcwv0MLjVP8HABy0hcCSyFemNLBLIw2YC4GHhMn4Ib_YhtdQ/exec";
+    // DEPLOYED GOOGLE APPS SCRIPT ENDPOINTS
+    const EDGE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwgPbvZ4VyteQ57DWcwv0MLjVP8HABy0hcCSyFemNLBLIw2YC4GHhMn4Ib_YhtdQ/exec";
+    const IBET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVvEftuDWtaBJV6m1DpHdMl6azeIi2j2KeNwNC7qgJNKeqUxeqU2QSLSAbtD7bJ3JYBA/exec";
 
     const ALLOWED_OTHER_SPORTS = ['BASKETBALL', 'NBA', 'WNBA', 'NFL', 'MLB', 'ESPORT', 'LCK', 'MMA', 'NHL', 'BOXING', 'UFC'];
 
@@ -967,6 +972,7 @@
         koDate: formatGMT8Date(dateObj),
         koTime: formatGMT8Time(dateObj),
         sport: item.category || 'FOOTBALL',
+        sportCategory: item.sportCategory || item.category || '',
         league: item.league || '',
         event: item.title || '',
         market: (item.suggestedMarkets && item.suggestedMarkets.length > 0) ? item.suggestedMarkets[0] : 'Betbuilder / Price Boost'
@@ -979,8 +985,8 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    /* Send data to Google Sheets via Background Hidden Form (100% Guaranteed 1-Click Delivery) */
-    function sendToGoogleSheetEdge(payloads) {
+    /* Background hidden form upload to Google Sheets */
+    function sendToGoogleSheet(webAppUrl, payloads) {
       return new Promise((resolve) => {
         let iframe = document.getElementById("hidden_iframe_uploader");
         if (!iframe) {
@@ -993,7 +999,7 @@
 
         let form = document.createElement("form");
         form.method = "POST";
-        form.action = GOOGLE_APPS_SCRIPT_WEB_APP_URL;
+        form.action = webAppUrl;
         form.target = "hidden_iframe_uploader";
 
         let input = document.createElement("input");
@@ -1012,7 +1018,7 @@
       });
     }
 
-    /* Core Batch Import Function Routed cleanly without multi-click bugs */
+    /* Core Batch Import Function with Dual Direct Sheet Routing */
     async function executeBatchImport(destination, dateStr) {
       let targetItems = scheduleDatabase.filter(item => {
         const dateObj = parseIsoDate(item.isoTime);
@@ -1034,17 +1040,19 @@
       const payloads = targetItems.map(prepareImportPayload);
 
       if (destination === 'EDGE') {
-        await sendToGoogleSheetEdge(payloads);
+        await sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, payloads);
         window.location.href = GOOGLE_SHEET_EDGE_URL;
 
       } else if (destination === 'IBET') {
+        await sendToGoogleSheet(IBET_APPS_SCRIPT_URL, payloads);
         saveToStorageBottom('ibet_boosts_list', payloads);
-        window.location.href = 'ibet-boosted.html';
+        window.location.href = GOOGLE_SHEET_IBET_URL;
 
       } else if (destination === 'BOTH') {
-        await sendToGoogleSheetEdge(payloads);
+        await sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, payloads);
+        await sendToGoogleSheet(IBET_APPS_SCRIPT_URL, payloads);
         saveToStorageBottom('ibet_boosts_list', payloads);
-        window.open('ibet-boosted.html', '_blank');
+        window.open(GOOGLE_SHEET_IBET_URL, '_blank');
         window.location.href = GOOGLE_SHEET_EDGE_URL;
       }
     }
