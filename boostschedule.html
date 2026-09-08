@@ -339,7 +339,7 @@
         <a href="https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890" target="_blank" class="top-btn secondary">
           📊 Open Edge Google Sheet
         </a>
-        <a href="https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=600196195#gid=600196195" target="_blank" class="top-btn secondary">
+        <a href="https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114" target="_blank" class="top-btn secondary">
           📊 Open iBET Google Sheet
         </a>
         <a href="ibet-boosted.html" class="top-btn secondary">
@@ -373,7 +373,7 @@
 
   <script>
     const GOOGLE_SHEET_EDGE_URL = "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890";
-    const GOOGLE_SHEET_IBET_URL = "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=600196195#gid=600196195";
+    const GOOGLE_SHEET_IBET_URL = "https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114";
     
     // DEPLOYED GOOGLE APPS SCRIPT ENDPOINTS
     const EDGE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwgPbvZ4VyteQ57DWcwv0MLjVP8HABy0hcCSyFemNLBLIw2YC4GHhMn4Ib_YhtdQ/exec";
@@ -965,10 +965,11 @@
       renderSchedule();
     }
 
-    function prepareImportPayload(item) {
+    function prepareImportPayload(item, brandTarget) {
       const dateObj = parseIsoDate(item.isoTime);
       return {
         id: 'imp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+        brand: brandTarget || 'BOTH',
         koDate: formatGMT8Date(dateObj),
         koTime: formatGMT8Time(dateObj),
         sport: item.category || 'FOOTBALL',
@@ -1037,7 +1038,7 @@
         return;
       }
 
-      const payloads = targetItems.map(prepareImportPayload);
+      const payloads = targetItems.map(item => prepareImportPayload(item, destination));
 
       if (destination === 'EDGE') {
         await sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, payloads);
