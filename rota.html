@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Monthly Rota Schedule</title>
 
+    <!-- Google Fonts for professional typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Chart.js CDN for Pie Chart Visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -14,36 +19,28 @@
 
     <style>
         :root {
-            --bg-color: #0b2240;
-            --card-bg: #133054;
-            --text-color: #ffffff;
+            --bg-color: #121826;
+            --card-bg: #1a2234;
+            --text-color: #f1f5f9;
             --header-text: #ffffff;
-            --border-color: #ffffff;
-            --table-header-bg: #0b2240;
+            --border-color: #2a364f;
+            --table-header-bg: #1e293b;
             --accent-btn: #38bdf8;
-            --accent-btn-text: #0b2240;
-            --holiday-banner-bg: rgba(56, 189, 248, 0.12);
-            --holiday-banner-border: rgba(56, 189, 248, 0.4);
-            --holiday-badge-bg: #facc15;
-            --holiday-badge-text: #000000;
+            --accent-btn-text: #0f172a;
         }
 
         [data-theme="light"] {
-            --bg-color: #f4f7f6;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-color: #333333;
-            --header-text: #0d233a;
-            --border-color: #cbd5e0;
-            --table-header-bg: #0d233a;
-            --accent-btn: #0d233a;
+            --text-color: #1e293b;
+            --header-text: #0f172a;
+            --border-color: #e2e8f0;
+            --table-header-bg: #f1f5f9;
+            --accent-btn: #0284c7;
             --accent-btn-text: #ffffff;
-            --holiday-banner-bg: #e0f2fe;
-            --holiday-banner-border: #0284c7;
-            --holiday-badge-bg: #d97706;
-            --holiday-badge-text: #ffffff;
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-color);
@@ -72,37 +69,50 @@
             font-weight: 600;
             color: var(--accent-btn);
             letter-spacing: 0.2px;
-            opacity: 0.85;
+            opacity: 0.9;
         }
 
-        .ph-holiday-banner {
-            flex: 1 1 380px;
-            max-width: 580px;
-            background: var(--holiday-banner-bg);
-            border: 1.5px dashed var(--holiday-banner-border);
-            border-radius: 8px;
-            padding: 8px 14px;
+        .ph-holiday-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 12px;
-            line-height: 1.35;
-            backdrop-filter: blur(8px);
+            background: var(--card-bg);
+            border: 1px dashed var(--border-color);
+            padding: 8px 14px;
+            border-radius: 8px;
+            gap: 8px;
+            flex: 1;
+            max-width: 520px;
+            margin: 0 10px;
         }
 
-        .ph-holiday-icon { font-size: 20px; flex-shrink: 0; }
-        .ph-holiday-text-area { display: flex; flex-direction: column; gap: 2px; }
-        .ph-holiday-title { font-weight: 800; font-size: 12px; color: var(--accent-btn); display: flex; align-items: center; gap: 6px; }
+        .ph-holiday-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fb7185;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-        .ph-holiday-list-item {
-            display: inline-block;
-            background: var(--holiday-badge-bg);
-            color: var(--holiday-badge-text);
-            font-weight: 800;
+        .ph-holiday-list {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .holiday-pill {
+            background-color: rgba(251, 113, 133, 0.15);
+            color: #fb7185;
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 10px;
-            margin-right: 4px;
+            border: 1px solid rgba(251, 113, 133, 0.3);
+            font-size: 11px;
+            white-space: nowrap;
         }
 
         .header-top-controls {
@@ -116,44 +126,40 @@
             padding: 8px 14px;
             border: none;
             border-radius: 5px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: opacity 0.2s, background-color 0.2s;
+            transition: opacity 0.2s;
             font-size: 13px;
         }
         .btn:hover { opacity: 0.85; }
         .btn-back { background-color: var(--accent-btn); color: var(--accent-btn-text); }
-        .btn-secondary { background-color: rgba(255, 255, 255, 0.2); color: var(--text-color); border: 1px solid var(--border-color); }
-        .btn-warning { background-color: #eab308; color: #000000; }
-        .btn-admin { background-color: #22c55e; color: #ffffff; }
-        .btn-add-member { background-color: #06b6d4; color: #ffffff; }
-        .btn-delete-member { background-color: #ef4444; color: #ffffff; }
-        .btn-mobile-toggle { background-color: #a855f7; color: #ffffff; }
-        .btn-mobile-toggle.active { background-color: #ec4899; }
+        .btn-secondary { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-warning { background-color: #facc15; color: #1e293b; }
+        .btn-admin { background-color: #4ade80; color: #0f172a; }
+        .btn-mobile-toggle { background-color: #a78bfa; color: #0f172a; }
+        .btn-danger { background-color: #f87171; color: #0f172a; }
 
         .viewer-badge {
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 13px;
-            font-weight: bold;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            cursor: pointer;
-            user-select: none;
         }
 
         .view-only-banner {
-            background-color: #ef4444;
-            color: #ffffff;
-            font-weight: bold;
+            background-color: #f87171;
+            color: #0f172a;
+            font-weight: 700;
             text-align: center;
             padding: 8px;
             border-radius: 6px;
@@ -170,91 +176,83 @@
             gap: 12px;
             align-items: center;
             flex-wrap: wrap;
+            border: 1px solid var(--border-color);
         }
 
-        label { font-weight: bold; font-size: 14px; }
+        label { font-weight: 600; font-size: 14px; }
         select, input {
             padding: 6px 10px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
             background: var(--bg-color);
             color: var(--text-color);
-            font-weight: bold;
+            font-weight: 600;
+        }
+
+        .team-manager-dropdown {
+            position: relative;
         }
 
         .main-layout {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             align-items: flex-start;
-            flex-wrap: nowrap !important;
+            flex-wrap: wrap;
             width: 100%;
         }
 
-        .table-container { 
-            overflow-x: auto; 
-            flex: 0 0 auto;
-            width: 48%;
-            max-width: 48%;
-        }
+        .table-container { overflow-x: auto; flex: 2; width: 100%; }
 
         table {
             border-collapse: collapse;
-            width: 100%;
-            min-width: 450px;
+            width: auto;
+            min-width: 650px;
         }
 
         th, td {
             border: 1px solid var(--border-color);
-            padding: 4px 2px;
+            padding: 6px;
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
             position: relative;
         }
 
         th {
             background-color: var(--table-header-bg);
-            color: #ffffff;
-            font-weight: bold;
+            color: var(--text-color);
+            font-weight: 700;
         }
 
-        .editable-header {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .editable-header:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .day-col, .date-col { width: 55px; }
+        .day-col, .date-col { width: 75px; }
 
         .bulk-set-container {
-            margin-top: 3px;
+            margin-top: 4px;
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
         .bulk-select {
-            font-size: 9px !important;
-            padding: 1px !important;
+            font-size: 10px !important;
+            padding: 2px !important;
             width: 100%;
         }
 
         .custom-dropdown {
             position: relative;
-            width: 100%;
             user-select: none;
         }
 
         .custom-dropdown-btn {
             width: 100%;
-            padding: 4px 2px;
-            border-radius: 3px;
-            font-weight: bold;
+            padding: 5px;
+            border-radius: 4px;
+            font-weight: 600;
             text-align: center;
             cursor: pointer;
-            background-color: #ffffff;
-            color: #000000;
-            font-size: 11px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -262,7 +260,7 @@
 
         .custom-dropdown-btn::after {
             content: '▼';
-            font-size: 7px;
+            font-size: 8px;
             margin-left: 2px;
         }
 
@@ -271,71 +269,74 @@
             position: absolute;
             top: 100%;
             left: 0;
-            right: 0;
-            background-color: #1e293b;
+            background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
             z-index: 1000;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             margin-top: 2px;
         }
 
-        .custom-dropdown-menu.show { display: block; }
+        .custom-dropdown-menu.show {
+            display: block;
+        }
 
         .custom-dropdown-item {
-            padding: 5px 6px;
-            font-weight: bold;
-            font-size: 10px;
+            padding: 6px 8px;
+            font-weight: 600;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
+            color: var(--text-color);
             transition: background-color 0.15s, color 0.15s;
         }
 
-        /* SHIFT COLOR CLASSES */
-        .shift-bg-6-15 { background-color: #fb923c !important; color: #431407 !important; }
-        .shift-bg-9-18 { background-color: #a7f3d0 !important; color: #065f46 !important; }
-        .shift-bg-12-21 { background-color: #bae6fd !important; color: #0c4a6e !important; }
-        .shift-bg-14-23 { background-color: #e9d5ff !important; color: #581c87 !important; }
-        .shift-bg-15-00 { background-color: #fed7aa !important; color: #7c2d12 !important; }
+        /* Systematic Dark Theme Shift Palette */
+        .shift-bg-7-16 { background-color: #143323 !important; color: #4ade80 !important; border: 1px solid #1e4630; }
+        .shift-bg-9-18 { background-color: #133a2d !important; color: #34d399 !important; border: 1px solid #1b4d3c; }
+        .shift-bg-10-19 { background-color: #3b2814 !important; color: #fbbf24 !important; border: 1px solid #4d351b; }
+        .shift-bg-12-21 { background-color: #153147 !important; color: #38bdf8 !important; border: 1px solid #1d4361; }
+        .shift-bg-14-23 { background-color: #2b1d42 !important; color: #c084fc !important; border: 1px solid #3b285c; }
+        .shift-bg-16-1 { background-color: #421d22 !important; color: #f87171 !important; border: 1px solid #59262e; }
+        .shift-bg-7-10-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
+        .shift-bg-7-16-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
+        .shift-bg-9-18-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
+        .shift-bg-12-21-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
+        .shift-bg-rd { background-color: #242c3d !important; color: #94a3b8 !important; border: 1px solid #333f57; }
+        .shift-bg-vl { background-color: #423814 !important; color: #facc15 !important; border: 1px solid #594c1c; }
+        .shift-bg-sl { background-color: #321d42 !important; color: #d8b4fe !important; border: 1px solid #45265c; }
+        .shift-bg-adjusted { background-color: #423814 !important; color: #fde047 !important; border: 1px solid #594c1c; }
 
-        .shift-bg-6-15-wfh { background-color: #fbcfe8 !important; color: #831843 !important; }
-        .shift-bg-9-18-wfh { background-color: #f472b6 !important; color: #831843 !important; }
-        .shift-bg-12-21-wfh { background-color: #e9d5ff !important; color: #581c87 !important; }
-        .shift-bg-15-00-wfh { background-color: #c084fc !important; color: #3b0764 !important; }
+        /* Light Theme Overrides */
+        [data-theme="light"] .shift-bg-7-16 { background-color: #dcfce7 !important; color: #166534 !important; border: 1px solid #bbf7d0; }
+        [data-theme="light"] .shift-bg-9-18 { background-color: #d1fae5 !important; color: #065f46 !important; border: 1px solid #a7f3d0; }
+        [data-theme="light"] .shift-bg-10-19 { background-color: #ffedd5 !important; color: #9a3412 !important; border: 1px solid #fed7aa; }
+        [data-theme="light"] .shift-bg-12-21 { background-color: #e0f2fe !important; color: #0369a1 !important; border: 1px solid #bae6fd; }
+        [data-theme="light"] .shift-bg-14-23 { background-color: #f3e8ff !important; color: #6b21a8 !important; border: 1px solid #e9d5ff; }
+        [data-theme="light"] .shift-bg-16-1 { background-color: #fee2e2 !important; color: #991b1b !important; border: 1px solid #fecaca; }
+        [data-theme="light"] .shift-bg-7-10-wfh { background-color: #fce7f3 !important; color: #9d174d !important; border: 1px solid #fbcfe8; }
+        [data-theme="light"] .shift-bg-7-16-wfh { background-color: #fbcfe8 !important; color: #831843 !important; border: 1px solid #f472b6; }
+        [data-theme="light"] .shift-bg-9-18-wfh { background-color: #fce7f3 !important; color: #9d174d !important; border: 1px solid #fbcfe8; }
+        [data-theme="light"] .shift-bg-12-21-wfh { background-color: #fbcfe8 !important; color: #831843 !important; border: 1px solid #f472b6; }
+        [data-theme="light"] .shift-bg-rd { background-color: #f1f5f9 !important; color: #475569 !important; border: 1px solid #e2e8f0; }
+        [data-theme="light"] .shift-bg-vl { background-color: #fef9c3 !important; color: #854d0e !important; border: 1px solid #fef08a; }
+        [data-theme="light"] .shift-bg-sl { background-color: #f3e8ff !important; color: #6b21a8 !important; border: 1px solid #e9d5ff; }
+        [data-theme="light"] .shift-bg-adjusted { background-color: #fef08a !important; color: #713f12 !important; border: 1px solid #fde047; }
 
-        .shift-bg-rd { background-color: #9ca3af !important; color: #111827 !important; }
-        .shift-bg-vl { background-color: #fde047 !important; color: #713f12 !important; }
-        .shift-bg-sl { background-color: #c084fc !important; color: #3b0764 !important; }
-        .shift-bg-adjusted { background-color: #facc15 !important; color: #000000 !important; }
+        .custom-dropdown-item:hover { background-color: rgba(255, 255, 255, 0.08); }
 
-        .item-6-15:hover { background-color: #fb923c !important; color: #431407 !important; }
-        .item-9-18:hover { background-color: #a7f3d0 !important; color: #065f46 !important; }
-        .item-12-21:hover { background-color: #bae6fd !important; color: #0c4a6e !important; }
-        .item-14-23:hover { background-color: #e9d5ff !important; color: #581c87 !important; }
-        .item-15-00:hover { background-color: #fed7aa !important; color: #7c2d12 !important; }
-
-        .item-6-15-wfh:hover { background-color: #fbcfe8 !important; color: #831843 !important; }
-        .item-9-18-wfh:hover { background-color: #f472b6 !important; color: #831843 !important; }
-        .item-12-21-wfh:hover { background-color: #e9d5ff !important; color: #581c87 !important; }
-        .item-15-00-wfh:hover { background-color: #c084fc !important; color: #3b0764 !important; }
-
-        .item-rd:hover { background-color: #9ca3af !important; color: #111827 !important; }
-        .item-vl:hover { background-color: #fde047 !important; color: #713f12 !important; }
-        .item-sl:hover { background-color: #c084fc !important; color: #3b0764 !important; }
-        .item-adjusted:hover { background-color: #facc15 !important; color: #000000 !important; }
-
-        .custom-editable-input {
+        .custom-editable-input, .miguel-editable-cell {
             width: 100%;
-            padding: 4px;
-            font-size: 10px;
-            font-weight: bold;
+            padding: 5px;
+            font-size: 11px;
+            font-weight: 600;
             text-align: center;
             border: 1px solid var(--border-color);
-            border-radius: 3px;
-            background: #facc15;
-            color: #000000;
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-color);
             outline: none;
         }
 
@@ -343,19 +344,20 @@
             background: var(--card-bg);
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            flex: 1 1 50%;
-            width: 50%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            min-width: 300px;
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            min-width: 0;
+            width: 100%;
         }
 
         .leave-section-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #ef4444;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-btn);
             margin-bottom: 6px;
             display: flex;
             align-items: center;
@@ -370,27 +372,54 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
+            max-width: 100%;
         }
 
         .chart-container-inner {
             position: relative;
             width: 100%;
-            max-width: 280px;
-            height: 280px;
+            max-width: 320px;
+            height: 320px;
         }
 
-        .leave-table-wrapper { overflow-x: auto; width: 100%; }
-        .leave-table { width: 100%; min-width: 350px; }
+        .leave-table {
+            width: 100%;
+            min-width: 100%;
+        }
 
-        .badge-vl { background-color: #86efac; color: #064e3b; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
-        .badge-sl { background-color: #ef4444; color: #ffffff; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
-        .badge-wfh { background-color: #38bdf8; color: #0b2240; font-weight: bold; padding: 2px 6px; border-radius: 3px; display: inline-block; margin: 1px; }
+        .badge-vl {
+            background-color: #143323;
+            color: #4ade80;
+            border: 1px solid #1e4630;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .badge-sl {
+            background-color: #421d22;
+            color: #f87171;
+            border: 1px solid #59262e;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .badge-wfh {
+            background-color: #153147;
+            color: #38bdf8;
+            border: 1px solid #1d4361;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+            margin: 1px;
+        }
 
         .date-input-cell {
             width: 100%;
-            padding: 3px;
-            font-size: 11px;
+            padding: 4px;
+            font-size: 12px;
             text-align: center;
             border: 1px solid var(--border-color);
             background: var(--bg-color);
@@ -399,94 +428,164 @@
             border-radius: 3px;
         }
 
-        .viewer-modal-backdrop {
+        /* Responsive Mobile Card View Styles */
+        #mobile-card-view {
             display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 100%;
         }
-        .viewer-modal-backdrop.show { display: flex; }
-
-        .viewer-modal {
+        .mobile-day-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 16px;
-            width: 280px;
-            max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            color: var(--text-color);
-        }
-
-        .viewer-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
-        }
-
-        .viewer-modal-close { cursor: pointer; font-size: 16px; opacity: 0.7; }
-        .viewer-modal-close:hover { opacity: 1; }
-
-        .viewer-list {
-            list-style: none;
-            max-height: 200px;
-            overflow-y: auto;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-        }
-
-        .viewer-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            padding: 6px 8px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-        }
-
-        .viewer-item-left { display: flex; align-items: center; gap: 8px; }
-        .viewer-dot { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; }
-
-        .reset-name-btn {
-            background: transparent;
-            border: none;
-            color: #ef4444;
-            font-size: 10px;
-            cursor: pointer;
-            text-decoration: underline;
-            margin-top: 10px;
-            display: block;
+            gap: 8px;
             width: 100%;
-            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .mobile-card-header {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--accent-btn);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .mobile-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            padding: 2px 0;
+            gap: 10px;
+        }
+        .mobile-card-row span:first-child {
+            font-weight: 600;
+        }
+        .mobile-shift-val {
+            font-weight: 600;
+            text-align: right;
+            word-break: break-word;
         }
 
-        /* MOBILE VIEW OVERRIDES */
-        body.mobile-view-active { padding: 8px; }
-        body.mobile-view-active .header-top { flex-direction: column; align-items: stretch; gap: 10px; }
-        body.mobile-view-active .ph-holiday-banner { max-width: 100%; }
-        body.mobile-view-active .header-top-controls { justify-content: flex-start; gap: 6px; }
-        body.mobile-view-active .btn { padding: 6px 10px; font-size: 11px; }
-        body.mobile-view-active .controls { padding: 10px; gap: 8px; flex-direction: column; align-items: stretch; }
-        body.mobile-view-active .controls > div { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        body.mobile-view-active .main-layout { flex-direction: column; gap: 15px; flex-wrap: wrap !important; }
-        body.mobile-view-active .table-container { max-width: 100%; width: 100%; }
-        body.mobile-view-active .leave-section { width: 100%; min-width: 100%; padding: 10px; }
+        /* ==================================================
+           Mobile View Hard Overflow Blocking & Layout Fixes
+           ================================================== */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px 4px; /* Maximize usable screen real estate */
+                overflow-x: hidden; /* Hard block on horizontal scrolling */
+            }
+            .header-top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .ph-holiday-container {
+                max-width: 100%;
+                width: 100%;
+                margin: 0;
+                box-sizing: border-box;
+            }
+            .header-top-controls {
+                justify-content: center;
+                width: 100%;
+                gap: 6px;
+            }
+            .header-top-controls .btn, .header-top-controls .viewer-badge {
+                flex: 1;
+                justify-content: center;
+                text-align: center;
+                padding: 8px 4px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                padding: 12px;
+                box-sizing: border-box;
+            }
+            .controls > div, .controls > button, .team-manager-dropdown {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .controls .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .main-layout {
+                flex-direction: column;
+                width: 100%;
+                gap: 15px;
+            }
+            
+            /* FORCE ALL TABLES TO FIT EXACT SCREEN WIDTH */
+            .table-container {
+                width: 100%;
+                overflow-x: hidden; /* Disables scrollbar */
+            }
+            table {
+                min-width: 100% !important; /* Overrides the 650px limit */
+                width: 100% !important;
+                table-layout: fixed; /* Compresses columns to strictly fit available space */
+            }
+            th, td {
+                padding: 3px 1px !important;
+                font-size: 9px !important;
+                word-break: break-word;
+                white-space: normal;
+            }
+            
+            /* Shrink layout columns aggressively */
+            .day-col { width: 30px !important; }
+            .date-col { width: 36px !important; }
+            .leave-table th:first-child { width: 35px !important; }
+            
+            .bulk-select {
+                font-size: 8px !important;
+                padding: 2px 0px !important;
+            }
+            .custom-dropdown-btn {
+                font-size: 8px;
+                padding: 4px 1px;
+                line-height: 1.1;
+            }
+            .custom-dropdown-btn::after {
+                display: none; /* Hide dropdown arrow to save width space */
+            }
+            .custom-editable-input, .miguel-editable-cell, .date-input-cell {
+                font-size: 9px;
+                padding: 3px 1px;
+            }
+
+            .leave-section {
+                min-width: 100%;
+                width: 100%;
+                padding: 12px 6px;
+                box-sizing: border-box;
+            }
+            .chart-container-inner {
+                max-width: 100%;
+                height: 240px;
+            }
+            #mobileViewToggleBtn {
+                display: inline-flex !important;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <!-- VIEW ONLY WARNING BANNER -->
     <div id="viewOnlyBanner" class="view-only-banner">
-        🔒 View-Only Mode Active: Editing actions are disabled, but local Timezone switching is available below.
+        🔒 View-Only Mode Active: Editing and navigation actions are disabled for non-admin viewers.
     </div>
 
     <div class="header-top">
@@ -495,30 +594,26 @@
             <span class="title-credit">kr!ztel_2026 model</span>
         </div>
 
-        <div class="ph-holiday-banner" id="phHolidayBanner">
-            <span class="ph-holiday-icon">🇵🇭</span>
-            <div class="ph-holiday-text-area">
-                <div class="ph-holiday-title" id="phHolidayTitle">PH Holidays — September 2026</div>
-                <div id="phHolidayDetails" style="font-size: 11px; opacity: 0.9;">Loading holiday calendar...</div>
-            </div>
+        <!-- PH Holiday Box -->
+        <div class="ph-holiday-container">
+            <div class="ph-holiday-label">🇵🇭 PH Holidays:</div>
+            <div id="phHolidayList" class="ph-holiday-list"></div>
         </div>
 
         <div class="header-top-controls">
-            <span class="viewer-badge" title="Click to view online members" onclick="toggleViewerModal()">
+            <span class="viewer-badge" title="Active Viewers">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
-            <button id="mobileToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View: OFF</button>
-            <button id="addMemberBtn" class="btn btn-add-member" onclick="addNewEmployeePrompt()">➕ Add Employee</button>
-            <button id="deleteMemberBtn" class="btn btn-delete-member" onclick="deleteEmployeePrompt()">🗑️ Delete Employee</button>
+            <button id="mobileViewToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View</button>
             <button id="adminAuthBtn" class="btn btn-admin" onclick="handleAdminAuth()">🔑 Admin Login</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-            <button class="btn btn-warning" onclick="copyViewOnlyLink()" title="Generate View-Only Link">🔗 Share View-Only</button>
-            <a id="btnBackToDashboard" href="index.html" class="btn btn-back">🏠 Back to Dashboard</a>
+            <button class="btn btn-warning" onclick="copyViewOnlyLink()" title="Generate View-Only Link">🔗 Share</button>
+            <a id="btnBackToDashboard" href="index.html" class="btn btn-back">🏠 Dashboard</a>
         </div>
     </div>
     
     <div class="controls">
-        <button class="btn btn-secondary" onclick="changeMonth(-1)">◀ Prev Month</button>
+        <button class="btn btn-secondary" onclick="changeMonth(-1)">◀ Prev</button>
         <div>
             <label for="month-select">Month: </label>
             <select id="month-select">
@@ -532,47 +627,58 @@
         </div>
         <div>
             <label for="year-input">Year: </label>
-            <input type="number" id="year-input" value="2026" min="2000" max="2099" style="width: 80px;">
+            <input type="number" id="year-input" value="2026" min="2020" max="2040" style="width: 80px;">
         </div>
         <div>
-            <label for="timezone-select">🌐 Global Timezone: </label>
+            <label for="timezone-select">🌐 Timezone: </label>
             <select id="timezone-select" onchange="changeTimezoneGlobal(this.value)">
-                <option value="-10">HST - Hawaii (-10)</option>
                 <option value="-8">PST / PDT (-8)</option>
-                <option value="-7">MST / MDT (-7)</option>
-                <option value="-6">CST / CDT (-6)</option>
-                <option value="-5">EST / EDT (-5)</option>
                 <option value="0">UTC / GMT (+0)</option>
-                <option value="1">CET / CEST (+1)</option>
-                <option value="2">EET / EEST (+2)</option>
-                <option value="4">GST - Gulf (+4)</option>
-                <option value="5.5">IST - India (+5.5)</option>
                 <option value="7">WIB - Jakarta (+7)</option>
-                <option value="8" selected>SGT / PHT / HKT (+8)</option>
+                <option value="8" selected>SGT / PHT (+8)</option>
                 <option value="9">JST / KST (+9)</option>
-                <option value="10">AEST - Sydney (+10)</option>
-                <option value="12">NZST - New Zealand (+12)</option>
             </select>
         </div>
-        <button class="btn btn-secondary" onclick="changeMonth(1)">Next Month ▶</button>
-        <div style="margin-left: auto; font-size: 12px; opacity: 0.9;">
-            ⚡ Realtime Synced to Firebase
+
+        <!-- Space-Saving Member Manager Dropdown -->
+        <div class="custom-dropdown team-manager-dropdown">
+            <button id="memberDropdownBtn" class="btn btn-secondary" onclick="toggleMemberDropdown(event)">👥 Manage Members ▾</button>
+            <div id="memberDropdownMenu" class="custom-dropdown-menu" style="min-width: 220px; padding: 10px; right: 0; left: auto;">
+                <button class="btn btn-admin" style="width: 100%; margin-bottom: 8px; justify-content: center; font-size: 11px;" onclick="addNewMemberPrompt()">➕ Add New Member</button>
+                <div style="border-top: 1px solid var(--border-color); margin: 8px 0;"></div>
+                <label for="manage-member-select" style="font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block;">Delete Member:</label>
+                <div style="display: flex; gap: 6px;">
+                    <select id="manage-member-select" style="font-size: 11px; padding: 4px; flex: 1; max-width: 130px;">
+                        <!-- Populated dynamically -->
+                    </select>
+                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="removeSelectedMember()">🗑️ Delete</button>
+                </div>
+            </div>
         </div>
+
+        <button class="btn btn-secondary" onclick="changeMonth(1)">Next ▶</button>
     </div>
 
     <div class="main-layout">
-        <div class="table-container">
+        <div class="table-container" id="standardTableContainer">
             <table>
                 <thead>
-                    <tr id="table-header-row"></tr>
+                    <tr id="schedule-header-row">
+                        <th class="day-col" rowspan="2">Day</th>
+                        <th class="date-col" rowspan="2">Date</th>
+                        <!-- Dynamically filled headers with bulk selectors -->
+                    </tr>
                 </thead>
                 <tbody id="schedule-body"></tbody>
             </table>
         </div>
 
+        <!-- Mobile View Responsive Card Container -->
+        <div id="mobile-card-view"></div>
+
         <div class="leave-section">
             <div>
-                <div class="leave-section-title">📊 Team VL Usage by Month</div>
+                <div class="leave-section-title">📊 Team VL Usage Tracker (<span id="vlChartYearLabel">2026</span>)</div>
                 <div class="chart-box">
                     <div class="chart-container-inner">
                         <canvas id="vlPieChart"></canvas>
@@ -581,41 +687,31 @@
             </div>
 
             <div>
-                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Cumulative)</div>
-                <div class="leave-table-wrapper">
-                    <table class="leave-table">
-                        <thead id="leave-table-head"></thead>
-                        <tbody id="leave-dates-body"></tbody>
-                    </table>
-                </div>
+                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Jan - Dec)</div>
+                <table class="leave-table">
+                    <thead>
+                        <tr id="leave-header-row">
+                            <th style="width: 50px;">Type</th>
+                            <!-- Dynamically populated member columns -->
+                        </tr>
+                    </thead>
+                    <tbody id="leave-dates-body"></tbody>
+                </table>
             </div>
 
             <div>
                 <div class="leave-section-title" style="color: #38bdf8;">🏠 WFH Allowance Tracker</div>
-                <div class="leave-table-wrapper">
-                    <table class="leave-table">
-                        <thead>
-                            <tr>
-                                <th>Team Member</th>
-                                <th>WFH Dates Taken</th>
-                                <th style="width: 90px;">Total Used</th>
-                            </tr>
-                        </thead>
-                        <tbody id="wfh-tracker-body"></tbody>
-                    </table>
-                </div>
+                <table class="leave-table">
+                    <thead>
+                        <tr>
+                            <th>Team Member</th>
+                            <th>WFH Dates Taken</th>
+                            <th style="width: 90px;">Total Used</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wfh-tracker-body"></tbody>
+                </table>
             </div>
-        </div>
-    </div>
-
-    <div id="viewerModal" class="viewer-modal-backdrop" onclick="closeViewerModal(event)">
-        <div class="viewer-modal" onclick="event.stopPropagation()">
-            <div class="viewer-modal-header">
-                <span>👁️ Active Viewers (<span id="modalViewerCount">0</span>)</span>
-                <span class="viewer-modal-close" onclick="toggleViewerModal()">✕</span>
-            </div>
-            <ul id="viewerListContainer" class="viewer-list"></ul>
-            <button class="reset-name-btn" onclick="resetMyViewerName()">Change My Saved Name</button>
         </div>
     </div>
 
@@ -634,172 +730,231 @@
         const db = firebase.database();
 
         let team = ["Ann", "Dave", "Kenneth", "Kriztel", "Miguel"];
-        const memberHeaderColors = ['#ffc0cb', '#9cc2e5', '#b4c6e7', '#c6e0b4', '#ffffff', '#fed7aa', '#fbcfe8', '#e9d5ff'];
+
+        const phHolidaysByMonth = {
+            0: [{ date: "Jan 1", name: "New Year's Day" }],
+            1: [{ date: "Feb 25", name: "EDSA People Power" }],
+            2: [],
+            3: [{ date: "Apr 9", name: "Day of Valor" }, { date: "Apr 2", name: "Maundy Thursday" }, { date: "Apr 3", name: "Good Friday" }],
+            4: [{ date: "May 1", name: "Labor Day" }],
+            5: [{ date: "Jun 12", name: "Independence Day" }],
+            6: [],
+            7: [{ date: "Aug 21", name: "Ninoy Aquino Day" }, { date: "Aug 31", name: "National Heroes Day" }],
+            8: [],
+            9: [{ date: "Oct 31", name: "All Saints' Eve" }], 
+            10: [{ date: "Nov 1", name: "All Saints' Day" }, { date: "Nov 2", name: "All Souls' Day" }, { date: "Nov 30", name: "Bonifacio Day" }],
+            11: [{ date: "Dec 8", name: "Feast of Immaculate Conception" }, { date: "Dec 25", name: "Christmas Day" }, { date: "Dec 30", name: "Rizal Day" }, { date: "Dec 31", name: "Last Day of the Year" }]
+        };
 
         const shiftList = [
             { text: "", bgClass: "", itemClass: "", start: null, end: null },
-            { text: "6:00 - 15:00", bgClass: "shift-bg-6-15", itemClass: "item-6-15", start: 6, end: 15 },
+            { text: "7:00 - 16:00", bgClass: "shift-bg-7-16", itemClass: "item-7-16", start: 7, end: 16 },
             { text: "9:00 - 18:00", bgClass: "shift-bg-9-18", itemClass: "item-9-18", start: 9, end: 18 },
+            { text: "10:00 - 19:00", bgClass: "shift-bg-10-19", itemClass: "item-10-19", start: 10, end: 19 },
             { text: "12:00 - 21:00", bgClass: "shift-bg-12-21", itemClass: "item-12-21", start: 12, end: 21 },
             { text: "14:00 - 23:00", bgClass: "shift-bg-14-23", itemClass: "item-14-23", start: 14, end: 23 },
-            { text: "15:00 - 00:00", bgClass: "shift-bg-15-00", itemClass: "item-15-00", start: 15, end: 0 },
-            { text: "6:00 - 15:00 (WFH)", bgClass: "shift-bg-6-15-wfh", itemClass: "item-6-15-wfh", start: 6, end: 15 },
+            { text: "16:00 - 1:00", bgClass: "shift-bg-16-1", itemClass: "item-16-1", start: 16, end: 1 },
+            { text: "7:00 - 10:00 (WFH)", bgClass: "shift-bg-7-10-wfh", itemClass: "item-7-10-wfh", start: 7, end: 10 },
+            { text: "7:00 - 16:00 (WFH)", bgClass: "shift-bg-7-16-wfh", itemClass: "item-7-16-wfh", start: 7, end: 16 },
             { text: "9:00 - 18:00 (WFH)", bgClass: "shift-bg-9-18-wfh", itemClass: "item-9-18-wfh", start: 9, end: 18 },
             { text: "12:00 - 21:00 (WFH)", bgClass: "shift-bg-12-21-wfh", itemClass: "item-12-21-wfh", start: 12, end: 21 },
-            { text: "15:00 - 00:00 (WFH)", bgClass: "shift-bg-15-00-wfh", itemClass: "item-15-00-wfh", start: 15, end: 0 },
             { text: "Adjusted", bgClass: "shift-bg-adjusted", itemClass: "item-adjusted", start: null, end: null },
             { text: "RD", bgClass: "shift-bg-rd", itemClass: "item-rd", start: null, end: null },
             { text: "VL", bgClass: "shift-bg-vl", itemClass: "item-vl", start: null, end: null },
             { text: "SL", bgClass: "shift-bg-sl", itemClass: "item-sl", start: null, end: null }
         ];
 
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
 
         const monthSelect = document.getElementById('month-select');
         const yearInput = document.getElementById('year-input');
         const timezoneSelect = document.getElementById('timezone-select');
         const tbody = document.getElementById('schedule-body');
+        const scheduleHeaderRow = document.getElementById('schedule-header-row');
+        const leaveHeaderRow = document.getElementById('leave-header-row');
         const leaveDatesBody = document.getElementById('leave-dates-body');
         const wfhTrackerBody = document.getElementById('wfh-tracker-body');
-        const mobileToggleBtn = document.getElementById('mobileToggleBtn');
+        const phHolidayListElem = document.getElementById('phHolidayList');
+        const manageMemberSelect = document.getElementById('manage-member-select');
+        const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
 
         let vlChartInstance = null;
         let globalTzOffset = 8;
         let rotaData = {};
         let leaveMatrixData = {};
-        let allRotaDataYear = {};
+        let allYearRotaData = {};
+        let isMobileViewActive = false;
         let isViewOnlyMode = true;
-        let isMobileView = false;
-        const ADMIN_PASSWORD = "sportsbook2026";
+        const ADMIN_PASSWORD = "sb2026";
 
-        function toggleMobileView() {
-            isMobileView = !isMobileView;
-            if (isMobileView) {
-                document.body.classList.add('mobile-view-active');
-                mobileToggleBtn.innerText = '📱 Mobile View: ON';
-                mobileToggleBtn.classList.add('active');
+        function checkViewOnlyMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('viewonly') === 'true' || sessionStorage.getItem("admin_authenticated") !== "true") {
+                isViewOnlyMode = true;
             } else {
-                document.body.classList.remove('mobile-view-active');
-                mobileToggleBtn.innerText = '📱 Mobile View: OFF';
-                mobileToggleBtn.classList.remove('active');
+                isViewOnlyMode = false;
             }
-            localStorage.setItem('rota_mobile_view', isMobileView ? 'true' : 'false');
-            if (vlChartInstance) renderVLPieChart();
-        }
-
-        function renderTableHeader() {
-            const headerRow = document.getElementById('table-header-row');
-            const leaveHead = document.getElementById('leave-table-head');
-            
-            headerRow.innerHTML = `<th colspan="2">Date</th>`;
-            let leaveHeadHTML = `<tr><th style="width: 50px;">Type</th>`;
-
-            team.forEach((member, idx) => {
-                const color = memberHeaderColors[idx % memberHeaderColors.length];
-                headerRow.innerHTML += `
-                    <th style="color: ${color};" class="editable-header" title="Double click to edit employee name" ondblclick="editEmployeeNamePrompt(${idx})">
-                        ${member}
-                        <div class="bulk-set-container">
-                            <select class="bulk-select" onchange="bulkSetShift(${idx}, this)">
-                                <option value="">-- Set All Month --</option>
-                                <option value="CLEAR">-- Clear Month --</option>
-                                <option value="6:00 - 15:00">6:00 - 15:00</option>
-                                <option value="9:00 - 18:00">9:00 - 18:00</option>
-                                <option value="12:00 - 21:00">12:00 - 21:00</option>
-                                <option value="14:00 - 23:00">14:00 - 23:00</option>
-                                <option value="15:00 - 00:00">15:00 - 00:00</option>
-                                <option value="6:00 - 15:00 (WFH)">6:00 - 15:00 (WFH)</option>
-                                <option value="9:00 - 18:00 (WFH)">9:00 - 18:00 (WFH)</option>
-                                <option value="12:00 - 21:00 (WFH)">12:00 - 21:00 (WFH)</option>
-                                <option value="15:00 - 00:00 (WFH)">15:00 - 00:00 (WFH)</option>
-                                <option value="RD">RD</option>
-                                <option value="VL">VL</option>
-                                <option value="SL">SL</option>
-                            </select>
-                        </div>
-                    </th>
-                `;
-
-                if (member !== "Miguel") {
-                    leaveHeadHTML += `<th style="color: ${color};">${member}</th>`;
-                }
-            });
-
-            leaveHeadHTML += `</tr>`;
-            leaveHead.innerHTML = leaveHeadHTML;
             updateAdminUI();
         }
 
-        function editEmployeeNamePrompt(index) {
-            if (isViewOnlyMode) return;
-            const newName = prompt(`Edit Name for ${team[index]}:`, team[index]);
-            if (newName && newName.trim() !== "") {
-                team[index] = newName.trim();
-                db.ref('rota_team_list').set(team);
+        function handleAdminAuth() {
+            if (isViewOnlyMode) {
+                const password = prompt("Enter Admin Password to Unlock Editing:");
+                if (password === ADMIN_PASSWORD) {
+                    isViewOnlyMode = false;
+                    sessionStorage.setItem("admin_authenticated", "true");
+                    alert("Admin Mode Unlocked!");
+                    updateAdminUI();
+                    renderAll();
+                } else if (password !== null) {
+                    alert("Incorrect Password!");
+                }
+            } else {
+                isViewOnlyMode = true;
+                sessionStorage.removeItem("admin_authenticated");
+                alert("Locked to View-Only Mode.");
+                updateAdminUI();
+                renderAll();
             }
         }
 
-        function addNewEmployeePrompt() {
+        function updateAdminUI() {
+            const banner = document.getElementById('viewOnlyBanner');
+            const authBtn = document.getElementById('adminAuthBtn');
+            const btnBackToDashboard = document.getElementById('btnBackToDashboard');
+            const bulkSelects = document.querySelectorAll('.bulk-select');
+
             if (isViewOnlyMode) {
-                alert("🔒 Admin mode required to add employees.");
-                return;
-            }
-            const name = prompt("Enter New Employee Name:");
-            if (name && name.trim() !== "") {
-                team.push(name.trim());
-                db.ref('rota_team_list').set(team);
+                banner.style.display = 'block';
+                if (btnBackToDashboard) btnBackToDashboard.style.display = 'none';
+                authBtn.innerText = '🔑 Admin Login';
+                authBtn.className = 'btn btn-admin';
+                bulkSelects.forEach(el => el.disabled = true);
+            } else {
+                banner.style.display = 'none';
+                if (btnBackToDashboard) btnBackToDashboard.style.display = 'inline-flex';
+                authBtn.innerText = '🔒 Lock';
+                authBtn.className = 'btn btn-warning';
+                bulkSelects.forEach(el => el.disabled = false);
             }
         }
 
-        function deleteEmployeePrompt() {
-            if (isViewOnlyMode) {
-                alert("🔒 Admin mode required to delete employees.");
-                return;
-            }
+        function copyViewOnlyLink() {
+            const viewOnlyUrl = `${window.location.origin}${window.location.pathname}?viewonly=true`;
+            navigator.clipboard.writeText(viewOnlyUrl).then(() => {
+                alert("✓ View-Only Link copied to clipboard!");
+            });
+        }
 
-            let memberList = team.map((m, i) => `${i + 1}. ${m}`).join("\n");
-            let choice = prompt(`Select employee number to delete (1-${team.length}):\n\n${memberList}`);
-            
-            if (choice !== null) {
-                let idx = parseInt(choice) - 1;
-                if (!isNaN(idx) && idx >= 0 && idx < team.length) {
-                    let confirmDelete = confirm(`Are you sure you want to remove "${team[idx]}" from the rota team?`);
-                    if (confirmDelete) {
-                        team.splice(idx, 1);
-                        db.ref('rota_team_list').set(team);
-                    }
-                } else {
-                    alert("Invalid index selected.");
+        function toggleMemberDropdown(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('memberDropdownMenu');
+            menu.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const memberMenu = document.getElementById('memberDropdownMenu');
+            const memberBtn = document.getElementById('memberDropdownBtn');
+            if (memberMenu && memberMenu.classList.contains('show')) {
+                if (!memberMenu.contains(e.target) && e.target !== memberBtn) {
+                    memberMenu.classList.remove('show');
                 }
             }
+        });
+
+        function toggleMobileView() {
+            isMobileViewActive = !isMobileViewActive;
+            const toggleBtn = document.getElementById('mobileViewToggleBtn');
+            const standardContainer = document.getElementById('standardTableContainer');
+            const mobileContainer = document.getElementById('mobile-card-view');
+
+            if (isMobileViewActive) {
+                toggleBtn.innerText = '💻 Desktop View';
+                standardContainer.style.display = 'none';
+                mobileContainer.style.display = 'flex';
+                renderMobileCards();
+            } else {
+                toggleBtn.innerText = '📱 Mobile View';
+                standardContainer.style.display = 'block';
+                mobileContainer.style.display = 'none';
+            }
+        }
+
+        function setupPresenceSystem() {
+            const presenceRef = db.ref('rota_active_sessions');
+            db.ref('.info/connected').on('value', (snap) => {
+                if (snap.val() === true) {
+                    const userSessionRef = presenceRef.push();
+                    userSessionRef.onDisconnect().remove();
+                    userSessionRef.set({ online: true, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+                }
+            });
+            presenceRef.on('value', (snap) => {
+                const count = snap.numChildren();
+                const countElem = document.getElementById('activeViewersCount');
+                if (countElem) countElem.innerText = count > 0 ? count : 1;
+            });
+        }
+
+        function renderPHHolidays() {
+            const selectedMonth = parseInt(monthSelect.value);
+            const holidays = phHolidaysByMonth[selectedMonth] || [];
+            phHolidayListElem.innerHTML = '';
+            if (holidays.length === 0) {
+                phHolidayListElem.innerHTML = '<span style="opacity: 0.5; font-size:11px;">No holidays this month</span>';
+                return;
+            }
+            holidays.forEach(h => {
+                const pill = document.createElement('span');
+                pill.className = 'holiday-pill';
+                pill.textContent = `${h.date}: ${h.name}`;
+                phHolidayListElem.appendChild(pill);
+            });
         }
 
         function listenToDatabase() {
-            const currentYear = yearInput.value;
-            const monthKey = `${currentYear}_${parseInt(monthSelect.value) + 1}`;
-
-            db.ref('rota_team_list').on('value', (snapshot) => {
-                if (snapshot.val() && Array.isArray(snapshot.val())) {
+            const year = yearInput.value;
+            const month = parseInt(monthSelect.value) + 1;
+            const monthKey = `${year}_${month}`;
+            
+            db.ref(`team_members`).on('value', (snapshot) => {
+                if (snapshot.val()) {
                     team = snapshot.val();
-                    renderTableHeader();
-                    renderCalendar();
                 }
+                updateMemberDropdown();
+                renderAll();
+            });
+
+            db.ref(`rota_data/${monthKey}`).on('value', (snapshot) => {
+                rotaData = snapshot.val() || {};
+                renderAll();
             });
 
             db.ref(`rota_data`).on('value', (snapshot) => {
-                allRotaDataYear = snapshot.val() || {};
-                rotaData = allRotaDataYear[monthKey] || {};
-                renderCalendar();
-                renderWFHTracker();
-                aggregateCumulativeLeavesAcrossMonths();
+                const allData = snapshot.val() || {};
+                allYearRotaData = {};
+                Object.keys(allData).forEach(key => {
+                    if (key.startsWith(`${year}_`)) {
+                        allYearRotaData[key] = allData[key];
+                    }
+                });
+                syncLeavesFromFullYearSchedule();
+            });
+
+            db.ref(`leave_matrix_db/${year}`).on('value', (snapshot) => {
+                leaveMatrixData = snapshot.val() || {};
+                buildLeaveTables();
+                renderVLPieChart();
             });
 
             db.ref('rota_global_timezone').on('value', (snapshot) => {
                 if (snapshot.val() !== null) {
                     globalTzOffset = parseFloat(snapshot.val());
                     timezoneSelect.value = globalTzOffset.toString();
-                    renderCalendar();
+                    renderAll();
                 }
             });
         }
@@ -810,18 +965,170 @@
             db.ref(`rota_data/${monthKey}`).set(rotaData);
         }
 
+        function saveLeaveMatrixToDatabase() {
+            if (isViewOnlyMode) return;
+            const year = yearInput.value;
+            db.ref(`leave_matrix_db/${year}`).set(leaveMatrixData);
+        }
+
+        function saveTeamToDatabase() {
+            if (isViewOnlyMode) return;
+            db.ref('team_members').set(team);
+        }
+
+        function updateMemberDropdown() {
+            manageMemberSelect.innerHTML = '';
+            team.forEach(member => {
+                const opt = document.createElement('option');
+                opt.value = member;
+                opt.textContent = member;
+                manageMemberSelect.appendChild(opt);
+            });
+        }
+
+        function addNewMemberPrompt() {
+            if (isViewOnlyMode) return;
+            const newName = prompt("Enter new team member name:");
+            if (newName && newName.trim() !== "") {
+                const trimmed = newName.trim();
+                if (!team.includes(trimmed)) {
+                    team.push(trimmed);
+                    saveTeamToDatabase();
+                    renderAll();
+                } else {
+                    alert("Team member already exists.");
+                }
+            }
+        }
+
+        function removeSelectedMember() {
+            if (isViewOnlyMode) return;
+            const selectedMember = manageMemberSelect.value;
+            if (!selectedMember) return;
+            if (team.length <= 1) {
+                alert("Cannot delete the last remaining team member.");
+                return;
+            }
+            if (confirm(`Are you sure you want to remove ${selectedMember} from the Rota?`)) {
+                const index = team.indexOf(selectedMember);
+                if (index > -1) {
+                    team.splice(index, 1);
+                    saveTeamToDatabase();
+                    renderAll();
+                }
+            }
+        }
+
+        function changeTimezoneGlobal(val) {
+            if (isViewOnlyMode) return;
+            globalTzOffset = parseFloat(val);
+            db.ref('rota_global_timezone').set(globalTzOffset);
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('rota_theme', newTheme);
+            renderVLPieChart();
+        }
+
+        function changeMonth(offset) {
+            let currentMonth = parseInt(monthSelect.value);
+            let currentYear = parseInt(yearInput.value);
+
+            currentMonth += offset;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+
+            monthSelect.value = currentMonth;
+            yearInput.value = currentYear;
+            renderPHHolidays();
+            listenToDatabase();
+        }
+
+        function formatShiftForTimezone(shiftText) {
+            if (!shiftText || ["RD", "VL", "SL", "Adjusted"].includes(shiftText)) return shiftText;
+            if (shiftText.includes("-") && !shiftList.some(s => s.text === shiftText)) {
+                const parts = shiftText.split("-").map(p => p.trim());
+                if (parts.length === 2 && parts[0].includes(":") && parts[1].includes(":")) {
+                    const startH = parseInt(parts[0].split(":")[0]);
+                    const endH = parseInt(parts[1].split(":")[0]);
+                    const diff = globalTzOffset - 8;
+                    let newStart = (startH + diff + 24) % 24;
+                    let newEnd = (endH + diff + 24) % 24;
+                    return `${newStart}:00 - ${newEnd}:00`;
+                }
+                return shiftText;
+            }
+            const baseShift = shiftList.find(s => s.text === shiftText);
+            if (!baseShift || baseShift.start === null) return shiftText;
+            const diff = globalTzOffset - 8;
+            let newStart = (baseShift.start + diff + 24) % 24;
+            let newEnd = (baseShift.end + diff + 24) % 24;
+            const isWFH = shiftText.includes("(WFH)") ? " (WFH)" : "";
+            return `${newStart}:00 - ${newEnd}:00${isWFH}`;
+        }
+
+        function getShiftInfo(val) {
+            if (val && val.startsWith("Adjusted:")) return { bgClass: "shift-bg-adjusted" };
+            return shiftList.find(s => s.text === val) || shiftList[0];
+        }
+
+        function renderAll() {
+            renderHeaders();
+            renderCalendar();
+            buildLeaveTables();
+            renderWFHTracker();
+            renderVLPieChart();
+            if (isMobileViewActive || window.innerWidth <= 768) renderMobileCards();
+        }
+
+        function renderHeaders() {
+            let html = '<th class="day-col" rowspan="2">Day</th><th class="date-col" rowspan="2">Date</th>';
+            team.forEach((member, memberIdx) => {
+                html += `
+                    <th>
+                        ${member}
+                        <div class="bulk-set-container">
+                            <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
+                                <option value="">-- Set All Month --</option>
+                                <option value="CLEAR">-- Clear --</option>
+                                <option value="7:00 - 16:00">7:00 - 16:00</option>
+                                <option value="9:00 - 18:00">9:00 - 18:00</option>
+                                <option value="10:00 - 19:00">10:00 - 19:00</option>
+                                <option value="12:00 - 21:00">12:00 - 21:00</option>
+                                <option value="14:00 - 23:00">14:00 - 23:00</option>
+                                <option value="RD">RD</option>
+                            </select>
+                        </div>
+                    </th>
+                `;
+            });
+            scheduleHeaderRow.innerHTML = html;
+
+            let leaveHtml = '<th style="width: 50px;">Type</th>';
+            team.forEach(member => {
+                leaveHtml += `<th>${member}</th>`;
+            });
+            leaveHeaderRow.innerHTML = leaveHtml;
+        }
+
         function renderCalendar() {
             tbody.innerHTML = '';
             const selectedMonth = parseInt(monthSelect.value);
             const selectedYear = parseInt(yearInput.value);
-
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
 
             for (let d = 1; d <= totalDays; d++) {
                 const dateObj = new Date(selectedYear, selectedMonth, d);
                 const dayName = weekdays[dateObj.getDay()];
-
                 const tr = document.createElement('tr');
 
                 const tdDay = document.createElement('td');
@@ -838,20 +1145,19 @@
                     const tdShift = document.createElement('td');
                     let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
 
-                    if (activeShift.startsWith("Adjusted:") || activeShift === "Adjusted") {
-                        const customVal = activeShift.replace("Adjusted:", "").trim();
+                    if (member === "Miguel") {
                         const input = document.createElement('input');
                         input.type = 'text';
-                        input.className = 'custom-editable-input';
-                        input.value = customVal || "13:30-22:30";
+                        input.className = 'miguel-editable-cell';
+                        input.value = formatShiftForTimezone(activeShift);
+                        input.placeholder = "e.g. 8:00 - 17:00";
                         if (isViewOnlyMode) input.disabled = true;
 
                         input.addEventListener('change', () => {
                             if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                            rotaData[d][memberIdx] = `Adjusted: ${input.value}`;
+                            rotaData[d][memberIdx] = input.value;
                             saveRotaToDatabase();
                         });
-
                         tdShift.appendChild(input);
                     } else {
                         const activeInfo = getShiftInfo(activeShift);
@@ -877,14 +1183,6 @@
                                 if (isViewOnlyMode) return;
                                 e.stopPropagation();
 
-                                if (s.text === "Adjusted") {
-                                    if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                                    rotaData[d][memberIdx] = "Adjusted: ";
-                                    saveRotaToDatabase();
-                                    renderCalendar();
-                                    return;
-                                }
-
                                 btn.textContent = displayShift === "" ? "-- Select --" : displayShift;
                                 btn.className = `custom-dropdown-btn ${s.bgClass}`;
                                 menu.classList.remove('show');
@@ -893,9 +1191,8 @@
                                 rotaData[d][memberIdx] = s.text;
 
                                 saveRotaToDatabase();
-                                aggregateCumulativeLeavesAcrossMonths();
+                                syncLeavesFromFullYearSchedule();
                             });
-
                             menu.appendChild(item);
                         });
 
@@ -912,11 +1209,41 @@
                         dropdownContainer.appendChild(menu);
                         tdShift.appendChild(dropdownContainer);
                     }
-
                     tr.appendChild(tdShift);
                 });
-
                 tbody.appendChild(tr);
+            }
+            syncLeavesFromFullYearSchedule();
+        }
+
+        function renderMobileCards() {
+            const mobileContainer = document.getElementById('mobile-card-view');
+            mobileContainer.innerHTML = '';
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dateObj = new Date(selectedYear, selectedMonth, d);
+                const dayName = weekdays[dateObj.getDay()];
+                const card = document.createElement('div');
+                card.className = 'mobile-day-card';
+
+                const header = document.createElement('div');
+                header.className = 'mobile-card-header';
+                header.innerHTML = `<span>${dayName}</span> <span>${d} ${monthLabel}</span>`;
+                card.appendChild(header);
+
+                team.forEach((member, memberIdx) => {
+                    let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
+                    const convertedText = formatShiftForTimezone(activeShift) || "Off / Unassigned";
+                    const row = document.createElement('div');
+                    row.className = 'mobile-card-row';
+                    row.innerHTML = `<span>${member}:</span> <span class="mobile-shift-val">${convertedText}</span>`;
+                    card.appendChild(row);
+                });
+                mobileContainer.appendChild(card);
             }
         }
 
@@ -927,7 +1254,6 @@
             const selectedMonth = parseInt(monthSelect.value);
             const selectedYear = parseInt(yearInput.value);
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-
             let applyValue = (shiftValue === 'CLEAR') ? '' : shiftValue;
 
             for (let d = 1; d <= totalDays; d++) {
@@ -940,54 +1266,46 @@
             selectElem.value = "";
         }
 
-        function aggregateCumulativeLeavesAcrossMonths() {
+        function syncLeavesFromFullYearSchedule() {
             let tempMatrix = {};
-            const leaveTracked = team.filter(m => m !== "Miguel");
-            leaveTracked.forEach(m => tempMatrix[m] = { vl: [], sl: [] });
+            team.forEach(m => tempMatrix[m] = { vl: [], sl: [] });
 
-            const targetYear = parseInt(yearInput.value);
+            Object.keys(allYearRotaData).forEach(monthKey => {
+                const monthParts = monthKey.split("_");
+                const mIndex = parseInt(monthParts[1]) - 1;
+                if (mIndex >= 0 && mIndex < 12) {
+                    const mLabel = monthNames[mIndex].substring(0, 3);
+                    const monthDaysData = allYearRotaData[monthKey];
 
-            for (let m = 0; m < 12; m++) {
-                let mKey = `${targetYear}_${m + 1}`;
-                let mData = allRotaDataYear[mKey];
-
-                if (mData) {
-                    let mLabel = monthNames[m].substring(0, 3);
-                    let sortedDays = Object.keys(mData).map(Number).sort((a, b) => a - b);
-
-                    sortedDays.forEach(day => {
-                        let row = mData[day];
-                        if (row && Array.isArray(row)) {
-                            team.forEach((member, memberIdx) => {
-                                if (member === "Miguel") return;
-
-                                let shiftVal = row[memberIdx];
-                                if (shiftVal === 'VL' && tempMatrix[member]) {
-                                    tempMatrix[member].vl.push(`${day}-${mLabel}`);
-                                } else if (shiftVal === 'SL' && tempMatrix[member]) {
-                                    tempMatrix[member].sl.push(`${day}-${mLabel}`);
-                                }
-                            });
-                        }
+                    Object.keys(monthDaysData).forEach(day => {
+                        let row = monthDaysData[day];
+                        team.forEach((member, memberIdx) => {
+                            let shiftVal = row[memberIdx];
+                            if (shiftVal === 'VL') {
+                                tempMatrix[member].vl.push(`${day}-${mLabel}`);
+                            } else if (shiftVal === 'SL') {
+                                tempMatrix[member].sl.push(`${day}-${mLabel}`);
+                            }
+                        });
                     });
                 }
-            }
+            });
 
-            leaveTracked.forEach(m => {
+            team.forEach(m => {
                 while (tempMatrix[m].vl.length < 10) tempMatrix[m].vl.push('');
                 while (tempMatrix[m].sl.length < 5) tempMatrix[m].sl.push('');
+                tempMatrix[m].vl = tempMatrix[m].vl.slice(0, 10);
+                tempMatrix[m].sl = tempMatrix[m].sl.slice(0, 5);
             });
 
             leaveMatrixData = tempMatrix;
-            buildLeaveTables();
+            saveLeaveMatrixToDatabase();
             renderWFHTracker();
             renderVLPieChart();
         }
 
         function buildLeaveTables() {
             leaveDatesBody.innerHTML = '';
-            const leaveTracked = team.filter(m => m !== "Miguel");
-
             for (let rowIdx = 0; rowIdx < 15; rowIdx++) {
                 let tr = document.createElement('tr');
                 let isVL = rowIdx < 10;
@@ -998,20 +1316,27 @@
                 tdType.innerHTML = isVL ? '<span class="badge-vl">VL</span>' : '<span class="badge-sl">SL</span>';
                 tr.appendChild(tdType);
 
-                leaveTracked.forEach((member) => {
+                team.forEach((member) => {
                     let tdDate = document.createElement('td');
                     let input = document.createElement('input');
                     input.type = 'text';
                     input.className = 'date-input-cell';
-                    input.readOnly = true;
+                    if (isViewOnlyMode) input.disabled = true;
 
                     let val = (leaveMatrixData[member] && leaveMatrixData[member][leaveType] && leaveMatrixData[member][leaveType][arrayIdx]) ? leaveMatrixData[member][leaveType][arrayIdx] : '';
                     input.value = val;
 
+                    input.addEventListener('input', () => {
+                        if (!leaveMatrixData[member]) leaveMatrixData[member] = { vl: Array(10).fill(''), sl: Array(5).fill('') };
+                        if (!leaveMatrixData[member][leaveType]) leaveMatrixData[member][leaveType] = isVL ? Array(10).fill('') : Array(5).fill('');
+
+                        leaveMatrixData[member][leaveType][arrayIdx] = input.value;
+                        saveLeaveMatrixToDatabase();
+                        renderVLPieChart();
+                    });
                     tdDate.appendChild(input);
                     tr.appendChild(tdDate);
                 });
-
                 leaveDatesBody.appendChild(tr);
             }
         }
@@ -1023,7 +1348,7 @@
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
 
-            team.filter(m => m !== "Miguel").forEach((member) => {
+            team.forEach((member) => {
                 const memberIdx = team.indexOf(member);
                 let wfhDates = [];
 
@@ -1034,63 +1359,50 @@
                     }
                 }
 
-                const usedWFH = wfhDates.length;
                 let wfhBadges = wfhDates.length > 0 
                     ? wfhDates.map(dStr => `<span class="badge-wfh">${dStr}</span>`).join(' ')
                     : '<span style="opacity: 0.6;">None</span>';
 
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="font-weight:bold;">${member}</td>
+                    <td style="font-weight:600;">${member}</td>
                     <td>${wfhBadges}</td>
-                    <td><strong>${usedWFH} WFH</strong></td>
+                    <td><strong>${wfhDates.length} WFH</strong></td>
                 `;
                 wfhTrackerBody.appendChild(tr);
             });
         }
 
         function renderVLPieChart() {
-            let monthVLCounts = Array(12).fill(0);
-            const targetYear = parseInt(yearInput.value);
+            document.getElementById('vlChartYearLabel').innerText = yearInput.value;
+            let memberVLCounts = team.map(() => 0);
 
-            for (let m = 0; m < 12; m++) {
-                let mKey = `${targetYear}_${m + 1}`;
-                let mData = allRotaDataYear[mKey];
-
-                if (mData) {
-                    Object.keys(mData).forEach(day => {
-                        let row = mData[day];
-                        if (row && Array.isArray(row)) {
-                            team.forEach((member, memberIdx) => {
-                                if (row[memberIdx] === 'VL') {
-                                    monthVLCounts[m]++;
-                                }
-                            });
-                        }
-                    });
+            team.forEach((member, memberIdx) => {
+                if (leaveMatrixData[member] && leaveMatrixData[member].vl) {
+                    let count = leaveMatrixData[member].vl.filter(v => v && v.trim() !== "").length;
+                    memberVLCounts[memberIdx] = count;
                 }
-            }
+            });
 
             const ctx = document.getElementById('vlPieChart').getContext('2d');
             const activeTheme = document.body.getAttribute('data-theme') || 'dark';
-            const fontColor = activeTheme === 'light' ? '#333333' : '#ffffff';
+            const fontColor = activeTheme === 'light' ? '#1e293b' : '#f1f5f9';
 
             if (vlChartInstance) vlChartInstance.destroy();
 
             vlChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: monthNames,
+                    labels: team,
                     datasets: [{
-                        label: 'Total Team VL Days',
-                        data: monthVLCounts,
+                        label: 'VL Days Taken',
+                        data: memberVLCounts,
                         backgroundColor: [
-                            '#f87171', '#fb923c', '#fbbf24', '#facc15',
-                            '#a3e635', '#4ade80', '#34d399', '#2dd4bf',
-                            '#38bdf8', '#60a5fa', '#818cf8', '#c084fc'
+                            '#f87171', '#38bdf8', '#818cf8', '#34d399', 
+                            '#fbbf24', '#c084fc', '#f472b6', '#a3e635'
                         ],
                         borderWidth: 1,
-                        borderColor: '#0b2240'
+                        borderColor: activeTheme === 'light' ? '#ffffff' : '#1a2234'
                     }]
                 },
                 options: {
@@ -1101,7 +1413,7 @@
                             position: 'bottom',
                             labels: {
                                 color: fontColor,
-                                font: { size: 10, weight: 'bold' },
+                                font: { size: 11, weight: '600', family: "'Plus Jakarta Sans', sans-serif" },
                                 boxWidth: 12
                             }
                         }
@@ -1110,150 +1422,25 @@
             });
         }
 
-        function checkViewOnlyMode() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('viewonly') === 'true' || sessionStorage.getItem("admin_authenticated") !== "true") {
-                isViewOnlyMode = true;
-            } else {
-                isViewOnlyMode = false;
-            }
-            updateAdminUI();
-        }
-
-        function handleAdminAuth() {
-            if (isViewOnlyMode) {
-                const password = prompt("Enter Admin Password to Unlock Editing:");
-                if (password === ADMIN_PASSWORD) {
-                    isViewOnlyMode = false;
-                    sessionStorage.setItem("admin_authenticated", "true");
-                    alert("Admin Mode Unlocked! Editing permissions granted.");
-                    updateAdminUI();
-                    renderCalendar();
-                    buildLeaveTables();
-                } else if (password !== null) {
-                    alert("Incorrect Password!");
-                }
-            } else {
-                isViewOnlyMode = true;
-                sessionStorage.removeItem("admin_authenticated");
-                alert("Locked to View-Only Mode.");
-                updateAdminUI();
-                renderCalendar();
-                buildLeaveTables();
-            }
-        }
-
-        function updateAdminUI() {
-            const banner = document.getElementById('viewOnlyBanner');
-            const authBtn = document.getElementById('adminAuthBtn');
-            const addBtn = document.getElementById('addMemberBtn');
-            const deleteBtn = document.getElementById('deleteMemberBtn');
-            const btnBackToDashboard = document.getElementById('btnBackToDashboard');
-            const bulkSelects = document.querySelectorAll('.bulk-select');
-
-            if (isViewOnlyMode) {
-                banner.style.display = 'block';
-                if (btnBackToDashboard) btnBackToDashboard.style.display = 'none';
-                if (addBtn) addBtn.style.display = 'none';
-                if (deleteBtn) deleteBtn.style.display = 'none';
-                authBtn.innerText = '🔑 Admin Login';
-                authBtn.className = 'btn btn-admin';
-                bulkSelects.forEach(el => el.disabled = true);
-            } else {
-                banner.style.display = 'none';
-                if (btnBackToDashboard) btnBackToDashboard.style.display = 'inline-flex';
-                if (addBtn) addBtn.style.display = 'inline-flex';
-                if (deleteBtn) deleteBtn.style.display = 'inline-flex';
-                authBtn.innerText = '🔒 Lock Schedule';
-                authBtn.className = 'btn btn-warning';
-                bulkSelects.forEach(el => el.disabled = false);
-            }
-        }
-
-        function copyViewOnlyLink() {
-            const viewOnlyUrl = `${window.location.origin}${window.location.pathname}?viewonly=true`;
-            navigator.clipboard.writeText(viewOnlyUrl).then(() => {
-                alert("✓ View-Only Rota Link copied to clipboard!\nShare this link to restrict edits.");
-            });
-        }
-
-        function formatShiftForTimezone(shiftText) {
-            if (!shiftText || ["RD", "VL", "SL", "Adjusted"].includes(shiftText)) return shiftText;
-            const baseShift = shiftList.find(s => s.text === shiftText);
-            if (!baseShift || baseShift.start === null) return shiftText;
-
-            const diff = globalTzOffset - 8;
-            let newStart = (baseShift.start + diff + 24) % 24;
-            let newEnd = (baseShift.end + diff + 24) % 24;
-
-            const isWFH = shiftText.includes("(WFH)") ? " (WFH)" : "";
-            return `${newStart}:00 - ${newEnd}:00${isWFH}`;
-        }
-
-        function getShiftInfo(val) {
-            if (val && val.startsWith("Adjusted:")) return { bgClass: "shift-bg-adjusted" };
-            return shiftList.find(s => s.text === val) || shiftList[0];
-        }
-
-        function changeTimezoneGlobal(val) {
-            globalTzOffset = parseFloat(val);
-            if (!isViewOnlyMode) {
-                db.ref('rota_global_timezone').set(globalTzOffset);
-            }
-            renderCalendar();
-        }
-
-        function toggleDarkMode() {
-            const currentTheme = document.body.getAttribute('data-theme') || 'dark';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('rota_theme', newTheme);
-            renderVLPieChart();
-        }
-
-        function changeMonth(offset) {
-            let currentMonth = parseInt(monthSelect.value);
-            let currentYear = parseInt(yearInput.value);
-
-            currentMonth += offset;
-            if (currentMonth > 11) {
-                currentMonth = 0; currentYear++;
-            } else if (currentMonth < 0) {
-                currentMonth = 11; currentYear--;
-            }
-
-            monthSelect.value = currentMonth;
-            yearInput.value = currentYear;
-            listenToDatabase();
-        }
-
-        function toggleViewerModal() {
-            document.getElementById('viewerModal').classList.toggle('show');
-        }
-
-        function closeViewerModal(e) {
-            if (e.target.id === 'viewerModal') {
-                document.getElementById('viewerModal').classList.remove('show');
-            }
-        }
-
-        function resetMyViewerName() {
-            localStorage.removeItem('rota_viewer_name');
-            location.reload();
-        }
-
-        monthSelect.addEventListener('change', () => listenToDatabase());
-        yearInput.addEventListener('input', () => listenToDatabase());
-        window.addEventListener('click', () => {
-            document.querySelectorAll('.custom-dropdown-menu').forEach(m => m.classList.remove('show'));
-        });
+        monthSelect.addEventListener('change', () => { renderPHHolidays(); listenToDatabase(); });
+        yearInput.addEventListener('input', () => { listenToDatabase(); });
 
         window.onload = function() {
             checkViewOnlyMode();
-            renderTableHeader();
             if (localStorage.getItem('rota_theme') === 'light') {
                 document.body.setAttribute('data-theme', 'light');
             }
+            if (window.innerWidth <= 768) {
+                isMobileViewActive = true;
+                const toggleBtn = document.getElementById('mobileViewToggleBtn');
+                if (toggleBtn) toggleBtn.innerText = '💻 Desktop View';
+                const standardContainer = document.getElementById('standardTableContainer');
+                const mobileContainer = document.getElementById('mobile-card-view');
+                if (standardContainer) standardContainer.style.display = 'none';
+                if (mobileContainer) mobileContainer.style.display = 'flex';
+            }
+            setupPresenceSystem();
+            renderPHHolidays();
             listenToDatabase();
         };
     </script>
