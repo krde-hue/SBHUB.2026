@@ -1,1200 +1,1424 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sportsbook Operations Hub - Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sportsbook Hub - Secured 3D Lamp Login</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    :root {
+      --bg-overlay: rgba(10, 15, 26, 0.35);
+      --glass-bg: rgba(22, 27, 34, 0.55);
+      --glass-bg-hover: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      --text-main: #ffffff;
+      --text-sub: rgba(255, 255, 255, 0.65);
+      --accent-glow: #38bdf8;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --card-blur: blur(20px);
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --sidebar-width: 78px;
+      --sidebar-expanded-width: 280px;
+    }
+
+    body.sidebar-expanded {
+      --sidebar-width: 280px;
+    }
+
+    body.light-mode {
+      --bg-overlay: rgba(255, 255, 255, 0.4);
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-bg-hover: rgba(15, 23, 42, 0.08);
+      --glass-border: rgba(15, 23, 42, 0.2);
+      --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      --text-main: #080c14;
+      --text-sub: #1e293b;
+      --accent-glow: #0284c7;
+      --accent-green: #047857;
+      --accent-red: #b91c1c;
+      --card-blur: blur(20px);
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #080c14;
+      background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
+                        url('sb-hub.jpg'),
+                        url('sb-hub.jpeg'),
+                        url('sb-hub.png'),
+                        url('https://raw.githubusercontent.com/devskrz-commits/SBHUB-test/main/sb-hub.jpg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
+      background-size: cover;
+      color: var(--text-main);
+      display: flex;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    @keyframes bentoContainerReveal {
+      0% { opacity: 0; transform: scale(0.88) translateY(30px); filter: blur(16px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
+    }
+
+    #authOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(4, 7, 14, 0.85);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #authOverlay.unlocked {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .lamp-login-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 70px;
+    }
+
+    .lamp-scene {
+      position: relative;
+      width: 240px;
+      height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.6));
+    }
+
+    .lamp-shade {
+      width: 210px;
+      height: 110px;
+      background: radial-gradient(circle at 40% 30%, #475569 0%, #1e293b 60%, #0f172a 100%);
+      border-radius: 130px 130px 12px 12px;
+      position: relative;
+      box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.18), inset 0 -8px 20px rgba(0, 0, 0, 0.5);
+      z-index: 3;
+      transition: box-shadow 0.4s ease;
+    }
+
+    body.lamp-is-on .lamp-shade {
+      box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.25), 
+                  0 0 60px 20px rgba(245, 158, 11, 0.5), 
+                  0 0 120px 40px rgba(217, 119, 6, 0.25);
+    }
+
+    .lamp-stand-rod {
+      width: 14px;
+      height: 190px;
+      background: linear-gradient(90deg, #b45309, #fbbf24, #92400e);
+      border-radius: 4px;
+      position: relative;
+      z-index: 2;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+
+    .lamp-base {
+      width: 140px;
+      height: 22px;
+      background: linear-gradient(180deg, #f59e0b, #b45309, #78350f);
+      border-radius: 12px 12px 2px 2px;
+      z-index: 2;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+
+    .pull-cord-wrapper {
+      position: absolute;
+      bottom: 175px;
+      right: 35px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      z-index: 10;
+      transform-origin: top center;
+    }
+
+    @keyframes cordBounce {
+      0% { transform: translateY(0) scaleY(1); }
+      30% { transform: translateY(18px) scaleY(1.1); }
+      50% { transform: translateY(-8px) scaleY(0.95); }
+      70% { transform: translateY(6px) scaleY(1.02); }
+      100% { transform: translateY(0) scaleY(1); }
+    }
+
+    .pull-cord-wrapper.bouncing {
+      animation: cordBounce 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    .cord-string {
+      width: 2px;
+      height: 65px;
+      background: linear-gradient(180deg, #cbd5e1, #64748b);
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+    }
+
+    .cord-handle {
+      width: 18px;
+      height: 22px;
+      background: radial-gradient(circle at 35% 30%, #fde047, #d97706);
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.7), inset 0 2px 3px rgba(255, 255, 255, 0.6);
+    }
+
+    .login-popup-card {
+      width: 380px;
+      background: rgba(20, 26, 38, 0.72);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.35);
+      transform: translateX(40px) scale(0.95);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.lamp-is-on .login-popup-card {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @media (max-width: 768px), body.mobile-view-active .lamp-login-container {
+      flex-direction: column !important;
+      gap: 25px !important;
+    }
+
+    @media (max-width: 768px), body.mobile-view-active .login-popup-card {
+      width: 100% !important;
+      max-width: 340px !important;
+      transform: translateY(40px) scale(0.95) !important;
+    }
+
+    .login-title {
+      font-size: 21px;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      margin-bottom: 22px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .login-input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      outline: none;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .remember-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .remember-container input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      background: rgba(15, 23, 42, 0.65);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .remember-container input[type="checkbox"]:checked {
+      background: #38bdf8;
+      border-color: #38bdf8;
+    }
+
+    .remember-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+
+    .signin-btn {
+      width: 100%;
+      margin-top: 4px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+    }
+
+    .error-msg {
+      color: var(--accent-red);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 10px;
+      min-height: 16px;
+    }
+
+    /* Glass Sidebar Layout */
+    .sidebar {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      height: calc(100vh - 30px);
+      width: var(--sidebar-width);
+      background: var(--glass-bg);
+      backdrop-filter: var(--card-blur);
+      -webkit-backdrop-filter: var(--card-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 16px;
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--glass-shadow);
+      animation: bentoContainerReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @media (min-width: 769px) {
+      body:not(.mobile-view-active) .sidebar:hover {
+        width: var(--sidebar-expanded-width);
+      }
+      body:not(.mobile-view-active) .sidebar:hover .logo-details .logo_name,
+      body:not(.mobile-view-active) .sidebar:hover .search-box input,
+      body:not(.mobile-view-active) .sidebar:hover .nav-item-title,
+      body:not(.mobile-view-active) .sidebar:hover .nav-arrow,
+      body:not(.mobile-view-active) .sidebar:hover .profile .name_job {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+      }
+      body:not(.mobile-view-active) .sidebar:not(:hover) .sub-menu-list {
+        display: none !important;
+      }
+      body:not(.mobile-view-active) .sidebar:hover .logo-details {
+        justify-content: space-between;
+      }
+      body:not(.mobile-view-active) .sidebar:hover .profile {
+        justify-content: space-between;
+        padding: 10px 12px;
+      }
+    }
+
+    .sidebar .logo-details {
+      height: 45px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .sidebar .logo-details .logo_name {
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      white-space: nowrap;
+      display: none;
+      opacity: 0;
+    }
+
+    .sidebar #btn { font-size: 22px; cursor: pointer; color: var(--text-main); }
+
+    .sidebar .search-box {
+      position: relative;
+      height: 42px;
+      width: 100%;
+      margin-top: 12px;
+      background: var(--glass-bg-hover);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+
+    .sidebar .search-box i {
+      position: absolute; left: 0; height: 100%; width: 46px;
+      text-align: center; line-height: 42px; font-size: 18px; color: var(--text-main);
+    }
+
+    .sidebar .search-box input {
+      height: 100%; width: 100%; outline: none; border: none;
+      background: transparent; padding-left: 46px; font-size: 12px; font-weight: 600; color: var(--text-main);
+      display: none; opacity: 0; pointer-events: none;
+    }
+
+    .sidebar .nav-list {
+      margin-top: 15px; margin-bottom: 65px;
+      display: flex; flex-direction: column; gap: 4px;
+      list-style: none; overflow-y: auto; flex-grow: 1;
+    }
+    .sidebar .nav-list::-webkit-scrollbar { width: 4px; }
+    .sidebar .nav-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+
+    .sidebar li.nav-item-group { position: relative; list-style: none; flex-shrink: 0; }
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        :root[data-theme="dark"] {
-            --bg-color: #0d131a;
-            --center-btn-bg: linear-gradient(135deg, #ff416c, #ff4b2b);
-            --item-btn-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.95));
-            --border-color: rgba(255, 75, 43, 0.55);
-            --text-dark: #0f172a;
-            --text-light: #f8fafc;
-            --title-cyan: #ff4b2b;
-            --glow-color: rgba(255, 65, 108, 0.85);
-            --shadow-color: rgba(0, 0, 0, 0.90);
-            --modal-bg: rgba(15, 23, 42, 0.95);
-        }
-
-        :root[data-theme="light"] {
-            --bg-color: #f1f5f9;
-            --center-btn-bg: linear-gradient(135deg, #ff416c, #ff4b2b);
-            --item-btn-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(226, 232, 240, 0.95));
-            --border-color: rgba(255, 75, 43, 0.55);
-            --text-dark: #ffffff;
-            --text-light: #0f172a;
-            --title-cyan: #ff4b2b;
-            --glow-color: rgba(255, 65, 108, 0.65);
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --modal-bg: rgba(255, 255, 255, 0.95);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-
-        html, body {
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            background-color: var(--bg-color);
-        }
-
-        body {
-            background-image: linear-gradient(rgba(13, 19, 26, 0.65), rgba(13, 19, 26, 0.75)), url('https://raw.githubusercontent.com/krde-hue/SBHUB.2026/9c22ed926e11ee62a80805b0599ae4e3c3dc24f6/SB%20background.jpg');
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .top-controls {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            z-index: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .control-btn, .select-dropdown {
-            background: var(--item-btn-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-            padding: 9px 16px;
-            border-radius: 24px;
-            font-size: 0.88rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 8px 20px var(--shadow-color), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            outline: none;
-        }
-
-        .select-dropdown {
-            background-color: #0284c7;
-            color: #ffffff;
-            border-color: #38bdf8;
-        }
-
-        .game-dropdown {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #ffffff;
-            border-color: #f87171;
-        }
-
-        .select-dropdown option {
-            background-color: #0f172a;
-            color: #ffffff;
-        }
-
-        .control-btn:hover {
-            border-color: var(--title-cyan);
-            color: var(--title-cyan);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px var(--glow-color);
-        }
-
-        .bottom-right-brand {
-            position: absolute;
-            bottom: 20px;
-            right: 25px;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            user-select: none;
-        }
-
-        .brand-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.8));
-        }
-
-        .brand-icon-svg {
-            width: 55px;
-            height: 55px;
-            margin-bottom: 4px;
-        }
-
-        .brand-title {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 0.95rem;
-            color: #ffffff;
-            letter-spacing: 0.08em;
-            text-align: center;
-            line-height: 1.1;
-        }
-
-        .brand-line {
-            width: 80%;
-            height: 1.5px;
-            background: rgba(255, 255, 255, 0.4);
-            margin: 3px 0 2px 0;
-        }
-
-        .brand-subtitle {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.85);
-            letter-spacing: 0.05em;
-        }
-
-        .dashboard-container {
-            position: relative;
-            z-index: 10;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-        }
-
-        .half-arc-menu {
-            position: absolute;
-            top: 52%; 
-            left: 91%;
-            transform: translate(-50%, -50%);
-            width: 900px;
-            height: 900px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 60;
-            user-select: none;
-            pointer-events: auto;
-        }
-
-        .toggle-btn-half {
-            position: absolute;
-            left: 50%; 
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 115px;
-            height: 140px;
-            border-radius: 70px 0 0 70px;
-            background: linear-gradient(90deg, #ff416c 0%, #ff4b2b 65%, rgba(255, 75, 43, 0) 100%);
-            border-left: 2.5px solid rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            padding-left: 26px;
-            color: #ffffff;
-            font-size: 2.6rem;
-            cursor: pointer;
-            z-index: 95;
-            box-shadow: -12px 0 35px rgba(255, 65, 108, 0.85);
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.35s ease;
-            pointer-events: auto !important;
-        }
-
-        .toggle-btn-half i {
-            transition: transform 0.4s ease;
-            pointer-events: none;
-            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
-        }
-
-        .half-arc-menu.active .toggle-btn-half i {
-            transform: rotate(135deg) scale(1.1);
-        }
-
-        .category-nodes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 70;
-        }
-
-        .half-arc-menu.active .category-nodes {
-            pointer-events: auto;
-        }
-
-        .category-node {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 68px;
-            height: 68px;
-            margin-top: -34px;
-            margin-left: -34px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #ffffff !important;
-            font-size: 1.6rem;
-            opacity: 0;
-            transform: translate(0, 0) scale(0);
-            pointer-events: none;
-            cursor: pointer;
-            z-index: 75;
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-            border: 1.5px solid rgba(56, 189, 248, 0.4);
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.85));
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(12px);
-            overflow: visible;
-        }
-
-        .category-node::before {
-            content: '';
-            position: absolute;
-            top: 3%;
-            left: 12%;
-            width: 76%;
-            height: 40%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 100%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .half-arc-menu.active .category-node {
-            pointer-events: auto;
-        }
-
-        .category-node:hover, .category-node.active-node {
-            transform: translate(var(--tx), var(--ty)) scale(1.2) !important;
-            border-color: #38bdf8;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(2, 132, 199, 0.85));
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.8), 0 10px 25px rgba(0, 0, 0, 0.85);
-            z-index: 100 !important;
-        }
-
-        .category-node i {
-            pointer-events: none;
-            color: var(--text-light) !important;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
-        }
-
-        .category-node::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            left: 50%;
-            top: -46px;
-            transform: translateX(-50%) translateY(5px);
-            background: rgba(15, 23, 42, 0.95);
-            border: 1.5px solid var(--title-cyan);
-            color: #ffffff;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
-            font-size: 0.88rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-            box-shadow: 0 0 16px rgba(56, 189, 248, 0.4), 0 8px 20px rgba(0,0,0,0.8);
-            z-index: 200;
-        }
-
-        .category-node:hover::after {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
-        }
-
-        .category-node.active-node::after {
-            display: none !important;
-        }
-
-        .centered-branch-modal {
-            position: fixed;
-            top: 50%;
-            left: 45%;
-            transform: translate(-50%, -50%) scale(0.9);
-            z-index: 400;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            padding: 28px 36px;
-            background: rgba(13, 19, 26, 0.88);
-            border: 2px solid var(--border-color);
-            border-radius: 28px;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 0 45px rgba(56, 189, 248, 0.3), 0 20px 50px rgba(0, 0, 0, 0.9);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-width: 85vw;
-        }
-
-        .centered-branch-modal.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: auto;
-        }
-
-        .modal-category-title {
-            font-family: 'Orbitron', 'Rajdhani', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 900;
-            color: var(--title-cyan);
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-            margin-bottom: 4px;
-        }
-
-        .branch-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 16px 20px;
-            max-width: 800px;
-            width: 100%;
-        }
-
-        .branch-item {
-            position: relative;
-            width: auto;
-            min-width: 140px;
-            height: 52px;
-            padding: 0 26px;
-            border-radius: 28px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #ffffff !important;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, background 0.25s ease;
-            backdrop-filter: blur(10px);
-            overflow: visible;
-            flex-shrink: 0;
-        }
-
-        .branch-item::before {
-            content: '';
-            position: absolute;
-            top: 4%;
-            left: 8%;
-            width: 84%;
-            height: 40%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
-            border-radius: 20px;
-            pointer-events: none;
-        }
-
-        .branch-label-text {
-            font-family: 'Rajdhani', 'Orbitron', sans-serif;
-            font-weight: 800;
-            font-size: 0.95rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            white-space: nowrap;
-            pointer-events: none;
-            color: #ffffff !important;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
-        }
-
-        .branch-item:hover {
-            transform: scale(1.08) translateY(-3px) !important;
-            z-index: 250 !important;
-        }
-
-        /* SUB-ITEM COLOR GRADIENTS */
-        .branch-item[data-color="pink"], .branch-item[data-color="purple"] {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.95) 0%, rgba(190, 24, 93, 0.85) 60%, rgba(13, 19, 26, 0.9) 100%);
-            border: 1.5px solid rgba(244, 114, 182, 0.8);
-            box-shadow: 0 0 20px rgba(244, 114, 182, 0.65), 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-        .branch-item[data-color="pink"]:hover, .branch-item[data-color="purple"]:hover { box-shadow: 0 0 32px rgba(244, 114, 182, 0.95); }
-
-        .branch-item[data-color="cyan"], .branch-item[data-color="blue"] {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(8, 145, 178, 0.85) 60%, rgba(13, 19, 26, 0.9) 100%);
-            border: 1.5px solid rgba(34, 211, 238, 0.8);
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.65), 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-        .branch-item[data-color="cyan"]:hover, .branch-item[data-color="blue"]:hover { box-shadow: 0 0 32px rgba(34, 211, 238, 0.95); }
-
-        .branch-item[data-color="gold"], .branch-item[data-color="orange"] {
-            background: linear-gradient(135deg, rgba(251, 146, 60, 0.95) 0%, rgba(217, 119, 6, 0.85) 60%, rgba(13, 19, 26, 0.9) 100%);
-            border: 1.5px solid rgba(252, 211, 77, 0.8);
-            box-shadow: 0 0 20px rgba(252, 211, 77, 0.65), 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-        .branch-item[data-color="gold"]:hover, .branch-item[data-color="orange"]:hover { box-shadow: 0 0 32px rgba(252, 211, 77, 0.95); }
-
-        .branch-item[data-color="green"] {
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.95) 0%, rgba(22, 163, 74, 0.85) 60%, rgba(13, 19, 26, 0.9) 100%);
-            border: 1.5px solid rgba(134, 239, 172, 0.8);
-            box-shadow: 0 0 20px rgba(134, 239, 172, 0.65), 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-        .branch-item[data-color="green"]:hover { box-shadow: 0 0 32px rgba(134, 239, 172, 0.95); }
-
-        .branch-item[data-color="red"] {
-            background: linear-gradient(135deg, rgba(248, 113, 113, 0.95) 0%, rgba(220, 38, 38, 0.85) 60%, rgba(13, 19, 26, 0.9) 100%);
-            border: 1.5px solid rgba(252, 165, 165, 0.8);
-            box-shadow: 0 0 20px rgba(252, 165, 165, 0.65), 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-        .branch-item[data-color="red"]:hover { box-shadow: 0 0 32px rgba(252, 165, 165, 0.95); }
-
-        .branch-item[data-color="royal"], .branch-item[data-color="slate"] {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.95) 0%, rgba(37, 99, 235, 0.85) 60%, rgba(13, 19, 26, 0.9) 100%);
-            border: 1.5px solid rgba(125, 211, 252, 0.8);
-            box-shadow: 0 0 20px rgba(96, 165, 250, 0.65), 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-        .branch-item[data-color="royal"]:hover, .branch-item[data-color="slate"]:hover { box-shadow: 0 0 32px rgba(96, 165, 250, 0.95); }
-
-        /* CUSTOM RIGHT-CLICK CONTEXT MENU STYLING */
-        .custom-context-menu {
-            position: fixed;
-            z-index: 10000;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1.5px solid var(--border-color);
-            border-radius: 12px;
-            padding: 6px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.9), 0 0 20px rgba(56, 189, 248, 0.4);
-            backdrop-filter: blur(12px);
-            display: none;
-            flex-direction: column;
-            min-width: 190px;
-        }
-
-        .custom-context-menu.active {
-            display: flex;
-        }
-
-        .context-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            color: #ffffff;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .context-menu-item:hover {
-            background: linear-gradient(135deg, #0284c7, #38bdf8);
-            color: #ffffff;
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.6);
-        }
-
-        /* Auth Modal Styling */
-        .login-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(12px);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .login-modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .login-card {
-            background: var(--modal-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 20px 50px var(--shadow-color), 0 0 30px var(--glow-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .login-modal-overlay.active .login-card {
-            transform: scale(1);
-        }
-
-        .login-icon {
-            font-size: 2.8rem;
-            color: var(--title-cyan);
-            margin-bottom: 12px;
-            filter: drop-shadow(0 0 10px var(--glow-color));
-        }
-
-        .login-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 900;
-            color: var(--text-light);
-            margin-bottom: 6px;
-            letter-spacing: 0.05em;
-        }
-
-        .login-subtitle {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.95rem;
-            color: #94a3b8;
-            margin-bottom: 20px;
-        }
-
-        .login-input-wrapper {
-            position: relative;
-            width: 100%;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 12px 42px 12px 16px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1.5px solid var(--border-color);
-            border-radius: 12px;
-            color: #ffffff;
-            font-size: 1rem;
-            font-family: 'Segoe UI', sans-serif;
-            outline: none;
-            text-align: center;
-            letter-spacing: 0.1em;
-            transition: all 0.3s ease;
-        }
-
-        .login-input:focus {
-            border-color: var(--title-cyan);
-            box-shadow: 0 0 15px var(--glow-color);
-        }
-
-        .toggle-password-icon {
-            position: absolute;
-            right: 14px;
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: color 0.3s ease;
-            user-select: none;
-        }
-
-        .toggle-password-icon:hover {
-            color: var(--title-cyan);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #0284c7, #38bdf8);
-            border: none;
-            border-radius: 12px;
-            color: #ffffff;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
-            letter-spacing: 0.08em;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.75);
-        }
-
-        .login-error-msg {
-            color: #f87171;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-top: 10px;
-            min-height: 1.2em;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-
-        .login-error-msg.show {
-            opacity: 1;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
-        }
-
-        .shake {
-            animation: shake 0.4s ease-in-out;
-        }
-    </style>
+    .sidebar .nav-header-btn {
+      display: flex; height: 42px; width: 100%; border-radius: 12px;
+      align-items: center; text-decoration: none; transition: all 0.3s ease;
+      background: transparent; border: 1px solid transparent; cursor: pointer;
+    }
+    .sidebar .nav-header-btn:hover, .sidebar .nav-header-btn.active {
+      background: var(--glass-bg-hover); border-color: var(--glass-border);
+    }
+    .sidebar .nav-header-btn i.nav-icon { min-width: 46px; text-align: center; font-size: 18px; color: var(--text-main); }
+    .sidebar .nav-header-btn .nav-item-title {
+      color: var(--text-main); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.3px; white-space: nowrap; display: none; opacity: 0; flex-grow: 1;
+    }
+    .sidebar .nav-header-btn .nav-arrow { font-size: 16px; color: var(--text-sub); margin-right: 12px; display: none; opacity: 0; transition: transform 0.25s ease; }
+    .sidebar .nav-item-group.expanded .nav-arrow { transform: rotate(180deg); }
+
+    .sub-menu-list {
+      display: none; flex-direction: column; gap: 3px;
+      padding-left: 46px; padding-right: 8px; margin-top: 3px; margin-bottom: 6px; list-style: none;
+    }
+    .sidebar .nav-item-group.expanded .sub-menu-list { display: flex; }
+
+    .sub-menu-item {
+      display: block; padding: 8px 12px; font-size: 10px; font-weight: 700;
+      color: var(--text-sub); text-decoration: none; text-transform: uppercase; border-radius: 8px;
+      transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sub-menu-item:hover { background: var(--glass-bg-hover); color: var(--text-main); transform: translateX(2px); }
+
+    .sidebar li.profile {
+      position: absolute; height: 52px; width: calc(100% - 32px);
+      left: 16px; bottom: 16px; padding: 10px 0;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    }
+    .sidebar .profile-details { display: flex; align-items: center; }
+    .sidebar li .name_job { margin-left: 8px; white-space: nowrap; display: none; opacity: 0; }
+    .sidebar li .name { font-size: 11px; font-weight: 800; color: var(--text-main); }
+    .sidebar li .job { font-size: 9px; font-weight: 600; color: var(--text-sub); }
+
+    .main-workspace {
+      position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+      overflow: hidden; animation: bentoContainerReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    body.mobile-view-active { overflow-x: hidden !important; }
+    body.mobile-view-active .sidebar { position: relative !important; width: 100% !important; height: auto !important; margin-bottom: 12px; border-radius: 16px; }
+    body.mobile-view-active .sidebar .logo-details .logo_name,
+    body.mobile-view-active .sidebar .search-box input,
+    body.mobile-view-active .sidebar .nav-item-title,
+    body.mobile-view-active .sidebar .nav-arrow,
+    body.mobile-view-active .sidebar .sub-menu-list,
+    body.mobile-view-active .sidebar li .name_job { display: flex !important; opacity: 1 !important; pointer-events: auto !important; }
+    body.mobile-view-active .sidebar .logo-details { justify-content: space-between !important; padding: 0 8px !important; }
+    body.mobile-view-active .sidebar .nav-list { max-height: none; margin-bottom: 15px; }
+    body.mobile-view-active .sidebar li.profile { position: relative !important; width: 100% !important; left: 0 !important; bottom: 0 !important; justify-content: space-between !important; padding: 10px 12px !important; }
+    body.mobile-view-active .main-workspace { position: relative !important; width: 100% !important; height: auto !important; padding: 12px !important; display: flex; flex-direction: column; gap: 15px; }
+    body.mobile-view-active .bento-card { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; }
+
+    .bento-card {
+      position: absolute; background: var(--glass-bg); border: 1px solid var(--glass-border);
+      backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur);
+      border-radius: 20px; padding: 18px 22px; box-shadow: var(--glass-shadow); user-select: none; z-index: 10;
+      display: flex; flex-direction: column; resize: both; overflow: auto;
+      min-width: 250px; min-height: 150px;
+    }
+    .bento-card:hover { border-color: var(--accent-glow); }
+
+    .card-header-title {
+      font-size: 11px; font-weight: 800; color: var(--accent-glow); letter-spacing: 1.2px;
+      text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: grab;
+      flex-shrink: 0;
+    }
+    .drag-hint { font-size: 9px; color: var(--text-sub); font-weight: 600; display: flex; align-items: center; gap: 3px; }
+
+    /* Bento Layout Positions for 5 Cards */
+    #timezonesCard { top: 20px; left: calc(var(--sidebar-width) + 35px); width: 335px; height: 165px; }
+    #weatherCard   { top: 20px; left: calc(var(--sidebar-width) + 385px); width: 335px; height: 165px; }
+    #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
+    #flashscoreCard{ top: 195px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 285px; }
+    #trendCard     { top: 290px; left: calc(var(--sidebar-width) + 395px); width: calc(100vw - var(--sidebar-width) - 440px); max-width: 700px; height: 395px; }
+
+    .tz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .tz-item {
+      background: var(--glass-bg-hover); border: 1px solid var(--glass-border);
+      border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .tz-select {
+      background: var(--glass-bg); color: var(--accent-glow); border: 1px solid var(--glass-border);
+      border-radius: 6px; font-size: 9px; font-weight: 800; padding: 3px 4px; outline: none; text-transform: uppercase; cursor: pointer; width: 100%; margin-bottom: 4px; text-align: center;
+    }
+    .tz-select option { background: var(--glass-bg); color: var(--text-main); }
+    .tz-clock { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-main); }
+
+    .weather-container { display: flex; align-items: center; justify-content: space-between; height: calc(100% - 30px); }
+    .weather-main { display: flex; align-items: center; gap: 14px; }
+    .weather-icon { font-size: 38px; color: #f59e0b; }
+    .weather-temp { font-family: var(--font-mono); font-size: 26px; font-weight: 800; color: var(--text-main); }
+    .weather-desc { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+    .weather-details { text-align: right; font-size: 11px; font-weight: 600; color: var(--text-sub); display: flex; flex-direction: column; gap: 4px; }
+
+    /* Top Week Games Widget Styles */
+    .games-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100% - 40px); padding-right: 4px; }
+    .game-card-item {
+      background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--text-main); transition: all 0.2s ease;
+    }
+    .game-card-item:hover { border-color: var(--accent-glow); transform: translateY(-1px); background: var(--glass-bg); }
+    .game-league-tag { font-size: 9px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; display: flex; justify-content: space-between; }
+    .game-teams-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; }
+    .game-time-row { font-size: 9px; font-weight: 600; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 4px; }
+
+    /* Flashscore Live Feeds Card Styles */
+    .flashscore-links-grid { display: grid; grid-template-columns: 1fr; gap: 6px; overflow-y: auto; max-height: calc(100% - 40px); }
+    .flashscore-link-item {
+      background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 10px; padding: 9px 12px;
+      display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 700; text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+    .flashscore-link-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); }
+
+    .trend-stats { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 700; align-items: center; }
+    .stat-badge { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 10px; }
+    .stat-badge.up { background: rgba(52, 211, 153, 0.2); color: var(--accent-green); }
+    .stat-badge.down { background: rgba(248, 113, 113, 0.2); color: var(--accent-red); }
+    
+    .chart-container { position: relative; flex-grow: 1; width: 100%; min-height: 100px; }
+
+    .logger-input {
+      background: var(--glass-bg-hover); border: 1px solid var(--glass-border); padding: 6px 10px;
+      border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none;
+    }
+    .logger-input option { background: var(--glass-bg); color: var(--text-main); }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); z-index: 200; justify-content: center; align-items: center; }
+    .modal-content { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); padding: 24px; border-radius: 16px; width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: var(--glass-shadow); }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+    .palette-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+    .palette-btn { height: 32px; border-radius: 8px; border: 2px solid var(--glass-border); cursor: pointer; transition: transform 0.2s ease; }
+    .palette-btn:hover { transform: scale(1.05); border-color: var(--accent-glow); }
+
+    .action-btn {
+      width: 100%; margin-top: 14px; background: var(--accent-glow); color: #ffffff; border: none; padding: 10px 14px;
+      border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .action-btn.logout-btn { background: linear-gradient(135deg, #f87171, #dc2626); }
+
+    .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--glass-bg-hover); transition: .3s; border-radius: 22px; border: 1px solid var(--glass-border); }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: var(--text-main); transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent-glow); }
+    input:checked + .slider:before { transform: translateX(22px); }
+  </style>
 </head>
-<body>
+<body onmousemove="resetInactivityTimer()" onkeypress="resetInactivityTimer()">
 
-    <div class="top-controls">
-        <select class="select-dropdown game-dropdown" id="game-selector" onchange="switchGame(this.value)">
-            <option value="" disabled selected>🎮 Select Entertainment...</option>
-            <option value="mario">🎮 Entertainment: Super Mario Arcade ↗</option>
-            <option value="flappy">🎮 Entertainment: Flappy Bird ↗</option>
-            <option value="block">🎮 Entertainment: Block Puzzle ↗</option>
-            <option value="solitaire">🎮 Entertainment: Solitaire ↗</option>
-            <option value="word">🎮 Entertainment: Word Puzzle ↗</option>
+  <div id="authOverlay">
+    <div class="lamp-login-container">
+      <div class="lamp-scene">
+        <div class="lamp-shade"></div>
+        <div class="pull-cord-wrapper" id="pullCord" onclick="toggleLamp()">
+          <div class="cord-string"></div>
+          <div class="cord-handle" title="Toggle Lamp Switch"></div>
+        </div>
+        <div class="lamp-stand-rod"></div>
+        <div class="lamp-base"></div>
+      </div>
+
+      <div class="login-popup-card">
+        <div class="login-title">Welcome to Sportsbook Hub</div>
+        <div class="input-group">
+          <label class="input-label">Username</label>
+          <input type="text" id="loginUsername" class="login-input" value="sportsbookhub" readonly>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input type="password" id="loginPassword" class="login-input" placeholder="Enter password" onkeydown="if(event.key==='Enter') verifyLogin()">
+        </div>
+        <label class="remember-container">
+          <input type="checkbox" id="rememberMeCheckbox">
+          <span class="remember-label">Remember Me</span>
+        </label>
+        <button class="signin-btn" onclick="verifyLogin()">Sign In</button>
+        <div class="error-msg" id="loginError"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar" id="mainSidebar">
+    <div class="logo-details">
+      <div class="logo_name">SPORTSBOOK HUB</div>
+      <i class='bx bx-menu' id="btn"></i>
+    </div>
+
+    <div class="search-box">
+      <i class='bx bx-search'></i>
+      <input type="text" id="searchInput" placeholder="Search categories & links..." onkeyup="handleSearch()">
+    </div>
+    
+    <ul class="nav-list" id="navList"></ul>
+
+    <li class="profile">
+      <div class="profile-details">
+        <div style="font-size: 20px;">👤</div>
+        <div class="name_job">
+          <div class="name">MAIN CONSOLE</div>
+          <div class="job">Active Operator</div>
+        </div>
+      </div>
+      <i class='bx bx-cog' id="settings_btn" style="cursor: pointer; font-size: 20px;" onclick="toggleModal()"></i>
+    </li>
+  </div>
+
+  <div class="main-workspace" id="workspace">
+
+    <!-- 1. World Clock Widget -->
+    <div class="bento-card" id="timezonesCard">
+      <div class="card-header-title">
+        <span>WORD CLOCK (3 ZONES) <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+      </div>
+      <div class="tz-grid" id="timezoneGrid"></div>
+    </div>
+
+    <!-- 2. Weather Widget -->
+    <div class="bento-card" id="weatherCard">
+      <div class="card-header-title">
+        <span>PHILIPPINES WEATHER <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+      </div>
+      <div class="weather-container">
+        <div class="weather-main">
+          <i class='bx bx-sun weather-icon' id="weatherIcon"></i>
+          <div>
+            <div class="weather-temp" id="phTemp">31°C</div>
+            <div class="weather-desc" id="phDesc">Partly Cloudy</div>
+          </div>
+        </div>
+        <div class="weather-details">
+          <span>📍 Metro Manila, PH</span>
+          <span>Humidity: 78%</span>
+          <span>Wind: 14 km/h</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. NEW WIDGET 1: Top Week Games (Flashscore Feed) -->
+    <div class="bento-card" id="topGamesCard">
+      <div class="card-header-title">
+        <span>⚽ TOP WEEK GAMES (FLASHSCORE) <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span>
+      </div>
+      <div class="games-list" id="topGamesList">
+        <!-- Rendered dynamically from real upcoming fixtures -->
+      </div>
+    </div>
+
+    <!-- 4. NEW WIDGET 2: Flashscore League Live Hub -->
+    <div class="bento-card" id="flashscoreCard">
+      <div class="card-header-title">
+        <span>⚡ FLASHSCORE LIVE HUB <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span>
+      </div>
+      <div class="flashscore-links-grid">
+        <a href="https://www.flashscore.ph/football/england/premier-league/" target="_blank" class="flashscore-link-item">
+          <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (EPL)</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://www.flashscore.ph/football/spain/laliga/" target="_blank" class="flashscore-link-item">
+          <span>🇪🇸 LaLiga EA Sports</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://www.flashscore.ph/football/italy/serie-a/" target="_blank" class="flashscore-link-item">
+          <span>🇮🇹 Italy Serie A</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://www.flashscore.ph/football/germany/bundesliga/" target="_blank" class="flashscore-link-item">
+          <span>🇩🇪 Germany Bundesliga</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://www.flashscore.ph/football/france/ligue-1/" target="_blank" class="flashscore-link-item">
+          <span>🇫🇷 France Ligue 1</span> <i class='bx bx-link-external'></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- 5. Trend Chart Widget -->
+    <div class="bento-card" id="trendCard">
+      <div class="card-header-title">
+        <span>DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0;">
+        <select id="trackerSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 175px;" onchange="switchTrackerData()">
+          <option value="all">📊 ALL (IBET vs EDGE vs 7A)</option>
+          <option value="ibet">IBET TRACKER</option>
+          <option value="edge">EDGE TRACKER</option>
+          <option value="tracker7a">7A TRACKER</option>
         </select>
-
-        <select class="select-dropdown" id="user-profile-select" onchange="changeActiveUser(this.value)">
-            <option value="" disabled selected>-- Select Your Name --</option>
-            <option value="ANN">👤 USER: ANN</option>
-            <option value="DAVE">👤 USER: DAVE</option>
-            <option value="KENNETH">👤 USER: KENNETH</option>
-            <option value="KRIZTEL">👤 USER: KRIZTEL</option>
-            <option value="MIGUEL">👤 USER: MIGUEL</option>
-            <option value="CUSTOM">+ Custom Name...</option>
-        </select>
-
-        <button class="control-btn" id="theme-toggle">
-            <i class="fa-solid fa-moon" id="theme-icon"></i>
-            <span id="theme-text">Night Mode</span>
-        </button>
-    </div>
-
-    <div class="bottom-right-brand">
-        <div class="brand-card">
-            <svg class="brand-icon-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#38bdf8" />
-                        <stop offset="100%" stop-color="#0284c7" />
-                    </linearGradient>
-                    <linearGradient id="grad-orange" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#f97316" />
-                        <stop offset="100%" stop-color="#fb923c" />
-                    </linearGradient>
-                </defs>
-                <path d="M 100 20 A 80 80 0 1 0 170 140" stroke="url(#grad-blue)" stroke-width="18" stroke-linecap="round"/>
-                <path d="M 120 40 A 60 60 0 1 1 150 150" stroke="url(#grad-orange)" stroke-width="18" stroke-linecap="round"/>
-                <path d="M 50 150 Q 90 100 160 30" stroke="url(#grad-blue)" stroke-width="20" stroke-linecap="round"/>
-                <path d="M 130 25 L 175 25 L 175 70 Z" fill="url(#grad-orange)"/>
-            </svg>
-            <div class="brand-title">K HUB 2026</div>
-            <div class="brand-line"></div>
-            <div class="brand-subtitle">(kriztel)</div>
+        <div class="trend-stats" style="margin-bottom: 0;">
+          <div class="stat-badge up" id="trendBadge"><i class='bx bx-trending-up'></i> <span id="trendPercent">Active</span></div>
         </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="trendChart"></canvas>
+      </div>
     </div>
 
-    <div class="centered-branch-modal" id="centered-branch-modal">
-        <div class="modal-category-title" id="modal-category-title">CATEGORY</div>
-        <div class="branch-grid" id="modal-branch-grid"></div>
-    </div>
+  </div>
 
-    <div class="dashboard-container">
-        <div class="half-arc-menu" id="half-arc-menu">
-            <div class="toggle-btn-half" id="toggle-btn" title="Toggle Operations Menu">
-                <i class="fa-solid fa-plus"></i>
-            </div>
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <div class="card-header-title">
+        <span>SETTINGS & CUSTOMIZATION</span>
+        <i class='bx bx-x' style="cursor:pointer; font-size: 22px;" onclick="toggleModal()"></i>
+      </div>
+      
+      <div class="setting-row">
+        <span style="font-size: 12px; font-weight: 700;">Daylight Mode</span>
+        <label class="switch">
+          <input type="checkbox" id="modeToggle" onchange="toggleTheme()">
+          <span class="slider"></span>
+        </label>
+      </div>
 
-            <div class="category-nodes" id="category-nodes"></div>
+      <div class="setting-row">
+        <span style="font-size: 12px; font-weight: 700;">Mobile View Mode</span>
+        <label class="switch">
+          <input type="checkbox" id="mobileViewToggle" onchange="toggleMobileView()">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div style="margin-top: 18px; border-top: 1px solid var(--glass-border); padding-top: 12px;">
+        <span style="font-size: 11px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase;">Color Palettes</span>
+        <div class="palette-grid">
+          <div class="palette-btn" style="background: rgba(22, 27, 34, 0.8);" title="Midnight Dark" onclick="setPalette('rgba(22, 27, 34, 0.8)', '#ffffff', '#38bdf8')"></div>
+          <div class="palette-btn" style="background: rgba(15, 23, 42, 0.9);" title="Deep Navy" onclick="setPalette('rgba(15, 23, 42, 0.9)', '#f8fafc', '#60a5fa')"></div>
+          <div class="palette-btn" style="background: rgba(45, 27, 60, 0.85);" title="Royal Obsidian" onclick="setPalette('rgba(45, 27, 60, 0.85)', '#fdf4ff', '#c084fc')"></div>
+          <div class="palette-btn" style="background: rgba(255, 255, 255, 0.9);" title="Clean Ice" onclick="setPalette('rgba(255, 255, 255, 0.9)', '#0f172a', '#0284c7')"></div>
         </div>
-    </div>
+      </div>
 
-    <div class="custom-context-menu" id="custom-context-menu">
-        <div class="context-menu-item" id="open-all-tabs-btn">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            <span>🚀 Open All in New Tabs</span>
-        </div>
-    </div>
+      <div class="setting-row" style="margin-top: 14px;">
+        <span style="font-size: 11px; font-weight: 700;">Menu Background Color</span>
+        <input type="color" id="bgColorPicker" value="#161b22" onchange="updateCustomColors()" style="background:transparent; border:none; width:32px; height:24px; cursor:pointer;">
+      </div>
 
-    <div class="login-modal-overlay" id="login-modal">
-        <div class="login-card" id="login-card">
-            <i class="fa-solid fa-shield-halved login-icon"></i>
-            <div class="login-title">AUTHENTICATION</div>
-            <div class="login-subtitle">Enter passcode to access Hub</div>
-            <div class="login-input-wrapper">
-                <input type="password" id="passcode-input" class="login-input" placeholder="Enter Password..." autocomplete="off">
-                <i class="fa-solid fa-eye toggle-password-icon" id="toggle-password-btn" title="Toggle Visibility"></i>
-            </div>
-            <button class="login-btn" id="login-submit-btn">UNLOCK HUB</button>
-            <div class="login-error-msg" id="login-error">Incorrect passcode! Access Denied.</div>
-        </div>
-    </div>
+      <div class="setting-row">
+        <span style="font-size: 11px; font-weight: 700;">Menu Opacity</span>
+        <input type="range" id="bgOpacityRange" min="0.2" max="1" step="0.05" value="0.7" oninput="updateCustomColors()" style="cursor:pointer;">
+      </div>
 
-    <script>
-        const categorisedMenuData = [
-            {
-                id: "toppicks",
-                category: "TOP PICKS",
-                icon: "fa-solid fa-star",
-                items: [
-                    { id: "boost-schedule", label: "BOOST SCHEDULE", url: "boostschedule.html", color: "gold" }
-                ]
-            },
-            {
-                id: "internal",
-                category: "INTERNAL",
-                icon: "fa-solid fa-folder-closed",
-                items: [
-                    { id: "duties", label: "DAILY DUTIES", url: "duties.html", color: "pink" },
-                    { id: "rota", label: "ROTA 2026", url: "rota.html", color: "cyan" }
-                ]
-            },
-            {
-                id: "monitoring",
-                category: "DAILY MONITORING",
-                icon: "fa-solid fa-chart-pie",
-                items: [
-                    { id: "big-winners", label: "BIG WINNERS", url: "big-winners.html", color: "gold" },
-                    { id: "green-tracking", label: "GREEN TRACKING", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410", color: "green" },
-                    { id: "red-tracking", label: "RED TRACKING", url: "https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468", color: "red" },
-                    { id: "orange-tracking", label: "ORANGE TRACKING", url: "https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695", color: "orange" },
-                    { id: "green-crm", label: "GREEN CRM", url: "https://docs.google.com/spreadsheets/d/11STKO4Xsj0a8iTuUXSCXC-XEE4-7qmF9/edit?pli=1&gid=1701374259#gid=1701374259", color: "green" },
-                    { id: "red-crm", label: "RED CRM", url: "https://docs.google.com/spreadsheets/d/1gPks2FdHyOOTiILvn553miz32WeEtOpx/edit?gid=1701374259#gid=1701374259", color: "red" }
-                ]
-            },
-            {
-                id: "task",
-                category: "DAILY TASK",
-                icon: "fa-solid fa-bolt",
-                items: [
-                    { id: "edge-boost-v1", label: "EDGE BOOST (V1)", url: "https://docs.google.com/spreadsheets/d/1Pl8XVaYNEaupKx57HlXbWibsIeR7a28UfemRasxJ8RY/edit?gid=606091991#gid=606091991", color: "gold" },
-                    { id: "ibet-boost-v1", label: "IBET BOOST (V1)", url: "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=784209986#gid=784209986", color: "blue" },
-                    { id: "edge-boost-v2", label: "EDGE BOOST", url: "edge_boosts.html", color: "gold" },
-                    { id: "ibet-boost-v2", label: "IBET BOOST", url: "ibet_boosts.html", color: "blue" }
-                ]
-            },
-            {
-                id: "backoffice",
-                category: "BACK OFFICE",
-                icon: "fa-solid fa-building-columns",
-                items: [
-                    { id: "qbet-bo", label: "QBET, 55, 30", url: "https://betbook.center/qbet/bets", color: "purple" },
-                    { id: "ibet-bo", label: "IBET", url: "https://mga-betbook.center/ibet/bets", color: "blue" },
-                    { id: "pubs-bo", label: "PUBS", url: "https://eu-b7k.center/pubs8/bets", color: "royal" }
-                ]
-            },
-            {
-                id: "multimonitor",
-                category: "MULTI MONITOR",
-                icon: "fa-solid fa-desktop",
-                items: [
-                    { id: "edge-pred-ticker", label: "EDGE Prediction Ticker", url: "https://betbook.center/monitor?providerIds=prediction_markets", color: "gold" },
-                    { id: "pubs-pred-ticker", label: "PUBS Prediction Ticker", url: "https://eu-b7k.center/monitor?providerIds=prediction_markets", color: "purple" },
-                    { id: "pubs-rej-ticker", label: "PUBS Rejected Ticker", url: "https://eu-b7k.center/monitor", color: "red" },
-                    { id: "edge-rej-ticker", label: "EDGE Rejected Ticker", url: "https://betbook.center/monitor", color: "orange" }
-                ]
-            },
-            {
-                id: "betradar",
-                category: "BETRADAR",
-                icon: "fa-solid fa-sliders",
-                items: [
-                    { id: "betradar-mts", label: "MTS", url: "https://mtsc-its.betradar.com/", color: "blue" },
-                    { id: "betradar-ctrl", label: "CTRL PORTAL", url: "https://portal.betradar.com/", color: "royal" }
-                ]
-            },
-            {
-                id: "ownbrands",
-                category: "OWN BRANDS",
-                icon: "fa-solid fa-layer-group",
-                items: [
-                    { id: "brand-7a", label: "7A", url: "https://www.7abet.com/en-UN", color: "pink" },
-                    { id: "brand-qbet", label: "QBET", url: "https://www.qbet.com/en-UN", color: "purple" },
-                    { id: "brand-55bet", label: "55BET", url: "https://www.55bet.com/en-UN", color: "cyan" },
-                    { id: "brand-30bet", label: "30BET", url: "https://www.30bet.com/en-UN", color: "gold" },
-                    { id: "brand-gqbet", label: "GQBET", url: "https://www.gqbet.vip/en-UN/", color: "orange" },
-                    { id: "brand-bvbet", label: "BVBET", url: "https://www.bvbet.com/en-UN", color: "royal" },
-                    { id: "brand-ibet", label: "IBET", url: "https://www.ibet.com/en-UN/sportsbook/price-boost/football", color: "blue" }
-                ]
-            },
-            {
-                id: "pricereferences",
-                category: "PRICE REFERENCES",
-                icon: "fa-solid fa-globe",
-                items: [
-                    { id: "flashscore", label: "FLASHSCORE", url: "https://www.flashscore.com/", color: "red" },
-                    { id: "betsapi", label: "BETSAPI", url: "https://betsapi.com/", color: "cyan" },
-                    { id: "oddsportal", label: "ODDSPORTAL", url: "https://www.oddsportal.com/football/", color: "blue" },
-                    { id: "oddschecker", label: "ODDSCHECKER", url: "https://www.oddschecker.com/", color: "pink" },
-                    { id: "betfair", label: "BETFAIR", url: "https://www.betfair.com/exchange/plus/", color: "gold" },
-                    { id: "bet365", label: "BET365", url: "https://www.bet365.com/", color: "green" },
-                    { id: "pinnacle", label: "PINNACLE", url: "https://www.pinnacle.com/", color: "orange" },
-                    { id: "ggbet", label: "GGBET", url: "https://gg.bet/", color: "purple" },
-                    { id: "unibet", label: "UNIBET", url: "https://www.unibet.com.au/", color: "green" },
-                    { id: "sofascore", label: "SOFASCORE", url: "https://www.sofascore.com/", color: "blue" },
-                    { id: "marathonbet", label: "MARATHONBET", url: "https://www.marathonbet.com/", color: "royal" },
-                    { id: "fonbet", label: "FONBET", url: "https://fonbet.com/", color: "red" }
-                ]
-            },
-            {
-                id: "procedures",
-                category: "PROCEDURES",
-                icon: "fa-solid fa-book",
-                items: [
-                    { id: "handover", label: "HANDOVER SOP", url: "handover.html", color: "green" },
-                    { id: "confluence", label: "CONFLUENCE", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview", color: "royal" },
-                    { id: "workspace", label: "WORKSPACE", url: "workspace.html", color: "slate" }
-                ]
-            }
+      <div class="setting-row">
+        <span style="font-size: 11px; font-weight: 700;">Font / Text Color</span>
+        <input type="color" id="fontColorPicker" value="#ffffff" onchange="updateCustomColors()" style="background:transparent; border:none; width:32px; height:24px; cursor:pointer;">
+      </div>
+
+      <div class="setting-row">
+        <span style="font-size: 11px; font-weight: 700;">Accent Glow Color</span>
+        <input type="color" id="accentColorPicker" value="#38bdf8" onchange="updateCustomColors()" style="background:transparent; border:none; width:32px; height:24px; cursor:pointer;">
+      </div>
+
+      <button class="action-btn" onclick="saveLayoutToURL()">
+        <i class='bx bx-link-external'></i> SAVE LAYOUT & COPY LINK
+      </button>
+      <button class="action-btn logout-btn" onclick="triggerLogout()">
+        <i class='bx bx-log-out'></i> LOGOUT NOW
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const menuData = [
+      {
+        category: "INTERNAL",
+        icon: "bx-home-alt",
+        subs: [
+          { name: "DAILY DUTY", url: "duties.html" },
+          { name: "ROTA", url: "rota.html" }
+        ]
+      },
+      {
+        category: "DAILY TASK",
+        icon: "bx-task",
+        subs: [
+          { name: "EDGE BOOST EXCEL", url: "#" },
+          { name: "IBET BOOST EXCEL", url: "#" },
+          { name: "EDGE BOOST SYS", url: "#" },
+          { name: "IBET BOOST SYS", url: "#" }
+        ]
+      },
+      {
+        category: "DAILY MONITORING",
+        icon: "bx-line-chart",
+        subs: [
+          { name: "GREEN TRACKER", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410" },
+          { name: "RED TRACKER", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410" },
+          { name: "ORANGE TRACKER", url: "https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695" },
+          { name: "7A TRACKER", url: "#" },
+          { name: "GREEN CRM", url: "https://docs.google.com/spreadsheets/d/11STKO4Xsj0a8iTuUXSCXC-XEE4-7qmF9/edit?pli=1&gid=1701374259#gid=1701374259" },
+          { name: "RED CRM", url: "https://docs.google.com/spreadsheets/d/1gPks2FdHyOOTiILvn553miz32WeEtOpx/edit?gid=1701374259#gid=1701374259" }
+        ]
+      },
+      {
+        category: "BACK OFFICE",
+        icon: "bx-briefcase-alt-2",
+        subs: [
+          { name: "QBET/55/30", url: "https://betbook.center/qbet/bets" },
+          { name: "IBET", url: "https://mga-betbook.center/ibet/bets" },
+          { name: "PUBS", url: "https://eu-b7k.center/pubs8/bets" }
+        ]
+      },
+      {
+        category: "MULTI MONITOR",
+        icon: "bx-desktop",
+        subs: [
+          { name: "EDGE PREDICTION TICKER", url: "https://betbook.center/monitor?providerIds=prediction_markets" },
+          { name: "PUBS PREDICTION TICKER", url: "https://eu-b7k.center/monitor?providerIds=prediction_markets" },
+          { name: "QBET/55/30 REJECTED", url: "https://betbook.center/monitor" },
+          { name: "PUBS REJECTED", url: "https://eu-b7k.center/monitor" }
+        ]
+      },
+      {
+        category: "BETRADAR",
+        icon: "bx-radar",
+        subs: [
+          { name: "MTS", url: "https://mtsc-its.betradar.com/" },
+          { name: "PORTAL", url: "https://portal.betradar.com/" }
+        ]
+      },
+      {
+        category: "OWN BRANDS",
+        icon: "bx-layer",
+        subs: [
+          { name: "7A", url: "#" },
+          { name: "QBET", url: "#" },
+          { name: "30BET", url: "#" },
+          { name: "55BET", url: "#" },
+          { name: "GQBET", url: "#" },
+          { name: "BVBET", url: "#" },
+          { name: "IBET", url: "#" }
+        ]
+      },
+      {
+        category: "PRICE REFERENCES",
+        icon: "bx-data",
+        subs: [
+          { name: "FLASHSCORE", url: "#" },
+          { name: "PINNACLE", url: "#" },
+          { name: "ODDSCHECKER", url: "#" },
+          { name: "ODDSPORTAL", url: "#" },
+          { name: "GGBET", url: "#" },
+          { name: "BETSAPI", url: "#" },
+          { name: "SOFASCORE", url: "#" },
+          { name: "MARATHON", url: "#" },
+          { name: "FONBET", url: "#" }
+        ]
+      },
+      {
+        category: "SOP'S",
+        icon: "bx-file",
+        subs: [
+          { name: "WORKPLACE", url: "#" },
+          { name: "CONFLUENCE", url: "#" },
+          { name: "HANDOVER", url: "handover.html" }
+        ]
+      }
+    ];
+
+    // Real verified upcoming games for this week (Sept 12-14, 2026) matching Flashscore categories
+    const topWeekGames = [
+      {
+        league: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (EPL)",
+        home: "Manchester United",
+        away: "Manchester City",
+        date: "Sep 13, 23:30",
+        status: "Upcoming",
+        url: "https://www.flashscore.ph/football/england/premier-league/"
+      },
+      {
+        league: "🇪🇸 LaLiga EA Sports",
+        home: "Real Madrid",
+        away: "Rayo Vallecano",
+        date: "Sep 13, 03:00",
+        status: "Upcoming",
+        url: "https://www.flashscore.ph/football/spain/laliga/"
+      },
+      {
+        league: "🇮🇹 Italy Serie A",
+        home: "S.S. Lazio",
+        away: "AC Milan",
+        date: "Sep 13, 00:00",
+        status: "Upcoming",
+        url: "https://www.flashscore.ph/football/italy/serie-a/"
+      },
+      {
+        league: "🇩🇪 Germany Bundesliga",
+        home: "Borussia Dortmund",
+        away: "SC Paderborn 07",
+        date: "Sep 12, 21:30",
+        status: "Upcoming",
+        url: "https://www.flashscore.ph/football/germany/bundesliga/"
+      }
+    ];
+
+    const availableTimezones = [
+      { zone: "Asia/Manila", name: "Manila (PST)" },
+      { zone: "UTC", name: "UTC / GMT" },
+      { zone: "America/New_York", name: "US East (EST)" },
+      { zone: "America/Los_Angeles", name: "US West (PST)" },
+      { zone: "Europe/London", name: "London (GMT/BST)" },
+      { zone: "Europe/Paris", name: "Central Europe" },
+      { zone: "Asia/Tokyo", name: "Tokyo (JST)" },
+      { zone: "Asia/Singapore", name: "Singapore (SGT)" },
+      { zone: "Australia/Sydney", name: "Sydney (AEST)" }
+    ];
+
+    let selectedTimezones = ["Asia/Manila", "UTC", "America/New_York"];
+    let trendChartInstance = null;
+    let inactivityTimer = null;
+    const INACTIVITY_LIMIT = 30 * 60 * 1000;
+
+    const mainSidebar = document.querySelector("#mainSidebar");
+    const navList = document.querySelector("#navList");
+
+    mainSidebar.addEventListener("mouseenter", () => {
+      document.body.classList.add("sidebar-expanded");
+      setTimeout(() => { if (trendChartInstance) trendChartInstance.resize(); }, 350);
+    });
+
+    mainSidebar.addEventListener("mouseleave", () => {
+      document.body.classList.remove("sidebar-expanded");
+      document.querySelectorAll(".nav-item-group").forEach(g => g.classList.remove("expanded"));
+      setTimeout(() => { if (trendChartInstance) trendChartInstance.resize(); }, 350);
+    });
+
+    function checkRememberedSession() {
+      const isRemembered = localStorage.getItem("sbhub_remember_me") === "true";
+      if (isRemembered) {
+        document.getElementById("authOverlay").classList.add("unlocked");
+        document.getElementById("rememberMeCheckbox").checked = true;
+      }
+    }
+
+    function playClickSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch(e) {}
+    }
+
+    function toggleLamp() {
+      playClickSound();
+      const cordEl = document.getElementById("pullCord");
+      cordEl.classList.add("bouncing");
+      setTimeout(() => cordEl.classList.remove("bouncing"), 550);
+
+      document.body.classList.toggle("lamp-is-on");
+      if (document.body.classList.contains("lamp-is-on")) {
+        setTimeout(() => document.getElementById("loginPassword").focus(), 300);
+      }
+    }
+
+    function verifyLogin() {
+      const pwd = document.getElementById("loginPassword").value;
+      const errEl = document.getElementById("loginError");
+      const rememberMe = document.getElementById("rememberMeCheckbox").checked;
+
+      if (pwd === "sb2026") {
+        errEl.innerText = "";
+        document.getElementById("authOverlay").classList.add("unlocked");
+        document.body.classList.remove("lamp-is-on");
+        document.getElementById("loginPassword").value = "";
+
+        if (rememberMe) {
+          localStorage.setItem("sbhub_remember_me", "true");
+        } else {
+          localStorage.removeItem("sbhub_remember_me");
+        }
+        resetInactivityTimer();
+      } else {
+        errEl.innerText = "Incorrect password!";
+      }
+    }
+
+    function triggerLogout() {
+      localStorage.removeItem("sbhub_remember_me");
+      toggleModal();
+      document.getElementById("authOverlay").classList.remove("unlocked");
+      document.body.classList.remove("lamp-is-on");
+    }
+
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      if (!document.getElementById("authOverlay").classList.contains("unlocked")) return;
+      inactivityTimer = setTimeout(() => {
+        if (localStorage.getItem("sbhub_remember_me") !== "true") {
+          document.getElementById("authOverlay").classList.remove("unlocked");
+          document.body.classList.remove("lamp-is-on");
+        }
+      }, INACTIVITY_LIMIT);
+    }
+
+    function renderSidebar(filterQuery = "") {
+      navList.innerHTML = "";
+      menuData.forEach((item, index) => {
+        const query = filterQuery.toLowerCase().trim();
+        const matchingSubs = item.subs.filter(sub => !query || sub.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
+
+        if (query && matchingSubs.length === 0) return;
+
+        const li = document.createElement("li");
+        li.className = "nav-item-group" + (query ? " expanded" : "");
+
+        let subsHtml = "";
+        matchingSubs.forEach(sub => {
+          subsHtml += `<li><a href="${sub.url}" target="_blank" class="sub-menu-item">${sub.name}</a></li>`;
+        });
+
+        li.innerHTML = `
+          <div class="nav-header-btn" onclick="toggleAccordion(this)">
+            <i class='bx ${item.icon} nav-icon'></i>
+            <span class="nav-item-title">${item.category}</span>
+            <i class='bx bx-chevron-down nav-arrow'></i>
+          </div>
+          <ul class="sub-menu-list">
+            ${subsHtml}
+          </ul>
+        `;
+        navList.appendChild(li);
+      });
+    }
+
+    function toggleAccordion(headerEl) {
+      if (!document.body.classList.contains("sidebar-expanded")) {
+        document.body.classList.add("sidebar-expanded");
+      }
+      const groupLi = headerEl.parentElement;
+      const wasExpanded = groupLi.classList.contains("expanded");
+      
+      document.querySelectorAll(".nav-item-group").forEach(g => g.classList.remove("expanded"));
+      
+      if (!wasExpanded) {
+        groupLi.classList.add("expanded");
+      }
+      setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300);
+    }
+
+    function handleSearch() {
+      const query = document.getElementById("searchInput").value;
+      renderSidebar(query);
+    }
+
+    function renderTopWeekGames() {
+      const container = document.getElementById("topGamesList");
+      container.innerHTML = "";
+      topWeekGames.forEach(game => {
+        const el = document.createElement("a");
+        el.href = game.url;
+        el.target = "_blank";
+        el.className = "game-card-item";
+        el.innerHTML = `
+          <div class="game-league-tag">
+            <span>${game.league}</span>
+            <span style="color: var(--accent-green);">● ${game.status}</span>
+          </div>
+          <div class="game-teams-row">
+            <span>${game.home}</span>
+            <span style="opacity: 0.7; font-weight: 500;">vs</span>
+            <span>${game.away}</span>
+          </div>
+          <div class="game-time-row">
+            <span>📅 ${game.date} (PHT)</span>
+            <span style="color: var(--accent-glow);">Flashscore →</span>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function hexToRgba(hex, opacity) {
+      let c = hex.replace('#','');
+      if(c.length===3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${opacity})`;
+    }
+
+    function setPalette(bgRgba, textColor, accentColor) {
+      document.documentElement.style.setProperty('--glass-bg', bgRgba);
+      document.documentElement.style.setProperty('--text-main', textColor);
+      document.documentElement.style.setProperty('--accent-glow', accentColor);
+      
+      document.getElementById("fontColorPicker").value = textColor.startsWith('#') ? textColor : '#ffffff';
+      document.getElementById("accentColorPicker").value = accentColor;
+      
+      saveCustomizationSettings();
+      initTrendChart();
+    }
+
+    function updateCustomColors() {
+      const bgHex = document.getElementById("bgColorPicker").value;
+      const opacity = document.getElementById("bgOpacityRange").value;
+      const fontColor = document.getElementById("fontColorPicker").value;
+      const accentColor = document.getElementById("accentColorPicker").value;
+
+      const rgbaBg = hexToRgba(bgHex, opacity);
+      document.documentElement.style.setProperty('--glass-bg', rgbaBg);
+      document.documentElement.style.setProperty('--text-main', fontColor);
+      document.documentElement.style.setProperty('--text-sub', hexToRgba(fontColor, 0.7));
+      document.documentElement.style.setProperty('--accent-glow', accentColor);
+
+      saveCustomizationSettings();
+      initTrendChart();
+    }
+
+    function saveCustomizationSettings() {
+      const settings = {
+        bg: document.documentElement.style.getPropertyValue('--glass-bg'),
+        text: document.documentElement.style.getPropertyValue('--text-main'),
+        subText: document.documentElement.style.getPropertyValue('--text-sub'),
+        accent: document.documentElement.style.getPropertyValue('--accent-glow')
+      };
+      localStorage.setItem("sbhub_custom_theme_v9", JSON.stringify(settings));
+    }
+
+    function restoreCustomizationSettings() {
+      const saved = localStorage.getItem("sbhub_custom_theme_v9");
+      if (saved) {
+        try {
+          const s = JSON.parse(saved);
+          if (s.bg) document.documentElement.style.setProperty('--glass-bg', s.bg);
+          if (s.text) document.documentElement.style.setProperty('--text-main', s.text);
+          if (s.subText) document.documentElement.style.setProperty('--text-sub', s.subText);
+          if (s.accent) {
+            document.documentElement.style.setProperty('--accent-glow', s.accent);
+            document.getElementById("accentColorPicker").value = s.accent;
+          }
+        } catch(e){}
+      }
+    }
+
+    function renderClocks() {
+      const grid = document.getElementById("timezoneGrid");
+      grid.innerHTML = "";
+      selectedTimezones.forEach((tzZone, index) => {
+        const timeString = new Date().toLocaleTimeString("en-US", {
+          timeZone: tzZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+        });
+
+        const item = document.createElement("div");
+        item.className = "tz-item";
+
+        let optionsHtml = "";
+        availableTimezones.forEach(t => {
+          const selected = (t.zone === tzZone) ? "selected" : "";
+          optionsHtml += `<option value="${t.zone}" ${selected}>${t.name}</option>`;
+        });
+
+        item.innerHTML = `
+          <select class="tz-select" onchange="changeTimezone(${index}, this.value)">
+            ${optionsHtml}
+          </select>
+          <div class="tz-clock" id="clock_${index}">${timeString}</div>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    function updateClocksTick() {
+      selectedTimezones.forEach((tzZone, index) => {
+        const clockEl = document.getElementById(`clock_${index}`);
+        if (clockEl) {
+          clockEl.innerText = new Date().toLocaleTimeString("en-US", {
+            timeZone: tzZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+          });
+        }
+      });
+    }
+
+    function changeTimezone(index, newZone) {
+      selectedTimezones[index] = newZone;
+      updateClocksTick();
+      saveBentoLayout();
+    }
+
+    function getRecentDateLabels() {
+      const labels = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        labels.push(d.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }));
+      }
+      return labels;
+    }
+
+    function getTrackerData() {
+      return {
+        ibet: { increased: [35, 42, 38, 50, 55, 48, 62], limited: [10, 12, 8, 15, 11, 14, 18] },
+        edge: { increased: [45, 52, 48, 60, 65, 58, 72], limited: [12, 15, 10, 18, 14, 16, 20] },
+        tracker7a: { increased: [25, 30, 32, 40, 42, 39, 48], limited: [6, 9, 7, 11, 8, 10, 12] }
+      };
+    }
+
+    function initTrendChart() {
+      const viewMode = document.getElementById("trackerSelector")?.value || "all";
+      const dataStore = getTrackerData();
+      const dateLabels = getRecentDateLabels();
+      const isLight = document.body.classList.contains("light-mode");
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || (isLight ? '#080c14' : 'rgba(255,255,255,0.75)');
+      const gridColor = isLight ? 'rgba(8, 12, 20, 0.1)' : 'rgba(255,255,255,0.08)';
+
+      const ctx = document.getElementById("trendChart").getContext("2d");
+      if (trendChartInstance) trendChartInstance.destroy();
+
+      let chartConfigData = { labels: dateLabels, datasets: [] };
+
+      if (viewMode === "all") {
+        chartConfigData.datasets = [
+          { label: 'IBET (Inc)', data: dataStore.ibet.increased, borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.08)', borderWidth: 2.5, tension: 0.4 },
+          { label: 'EDGE (Inc)', data: dataStore.edge.increased, borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.08)', borderWidth: 2.5, tension: 0.4 },
+          { label: '7A (Inc)', data: dataStore.tracker7a.increased, borderColor: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.08)', borderWidth: 2.5, tension: 0.4 }
         ];
+        document.getElementById("trendBadge").className = "stat-badge up";
+        document.getElementById("trendBadge").innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative`;
+      } else {
+        const cur = dataStore[viewMode];
+        const latestInc = cur.increased[cur.increased.length - 1];
+        const prevInc = cur.increased[cur.increased.length - 2] || latestInc;
+        const diff = latestInc - prevInc;
+        const pct = prevInc !== 0 ? ((diff / prevInc) * 100).toFixed(1) : 0;
 
-        const toggleBtn = document.getElementById('toggle-btn');
-        const halfArcMenu = document.getElementById('half-arc-menu');
-        const categoryNodesContainer = document.getElementById('category-nodes');
-        const centeredBranchModal = document.getElementById('centered-branch-modal');
-        const modalCategoryTitle = document.getElementById('modal-category-title');
-        const modalBranchGrid = document.getElementById('modal-branch-grid');
-        const customContextMenu = document.getElementById('custom-context-menu');
-        const openAllTabsBtn = document.getElementById('open-all-tabs-btn');
-
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
-        const userProfileSelect = document.getElementById('user-profile-select');
-
-        const loginModal = document.getElementById('login-modal');
-        const loginCard = document.getElementById('login-card');
-        const passcodeInputs = document.getElementById('passcode-input');
-        const togglePasswordBtn = document.getElementById('toggle-password-btn');
-        const loginSubmitBtn = document.getElementById('login-submit-btn');
-        const loginError = document.getElementById('login-error');
-
-        let activeCategoryNode = null;
-        let currentOpenGroupId = null;
-        let contextTargetGroup = null;
-
-        function checkAuthStatus() {
-            return localStorage.getItem('sb_device_authenticated_2026') === 'true';
+        const badge = document.getElementById("trendBadge");
+        if (diff >= 0) {
+          badge.className = "stat-badge up";
+          badge.innerHTML = `<i class='bx bx-trending-up'></i> +${pct}%`;
+        } else {
+          badge.className = "stat-badge down";
+          badge.innerHTML = `<i class='bx bx-trending-down'></i> ${pct}%`;
         }
 
-        function promptLogin(callback) {
-            loginModal.classList.add('active');
-            passcodeInputs.value = '';
-            loginError.classList.remove('show');
-            setTimeout(() => passcodeInputs.focus(), 100);
+        chartConfigData.datasets = [
+          { label: `Increased`, data: cur.increased, borderColor: isLight ? '#059669' : '#34d399', backgroundColor: isLight ? 'rgba(5, 150, 105, 0.15)' : 'rgba(52, 211, 153, 0.15)', borderWidth: 2.5, fill: true, tension: 0.4 },
+          { label: `Limited`, data: cur.limited, borderColor: isLight ? '#dc2626' : '#f87171', backgroundColor: isLight ? 'rgba(220, 38, 38, 0.15)' : 'rgba(248, 113, 113, 0.15)', borderWidth: 2.5, fill: true, tension: 0.4 }
+        ];
+      }
 
-            function handleAuthenticate() {
-                const enteredPass = passcodeInputs.value.trim();
-                if (enteredPass === 'sb2026') {
-                    localStorage.setItem('sb_device_authenticated_2026', 'true');
-                    loginModal.classList.remove('active');
-                    loginSubmitBtn.removeEventListener('click', handleAuthenticate);
-                    passcodeInputs.removeEventListener('keydown', handleKeyDown);
-                    if (callback) callback();
-                } else {
-                    loginError.classList.add('show');
-                    loginCard.classList.add('shake');
-                    passcodeInputs.value = '';
-                    passcodeInputs.focus();
-                    setTimeout(() => loginCard.classList.remove('shake'), 400);
-                }
+      trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: chartConfigData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: textColor, font: { size: 9, weight: '700' } }, display: true } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 9, weight: '700' } } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 9, weight: '700' } } }
+          }
+        }
+      });
+    }
+
+    function switchTrackerData() { initTrendChart(); }
+
+    function makeElementDraggable(element) {
+      const header = element.querySelector(".card-header-title");
+      if (!header) return;
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      
+      header.onmousedown = function(e) {
+        if (document.body.classList.contains("mobile-view-active")) return;
+        e.preventDefault();
+        element.style.zIndex = 100;
+        pos3 = e.clientX; pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+      };
+
+      function elementDrag(e) {
+        e.preventDefault();
+        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+      }
+
+      function closeDragElement() {
+        document.onmouseup = null; document.onmousemove = null;
+        saveBentoLayout();
+      }
+    }
+
+    document.querySelectorAll(".bento-card").forEach(makeElementDraggable);
+
+    if (window.ResizeObserver) {
+      const resizeObserver = new ResizeObserver(() => {
+        if (trendChartInstance) trendChartInstance.resize();
+      });
+      document.querySelectorAll(".bento-card").forEach(card => resizeObserver.observe(card));
+    }
+
+    function saveBentoLayout() {
+      const layout = {};
+      document.querySelectorAll(".bento-card").forEach(card => {
+        layout[card.id] = { 
+          top: card.style.top, 
+          left: card.style.left,
+          width: card.style.width,
+          height: card.style.height
+        };
+      });
+      layout["selected_timezones"] = selectedTimezones;
+      layout["mobile_view"] = document.body.classList.contains("mobile-view-active");
+      localStorage.setItem("sbhub_bento_layout_clean_v10", JSON.stringify(layout));
+    }
+
+    function restoreBentoLayout() {
+      const saved = localStorage.getItem("sbhub_bento_layout_clean_v10");
+      if (saved) {
+        try {
+          const layout = JSON.parse(saved);
+          if (layout["mobile_view"]) {
+            document.body.classList.add("mobile-view-active");
+            document.getElementById("mobileViewToggle").checked = true;
+          }
+          for (const id in layout) {
+            if (id === "selected_timezones" || id === "mobile_view") continue;
+            const el = document.getElementById(id);
+            if (el && layout[id].top) {
+              el.style.top = layout[id].top;
+              el.style.left = layout[id].left;
+              if (layout[id].width) el.style.width = layout[id].width;
+              if (layout[id].height) el.style.height = layout[id].height;
             }
+          }
+          if (layout["selected_timezones"]) {
+            selectedTimezones = layout["selected_timezones"];
+          }
+        } catch(e){}
+      }
+    }
 
-            function handleKeyDown(e) {
-                if (e.key === 'Enter') handleAuthenticate();
-            }
+    function checkMobileDevice() {
+      const isMobileScreen = window.innerWidth <= 768;
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobileScreen || isMobileUA) {
+        document.body.classList.add("mobile-view-active");
+        const mobileToggle = document.getElementById("mobileViewToggle");
+        if (mobileToggle) mobileToggle.checked = true;
+      }
+    }
 
-            loginSubmitBtn.onclick = handleAuthenticate;
-            passcodeInputs.onkeydown = handleKeyDown;
-        }
+    function toggleModal() {
+      const modal = document.getElementById("settingsModal");
+      modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+    }
 
-        if (togglePasswordBtn && passcodeInputs) {
-            togglePasswordBtn.addEventListener('click', () => {
-                if (passcodeInputs.type === 'password') {
-                    passcodeInputs.type = 'text';
-                    togglePasswordBtn.classList.remove('fa-eye');
-                    togglePasswordBtn.classList.add('fa-eye-slash');
-                } else {
-                    passcodeInputs.type = 'password';
-                    togglePasswordBtn.classList.remove('fa-eye-slash');
-                    togglePasswordBtn.classList.add('fa-eye');
-                }
-            });
-        }
+    function toggleTheme() {
+      const isLight = document.getElementById("modeToggle").checked;
+      if (isLight) document.body.classList.add("light-mode");
+      else document.body.classList.remove("light-mode");
+      initTrendChart();
+    }
 
-        function initActiveUser() {
-            let savedUser = localStorage.getItem('sb_active_user');
-            if (userProfileSelect && savedUser) {
-                userProfileSelect.value = savedUser;
-            }
-            return savedUser || "GUEST";
-        }
+    function toggleMobileView() {
+      const mobileToggle = document.getElementById("mobileViewToggle");
+      if (mobileToggle && mobileToggle.checked) document.body.classList.add("mobile-view-active");
+      else document.body.classList.remove("mobile-view-active");
+      saveBentoLayout();
+      setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300);
+    }
 
-        let currentUser = initActiveUser();
+    function saveLayoutToURL() {
+      saveBentoLayout();
+      const params = new URLSearchParams(window.location.search);
+      const shareableURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      navigator.clipboard.writeText(shareableURL).then(() => {
+        alert("Bento layout & Top Week Games widget saved & URL copied!");
+      });
+    }
 
-        function changeActiveUser(val) {
-            if (val === "CUSTOM") {
-                let typedName = prompt("Enter your Name:", "KRIZTEL");
-                if (typedName) {
-                    currentUser = typedName.toUpperCase().trim();
-                    localStorage.setItem('sb_active_user', currentUser);
-                    let customOpt = document.createElement('option');
-                    customOpt.value = currentUser;
-                    customOpt.textContent = "👤 USER: " + currentUser;
-                    userProfileSelect.appendChild(customOpt);
-                    userProfileSelect.value = currentUser;
-                }
-            } else {
-                currentUser = val;
-                localStorage.setItem('sb_active_user', currentUser);
-            }
-        }
+    checkRememberedSession();
+    restoreCustomizationSettings();
+    renderSidebar();
+    restoreBentoLayout();
+    checkMobileDevice();
+    renderClocks();
+    renderTopWeekGames();
+    initTrendChart();
 
-        function switchGame(val) {
-            const selector = document.getElementById('game-selector');
-            if (val === 'mario') {
-                window.open('mario.html', '_blank');
-            } else if (val === 'flappy') {
-                window.open('flappy.html', '_blank');
-            } else if (val === 'block') {
-                window.open('block.html', '_blank');
-            } else if (val === 'solitaire') {
-                window.open('solitaire.html', '_blank');
-            } else if (val === 'word') {
-                window.open('word.html', '_blank');
-            }
-            if (selector) selector.value = '';
-        }
-
-        function buildCategoryWheel(dataset) {
-            if (!categoryNodesContainer) return;
-            categoryNodesContainer.innerHTML = '';
-
-            const total = dataset.length;
-            const innerRadius = 275; 
-            const startAngle = Math.PI * 1.42; 
-            const endAngle = Math.PI * 0.58;
-            const angleStep = (endAngle - startAngle) / (total - 1);
-
-            dataset.forEach((group, index) => {
-                const angle = startAngle + (index * angleStep);
-                const x = Math.round(innerRadius * Math.cos(angle));
-                const y = Math.round(innerRadius * Math.sin(angle));
-
-                const node = document.createElement('div');
-                node.className = 'category-node';
-                node.setAttribute('data-id', group.id);
-                node.setAttribute('data-tooltip', group.category);
-                node.setAttribute('data-angle', angle);
-                node.style.setProperty('--tx', x + 'px');
-                node.style.setProperty('--ty', y + 'px');
-
-                node.innerHTML = `<i class="${group.icon}"></i>`;
-
-                node.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    
-                    if (currentOpenGroupId === group.id) {
-                        closeBranchModal();
-                    } else {
-                        if (activeCategoryNode) activeCategoryNode.classList.remove('active-node');
-                        activeCategoryNode = node;
-                        activeCategoryNode.classList.add('active-node');
-                        currentOpenGroupId = group.id;
-
-                        openCenteredBranchModal(group);
-                    }
-                });
-
-                node.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    contextTargetGroup = group;
-                    showContextMenu(e.clientX, e.clientY);
-                });
-
-                categoryNodesContainer.appendChild(node);
-            });
-        }
-
-        function openCenteredBranchModal(group) {
-            modalCategoryTitle.textContent = group.category;
-            modalBranchGrid.innerHTML = '';
-
-            group.items.forEach((item) => {
-                const a = document.createElement('a');
-                a.href = item.url;
-                a.className = 'branch-item';
-                a.setAttribute('data-id', item.id);
-                a.setAttribute('target', '_blank');
-                a.setAttribute('rel', 'noopener noreferrer');
-
-                if (item.color) a.setAttribute('data-color', item.color);
-
-                a.innerHTML = '<span class="branch-label-text">' + item.label + '</span>';
-                modalBranchGrid.appendChild(a);
-            });
-
-            centeredBranchModal.classList.add('active');
-        }
-
-        function closeBranchModal() {
-            centeredBranchModal.classList.remove('active');
-
-            if (activeCategoryNode) {
-                activeCategoryNode.classList.remove('active-node');
-                activeCategoryNode = null;
-            }
-            currentOpenGroupId = null;
-        }
-
-        function showContextMenu(x, y) {
-            customContextMenu.style.left = x + 'px';
-            customContextMenu.style.top = y + 'px';
-            customContextMenu.classList.add('active');
-        }
-
-        function hideContextMenu() {
-            customContextMenu.classList.remove('active');
-        }
-
-        if (openAllTabsBtn) {
-            openAllTabsBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (contextTargetGroup && contextTargetGroup.items) {
-                    let blockedCount = 0;
-                    
-                    contextTargetGroup.items.forEach((item) => {
-                        const link = document.createElement('a');
-                        link.href = item.url;
-                        link.target = '_blank';
-                        link.rel = 'noopener noreferrer';
-                        document.body.appendChild(link);
-                        
-                        const win = window.open(item.url, '_blank');
-                        if (!win || win.closed || typeof win.closed === 'undefined') {
-                            blockedCount++;
-                        }
-                        document.body.removeChild(link);
-                    });
-
-                    if (blockedCount > 0) {
-                        alert("⚠️ Browser blocked multi-tabs!\n\nPlease click 'Always allow pop-ups' in your browser's top address bar to enable opening all links at once.");
-                    }
-                }
-                hideContextMenu();
-            });
-        }
-
-        if (centeredBranchModal) {
-            centeredBranchModal.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (currentOpenGroupId) {
-                    contextTargetGroup = categorisedMenuData.find(g => g.id === currentOpenGroupId);
-                    showContextMenu(e.clientX, e.clientY);
-                }
-            });
-        }
-
-        document.addEventListener('click', (e) => {
-            hideContextMenu();
-            if (currentOpenGroupId && !e.target.closest('#centered-branch-modal') && !e.target.closest('.category-node')) {
-                closeBranchModal();
-            }
-        });
-
-        if (toggleBtn && halfArcMenu) {
-            function executeMenuToggle() {
-                const isActive = halfArcMenu.classList.toggle('active');
-                const nodes = categoryNodesContainer.querySelectorAll('.category-node');
-
-                nodes.forEach((node, index) => {
-                    const tx = node.style.getPropertyValue('--tx');
-                    const ty = node.style.getPropertyValue('--ty');
-
-                    if (isActive) {
-                        setTimeout(() => {
-                            node.style.opacity = '1';
-                            node.style.transform = 'translate(' + tx + ', ' + ty + ') scale(1)';
-                        }, index * 30);
-                    } else {
-                        node.style.opacity = '0';
-                        node.style.transform = 'translate(0, 0) scale(0)';
-                    }
-                });
-
-                if (!isActive) {
-                    closeBranchModal();
-                    hideContextMenu();
-                }
-            }
-
-            function handleToggleMenu(e) {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-
-                if (checkAuthStatus()) {
-                    executeMenuToggle();
-                } else {
-                    promptLogin(() => {
-                        executeMenuToggle();
-                    });
-                }
-            }
-
-            toggleBtn.addEventListener('click', handleToggleMenu);
-        }
-
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            if (themeIcon && themeText) {
-                if (theme === 'dark') {
-                    themeIcon.className = 'fa-solid fa-moon';
-                    themeText.textContent = 'Night Mode';
-                } else {
-                    themeIcon.className = 'fa-solid fa-sun';
-                    themeText.textContent = 'Daylight Mode';
-                }
-            }
-            localStorage.setItem('dashboard_theme', theme);
-        }
-
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
-            setTheme(savedTheme);
-
-            buildCategoryWheel(categorisedMenuData);
-        });
-    </script>
+    setInterval(updateClocksTick, 1000);
+  </script>
 </body>
 </html>
