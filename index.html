@@ -218,8 +218,15 @@
       </div>
     </div>
 
+    <!-- UPDATE: Top Week Games now features a refresh button calling fetchLiveGames -->
     <div class="bento-card" id="topGamesCard">
-      <div class="card-header-title"><span>⚽ TOP WEEK GAMES <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
+      <div class="card-header-title">
+        <span>⚽ TOP WEEK GAMES</span> 
+        <span class="drag-hint">
+          <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:4px;" onclick="fetchLiveGames()" title="Refresh Live Feeds"></i>
+          <i class='bx bx-move'></i> Drag
+        </span>
+      </div>
       <div class="games-list" id="topGamesList"></div>
     </div>
 
@@ -234,7 +241,7 @@
       </div>
     </div>
 
-    <!-- Trend Chart Card (NOW FREELY RESIZABLE) -->
+    <!-- Trend Chart Card -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
         <span>DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
@@ -244,7 +251,7 @@
           <option value="all">📊 ALL BRANDS (Increase)</option>
           <option value="ibet">IBET TRACKER</option>
           <option value="edge">EDGE TRACKER</option>
-          <option value="pubs">PUBS TRACKER</option>
+          <option value="tracker7a">7A TRACKER</option>
         </select>
         
         <select id="timeframeSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 110px;" onchange="initTrendChart()">
@@ -270,7 +277,7 @@
         <i class='bx bx-x' style="cursor:pointer; font-size: 22px;" onclick="toggleModal()"></i>
       </div>
 
-      <!-- DAILY RECORD LOG SECTION (Moved inside settings) -->
+      <!-- DAILY RECORD LOG SECTION -->
       <div style="margin-top: 15px; padding-top: 5px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 15px;">
         <span style="font-size: 11px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; margin-bottom: 10px; display: block;">📝 DAILY RECORD LOG</span>
         
@@ -292,9 +299,9 @@
           <input type="number" id="edgeLimInput" class="logger-input" placeholder="0">
         </div>
         <div class="entry-grid">
-          <div>PUBS</div>
-          <input type="number" id="pubsIncInput" class="logger-input" placeholder="0">
-          <input type="number" id="pubsLimInput" class="logger-input" placeholder="0">
+          <div>7A</div>
+          <input type="number" id="sevenIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="sevenLimInput" class="logger-input" placeholder="0">
         </div>
         <button class="action-btn" id="saveLogBtn" onclick="saveDailyLog()"><i class='bx bx-save'></i> SAVE DAILY DATA</button>
       </div>
@@ -313,7 +320,7 @@
   </div>
 
   <script>
-    // FULL RESTORED MENU DATA
+    // FULL MENU DATA
     const menuData = [
       {
         category: "INTERNAL",
@@ -369,51 +376,49 @@
         icon: "bx-radar",
         subs: [
           { name: "MTS", url: "https://mtsc-its.betradar.com/" },
-          { name: "PORTAL", url: "https://portal.betradar.com/" }
+          { name: "CTRL PORTAL", url: "https://portal.betradar.com/" }
         ]
       },
       {
         category: "OWN BRANDS",
         icon: "bx-layer",
         subs: [
-          { name: "7A", url: "#" },
-          { name: "QBET", url: "#" },
-          { name: "30BET", url: "#" },
-          { name: "55BET", url: "#" },
-          { name: "GQBET", url: "#" },
-          { name: "BVBET", url: "#" },
-          { name: "IBET", url: "#" }
+          { name: "7A", url: "https://www.7abet.com/en-UN" },
+          { name: "QBET", url: "https://www.qbet.com/en-UN" },
+          { name: "55BET", url: "https://www.55bet.com/en-UN" },
+          { name: "30BET", url: "https://www.30bet.com/en-UN" },
+          { name: "GQBET", url: "https://www.gqbet.vip/en-UN/" },
+          { name: "BVBET", url: "https://www.bvbet.com/en-UN" },
+          { name: "IBET", url: "https://www.ibet.com/en-UN/sportsbook/price-boost/football" }
         ]
       },
       {
         category: "PRICE REFERENCES",
         icon: "bx-data",
         subs: [
-          { name: "FLASHSCORE", url: "#" },
-          { name: "PINNACLE", url: "#" },
-          { name: "ODDSCHECKER", url: "#" },
-          { name: "ODDSPORTAL", url: "#" },
-          { name: "GGBET", url: "#" },
-          { name: "BETSAPI", url: "#" },
-          { name: "SOFASCORE", url: "#" },
-          { name: "MARATHON", url: "#" },
-          { name: "FONBET", url: "#" }
+          { name: "FLASHSCORE", url: "https://www.flashscore.com/" },
+          { name: "BETSAPI", url: "https://betsapi.com/" },
+          { name: "ODDSPORTAL", url: "https://www.oddsportal.com/football/" },
+          { name: "ODDSCHECKER", url: "https://www.oddschecker.com/" },
+          { name: "BETFAIR", url: "https://www.betfair.com/exchange/plus/" },
+          { name: "BET365", url: "https://www.bet365.com/" },
+          { name: "PINNACLE", url: "https://www.pinnacle.com/" },
+          { name: "GGBET", url: "https://gg.bet/" },
+          { name: "UNIBET", url: "https://www.unibet.com.au/" },
+          { name: "SOFASCORE", url: "https://www.sofascore.com/" },
+          { name: "MARATHONBET", url: "https://www.marathonbet.com/" },
+          { name: "FONBET", url: "https://fonbet.com/" }
         ]
       },
       {
-        category: "SOP'S",
+        category: "PROCEDURES",
         icon: "bx-file",
         subs: [
-          { name: "WORKPLACE", url: "#" },
-          { name: "CONFLUENCE", url: "#" },
-          { name: "HANDOVER", url: "handover.html" }
+          { name: "HANDOVER SOP", url: "handover.html" },
+          { name: "CONFLUENCE", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" },
+          { name: "WORKSPACE", url: "workspace.html" }
         ]
       }
-    ];
-
-    const topWeekGames = [
-      { league: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League", home: "Man United", away: "Man City", date: "Sep 13, 23:30", status: "Upcoming", url: "https://www.flashscore.ph/football/england/premier-league/" },
-      { league: "🇪🇸 LaLiga", home: "Real Madrid", away: "Rayo Vallecano", date: "Sep 13, 03:00", status: "Upcoming", url: "https://www.flashscore.ph/football/spain/laliga/" }
     ];
 
     const availableTimezones = [
@@ -433,6 +438,73 @@
     let inactivityTimer = null;
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
+    // --- LIVE FIXTURE FETCHING LOGIC ---
+    async function fetchLiveGames() {
+      const container = document.getElementById("topGamesList");
+      container.innerHTML = `<div style="text-align:center; padding:20px; display:flex; flex-direction:column; align-items:center; gap:8px;"><i class='bx bx-loader-alt bx-spin' style="font-size:24px; color:var(--accent-glow);"></i><span style="font-size:10px; color:var(--text-sub); font-weight:700;">FETCHING REAL FIXTURES...</span></div>`;
+      
+      try {
+        const [eplRes, espRes] = await Promise.all([
+          fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard"),
+          fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard")
+        ]);
+        
+        const eplData = await eplRes.json();
+        const espData = await espRes.json();
+        
+        let gamesHtml = "";
+        
+        const extractGame = (event, leagueName, link) => {
+          if (!event || !event.competitions || !event.competitions[0]) return "";
+          const match = event.competitions[0];
+          
+          const home = match.competitors.find(c => c.homeAway === 'home')?.team?.shortDisplayName || "Home";
+          const away = match.competitors.find(c => c.homeAway === 'away')?.team?.shortDisplayName || "Away";
+          
+          const dateObj = new Date(event.date);
+          const dateStr = dateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }) + " - " + 
+                          dateObj.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false });
+          
+          let status = "Upcoming";
+          let statusColor = "var(--accent-green)";
+          if (event.status.type.state === 'in') { status = "LIVE"; statusColor = "#f87171"; }
+          else if (event.status.type.state === 'post') { status = "Finished"; statusColor = "var(--text-sub)"; }
+
+          return `
+            <a href="${link}" target="_blank" class="game-card-item">
+              <div class="game-league-tag">
+                <span>${leagueName}</span>
+                <span style="color: ${statusColor};">● ${status}</span>
+              </div>
+              <div class="game-teams-row">
+                <span>${home}</span>
+                <span style="opacity: 0.7; font-weight: 500;">vs</span>
+                <span>${away}</span>
+              </div>
+              <div class="game-time-row">
+                <span>📅 ${dateStr} (Local)</span>
+                <span style="color: var(--accent-glow);">Flashscore →</span>
+              </div>
+            </a>`;
+        };
+
+        if (eplData.events && eplData.events.length > 0) {
+          gamesHtml += extractGame(eplData.events[0], "🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE", "https://www.flashscore.ph/football/england/premier-league/");
+          if (eplData.events.length > 1) gamesHtml += extractGame(eplData.events[1], "🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE", "https://www.flashscore.ph/football/england/premier-league/");
+        }
+        
+        if (espData.events && espData.events.length > 0) {
+          gamesHtml += extractGame(espData.events[0], "🇪🇸 LALIGA", "https://www.flashscore.ph/football/spain/laliga/");
+          if (espData.events.length > 1) gamesHtml += extractGame(espData.events[1], "🇪🇸 LALIGA", "https://www.flashscore.ph/football/spain/laliga/");
+        }
+
+        container.innerHTML = gamesHtml || `<div style="text-align:center; padding:10px; font-size:11px;">No upcoming fixtures found.</div>`;
+
+      } catch (e) {
+        container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:var(--accent-red);">Failed to fetch live data. Please try again.</div>`;
+      }
+    }
+
     // --- CONTINUOUS DATA STORAGE LOGIC ---
     function loadDataForDate(dateStr) {
       if (!dateStr) return;
@@ -444,15 +516,15 @@
         document.getElementById('ibetLimInput').value = dateData.ibet?.lim || 0;
         document.getElementById('edgeIncInput').value = dateData.edge?.inc || 0;
         document.getElementById('edgeLimInput').value = dateData.edge?.lim || 0;
-        document.getElementById('pubsIncInput').value = dateData.pubs?.inc || 0;
-        document.getElementById('pubsLimInput').value = dateData.pubs?.lim || 0;
+        document.getElementById('sevenIncInput').value = dateData.tracker7a?.inc || 0;
+        document.getElementById('sevenLimInput').value = dateData.tracker7a?.lim || 0;
       } else {
         document.getElementById('ibetIncInput').value = '';
         document.getElementById('ibetLimInput').value = '';
         document.getElementById('edgeIncInput').value = '';
         document.getElementById('edgeLimInput').value = '';
-        document.getElementById('pubsIncInput').value = '';
-        document.getElementById('pubsLimInput').value = '';
+        document.getElementById('sevenIncInput').value = '';
+        document.getElementById('sevenLimInput').value = '';
       }
     }
 
@@ -468,7 +540,7 @@
           baseData[dateStr] = {
             ibet: { inc: Math.floor(Math.random() * 8) + 8, lim: Math.floor(Math.random() * 4) + 2 },
             edge: { inc: Math.floor(Math.random() * 10) + 10, lim: Math.floor(Math.random() * 5) + 3 },
-            pubs: { inc: Math.floor(Math.random() * 7) + 6, lim: Math.floor(Math.random() * 3) + 1 }
+            tracker7a: { inc: Math.floor(Math.random() * 7) + 6, lim: Math.floor(Math.random() * 3) + 1 }
           };
         }
         localStorage.setItem('sbhub_chart_data', JSON.stringify(baseData));
@@ -494,9 +566,9 @@
           inc: Number(document.getElementById('edgeIncInput').value) || 0, 
           lim: Number(document.getElementById('edgeLimInput').value) || 0 
         },
-        pubs: { 
-          inc: Number(document.getElementById('pubsIncInput').value) || 0, 
-          lim: Number(document.getElementById('pubsLimInput').value) || 0 
+        tracker7a: { 
+          inc: Number(document.getElementById('sevenIncInput').value) || 0, 
+          lim: Number(document.getElementById('sevenLimInput').value) || 0 
         }
       };
 
@@ -540,12 +612,12 @@
       if (viewMode === "all") {
         const ibetInc = sortedDates.map(d => appData[d].ibet?.inc || 0);
         const edgeInc = sortedDates.map(d => appData[d].edge?.inc || 0);
-        const pubsInc = sortedDates.map(d => appData[d].pubs?.inc || 0);
+        const sevenInc = sortedDates.map(d => appData[d].tracker7a?.inc || 0);
 
         chartConfigData.datasets = [
           { label: 'IBET (Inc)', data: ibetInc, borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.08)', borderWidth: 2.5, tension: 0.4 },
           { label: 'EDGE (Inc)', data: edgeInc, borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.08)', borderWidth: 2.5, tension: 0.4 },
-          { label: 'PUBS (Inc)', data: pubsInc, borderColor: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.08)', borderWidth: 2.5, tension: 0.4 }
+          { label: '7A (Inc)', data: sevenInc, borderColor: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.08)', borderWidth: 2.5, tension: 0.4 }
         ];
         badge.className = "stat-badge up";
         badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative`;
@@ -706,7 +778,6 @@
       const layoutFromURL = urlParams.get('layout');
       let layoutToApply = null;
 
-      // 1. Try URL first
       if (layoutFromURL) {
         try {
           layoutToApply = JSON.parse(atob(layoutFromURL));
@@ -715,7 +786,6 @@
         } catch(e) { console.error("Invalid URL layout data."); }
       }
 
-      // 2. Try LocalStorage second
       if (!layoutToApply) {
         const saved = localStorage.getItem("sbhub_bento_layout_clean_v10");
         if (saved) {
@@ -723,7 +793,6 @@
         }
       }
 
-      // Apply the chosen layout
       if (layoutToApply) {
         if (layoutToApply["mobile_view"]) { 
           document.body.classList.add("mobile-view-active"); 
@@ -770,16 +839,6 @@
       });
     }
 
-    function renderTopWeekGames() {
-      const container = document.getElementById("topGamesList");
-      container.innerHTML = "";
-      topWeekGames.forEach(game => {
-        const el = document.createElement("a"); el.href = game.url; el.target = "_blank"; el.className = "game-card-item";
-        el.innerHTML = `<div class="game-league-tag"><span>${game.league}</span><span style="color: var(--accent-green);">● ${game.status}</span></div><div class="game-teams-row"><span>${game.home}</span><span style="opacity: 0.7; font-weight: 500;">vs</span><span>${game.away}</span></div>`;
-        container.appendChild(el);
-      });
-    }
-
     function makeElementDraggable(element) {
       const header = element.querySelector(".card-header-title");
       if (!header) return;
@@ -811,11 +870,11 @@
     function toggleMobileView() { const mobileToggle = document.getElementById("mobileViewToggle"); if (mobileToggle && mobileToggle.checked) document.body.classList.add("mobile-view-active"); else document.body.classList.remove("mobile-view-active"); setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300); }
     
     // Boot up functions
-    restoreBentoLayout(); // MUST happen before clocks render
+    restoreBentoLayout(); 
     checkRememberedSession();
     initDataStore();
     renderSidebar();
-    renderTopWeekGames();
+    fetchLiveGames(); // Fetch real data on load
     renderClocks();
     initTrendChart();
     
