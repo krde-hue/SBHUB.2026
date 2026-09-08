@@ -3,520 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sportsbook Hub - Secured 3D Lamp Login</title>
+  <title>Sportsbook Hub - Secured Dashboard</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    :root { --bg-overlay: rgba(10, 15, 26, 0.35); --glass-bg: rgba(22, 27, 34, 0.55); --glass-bg-hover: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.18); --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); --text-main: #ffffff; --text-sub: rgba(255, 255, 255, 0.65); --accent-glow: #38bdf8; --accent-green: #34d399; --accent-red: #f87171; --card-blur: blur(20px); --font-mono: 'JetBrains Mono', monospace; --sidebar-width: 78px; --sidebar-expanded-width: 280px; }
+    body.sidebar-expanded { --sidebar-width: 280px; }
+    body.light-mode { --bg-overlay: rgba(255, 255, 255, 0.4); --glass-bg: rgba(255, 255, 255, 0.85); --glass-bg-hover: rgba(15, 23, 42, 0.08); --glass-border: rgba(15, 23, 42, 0.2); --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); --text-main: #080c14; --text-sub: #1e293b; --accent-glow: #0284c7; --accent-green: #047857; --accent-red: #b91c1c; }
+    body { min-height: 100vh; background-color: #080c14; background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('sb-hub.jpg'), url('https://raw.githubusercontent.com/devskrz-commits/SBHUB-test/main/sb-hub.jpg'); background-repeat: no-repeat; background-position: center center; background-attachment: fixed; background-size: cover; color: var(--text-main); display: flex; overflow-x: hidden; overflow-y: auto; transition: background 0.3s ease, color 0.3s ease; }
+    @keyframes bentoContainerReveal { 0% { opacity: 0; transform: scale(0.88) translateY(30px); filter: blur(16px); } 100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); } }
+    
+    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 7, 14, 0.85); backdrop-filter: blur(30px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
+    #authOverlay.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
+    .lamp-login-container { position: relative; display: flex; align-items: center; gap: 70px; }
+    .lamp-scene { position: relative; width: 240px; height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.6)); }
+    .lamp-shade { width: 210px; height: 110px; background: radial-gradient(circle at 40% 30%, #475569 0%, #1e293b 60%, #0f172a 100%); border-radius: 130px 130px 12px 12px; position: relative; box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.18), inset 0 -8px 20px rgba(0, 0, 0, 0.5); z-index: 3; transition: box-shadow 0.4s ease; }
+    body.lamp-is-on .lamp-shade { box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.25), 0 0 60px 20px rgba(245, 158, 11, 0.5), 0 0 120px 40px rgba(217, 119, 6, 0.25); }
+    .lamp-stand-rod { width: 14px; height: 190px; background: linear-gradient(90deg, #b45309, #fbbf24, #92400e); border-radius: 4px; position: relative; z-index: 2; box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 0 0 10px rgba(245, 158, 11, 0.2); }
+    .lamp-base { width: 140px; height: 22px; background: linear-gradient(180deg, #f59e0b, #b45309, #78350f); border-radius: 12px 12px 2px 2px; z-index: 2; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+    .pull-cord-wrapper { position: absolute; bottom: 175px; right: 35px; display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; transform-origin: top center; }
+    @keyframes cordBounce { 0% { transform: translateY(0) scaleY(1); } 30% { transform: translateY(18px) scaleY(1.1); } 50% { transform: translateY(-8px) scaleY(0.95); } 70% { transform: translateY(6px) scaleY(1.02); } 100% { transform: translateY(0) scaleY(1); } }
+    .pull-cord-wrapper.bouncing { animation: cordBounce 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    .cord-string { width: 2px; height: 65px; background: linear-gradient(180deg, #cbd5e1, #64748b); box-shadow: 0 0 4px rgba(255, 255, 255, 0.5); }
+    .cord-handle { width: 18px; height: 22px; background: radial-gradient(circle at 35% 30%, #fde047, #d97706); border-radius: 50%; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.7), inset 0 2px 3px rgba(255, 255, 255, 0.6); }
+    .login-popup-card { width: 380px; background: rgba(20, 26, 38, 0.72); border: 1.5px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(25px); border-radius: 24px; padding: 32px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7); transform: translateX(40px) scale(0.95); opacity: 0; visibility: hidden; transition: all 0.5s ease; }
+    body.lamp-is-on .login-popup-card { transform: translateX(0) scale(1); opacity: 1; visibility: visible; }
+    .login-title { font-size: 21px; font-weight: 800; color: #ffffff; margin-bottom: 22px; text-align: center; }
+    .input-group { margin-bottom: 16px; }
+    .input-label { font-size: 10px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px; display: block; }
+    .login-input { width: 100%; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 600; color: #ffffff; outline: none; }
+    .remember-container { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; cursor: pointer; }
+    .remember-container input[type="checkbox"] { appearance: none; width: 16px; height: 16px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(15, 23, 42, 0.65); outline: none; cursor: pointer; }
+    .remember-container input[type="checkbox"]:checked { background: #38bdf8; border-color: #38bdf8; }
+    .remember-label { font-size: 11px; font-weight: 700; color: var(--text-sub); }
+    .signin-btn { width: 100%; margin-top: 4px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: none; padding: 13px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .error-msg { color: var(--accent-red); font-size: 11px; font-weight: 700; text-align: center; margin-top: 10px; min-height: 16px; }
 
-    :root {
-      --bg-overlay: rgba(10, 15, 26, 0.35);
-      --glass-bg: rgba(22, 27, 34, 0.55);
-      --glass-bg-hover: rgba(255, 255, 255, 0.15);
-      --glass-border: rgba(255, 255, 255, 0.18);
-      --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      --text-main: #ffffff;
-      --text-sub: rgba(255, 255, 255, 0.65);
-      --accent-glow: #38bdf8;
-      --accent-green: #34d399;
-      --accent-red: #f87171;
-      --card-blur: blur(20px);
-      --font-mono: 'JetBrains Mono', monospace;
-      
-      --sidebar-width: 78px;
-      --sidebar-expanded-width: 280px;
-    }
-
-    body.sidebar-expanded {
-      --sidebar-width: 280px;
-    }
-
-    body.light-mode {
-      --bg-overlay: rgba(255, 255, 255, 0.4);
-      --glass-bg: rgba(255, 255, 255, 0.85);
-      --glass-bg-hover: rgba(15, 23, 42, 0.08);
-      --glass-border: rgba(15, 23, 42, 0.2);
-      --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      --text-main: #080c14;
-      --text-sub: #1e293b;
-      --accent-glow: #0284c7;
-      --accent-green: #047857;
-      --accent-red: #b91c1c;
-      --card-blur: blur(20px);
-    }
-
-    body {
-      min-height: 100vh;
-      background-color: #080c14;
-      background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
-                        url('sb-hub.jpg'),
-                        url('sb-hub.jpeg'),
-                        url('sb-hub.png'),
-                        url('https://raw.githubusercontent.com/devskrz-commits/SBHUB-test/main/sb-hub.jpg');
-      background-repeat: no-repeat;
-      background-position: center center;
-      background-attachment: fixed;
-      background-size: cover;
-      color: var(--text-main);
-      display: flex;
-      overflow-x: hidden;
-      overflow-y: auto;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    @keyframes bentoContainerReveal {
-      0% { opacity: 0; transform: scale(0.88) translateY(30px); filter: blur(16px); }
-      100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
-    }
-
-    #authOverlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(4, 7, 14, 0.85);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.5s ease, visibility 0.5s ease;
-    }
-
-    #authOverlay.unlocked {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .lamp-login-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 70px;
-    }
-
-    .lamp-scene {
-      position: relative;
-      width: 240px;
-      height: 380px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.6));
-    }
-
-    .lamp-shade {
-      width: 210px;
-      height: 110px;
-      background: radial-gradient(circle at 40% 30%, #475569 0%, #1e293b 60%, #0f172a 100%);
-      border-radius: 130px 130px 12px 12px;
-      position: relative;
-      box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.18), inset 0 -8px 20px rgba(0, 0, 0, 0.5);
-      z-index: 3;
-      transition: box-shadow 0.4s ease;
-    }
-
-    body.lamp-is-on .lamp-shade {
-      box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.25), 
-                  0 0 60px 20px rgba(245, 158, 11, 0.5), 
-                  0 0 120px 40px rgba(217, 119, 6, 0.25);
-    }
-
-    .lamp-stand-rod {
-      width: 14px;
-      height: 190px;
-      background: linear-gradient(90deg, #b45309, #fbbf24, #92400e);
-      border-radius: 4px;
-      position: relative;
-      z-index: 2;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 0 0 10px rgba(245, 158, 11, 0.2);
-    }
-
-    .lamp-base {
-      width: 140px;
-      height: 22px;
-      background: linear-gradient(180deg, #f59e0b, #b45309, #78350f);
-      border-radius: 12px 12px 2px 2px;
-      z-index: 2;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-    }
-
-    .pull-cord-wrapper {
-      position: absolute;
-      bottom: 175px;
-      right: 35px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      z-index: 10;
-      transform-origin: top center;
-    }
-
-    @keyframes cordBounce {
-      0% { transform: translateY(0) scaleY(1); }
-      30% { transform: translateY(18px) scaleY(1.1); }
-      50% { transform: translateY(-8px) scaleY(0.95); }
-      70% { transform: translateY(6px) scaleY(1.02); }
-      100% { transform: translateY(0) scaleY(1); }
-    }
-
-    .pull-cord-wrapper.bouncing {
-      animation: cordBounce 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-    }
-
-    .cord-string {
-      width: 2px;
-      height: 65px;
-      background: linear-gradient(180deg, #cbd5e1, #64748b);
-      box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
-    }
-
-    .cord-handle {
-      width: 18px;
-      height: 22px;
-      background: radial-gradient(circle at 35% 30%, #fde047, #d97706);
-      border-radius: 50%;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.7), inset 0 2px 3px rgba(255, 255, 255, 0.6);
-    }
-
-    .login-popup-card {
-      width: 380px;
-      background: rgba(20, 26, 38, 0.72);
-      border: 1.5px solid rgba(255, 255, 255, 0.28);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-radius: 24px;
-      padding: 32px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.35);
-      transform: translateX(40px) scale(0.95);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    body.lamp-is-on .login-popup-card {
-      transform: translateX(0) scale(1);
-      opacity: 1;
-      visibility: visible;
-    }
-
-    @media (max-width: 768px), body.mobile-view-active .lamp-login-container {
-      flex-direction: column !important;
-      gap: 25px !important;
-    }
-
-    @media (max-width: 768px), body.mobile-view-active .login-popup-card {
-      width: 100% !important;
-      max-width: 340px !important;
-      transform: translateY(40px) scale(0.95) !important;
-    }
-
-    .login-title {
-      font-size: 21px;
-      font-weight: 800;
-      color: #ffffff;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-      margin-bottom: 22px;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-
-    .input-group {
-      margin-bottom: 16px;
-    }
-
-    .input-label {
-      font-size: 10px;
-      font-weight: 800;
-      color: #38bdf8;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      display: block;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    }
-
-    .login-input {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #ffffff;
-      outline: none;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
-    }
-
-    .remember-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
-      user-select: none;
-      cursor: pointer;
-    }
-
-    .remember-container input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 4px;
-      background: rgba(15, 23, 42, 0.65);
-      outline: none;
-      cursor: pointer;
-    }
-
-    .remember-container input[type="checkbox"]:checked {
-      background: #38bdf8;
-      border-color: #38bdf8;
-    }
-
-    .remember-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-sub);
-      cursor: pointer;
-    }
-
-    .signin-btn {
-      width: 100%;
-      margin-top: 4px;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #ffffff;
-      border: none;
-      padding: 13px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
-    }
-
-    .error-msg {
-      color: var(--accent-red);
-      font-size: 11px;
-      font-weight: 700;
-      text-align: center;
-      margin-top: 10px;
-      min-height: 16px;
-    }
-
-    /* Glass Sidebar Layout */
-    .sidebar {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      height: calc(100vh - 30px);
-      width: var(--sidebar-width);
-      background: var(--glass-bg);
-      backdrop-filter: var(--card-blur);
-      -webkit-backdrop-filter: var(--card-blur);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 16px;
-      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      box-shadow: var(--glass-shadow);
-      animation: bentoContainerReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
+    /* Sidebar Layout */
+    .sidebar { position: fixed; top: 15px; left: 15px; height: calc(100vh - 30px); width: var(--sidebar-width); background: var(--glass-bg); backdrop-filter: var(--card-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; transition: width 0.35s ease; z-index: 100; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); animation: bentoContainerReveal 1s ease forwards; }
     @media (min-width: 769px) {
-      body:not(.mobile-view-active) .sidebar:hover {
-        width: var(--sidebar-expanded-width);
-      }
-      body:not(.mobile-view-active) .sidebar:hover .logo-details .logo_name,
-      body:not(.mobile-view-active) .sidebar:hover .search-box input,
-      body:not(.mobile-view-active) .sidebar:hover .nav-item-title,
-      body:not(.mobile-view-active) .sidebar:hover .nav-arrow,
-      body:not(.mobile-view-active) .sidebar:hover .profile .name_job {
-        display: block;
-        opacity: 1;
-        pointer-events: auto;
-      }
-      body:not(.mobile-view-active) .sidebar:not(:hover) .sub-menu-list {
-        display: none !important;
-      }
-      body:not(.mobile-view-active) .sidebar:hover .logo-details {
-        justify-content: space-between;
-      }
-      body:not(.mobile-view-active) .sidebar:hover .profile {
-        justify-content: space-between;
-        padding: 10px 12px;
-      }
+      body:not(.mobile-view-active) .sidebar:hover { width: var(--sidebar-expanded-width); }
+      body:not(.mobile-view-active) .sidebar:hover .logo-details .logo_name, body:not(.mobile-view-active) .sidebar:hover .search-box input, body:not(.mobile-view-active) .sidebar:hover .nav-item-title, body:not(.mobile-view-active) .sidebar:hover .nav-arrow, body:not(.mobile-view-active) .sidebar:hover .profile .name_job { display: block; opacity: 1; pointer-events: auto; }
+      body:not(.mobile-view-active) .sidebar:not(:hover) .sub-menu-list { display: none !important; }
+      body:not(.mobile-view-active) .sidebar:hover .logo-details { justify-content: space-between; }
+      body:not(.mobile-view-active) .sidebar:hover .profile { justify-content: space-between; padding: 10px 12px; }
     }
-
-    .sidebar .logo-details {
-      height: 45px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 4px;
-      flex-shrink: 0;
-    }
-
-    .sidebar .logo-details .logo_name {
-      color: var(--text-main);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 1.8px;
-      white-space: nowrap;
-      display: none;
-      opacity: 0;
-    }
-
+    .sidebar .logo-details { height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 4px; flex-shrink: 0; }
+    .sidebar .logo-details .logo_name { color: var(--text-main); font-size: 13px; font-weight: 800; letter-spacing: 1.8px; white-space: nowrap; display: none; opacity: 0; }
     .sidebar #btn { font-size: 22px; cursor: pointer; color: var(--text-main); }
-
-    .sidebar .search-box {
-      position: relative;
-      height: 42px;
-      width: 100%;
-      margin-top: 12px;
-      background: var(--glass-bg-hover);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      border: 1px solid var(--glass-border);
-      flex-shrink: 0;
-    }
-
-    .sidebar .search-box i {
-      position: absolute; left: 0; height: 100%; width: 46px;
-      text-align: center; line-height: 42px; font-size: 18px; color: var(--text-main);
-    }
-
-    .sidebar .search-box input {
-      height: 100%; width: 100%; outline: none; border: none;
-      background: transparent; padding-left: 46px; font-size: 12px; font-weight: 600; color: var(--text-main);
-      display: none; opacity: 0; pointer-events: none;
-    }
-
-    .sidebar .nav-list {
-      margin-top: 15px; margin-bottom: 65px;
-      display: flex; flex-direction: column; gap: 4px;
-      list-style: none; overflow-y: auto; flex-grow: 1;
-    }
+    .sidebar .search-box { position: relative; height: 42px; width: 100%; margin-top: 12px; background: var(--glass-bg-hover); border-radius: 12px; display: flex; align-items: center; border: 1px solid var(--glass-border); flex-shrink: 0; }
+    .sidebar .search-box i { position: absolute; left: 0; height: 100%; width: 46px; text-align: center; line-height: 42px; font-size: 18px; color: var(--text-main); }
+    .sidebar .search-box input { height: 100%; width: 100%; outline: none; border: none; background: transparent; padding-left: 46px; font-size: 12px; font-weight: 600; color: var(--text-main); display: none; opacity: 0; pointer-events: none; }
+    .sidebar .nav-list { margin-top: 15px; margin-bottom: 65px; display: flex; flex-direction: column; gap: 4px; list-style: none; overflow-y: auto; flex-grow: 1; }
     .sidebar .nav-list::-webkit-scrollbar { width: 4px; }
     .sidebar .nav-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
-
     .sidebar li.nav-item-group { position: relative; list-style: none; flex-shrink: 0; }
-    
-    .sidebar .nav-header-btn {
-      display: flex; height: 42px; width: 100%; border-radius: 12px;
-      align-items: center; text-decoration: none; transition: all 0.3s ease;
-      background: transparent; border: 1px solid transparent; cursor: pointer;
-    }
-    .sidebar .nav-header-btn:hover, .sidebar .nav-header-btn.active {
-      background: var(--glass-bg-hover); border-color: var(--glass-border);
-    }
+    .sidebar .nav-header-btn { display: flex; height: 42px; width: 100%; border-radius: 12px; align-items: center; text-decoration: none; transition: all 0.3s ease; background: transparent; border: 1px solid transparent; cursor: pointer; }
+    .sidebar .nav-header-btn:hover, .sidebar .nav-header-btn.active { background: var(--glass-bg-hover); border-color: var(--glass-border); }
     .sidebar .nav-header-btn i.nav-icon { min-width: 46px; text-align: center; font-size: 18px; color: var(--text-main); }
-    .sidebar .nav-header-btn .nav-item-title {
-      color: var(--text-main); font-size: 12px; font-weight: 700;
-      letter-spacing: 0.3px; white-space: nowrap; display: none; opacity: 0; flex-grow: 1;
-    }
+    .sidebar .nav-header-btn .nav-item-title { color: var(--text-main); font-size: 12px; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; display: none; opacity: 0; flex-grow: 1; }
     .sidebar .nav-header-btn .nav-arrow { font-size: 16px; color: var(--text-sub); margin-right: 12px; display: none; opacity: 0; transition: transform 0.25s ease; }
     .sidebar .nav-item-group.expanded .nav-arrow { transform: rotate(180deg); }
-
-    .sub-menu-list {
-      display: none; flex-direction: column; gap: 3px;
-      padding-left: 46px; padding-right: 8px; margin-top: 3px; margin-bottom: 6px; list-style: none;
-    }
+    .sub-menu-list { display: none; flex-direction: column; gap: 3px; padding-left: 46px; padding-right: 8px; margin-top: 3px; margin-bottom: 6px; list-style: none; }
     .sidebar .nav-item-group.expanded .sub-menu-list { display: flex; }
-
-    .sub-menu-item {
-      display: block; padding: 8px 12px; font-size: 10px; font-weight: 700;
-      color: var(--text-sub); text-decoration: none; text-transform: uppercase; border-radius: 8px;
-      transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
+    .sub-menu-item { display: block; padding: 8px 12px; font-size: 10px; font-weight: 700; color: var(--text-sub); text-decoration: none; text-transform: uppercase; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sub-menu-item:hover { background: var(--glass-bg-hover); color: var(--text-main); transform: translateX(2px); }
-
-    .sidebar li.profile {
-      position: absolute; height: 52px; width: calc(100% - 32px);
-      left: 16px; bottom: 16px; padding: 10px 0;
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    }
+    .sidebar li.profile { position: absolute; height: 52px; width: calc(100% - 32px); left: 16px; bottom: 16px; padding: 10px 0; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
     .sidebar .profile-details { display: flex; align-items: center; }
     .sidebar li .name_job { margin-left: 8px; white-space: nowrap; display: none; opacity: 0; }
     .sidebar li .name { font-size: 11px; font-weight: 800; color: var(--text-main); }
     .sidebar li .job { font-size: 9px; font-weight: 600; color: var(--text-sub); }
 
-    .main-workspace {
-      position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-      overflow: hidden; animation: bentoContainerReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    body.mobile-view-active { overflow-x: hidden !important; }
-    body.mobile-view-active .sidebar { position: relative !important; width: 100% !important; height: auto !important; margin-bottom: 12px; border-radius: 16px; }
-    body.mobile-view-active .sidebar .logo-details .logo_name,
-    body.mobile-view-active .sidebar .search-box input,
-    body.mobile-view-active .sidebar .nav-item-title,
-    body.mobile-view-active .sidebar .nav-arrow,
-    body.mobile-view-active .sidebar .sub-menu-list,
-    body.mobile-view-active .sidebar li .name_job { display: flex !important; opacity: 1 !important; pointer-events: auto !important; }
-    body.mobile-view-active .sidebar .logo-details { justify-content: space-between !important; padding: 0 8px !important; }
-    body.mobile-view-active .sidebar .nav-list { max-height: none; margin-bottom: 15px; }
-    body.mobile-view-active .sidebar li.profile { position: relative !important; width: 100% !important; left: 0 !important; bottom: 0 !important; justify-content: space-between !important; padding: 10px 12px !important; }
-    body.mobile-view-active .main-workspace { position: relative !important; width: 100% !important; height: auto !important; padding: 12px !important; display: flex; flex-direction: column; gap: 15px; }
-    body.mobile-view-active .bento-card { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; }
-
-    .bento-card {
-      position: absolute; background: var(--glass-bg); border: 1px solid var(--glass-border);
-      backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur);
-      border-radius: 20px; padding: 18px 22px; box-shadow: var(--glass-shadow); user-select: none; z-index: 10;
-      display: flex; flex-direction: column; resize: both; overflow: auto;
-      min-width: 250px; min-height: 150px;
-    }
+    .main-workspace { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; animation: bentoContainerReveal 1.1s ease forwards; }
+    
+    .bento-card { position: absolute; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); border-radius: 20px; padding: 18px 22px; box-shadow: var(--glass-shadow); z-index: 10; display: flex; flex-direction: column; resize: both; overflow: auto; min-width: 250px; min-height: 150px; }
     .bento-card:hover { border-color: var(--accent-glow); }
-
-    .card-header-title {
-      font-size: 11px; font-weight: 800; color: var(--accent-glow); letter-spacing: 1.2px;
-      text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border);
-      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: grab;
-      flex-shrink: 0;
-    }
+    .card-header-title { font-size: 11px; font-weight: 800; color: var(--accent-glow); letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: grab; flex-shrink: 0; }
     .drag-hint { font-size: 9px; color: var(--text-sub); font-weight: 600; display: flex; align-items: center; gap: 3px; }
 
-    /* Bento Layout Positions for 5 Cards */
+    /* Layout Positions */
     #timezonesCard { top: 20px; left: calc(var(--sidebar-width) + 35px); width: 335px; height: 165px; }
     #weatherCard   { top: 20px; left: calc(var(--sidebar-width) + 385px); width: 335px; height: 165px; }
     #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
     #flashscoreCard{ top: 195px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 285px; }
-    #trendCard     { top: 290px; left: calc(var(--sidebar-width) + 395px); width: calc(100vw - var(--sidebar-width) - 440px); max-width: 700px; height: 395px; }
+    
+    /* MODIFIED: Unrestricted resizing for Trend Chart */
+    #trendCard { 
+      top: 290px; 
+      left: calc(var(--sidebar-width) + 395px); 
+      width: 700px; 
+      height: 435px; 
+      min-width: 450px; 
+      min-height: 250px; 
+    }
 
     .tz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .tz-item {
-      background: var(--glass-bg-hover); border: 1px solid var(--glass-border);
-      border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;
-    }
-    .tz-select {
-      background: var(--glass-bg); color: var(--accent-glow); border: 1px solid var(--glass-border);
-      border-radius: 6px; font-size: 9px; font-weight: 800; padding: 3px 4px; outline: none; text-transform: uppercase; cursor: pointer; width: 100%; margin-bottom: 4px; text-align: center;
-    }
+    .tz-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+    .tz-select { background: var(--glass-bg); color: var(--accent-glow); border: 1px solid var(--glass-border); border-radius: 6px; font-size: 9px; font-weight: 800; padding: 3px 4px; outline: none; text-transform: uppercase; cursor: pointer; width: 100%; margin-bottom: 4px; text-align: center; }
     .tz-select option { background: var(--glass-bg); color: var(--text-main); }
     .tz-clock { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-main); }
 
@@ -527,24 +116,15 @@
     .weather-desc { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
     .weather-details { text-align: right; font-size: 11px; font-weight: 600; color: var(--text-sub); display: flex; flex-direction: column; gap: 4px; }
 
-    /* Top Week Games Widget Styles */
     .games-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100% - 40px); padding-right: 4px; }
-    .game-card-item {
-      background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px;
-      display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--text-main); transition: all 0.2s ease;
-    }
-    .game-card-item:hover { border-color: var(--accent-glow); transform: translateY(-1px); background: var(--glass-bg); }
+    .game-card-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--text-main); transition: all 0.2s ease; }
+    .game-card-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); }
     .game-league-tag { font-size: 9px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; display: flex; justify-content: space-between; }
     .game-teams-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; }
     .game-time-row { font-size: 9px; font-weight: 600; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 4px; }
 
-    /* Flashscore Live Feeds Card Styles */
     .flashscore-links-grid { display: grid; grid-template-columns: 1fr; gap: 6px; overflow-y: auto; max-height: calc(100% - 40px); }
-    .flashscore-link-item {
-      background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 10px; padding: 9px 12px;
-      display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 700; text-transform: uppercase;
-      transition: all 0.2s ease;
-    }
+    .flashscore-link-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 10px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 700; text-transform: uppercase; transition: all 0.2s ease; }
     .flashscore-link-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); }
 
     .trend-stats { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 700; align-items: center; }
@@ -553,12 +133,10 @@
     .stat-badge.down { background: rgba(248, 113, 113, 0.2); color: var(--accent-red); }
     
     .chart-container { position: relative; flex-grow: 1; width: 100%; min-height: 100px; }
-
-    .logger-input {
-      background: var(--glass-bg-hover); border: 1px solid var(--glass-border); padding: 6px 10px;
-      border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none;
-    }
+    .logger-input { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none; }
     .logger-input option { background: var(--glass-bg); color: var(--text-main); }
+    
+    .entry-grid { display: grid; grid-template-columns: 60px 1fr 1fr; gap: 8px; font-size: 10px; font-weight: 700; align-items: center; margin-bottom: 6px; }
 
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); z-index: 200; justify-content: center; align-items: center; }
     .modal-content { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); padding: 24px; border-radius: 16px; width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: var(--glass-shadow); }
@@ -567,12 +145,8 @@
     .palette-btn { height: 32px; border-radius: 8px; border: 2px solid var(--glass-border); cursor: pointer; transition: transform 0.2s ease; }
     .palette-btn:hover { transform: scale(1.05); border-color: var(--accent-glow); }
 
-    .action-btn {
-      width: 100%; margin-top: 14px; background: var(--accent-glow); color: #ffffff; border: none; padding: 10px 14px;
-      border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .action-btn.logout-btn { background: linear-gradient(135deg, #f87171, #dc2626); }
-
+    .action-btn { width: 100%; margin-top: 10px; background: var(--accent-glow); color: #ffffff; border: none; padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .action-btn.logout-btn { background: linear-gradient(135deg, #f87171, #dc2626); margin-top: 14px; }
     .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--glass-bg-hover); transition: .3s; border-radius: 22px; border: 1px solid var(--glass-border); }
@@ -583,6 +157,7 @@
 </head>
 <body onmousemove="resetInactivityTimer()" onkeypress="resetInactivityTimer()">
 
+  <!-- Authentication Overlay -->
   <div id="authOverlay">
     <div class="lamp-login-container">
       <div class="lamp-scene">
@@ -594,7 +169,6 @@
         <div class="lamp-stand-rod"></div>
         <div class="lamp-base"></div>
       </div>
-
       <div class="login-popup-card">
         <div class="login-title">Welcome to Sportsbook Hub</div>
         <div class="input-group">
@@ -615,19 +189,17 @@
     </div>
   </div>
 
+  <!-- Sidebar -->
   <div class="sidebar" id="mainSidebar">
     <div class="logo-details">
       <div class="logo_name">SPORTSBOOK HUB</div>
       <i class='bx bx-menu' id="btn"></i>
     </div>
-
     <div class="search-box">
       <i class='bx bx-search'></i>
       <input type="text" id="searchInput" placeholder="Search categories & links..." onkeyup="handleSearch()">
     </div>
-    
     <ul class="nav-list" id="navList"></ul>
-
     <li class="profile">
       <div class="profile-details">
         <div style="font-size: 20px;">👤</div>
@@ -640,157 +212,120 @@
     </li>
   </div>
 
+  <!-- Main Workspace -->
   <div class="main-workspace" id="workspace">
-
-    <!-- 1. World Clock Widget -->
     <div class="bento-card" id="timezonesCard">
-      <div class="card-header-title">
-        <span>WORD CLOCK (3 ZONES) <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
-      </div>
+      <div class="card-header-title"><span>WORD CLOCK (3 ZONES) <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
       <div class="tz-grid" id="timezoneGrid"></div>
     </div>
 
-    <!-- 2. Weather Widget -->
     <div class="bento-card" id="weatherCard">
-      <div class="card-header-title">
-        <span>PHILIPPINES WEATHER <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
-      </div>
+      <div class="card-header-title"><span>PHILIPPINES WEATHER <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
       <div class="weather-container">
         <div class="weather-main">
           <i class='bx bx-sun weather-icon' id="weatherIcon"></i>
-          <div>
-            <div class="weather-temp" id="phTemp">31°C</div>
-            <div class="weather-desc" id="phDesc">Partly Cloudy</div>
-          </div>
+          <div><div class="weather-temp" id="phTemp">31°C</div><div class="weather-desc" id="phDesc">Partly Cloudy</div></div>
         </div>
-        <div class="weather-details">
-          <span>📍 Metro Manila, PH</span>
-          <span>Humidity: 78%</span>
-          <span>Wind: 14 km/h</span>
-        </div>
+        <div class="weather-details"><span>📍 Metro Manila, PH</span><span>Humidity: 78%</span><span>Wind: 14 km/h</span></div>
       </div>
     </div>
 
-    <!-- 3. NEW WIDGET 1: Top Week Games (Flashscore Feed) -->
     <div class="bento-card" id="topGamesCard">
-      <div class="card-header-title">
-        <span>⚽ TOP WEEK GAMES (FLASHSCORE) <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span>
-      </div>
-      <div class="games-list" id="topGamesList">
-        <!-- Rendered dynamically from real upcoming fixtures -->
-      </div>
+      <div class="card-header-title"><span>⚽ TOP WEEK GAMES <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
+      <div class="games-list" id="topGamesList"></div>
     </div>
 
-    <!-- 4. NEW WIDGET 2: Flashscore League Live Hub -->
     <div class="bento-card" id="flashscoreCard">
-      <div class="card-header-title">
-        <span>⚡ FLASHSCORE LIVE HUB <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span>
-      </div>
+      <div class="card-header-title"><span>⚡ FLASHSCORE LIVE HUB <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
       <div class="flashscore-links-grid">
-        <a href="https://www.flashscore.ph/football/england/premier-league/" target="_blank" class="flashscore-link-item">
-          <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (EPL)</span> <i class='bx bx-link-external'></i>
-        </a>
-        <a href="https://www.flashscore.ph/football/spain/laliga/" target="_blank" class="flashscore-link-item">
-          <span>🇪🇸 LaLiga EA Sports</span> <i class='bx bx-link-external'></i>
-        </a>
-        <a href="https://www.flashscore.ph/football/italy/serie-a/" target="_blank" class="flashscore-link-item">
-          <span>🇮🇹 Italy Serie A</span> <i class='bx bx-link-external'></i>
-        </a>
-        <a href="https://www.flashscore.ph/football/germany/bundesliga/" target="_blank" class="flashscore-link-item">
-          <span>🇩🇪 Germany Bundesliga</span> <i class='bx bx-link-external'></i>
-        </a>
-        <a href="https://www.flashscore.ph/football/france/ligue-1/" target="_blank" class="flashscore-link-item">
-          <span>🇫🇷 France Ligue 1</span> <i class='bx bx-link-external'></i>
-        </a>
+        <a href="https://www.flashscore.ph/football/england/premier-league/" target="_blank" class="flashscore-link-item"><span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</span> <i class='bx bx-link-external'></i></a>
+        <a href="https://www.flashscore.ph/football/spain/laliga/" target="_blank" class="flashscore-link-item"><span>🇪🇸 LaLiga EA Sports</span> <i class='bx bx-link-external'></i></a>
+        <a href="https://www.flashscore.ph/football/italy/serie-a/" target="_blank" class="flashscore-link-item"><span>🇮🇹 Italy Serie A</span> <i class='bx bx-link-external'></i></a>
+        <a href="https://www.flashscore.ph/football/germany/bundesliga/" target="_blank" class="flashscore-link-item"><span>🇩🇪 Germany Bundesliga</span> <i class='bx bx-link-external'></i></a>
+        <a href="https://www.flashscore.ph/football/france/ligue-1/" target="_blank" class="flashscore-link-item"><span>🇫🇷 France Ligue 1</span> <i class='bx bx-link-external'></i></a>
       </div>
     </div>
 
-    <!-- 5. Trend Chart Widget -->
+    <!-- Trend Chart Card (NOW FREELY RESIZABLE) -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
         <span>DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0;">
-        <select id="trackerSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 175px;" onchange="switchTrackerData()">
-          <option value="all">📊 ALL (IBET vs EDGE vs 7A)</option>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; gap: 8px;">
+        <select id="trackerSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 170px;" onchange="initTrendChart()">
+          <option value="all">📊 ALL BRANDS (Increase)</option>
           <option value="ibet">IBET TRACKER</option>
           <option value="edge">EDGE TRACKER</option>
           <option value="tracker7a">7A TRACKER</option>
         </select>
+        
+        <select id="timeframeSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 110px;" onchange="initTrendChart()">
+          <option value="7">📅 7 Days</option>
+          <option value="30">📅 Monthly</option>
+          <option value="allTime">📅 All Time</option>
+        </select>
+
         <div class="trend-stats" style="margin-bottom: 0;">
-          <div class="stat-badge up" id="trendBadge"><i class='bx bx-trending-up'></i> <span id="trendPercent">Active</span></div>
+          <div class="stat-badge up" id="trendBadge"><i class='bx bx-trending-up'></i> Active</div>
         </div>
       </div>
       <div class="chart-container">
         <canvas id="trendChart"></canvas>
       </div>
     </div>
-
   </div>
 
   <div class="modal" id="settingsModal">
     <div class="modal-content">
       <div class="card-header-title">
-        <span>SETTINGS & CUSTOMIZATION</span>
+        <span>SETTINGS & DATA LOG</span>
         <i class='bx bx-x' style="cursor:pointer; font-size: 22px;" onclick="toggleModal()"></i>
       </div>
-      
+
+      <!-- DAILY RECORD LOG SECTION (Moved inside settings) -->
+      <div style="margin-top: 15px; padding-top: 5px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 15px;">
+        <span style="font-size: 11px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; margin-bottom: 10px; display: block;">📝 DAILY RECORD LOG</span>
+        
+        <div style="margin-bottom: 8px;">
+          <!-- Selecting a date triggers loadDataForDate to fill the inputs -->
+          <input type="date" id="logDate" class="logger-input" style="width: 100%;" onchange="loadDataForDate(this.value)">
+        </div>
+        <div class="entry-grid" style="color: var(--accent-glow);">
+          <div>BRAND</div><div style="text-align: center;">INCREASED</div><div style="text-align: center;">LIMITED</div>
+        </div>
+        <div class="entry-grid">
+          <div>IBET</div>
+          <input type="number" id="ibetIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="ibetLimInput" class="logger-input" placeholder="0">
+        </div>
+        <div class="entry-grid">
+          <div>EDGE</div>
+          <input type="number" id="edgeIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="edgeLimInput" class="logger-input" placeholder="0">
+        </div>
+        <div class="entry-grid">
+          <div>7A</div>
+          <input type="number" id="sevenIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="sevenLimInput" class="logger-input" placeholder="0">
+        </div>
+        <button class="action-btn" id="saveLogBtn" onclick="saveDailyLog()"><i class='bx bx-save'></i> SAVE DAILY DATA</button>
+      </div>
+
       <div class="setting-row">
         <span style="font-size: 12px; font-weight: 700;">Daylight Mode</span>
-        <label class="switch">
-          <input type="checkbox" id="modeToggle" onchange="toggleTheme()">
-          <span class="slider"></span>
-        </label>
+        <label class="switch"><input type="checkbox" id="modeToggle" onchange="toggleTheme()"><span class="slider"></span></label>
       </div>
-
       <div class="setting-row">
         <span style="font-size: 12px; font-weight: 700;">Mobile View Mode</span>
-        <label class="switch">
-          <input type="checkbox" id="mobileViewToggle" onchange="toggleMobileView()">
-          <span class="slider"></span>
-        </label>
+        <label class="switch"><input type="checkbox" id="mobileViewToggle" onchange="toggleMobileView()"><span class="slider"></span></label>
       </div>
-
-      <div style="margin-top: 18px; border-top: 1px solid var(--glass-border); padding-top: 12px;">
-        <span style="font-size: 11px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase;">Color Palettes</span>
-        <div class="palette-grid">
-          <div class="palette-btn" style="background: rgba(22, 27, 34, 0.8);" title="Midnight Dark" onclick="setPalette('rgba(22, 27, 34, 0.8)', '#ffffff', '#38bdf8')"></div>
-          <div class="palette-btn" style="background: rgba(15, 23, 42, 0.9);" title="Deep Navy" onclick="setPalette('rgba(15, 23, 42, 0.9)', '#f8fafc', '#60a5fa')"></div>
-          <div class="palette-btn" style="background: rgba(45, 27, 60, 0.85);" title="Royal Obsidian" onclick="setPalette('rgba(45, 27, 60, 0.85)', '#fdf4ff', '#c084fc')"></div>
-          <div class="palette-btn" style="background: rgba(255, 255, 255, 0.9);" title="Clean Ice" onclick="setPalette('rgba(255, 255, 255, 0.9)', '#0f172a', '#0284c7')"></div>
-        </div>
-      </div>
-
-      <div class="setting-row" style="margin-top: 14px;">
-        <span style="font-size: 11px; font-weight: 700;">Menu Background Color</span>
-        <input type="color" id="bgColorPicker" value="#161b22" onchange="updateCustomColors()" style="background:transparent; border:none; width:32px; height:24px; cursor:pointer;">
-      </div>
-
-      <div class="setting-row">
-        <span style="font-size: 11px; font-weight: 700;">Menu Opacity</span>
-        <input type="range" id="bgOpacityRange" min="0.2" max="1" step="0.05" value="0.7" oninput="updateCustomColors()" style="cursor:pointer;">
-      </div>
-
-      <div class="setting-row">
-        <span style="font-size: 11px; font-weight: 700;">Font / Text Color</span>
-        <input type="color" id="fontColorPicker" value="#ffffff" onchange="updateCustomColors()" style="background:transparent; border:none; width:32px; height:24px; cursor:pointer;">
-      </div>
-
-      <div class="setting-row">
-        <span style="font-size: 11px; font-weight: 700;">Accent Glow Color</span>
-        <input type="color" id="accentColorPicker" value="#38bdf8" onchange="updateCustomColors()" style="background:transparent; border:none; width:32px; height:24px; cursor:pointer;">
-      </div>
-
-      <button class="action-btn" onclick="saveLayoutToURL()">
-        <i class='bx bx-link-external'></i> SAVE LAYOUT & COPY LINK
-      </button>
-      <button class="action-btn logout-btn" onclick="triggerLogout()">
-        <i class='bx bx-log-out'></i> LOGOUT NOW
-      </button>
+      <button class="action-btn" onclick="saveLayoutToURL()" style="margin-top: 15px;"><i class='bx bx-link-external'></i> SAVE LAYOUT & COPY LINK</button>
+      <button class="action-btn logout-btn" onclick="triggerLogout()"><i class='bx bx-log-out'></i> LOGOUT NOW</button>
     </div>
   </div>
 
   <script>
+    // FULL RESTORED MENU DATA
     const menuData = [
       {
         category: "INTERNAL",
@@ -804,8 +339,8 @@
         category: "DAILY TASK",
         icon: "bx-task",
         subs: [
-          { name: "EDGE BOOST EXCEL", url: "#" },
-          { name: "IBET BOOST EXCEL", url: "#" },
+          { name: "EDGE BOOST EXCEL", url: "https://docs.google.com/spreadsheets/d/1Pl8XVaYNEaupKx57HlXbWibsIeR7a28UfemRasxJ8RY/edit?gid=1386504317#gid=1386504317" },
+          { name: "IBET BOOST EXCEL", url: "https://docs.google.com/spreadsheets/d/18ZJNs7wJ37-4sAHX5CNMfqQQcmpfy1cIvP19tHI7rY4/edit?gid=600196195#gid=600196195" },
           { name: "EDGE BOOST SYS", url: "#" },
           { name: "IBET BOOST SYS", url: "#" }
         ]
@@ -817,6 +352,7 @@
           { name: "GREEN TRACKER", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410" },
           { name: "RED TRACKER", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410" },
           { name: "ORANGE TRACKER", url: "https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695" },
+          { name: "IBET TRACKER", url: "https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468" },
           { name: "7A TRACKER", url: "#" },
           { name: "GREEN CRM", url: "https://docs.google.com/spreadsheets/d/11STKO4Xsj0a8iTuUXSCXC-XEE4-7qmF9/edit?pli=1&gid=1701374259#gid=1701374259" },
           { name: "RED CRM", url: "https://docs.google.com/spreadsheets/d/1gPks2FdHyOOTiILvn553miz32WeEtOpx/edit?gid=1701374259#gid=1701374259" }
@@ -888,40 +424,9 @@
       }
     ];
 
-    // Real verified upcoming games for this week (Sept 12-14, 2026) matching Flashscore categories
     const topWeekGames = [
-      {
-        league: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (EPL)",
-        home: "Manchester United",
-        away: "Manchester City",
-        date: "Sep 13, 23:30",
-        status: "Upcoming",
-        url: "https://www.flashscore.ph/football/england/premier-league/"
-      },
-      {
-        league: "🇪🇸 LaLiga EA Sports",
-        home: "Real Madrid",
-        away: "Rayo Vallecano",
-        date: "Sep 13, 03:00",
-        status: "Upcoming",
-        url: "https://www.flashscore.ph/football/spain/laliga/"
-      },
-      {
-        league: "🇮🇹 Italy Serie A",
-        home: "S.S. Lazio",
-        away: "AC Milan",
-        date: "Sep 13, 00:00",
-        status: "Upcoming",
-        url: "https://www.flashscore.ph/football/italy/serie-a/"
-      },
-      {
-        league: "🇩🇪 Germany Bundesliga",
-        home: "Borussia Dortmund",
-        away: "SC Paderborn 07",
-        date: "Sep 12, 21:30",
-        status: "Upcoming",
-        url: "https://www.flashscore.ph/football/germany/bundesliga/"
-      }
+      { league: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League", home: "Man United", away: "Man City", date: "Sep 13, 23:30", status: "Upcoming", url: "https://www.flashscore.ph/football/england/premier-league/" },
+      { league: "🇪🇸 LaLiga", home: "Real Madrid", away: "Rayo Vallecano", date: "Sep 13, 03:00", status: "Upcoming", url: "https://www.flashscore.ph/football/spain/laliga/" }
     ];
 
     const availableTimezones = [
@@ -941,42 +446,164 @@
     let inactivityTimer = null;
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
-    const mainSidebar = document.querySelector("#mainSidebar");
-    const navList = document.querySelector("#navList");
-
-    mainSidebar.addEventListener("mouseenter", () => {
-      document.body.classList.add("sidebar-expanded");
-      setTimeout(() => { if (trendChartInstance) trendChartInstance.resize(); }, 350);
-    });
-
-    mainSidebar.addEventListener("mouseleave", () => {
-      document.body.classList.remove("sidebar-expanded");
-      document.querySelectorAll(".nav-item-group").forEach(g => g.classList.remove("expanded"));
-      setTimeout(() => { if (trendChartInstance) trendChartInstance.resize(); }, 350);
-    });
-
-    function checkRememberedSession() {
-      const isRemembered = localStorage.getItem("sbhub_remember_me") === "true";
-      if (isRemembered) {
-        document.getElementById("authOverlay").classList.add("unlocked");
-        document.getElementById("rememberMeCheckbox").checked = true;
+    // --- CONTINUOUS DATA STORAGE LOGIC ---
+    
+    function loadDataForDate(dateStr) {
+      if (!dateStr) return;
+      const appData = JSON.parse(localStorage.getItem('sbhub_chart_data')) || {};
+      const dateData = appData[dateStr];
+      
+      if (dateData) {
+        document.getElementById('ibetIncInput').value = dateData.ibet?.inc || 0;
+        document.getElementById('ibetLimInput').value = dateData.ibet?.lim || 0;
+        document.getElementById('edgeIncInput').value = dateData.edge?.inc || 0;
+        document.getElementById('edgeLimInput').value = dateData.edge?.lim || 0;
+        document.getElementById('sevenIncInput').value = dateData.tracker7a?.inc || 0;
+        document.getElementById('sevenLimInput').value = dateData.tracker7a?.lim || 0;
+      } else {
+        document.getElementById('ibetIncInput').value = '';
+        document.getElementById('ibetLimInput').value = '';
+        document.getElementById('edgeIncInput').value = '';
+        document.getElementById('edgeLimInput').value = '';
+        document.getElementById('sevenIncInput').value = '';
+        document.getElementById('sevenLimInput').value = '';
       }
     }
 
+    function initDataStore() {
+      let storedData = localStorage.getItem('sbhub_chart_data');
+      if (!storedData) {
+        // Create baseline data for the past 7 days 
+        const baseData = {};
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0]; 
+          baseData[dateStr] = {
+            ibet: { inc: Math.floor(Math.random() * 8) + 8, lim: Math.floor(Math.random() * 4) + 2 },
+            edge: { inc: Math.floor(Math.random() * 10) + 10, lim: Math.floor(Math.random() * 5) + 3 },
+            tracker7a: { inc: Math.floor(Math.random() * 7) + 6, lim: Math.floor(Math.random() * 3) + 1 }
+          };
+        }
+        localStorage.setItem('sbhub_chart_data', JSON.stringify(baseData));
+      }
+      
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('logDate').value = today;
+      loadDataForDate(today);
+    }
+
+    function saveDailyLog() {
+      const dateStr = document.getElementById('logDate').value;
+      if (!dateStr) return alert("Please select a valid date.");
+      
+      let appData = JSON.parse(localStorage.getItem('sbhub_chart_data')) || {};
+      
+      appData[dateStr] = {
+        ibet: { 
+          inc: Number(document.getElementById('ibetIncInput').value) || 0, 
+          lim: Number(document.getElementById('ibetLimInput').value) || 0 
+        },
+        edge: { 
+          inc: Number(document.getElementById('edgeIncInput').value) || 0, 
+          lim: Number(document.getElementById('edgeLimInput').value) || 0 
+        },
+        tracker7a: { 
+          inc: Number(document.getElementById('sevenIncInput').value) || 0, 
+          lim: Number(document.getElementById('sevenLimInput').value) || 0 
+        }
+      };
+
+      localStorage.setItem('sbhub_chart_data', JSON.stringify(appData));
+      initTrendChart(); 
+      
+      const btn = document.getElementById("saveLogBtn");
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "<i class='bx bx-check'></i> SAVED!";
+      setTimeout(() => btn.innerHTML = originalText, 1500);
+    }
+
+    function initTrendChart() {
+      const viewMode = document.getElementById("trackerSelector").value;
+      const timeframe = document.getElementById("timeframeSelector").value;
+      
+      const appData = JSON.parse(localStorage.getItem('sbhub_chart_data')) || {};
+      let sortedDates = Object.keys(appData).sort();
+      
+      if (timeframe === "7") {
+        sortedDates = sortedDates.slice(-7);
+      } else if (timeframe === "30") {
+        sortedDates = sortedDates.slice(-30);
+      } 
+
+      const dateLabels = sortedDates.map(dateStr => {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
+      });
+
+      const isLight = document.body.classList.contains("light-mode");
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || (isLight ? '#080c14' : 'rgba(255,255,255,0.75)');
+      const gridColor = isLight ? 'rgba(8, 12, 20, 0.1)' : 'rgba(255,255,255,0.08)';
+
+      const ctx = document.getElementById("trendChart").getContext("2d");
+      if (trendChartInstance) trendChartInstance.destroy();
+
+      let chartConfigData = { labels: dateLabels, datasets: [] };
+      const badge = document.getElementById("trendBadge");
+
+      if (viewMode === "all") {
+        const ibetInc = sortedDates.map(d => appData[d].ibet?.inc || 0);
+        const edgeInc = sortedDates.map(d => appData[d].edge?.inc || 0);
+        const sevenInc = sortedDates.map(d => appData[d].tracker7a?.inc || 0);
+
+        chartConfigData.datasets = [
+          { label: 'IBET (Inc)', data: ibetInc, borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.08)', borderWidth: 2.5, tension: 0.4 },
+          { label: 'EDGE (Inc)', data: edgeInc, borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.08)', borderWidth: 2.5, tension: 0.4 },
+          { label: '7A (Inc)', data: sevenInc, borderColor: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.08)', borderWidth: 2.5, tension: 0.4 }
+        ];
+        badge.className = "stat-badge up";
+        badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative`;
+      } else {
+        const curInc = sortedDates.map(d => appData[d][viewMode]?.inc || 0);
+        const curLim = sortedDates.map(d => appData[d][viewMode]?.lim || 0);
+
+        const latestInc = curInc[curInc.length - 1] || 0;
+        const prevInc = curInc[curInc.length - 2] || latestInc;
+        const diff = latestInc - prevInc;
+        const pct = prevInc !== 0 ? ((diff / prevInc) * 100).toFixed(1) : 0;
+        
+        if (diff >= 0) {
+          badge.className = "stat-badge up"; badge.innerHTML = `<i class='bx bx-trending-up'></i> +${pct}%`;
+        } else {
+          badge.className = "stat-badge down"; badge.innerHTML = `<i class='bx bx-trending-down'></i> ${pct}%`;
+        }
+
+        chartConfigData.datasets = [
+          { label: `Increase Count`, data: curInc, borderColor: isLight ? '#059669' : '#34d399', backgroundColor: isLight ? 'rgba(5, 150, 105, 0.15)' : 'rgba(52, 211, 153, 0.15)', borderWidth: 2.5, fill: true, tension: 0.4 },
+          { label: `Limit Dropped Count`, data: curLim, borderColor: isLight ? '#dc2626' : '#f87171', backgroundColor: isLight ? 'rgba(220, 38, 38, 0.15)' : 'rgba(248, 113, 113, 0.15)', borderWidth: 2.5, fill: true, tension: 0.4 }
+        ];
+      }
+
+      trendChartInstance = new Chart(ctx, {
+        type: 'line', data: chartConfigData,
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: textColor, font: { size: 9, weight: '700' } }, display: true } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 9, weight: '700' } } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 9, weight: '700' } } }
+          }
+        }
+      });
+    }
+
+    // --- AUTHENTICATION & LAMP LOGIC ---
     function playClickSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(520, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.08); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.08);
       } catch(e) {}
     }
 
@@ -985,25 +612,21 @@
       const cordEl = document.getElementById("pullCord");
       cordEl.classList.add("bouncing");
       setTimeout(() => cordEl.classList.remove("bouncing"), 550);
-
       document.body.classList.toggle("lamp-is-on");
-      if (document.body.classList.contains("lamp-is-on")) {
-        setTimeout(() => document.getElementById("loginPassword").focus(), 300);
-      }
+      if (document.body.classList.contains("lamp-is-on")) setTimeout(() => document.getElementById("loginPassword").focus(), 300);
     }
-
+    
     function verifyLogin() {
       const pwd = document.getElementById("loginPassword").value;
       const errEl = document.getElementById("loginError");
-      const rememberMe = document.getElementById("rememberMeCheckbox").checked;
-
+      
       if (pwd === "sb2026") {
         errEl.innerText = "";
         document.getElementById("authOverlay").classList.add("unlocked");
         document.body.classList.remove("lamp-is-on");
         document.getElementById("loginPassword").value = "";
-
-        if (rememberMe) {
+        
+        if (document.getElementById("rememberMeCheckbox").checked) {
           localStorage.setItem("sbhub_remember_me", "true");
         } else {
           localStorage.removeItem("sbhub_remember_me");
@@ -1016,183 +639,47 @@
 
     function triggerLogout() {
       localStorage.removeItem("sbhub_remember_me");
-      toggleModal();
+      const modal = document.getElementById("settingsModal");
+      if (modal) modal.style.display = "none";
       document.getElementById("authOverlay").classList.remove("unlocked");
       document.body.classList.remove("lamp-is-on");
     }
 
     function resetInactivityTimer() {
       clearTimeout(inactivityTimer);
-      if (!document.getElementById("authOverlay").classList.contains("unlocked")) return;
+      const authOverlay = document.getElementById("authOverlay");
+      if (!authOverlay || !authOverlay.classList.contains("unlocked")) return;
+      
       inactivityTimer = setTimeout(() => {
         if (localStorage.getItem("sbhub_remember_me") !== "true") {
-          document.getElementById("authOverlay").classList.remove("unlocked");
+          authOverlay.classList.remove("unlocked");
           document.body.classList.remove("lamp-is-on");
         }
       }, INACTIVITY_LIMIT);
     }
 
-    function renderSidebar(filterQuery = "") {
-      navList.innerHTML = "";
-      menuData.forEach((item, index) => {
-        const query = filterQuery.toLowerCase().trim();
-        const matchingSubs = item.subs.filter(sub => !query || sub.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
-
-        if (query && matchingSubs.length === 0) return;
-
-        const li = document.createElement("li");
-        li.className = "nav-item-group" + (query ? " expanded" : "");
-
-        let subsHtml = "";
-        matchingSubs.forEach(sub => {
-          subsHtml += `<li><a href="${sub.url}" target="_blank" class="sub-menu-item">${sub.name}</a></li>`;
-        });
-
-        li.innerHTML = `
-          <div class="nav-header-btn" onclick="toggleAccordion(this)">
-            <i class='bx ${item.icon} nav-icon'></i>
-            <span class="nav-item-title">${item.category}</span>
-            <i class='bx bx-chevron-down nav-arrow'></i>
-          </div>
-          <ul class="sub-menu-list">
-            ${subsHtml}
-          </ul>
-        `;
-        navList.appendChild(li);
-      });
-    }
-
-    function toggleAccordion(headerEl) {
-      if (!document.body.classList.contains("sidebar-expanded")) {
-        document.body.classList.add("sidebar-expanded");
-      }
-      const groupLi = headerEl.parentElement;
-      const wasExpanded = groupLi.classList.contains("expanded");
-      
-      document.querySelectorAll(".nav-item-group").forEach(g => g.classList.remove("expanded"));
-      
-      if (!wasExpanded) {
-        groupLi.classList.add("expanded");
-      }
-      setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300);
-    }
-
-    function handleSearch() {
-      const query = document.getElementById("searchInput").value;
-      renderSidebar(query);
-    }
-
-    function renderTopWeekGames() {
-      const container = document.getElementById("topGamesList");
-      container.innerHTML = "";
-      topWeekGames.forEach(game => {
-        const el = document.createElement("a");
-        el.href = game.url;
-        el.target = "_blank";
-        el.className = "game-card-item";
-        el.innerHTML = `
-          <div class="game-league-tag">
-            <span>${game.league}</span>
-            <span style="color: var(--accent-green);">● ${game.status}</span>
-          </div>
-          <div class="game-teams-row">
-            <span>${game.home}</span>
-            <span style="opacity: 0.7; font-weight: 500;">vs</span>
-            <span>${game.away}</span>
-          </div>
-          <div class="game-time-row">
-            <span>📅 ${game.date} (PHT)</span>
-            <span style="color: var(--accent-glow);">Flashscore →</span>
-          </div>
-        `;
-        container.appendChild(el);
-      });
-    }
-
-    function hexToRgba(hex, opacity) {
-      let c = hex.replace('#','');
-      if(c.length===3) c = c.split('').map(x => x + x).join('');
-      const num = parseInt(c, 16);
-      return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${opacity})`;
-    }
-
-    function setPalette(bgRgba, textColor, accentColor) {
-      document.documentElement.style.setProperty('--glass-bg', bgRgba);
-      document.documentElement.style.setProperty('--text-main', textColor);
-      document.documentElement.style.setProperty('--accent-glow', accentColor);
-      
-      document.getElementById("fontColorPicker").value = textColor.startsWith('#') ? textColor : '#ffffff';
-      document.getElementById("accentColorPicker").value = accentColor;
-      
-      saveCustomizationSettings();
-      initTrendChart();
-    }
-
-    function updateCustomColors() {
-      const bgHex = document.getElementById("bgColorPicker").value;
-      const opacity = document.getElementById("bgOpacityRange").value;
-      const fontColor = document.getElementById("fontColorPicker").value;
-      const accentColor = document.getElementById("accentColorPicker").value;
-
-      const rgbaBg = hexToRgba(bgHex, opacity);
-      document.documentElement.style.setProperty('--glass-bg', rgbaBg);
-      document.documentElement.style.setProperty('--text-main', fontColor);
-      document.documentElement.style.setProperty('--text-sub', hexToRgba(fontColor, 0.7));
-      document.documentElement.style.setProperty('--accent-glow', accentColor);
-
-      saveCustomizationSettings();
-      initTrendChart();
-    }
-
-    function saveCustomizationSettings() {
-      const settings = {
-        bg: document.documentElement.style.getPropertyValue('--glass-bg'),
-        text: document.documentElement.style.getPropertyValue('--text-main'),
-        subText: document.documentElement.style.getPropertyValue('--text-sub'),
-        accent: document.documentElement.style.getPropertyValue('--accent-glow')
-      };
-      localStorage.setItem("sbhub_custom_theme_v9", JSON.stringify(settings));
-    }
-
-    function restoreCustomizationSettings() {
-      const saved = localStorage.getItem("sbhub_custom_theme_v9");
-      if (saved) {
-        try {
-          const s = JSON.parse(saved);
-          if (s.bg) document.documentElement.style.setProperty('--glass-bg', s.bg);
-          if (s.text) document.documentElement.style.setProperty('--text-main', s.text);
-          if (s.subText) document.documentElement.style.setProperty('--text-sub', s.subText);
-          if (s.accent) {
-            document.documentElement.style.setProperty('--accent-glow', s.accent);
-            document.getElementById("accentColorPicker").value = s.accent;
-          }
-        } catch(e){}
+    function checkRememberedSession() {
+      const isRemembered = localStorage.getItem("sbhub_remember_me") === "true";
+      if (isRemembered) {
+        document.getElementById("authOverlay").classList.add("unlocked");
+        document.getElementById("rememberMeCheckbox").checked = true;
+        resetInactivityTimer();
       }
     }
 
+    // --- WORLD CLOCK RENDERING AND UPDATING ---
     function renderClocks() {
       const grid = document.getElementById("timezoneGrid");
       grid.innerHTML = "";
       selectedTimezones.forEach((tzZone, index) => {
-        const timeString = new Date().toLocaleTimeString("en-US", {
-          timeZone: tzZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-        });
-
-        const item = document.createElement("div");
-        item.className = "tz-item";
-
+        const timeString = new Date().toLocaleTimeString("en-US", { timeZone: tzZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+        const item = document.createElement("div"); item.className = "tz-item";
         let optionsHtml = "";
-        availableTimezones.forEach(t => {
-          const selected = (t.zone === tzZone) ? "selected" : "";
-          optionsHtml += `<option value="${t.zone}" ${selected}>${t.name}</option>`;
+        availableTimezones.forEach(t => { 
+          const selected = (t.zone === tzZone) ? "selected" : ""; 
+          optionsHtml += `<option value="${t.zone}" ${selected}>${t.name}</option>`; 
         });
-
-        item.innerHTML = `
-          <select class="tz-select" onchange="changeTimezone(${index}, this.value)">
-            ${optionsHtml}
-          </select>
-          <div class="tz-clock" id="clock_${index}">${timeString}</div>
-        `;
+        item.innerHTML = `<select class="tz-select" onchange="changeTimezone(${index}, this.value)">${optionsHtml}</select><div class="tz-clock" id="clock_${index}">${timeString}</div>`;
         grid.appendChild(item);
       });
     }
@@ -1201,9 +688,7 @@
       selectedTimezones.forEach((tzZone, index) => {
         const clockEl = document.getElementById(`clock_${index}`);
         if (clockEl) {
-          clockEl.innerText = new Date().toLocaleTimeString("en-US", {
-            timeZone: tzZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-          });
+          clockEl.innerText = new Date().toLocaleTimeString("en-US", { timeZone: tzZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
         }
       });
     }
@@ -1211,214 +696,71 @@
     function changeTimezone(index, newZone) {
       selectedTimezones[index] = newZone;
       updateClocksTick();
-      saveBentoLayout();
     }
 
-    function getRecentDateLabels() {
-      const labels = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        labels.push(d.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }));
-      }
-      return labels;
-    }
-
-    function getTrackerData() {
-      return {
-        ibet: { increased: [35, 42, 38, 50, 55, 48, 62], limited: [10, 12, 8, 15, 11, 14, 18] },
-        edge: { increased: [45, 52, 48, 60, 65, 58, 72], limited: [12, 15, 10, 18, 14, 16, 20] },
-        tracker7a: { increased: [25, 30, 32, 40, 42, 39, 48], limited: [6, 9, 7, 11, 8, 10, 12] }
-      };
-    }
-
-    function initTrendChart() {
-      const viewMode = document.getElementById("trackerSelector")?.value || "all";
-      const dataStore = getTrackerData();
-      const dateLabels = getRecentDateLabels();
-      const isLight = document.body.classList.contains("light-mode");
-      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || (isLight ? '#080c14' : 'rgba(255,255,255,0.75)');
-      const gridColor = isLight ? 'rgba(8, 12, 20, 0.1)' : 'rgba(255,255,255,0.08)';
-
-      const ctx = document.getElementById("trendChart").getContext("2d");
-      if (trendChartInstance) trendChartInstance.destroy();
-
-      let chartConfigData = { labels: dateLabels, datasets: [] };
-
-      if (viewMode === "all") {
-        chartConfigData.datasets = [
-          { label: 'IBET (Inc)', data: dataStore.ibet.increased, borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.08)', borderWidth: 2.5, tension: 0.4 },
-          { label: 'EDGE (Inc)', data: dataStore.edge.increased, borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.08)', borderWidth: 2.5, tension: 0.4 },
-          { label: '7A (Inc)', data: dataStore.tracker7a.increased, borderColor: '#d97706', backgroundColor: 'rgba(217, 119, 6, 0.08)', borderWidth: 2.5, tension: 0.4 }
-        ];
-        document.getElementById("trendBadge").className = "stat-badge up";
-        document.getElementById("trendBadge").innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative`;
-      } else {
-        const cur = dataStore[viewMode];
-        const latestInc = cur.increased[cur.increased.length - 1];
-        const prevInc = cur.increased[cur.increased.length - 2] || latestInc;
-        const diff = latestInc - prevInc;
-        const pct = prevInc !== 0 ? ((diff / prevInc) * 100).toFixed(1) : 0;
-
-        const badge = document.getElementById("trendBadge");
-        if (diff >= 0) {
-          badge.className = "stat-badge up";
-          badge.innerHTML = `<i class='bx bx-trending-up'></i> +${pct}%`;
-        } else {
-          badge.className = "stat-badge down";
-          badge.innerHTML = `<i class='bx bx-trending-down'></i> ${pct}%`;
-        }
-
-        chartConfigData.datasets = [
-          { label: `Increased`, data: cur.increased, borderColor: isLight ? '#059669' : '#34d399', backgroundColor: isLight ? 'rgba(5, 150, 105, 0.15)' : 'rgba(52, 211, 153, 0.15)', borderWidth: 2.5, fill: true, tension: 0.4 },
-          { label: `Limited`, data: cur.limited, borderColor: isLight ? '#dc2626' : '#f87171', backgroundColor: isLight ? 'rgba(220, 38, 38, 0.15)' : 'rgba(248, 113, 113, 0.15)', borderWidth: 2.5, fill: true, tension: 0.4 }
-        ];
-      }
-
-      trendChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: chartConfigData,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: textColor, font: { size: 9, weight: '700' } }, display: true } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 9, weight: '700' } } },
-            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 9, weight: '700' } } }
-          }
-        }
+    // --- LAYOUT & UTILITIES ---
+    function renderSidebar() {
+      const navList = document.getElementById("navList");
+      navList.innerHTML = "";
+      menuData.forEach(item => {
+        const li = document.createElement("li");
+        li.className = "nav-item-group";
+        let subsHtml = "";
+        item.subs.forEach(sub => subsHtml += `<li><a href="${sub.url}" target="_blank" class="sub-menu-item">${sub.name}</a></li>`);
+        li.innerHTML = `<div class="nav-header-btn" onclick="this.parentElement.classList.toggle('expanded')"><i class='bx ${item.icon} nav-icon'></i><span class="nav-item-title">${item.category}</span><i class='bx bx-chevron-down nav-arrow'></i></div><ul class="sub-menu-list">${subsHtml}</ul>`;
+        navList.appendChild(li);
       });
     }
 
-    function switchTrackerData() { initTrendChart(); }
+    function renderTopWeekGames() {
+      const container = document.getElementById("topGamesList");
+      container.innerHTML = "";
+      topWeekGames.forEach(game => {
+        const el = document.createElement("a"); el.href = game.url; el.target = "_blank"; el.className = "game-card-item";
+        el.innerHTML = `<div class="game-league-tag"><span>${game.league}</span><span style="color: var(--accent-green);">● ${game.status}</span></div><div class="game-teams-row"><span>${game.home}</span><span style="opacity: 0.7; font-weight: 500;">vs</span><span>${game.away}</span></div>`;
+        container.appendChild(el);
+      });
+    }
 
     function makeElementDraggable(element) {
       const header = element.querySelector(".card-header-title");
       if (!header) return;
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      
       header.onmousedown = function(e) {
-        if (document.body.classList.contains("mobile-view-active")) return;
-        e.preventDefault();
-        element.style.zIndex = 100;
+        e.preventDefault(); element.style.zIndex = 100;
         pos3 = e.clientX; pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
+        document.onmouseup = closeDragElement; document.onmousemove = elementDrag;
       };
-
       function elementDrag(e) {
-        e.preventDefault();
-        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-        pos3 = e.clientX; pos4 = e.clientY;
-        element.style.top = (element.offsetTop - pos2) + "px";
-        element.style.left = (element.offsetLeft - pos1) + "px";
+        e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px"; element.style.left = (element.offsetLeft - pos1) + "px";
       }
-
-      function closeDragElement() {
-        document.onmouseup = null; document.onmousemove = null;
-        saveBentoLayout();
-      }
+      function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
     }
 
     document.querySelectorAll(".bento-card").forEach(makeElementDraggable);
-
-    if (window.ResizeObserver) {
-      const resizeObserver = new ResizeObserver(() => {
-        if (trendChartInstance) trendChartInstance.resize();
-      });
-      document.querySelectorAll(".bento-card").forEach(card => resizeObserver.observe(card));
+    
+    // Auto-resize charts when dragged
+    if (window.ResizeObserver) { 
+        const resizeObserver = new ResizeObserver(() => { if (trendChartInstance) trendChartInstance.resize(); }); 
+        document.querySelectorAll(".bento-card").forEach(card => resizeObserver.observe(card)); 
     }
-
-    function saveBentoLayout() {
-      const layout = {};
-      document.querySelectorAll(".bento-card").forEach(card => {
-        layout[card.id] = { 
-          top: card.style.top, 
-          left: card.style.left,
-          width: card.style.width,
-          height: card.style.height
-        };
-      });
-      layout["selected_timezones"] = selectedTimezones;
-      layout["mobile_view"] = document.body.classList.contains("mobile-view-active");
-      localStorage.setItem("sbhub_bento_layout_clean_v10", JSON.stringify(layout));
-    }
-
-    function restoreBentoLayout() {
-      const saved = localStorage.getItem("sbhub_bento_layout_clean_v10");
-      if (saved) {
-        try {
-          const layout = JSON.parse(saved);
-          if (layout["mobile_view"]) {
-            document.body.classList.add("mobile-view-active");
-            document.getElementById("mobileViewToggle").checked = true;
-          }
-          for (const id in layout) {
-            if (id === "selected_timezones" || id === "mobile_view") continue;
-            const el = document.getElementById(id);
-            if (el && layout[id].top) {
-              el.style.top = layout[id].top;
-              el.style.left = layout[id].left;
-              if (layout[id].width) el.style.width = layout[id].width;
-              if (layout[id].height) el.style.height = layout[id].height;
-            }
-          }
-          if (layout["selected_timezones"]) {
-            selectedTimezones = layout["selected_timezones"];
-          }
-        } catch(e){}
-      }
-    }
-
-    function checkMobileDevice() {
-      const isMobileScreen = window.innerWidth <= 768;
-      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobileScreen || isMobileUA) {
-        document.body.classList.add("mobile-view-active");
-        const mobileToggle = document.getElementById("mobileViewToggle");
-        if (mobileToggle) mobileToggle.checked = true;
-      }
-    }
-
-    function toggleModal() {
-      const modal = document.getElementById("settingsModal");
-      modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
-    }
-
-    function toggleTheme() {
-      const isLight = document.getElementById("modeToggle").checked;
-      if (isLight) document.body.classList.add("light-mode");
-      else document.body.classList.remove("light-mode");
-      initTrendChart();
-    }
-
-    function toggleMobileView() {
-      const mobileToggle = document.getElementById("mobileViewToggle");
-      if (mobileToggle && mobileToggle.checked) document.body.classList.add("mobile-view-active");
-      else document.body.classList.remove("mobile-view-active");
-      saveBentoLayout();
-      setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300);
-    }
-
-    function saveLayoutToURL() {
-      saveBentoLayout();
-      const params = new URLSearchParams(window.location.search);
-      const shareableURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-      navigator.clipboard.writeText(shareableURL).then(() => {
-        alert("Bento layout & Top Week Games widget saved & URL copied!");
-      });
-    }
-
+    
+    function toggleModal() { const modal = document.getElementById("settingsModal"); modal.style.display = (modal.style.display === "flex") ? "none" : "flex"; }
+    function toggleTheme() { const isLight = document.getElementById("modeToggle").checked; if (isLight) document.body.classList.add("light-mode"); else document.body.classList.remove("light-mode"); initTrendChart(); }
+    function toggleMobileView() { const mobileToggle = document.getElementById("mobileViewToggle"); if (mobileToggle && mobileToggle.checked) document.body.classList.add("mobile-view-active"); else document.body.classList.remove("mobile-view-active"); setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300); }
+    
+    // Boot up functions
     checkRememberedSession();
-    restoreCustomizationSettings();
+    initDataStore();
     renderSidebar();
-    restoreBentoLayout();
-    checkMobileDevice();
-    renderClocks();
     renderTopWeekGames();
+    renderClocks();
     initTrendChart();
-
+    
+    // Proper interval for all clocks
     setInterval(updateClocksTick, 1000);
+
   </script>
 </body>
 </html>
