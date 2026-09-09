@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sportsbook Hub - Secured Dashboard</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,48 +12,84 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    :root { --bg-overlay: rgba(10, 15, 26, 0.35); --glass-bg: rgba(22, 27, 34, 0.55); --glass-bg-hover: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.18); --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); --text-main: #ffffff; --text-sub: rgba(255, 255, 255, 0.65); --accent-glow: #38bdf8; --accent-green: #34d399; --accent-red: #f87171; --card-blur: blur(20px); --font-mono: 'JetBrains Mono', monospace; --sidebar-width: 78px; --sidebar-expanded-width: 280px; }
-    body.sidebar-expanded { --sidebar-width: 280px; }
-    body.light-mode { --bg-overlay: rgba(255, 255, 255, 0.4); --glass-bg: rgba(255, 255, 255, 0.85); --glass-bg-hover: rgba(15, 23, 42, 0.08); --glass-border: rgba(15, 23, 42, 0.2); --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); --text-main: #080c14; --text-sub: #1e293b; --accent-glow: #0284c7; --accent-green: #047857; --accent-red: #b91c1c; }
-    body { min-height: 100vh; background-color: #080c14; background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('SB background.jpg'), url('https://raw.githubusercontent.com/krde-hue/SBHUB.2026/main/SB%20background.jpg'); background-repeat: no-repeat; background-position: center center; background-attachment: fixed; background-size: cover; color: var(--text-main); display: flex; overflow-x: hidden; overflow-y: auto; transition: background 0.3s ease, color 0.3s ease; }
-    @keyframes bentoContainerReveal { 0% { opacity: 0; transform: scale(0.88) translateY(30px); filter: blur(16px); } 100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); } }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
     
-    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 7, 14, 0.85); backdrop-filter: blur(30px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
-    #authOverlay.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
-    .lamp-login-container { position: relative; display: flex; align-items: center; gap: 70px; }
-    .lamp-scene { position: relative; width: 240px; height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.6)); }
-    .lamp-shade { width: 210px; height: 110px; background: radial-gradient(circle at 40% 30%, #475569 0%, #1e293b 60%, #0f172a 100%); border-radius: 130px 130px 12px 12px; position: relative; box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.18), inset 0 -8px 20px rgba(0, 0, 0, 0.5); z-index: 3; transition: box-shadow 0.4s ease; }
-    body.lamp-is-on .lamp-shade { box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.25), 0 0 60px 20px rgba(245, 158, 11, 0.5), 0 0 120px 40px rgba(217, 119, 6, 0.25); }
-    .lamp-stand-rod { width: 14px; height: 190px; background: linear-gradient(90deg, #b45309, #fbbf24, #92400e); border-radius: 4px; position: relative; z-index: 2; box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 0 0 10px rgba(245, 158, 11, 0.2); }
-    .lamp-base { width: 140px; height: 22px; background: linear-gradient(180deg, #f59e0b, #b45309, #78350f); border-radius: 12px 12px 2px 2px; z-index: 2; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-    .pull-cord-wrapper { position: absolute; bottom: 175px; right: 35px; display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; transform-origin: top center; }
-    @keyframes cordBounce { 0% { transform: translateY(0) scaleY(1); } 30% { transform: translateY(18px) scaleY(1.1); } 50% { transform: translateY(-8px) scaleY(0.95); } 70% { transform: translateY(6px) scaleY(1.02); } 100% { transform: translateY(0) scaleY(1); } }
-    .pull-cord-wrapper.bouncing { animation: cordBounce 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
-    .cord-string { width: 2px; height: 65px; background: linear-gradient(180deg, #cbd5e1, #64748b); box-shadow: 0 0 4px rgba(255, 255, 255, 0.5); }
-    .cord-handle { width: 18px; height: 22px; background: radial-gradient(circle at 35% 30%, #fde047, #d97706); border-radius: 50%; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.7), inset 0 2px 3px rgba(255, 255, 255, 0.6); }
-    .login-popup-card { width: 380px; background: rgba(20, 26, 38, 0.72); border: 1.5px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(25px); border-radius: 24px; padding: 32px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7); transform: translateX(40px) scale(0.95); opacity: 0; visibility: hidden; transition: all 0.5s ease; }
-    body.lamp-is-on .login-popup-card { transform: translateX(0) scale(1); opacity: 1; visibility: visible; }
-    .login-title { font-size: 21px; font-weight: 800; color: #ffffff; margin-bottom: 22px; text-align: center; }
-    .input-group { margin-bottom: 16px; }
-    .input-label { font-size: 10px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px; display: block; }
-    .login-input { width: 100%; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 600; color: #ffffff; outline: none; }
-    .remember-container { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; cursor: pointer; }
-    .remember-container input[type="checkbox"] { appearance: none; width: 16px; height: 16px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(15, 23, 42, 0.65); outline: none; cursor: pointer; }
-    .remember-container input[type="checkbox"]:checked { background: #38bdf8; border-color: #38bdf8; }
-    .remember-label { font-size: 11px; font-weight: 700; color: var(--text-sub); }
-    .signin-btn { width: 100%; margin-top: 4px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: none; padding: 13px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; }
-    .error-msg { color: var(--accent-red); font-size: 11px; font-weight: 700; text-align: center; margin-top: 10px; min-height: 16px; }
-
-    /* Sidebar Layout */
-    .sidebar { position: fixed; top: 15px; left: 15px; height: calc(100vh - 30px); width: var(--sidebar-width); background: var(--glass-bg); backdrop-filter: var(--card-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; transition: width 0.35s ease; z-index: 100; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); animation: bentoContainerReveal 1s ease forwards; }
-    @media (min-width: 769px) {
-      body:not(.mobile-view-active) .sidebar:hover { width: var(--sidebar-expanded-width); }
-      body:not(.mobile-view-active) .sidebar:hover .logo-details .logo_name, body:not(.mobile-view-active) .sidebar:hover .search-box input, body:not(.mobile-view-active) .sidebar:hover .nav-item-title, body:not(.mobile-view-active) .sidebar:hover .nav-arrow, body:not(.mobile-view-active) .sidebar:hover .profile .name_job { display: block; opacity: 1; pointer-events: auto; }
-      body:not(.mobile-view-active) .sidebar:not(:hover) .sub-menu-list { display: none !important; }
-      body:not(.mobile-view-active) .sidebar:hover .logo-details { justify-content: space-between; }
-      body:not(.mobile-view-active) .sidebar:hover .profile { justify-content: space-between; padding: 10px 12px; }
+    :root {
+      --bg-overlay: rgba(10, 15, 26, 0.35);
+      --glass-bg: rgba(22, 27, 34, 0.55);
+      --glass-bg-card: rgba(22, 30, 48, 0.55);
+      --glass-bg-hover: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      --text-main: #ffffff;
+      --text-sub: rgba(255, 255, 255, 0.65);
+      --accent-glow: #38bdf8;
+      --accent-purple: #a855f7;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --card-blur: blur(20px);
+      --font-mono: 'JetBrains Mono', monospace;
+      --sidebar-width: 78px;
+      --sidebar-expanded-width: 280px;
     }
+
+    body.light-mode {
+      --bg-overlay: rgba(255, 255, 255, 0.4);
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-bg-card: rgba(255, 255, 255, 0.8);
+      --glass-bg-hover: rgba(15, 23, 42, 0.08);
+      --glass-border: rgba(15, 23, 42, 0.2);
+      --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      --text-main: #080c14;
+      --text-sub: #1e293b;
+      --accent-glow: #0284c7;
+      --accent-purple: #7e22ce;
+      --accent-green: #047857;
+      --accent-red: #b91c1c;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #080c14;
+      background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
+                        url('SB background.jpg'), 
+                        url('https://raw.githubusercontent.com/krde-hue/SBHUB.2026/main/SB%20background.jpg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
+      background-size: cover;
+      color: var(--text-main);
+      display: flex;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* Auth Overlay */
+    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 7, 14, 0.88); backdrop-filter: blur(30px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
+    #authOverlay.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
+    .lamp-login-container { position: relative; display: flex; align-items: center; gap: 40px; flex-direction: column; width: 90%; max-width: 400px; }
+    .lamp-scene { position: relative; width: 180px; height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+    .lamp-shade { width: 160px; height: 85px; background: radial-gradient(circle at 40% 30%, #475569 0%, #1e293b 60%, #0f172a 100%); border-radius: 100px 100px 10px 10px; position: relative; box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.18); z-index: 3; transition: box-shadow 0.4s ease; }
+    body.lamp-is-on .lamp-shade { box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.25), 0 0 60px 20px rgba(245, 158, 11, 0.5); }
+    .lamp-stand-rod { width: 10px; height: 140px; background: linear-gradient(90deg, #b45309, #fbbf24, #92400e); border-radius: 4px; position: relative; z-index: 2; }
+    .lamp-base { width: 110px; height: 18px; background: linear-gradient(180deg, #f59e0b, #b45309); border-radius: 10px 10px 2px 2px; z-index: 2; }
+    .pull-cord-wrapper { position: absolute; bottom: 120px; right: 20px; cursor: pointer; z-index: 10; }
+    .cord-string { width: 2px; height: 50px; background: #cbd5e1; }
+    .cord-handle { width: 16px; height: 18px; background: #fde047; border-radius: 50%; }
+    .login-popup-card { width: 100%; background: var(--glass-bg-card); border: 1.5px solid var(--glass-border); backdrop-filter: var(--card-blur); border-radius: 24px; padding: 24px; box-shadow: var(--glass-shadow); opacity: 0; visibility: hidden; transition: all 0.5s ease; }
+    body.lamp-is-on .login-popup-card { opacity: 1; visibility: visible; }
+    .login-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 18px; text-align: center; }
+    .input-group { margin-bottom: 14px; }
+    .input-label { font-size: 10px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; margin-bottom: 4px; display: block; }
+    .login-input { width: 100%; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 600; color: #ffffff; outline: none; }
+    .remember-container { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; cursor: pointer; }
+    .remember-label { font-size: 11px; font-weight: 700; color: var(--text-sub); }
+    .signin-btn { width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: none; padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .error-msg { color: var(--accent-red); font-size: 11px; font-weight: 700; text-align: center; margin-top: 8px; }
+
+    /* Desktop Sidebar */
+    .sidebar { position: fixed; top: 15px; left: 15px; height: calc(100vh - 30px); width: var(--sidebar-width); background: var(--glass-bg); backdrop-filter: var(--card-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; transition: width 0.35s ease, transform 0.3s ease; z-index: 100; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); }
     .sidebar .logo-details { height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 4px; flex-shrink: 0; }
     .sidebar .logo-details .logo_name { color: var(--text-main); font-size: 13px; font-weight: 800; letter-spacing: 1.8px; white-space: nowrap; display: none; opacity: 0; }
     .sidebar #btn { font-size: 22px; cursor: pointer; color: var(--text-main); }
@@ -61,8 +97,6 @@
     .sidebar .search-box i { position: absolute; left: 0; height: 100%; width: 46px; text-align: center; line-height: 42px; font-size: 18px; color: var(--text-main); }
     .sidebar .search-box input { height: 100%; width: 100%; outline: none; border: none; background: transparent; padding-left: 46px; font-size: 12px; font-weight: 600; color: var(--text-main); display: none; opacity: 0; pointer-events: none; }
     .sidebar .nav-list { margin-top: 15px; margin-bottom: 65px; display: flex; flex-direction: column; gap: 4px; list-style: none; overflow-y: auto; flex-grow: 1; }
-    .sidebar .nav-list::-webkit-scrollbar { width: 4px; }
-    .sidebar .nav-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
     .sidebar li.nav-item-group { position: relative; list-style: none; flex-shrink: 0; }
     .sidebar .nav-header-btn { display: flex; height: 42px; width: 100%; border-radius: 12px; align-items: center; text-decoration: none; transition: all 0.3s ease; background: transparent; border: 1px solid transparent; cursor: pointer; }
     .sidebar .nav-header-btn:hover, .sidebar .nav-header-btn.active { background: var(--glass-bg-hover); border-color: var(--glass-border); }
@@ -73,42 +107,49 @@
     .sub-menu-list { display: none; flex-direction: column; gap: 3px; padding-left: 46px; padding-right: 8px; margin-top: 3px; margin-bottom: 6px; list-style: none; }
     .sidebar .nav-item-group.expanded .sub-menu-list { display: flex; }
     .sub-menu-item { display: block; padding: 8px 12px; font-size: 10px; font-weight: 700; color: var(--text-sub); text-decoration: none; text-transform: uppercase; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sub-menu-item:hover { background: var(--glass-bg-hover); color: var(--text-main); transform: translateX(2px); }
+    .sub-menu-item:hover { background: var(--glass-bg-hover); color: var(--text-main); }
     .sidebar li.profile { position: absolute; height: 52px; width: calc(100% - 32px); left: 16px; bottom: 16px; padding: 10px 0; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
     .sidebar .profile-details { display: flex; align-items: center; }
     .sidebar li .name_job { margin-left: 8px; white-space: nowrap; display: none; opacity: 0; }
     .sidebar li .name { font-size: 11px; font-weight: 800; color: var(--text-main); }
     .sidebar li .job { font-size: 9px; font-weight: 600; color: var(--text-sub); }
 
-    .main-workspace { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; animation: bentoContainerReveal 1.1s ease forwards; }
+    /* Workspace */
+    .main-workspace { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; overflow: auto; }
     
-    .bento-card { position: absolute; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); border-radius: 20px; padding: 18px 22px; box-shadow: var(--glass-shadow); z-index: 10; display: flex; flex-direction: column; resize: both; overflow: auto; min-width: 250px; min-height: 150px; }
+    .bento-card {
+      position: absolute;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--card-blur);
+      border-radius: 20px;
+      padding: 18px 22px;
+      box-shadow: var(--glass-shadow);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      resize: both;
+      overflow: auto;
+      min-width: 250px;
+      min-height: 150px;
+    }
     .bento-card:hover { border-color: var(--accent-glow); }
     .card-header-title { font-size: 11px; font-weight: 800; color: var(--accent-glow); letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: grab; flex-shrink: 0; }
     .drag-hint { font-size: 9px; color: var(--text-sub); font-weight: 600; display: flex; align-items: center; gap: 3px; }
 
-    /* Layout Positions */
-    #timezonesCard { top: 20px; left: calc(var(--sidebar-width) + 35px); width: 335px; height: 165px; }
-    #weatherCard   { top: 20px; left: calc(var(--sidebar-width) + 385px); width: 335px; height: 165px; }
-    #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
-    #flashscoreCard{ top: 195px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 285px; }
-    #trendCard { top: 290px; left: calc(var(--sidebar-width) + 395px); width: 700px; height: 435px; min-width: 450px; min-height: 250px; }
-    
-    /* FLOATING INTERACTIVE GLASS DOCK CARD */
-    #quickDockCard { top: 500px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 225px; min-width: 320px; min-height: 180px; }
+    /* Interactive Dock */
     .dock-pill-container { display: flex; gap: 8px; background: rgba(15, 23, 42, 0.45); padding: 6px; border-radius: 30px; border: 1px solid var(--glass-border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.3); margin-bottom: 10px; flex-shrink: 0; }
     .dock-pill-btn { flex: 1; border: none; outline: none; background: transparent; color: var(--text-sub); padding: 8px 12px; font-size: 11px; font-weight: 800; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 5px; }
-    .dock-pill-btn:hover, .dock-pill-btn.active { background: var(--glass-bg-hover); color: var(--text-main); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border); }
+    .dock-pill-btn:hover, .dock-pill-btn.active { background: var(--glass-bg-hover); color: var(--text-main); border: 1px solid var(--glass-border); }
     .dock-pill-btn.active { background: rgba(56, 189, 248, 0.2); color: var(--accent-glow); border-color: var(--accent-glow); }
     .dock-content-panel { display: none; flex-direction: column; gap: 6px; overflow-y: auto; flex-grow: 1; padding-right: 2px; }
-    .dock-content-panel.active { display: flex; animation: bentoContainerReveal 0.3s ease forwards; }
+    .dock-content-panel.active { display: flex; }
     .dock-link-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 800; letter-spacing: 0.5px; transition: all 0.2s ease; }
-    .dock-link-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); transform: translateY(-1px); }
+    .dock-link-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); }
 
     .tz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .tz-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
     .tz-select { background: var(--glass-bg); color: var(--accent-glow); border: 1px solid var(--glass-border); border-radius: 6px; font-size: 9px; font-weight: 800; padding: 3px 4px; outline: none; text-transform: uppercase; cursor: pointer; width: 100%; margin-bottom: 4px; text-align: center; }
-    .tz-select option { background: var(--glass-bg); color: var(--text-main); }
     .tz-clock { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-main); }
 
     .weather-container { display: flex; align-items: center; justify-content: space-between; height: calc(100% - 30px); }
@@ -118,16 +159,14 @@
     .weather-desc { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
     .weather-details { text-align: right; font-size: 11px; font-weight: 600; color: var(--text-sub); display: flex; flex-direction: column; gap: 4px; }
 
-    .games-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100% - 40px); padding-right: 4px; }
-    .game-card-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--text-main); transition: all 0.2s ease; }
-    .game-card-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); }
+    .games-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100% - 40px); }
+    .game-card-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--text-main); }
     .game-league-tag { font-size: 9px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; display: flex; justify-content: space-between; }
     .game-teams-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; }
     .game-time-row { font-size: 9px; font-weight: 600; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 4px; }
 
     .flashscore-links-grid { display: grid; grid-template-columns: 1fr; gap: 6px; overflow-y: auto; max-height: calc(100% - 40px); }
-    .flashscore-link-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 10px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 700; text-transform: uppercase; transition: all 0.2s ease; }
-    .flashscore-link-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); }
+    .flashscore-link-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 10px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 
     .trend-stats { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 700; align-items: center; }
     .stat-badge { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 10px; }
@@ -136,14 +175,11 @@
     
     .chart-container { position: relative; flex-grow: 1; width: 100%; min-height: 100px; }
     .logger-input { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none; }
-    .logger-input option { background: var(--glass-bg); color: var(--text-main); }
-    
     .entry-grid { display: grid; grid-template-columns: 60px 1fr 1fr; gap: 8px; font-size: 10px; font-weight: 700; align-items: center; margin-bottom: 6px; }
 
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); z-index: 200; justify-content: center; align-items: center; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); z-index: 900; justify-content: center; align-items: center; }
     .modal-content { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); padding: 24px; border-radius: 16px; width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: var(--glass-shadow); }
     .setting-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-    
     .action-btn { width: 100%; margin-top: 10px; background: var(--accent-glow); color: #ffffff; border: none; padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .action-btn.logout-btn { background: linear-gradient(135deg, #f87171, #dc2626); margin-top: 14px; }
     .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
@@ -152,6 +188,125 @@
     .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: var(--text-main); transition: .3s; border-radius: 50%; }
     input:checked + .slider { background-color: var(--accent-glow); }
     input:checked + .slider:before { transform: translateX(22px); }
+
+    .mobile-nav-bar { display: none; }
+
+    /* ==================== 1. DESKTOP ONLY STYLES (> 1024px) ==================== */
+    @media (min-width: 1025px) {
+      body:not(.mobile-view-active) .sidebar:hover { width: var(--sidebar-expanded-width); }
+      body:not(.mobile-view-active) .sidebar:hover .logo-details .logo_name, 
+      body:not(.mobile-view-active) .sidebar:hover .search-box input, 
+      body:not(.mobile-view-active) .sidebar:hover .nav-item-title, 
+      body:not(.mobile-view-active) .sidebar:hover .nav-arrow, 
+      body:not(.mobile-view-active) .sidebar:hover .profile .name_job { display: block; opacity: 1; pointer-events: auto; }
+      body:not(.mobile-view-active) .sidebar:not(:hover) .sub-menu-list { display: none !important; }
+      body:not(.mobile-view-active) .sidebar:hover .logo-details { justify-content: space-between; }
+      body:not(.mobile-view-active) .sidebar:hover .profile { justify-content: space-between; padding: 10px 12px; }
+
+      /* Original Bento Absolute Positions */
+      #timezonesCard { top: 20px; left: calc(var(--sidebar-width) + 35px); width: 335px; height: 165px; }
+      #weatherCard   { top: 20px; left: calc(var(--sidebar-width) + 385px); width: 335px; height: 165px; }
+      #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
+      #flashscoreCard{ top: 195px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 285px; }
+      #trendCard     { top: 290px; left: calc(var(--sidebar-width) + 395px); width: 700px; height: 435px; min-width: 450px; min-height: 250px; }
+      #quickDockCard { top: 500px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 225px; min-width: 320px; min-height: 180px; }
+    }
+
+    /* ==================== 2. MOBILE / TABLET ONLY STYLES (<= 1024px) ==================== */
+    @media (max-width: 1024px), body.mobile-view-active {
+      body { flex-direction: column; }
+      
+      .sidebar {
+        position: fixed;
+        top: -100%;
+        left: 15px;
+        width: calc(100vw - 30px);
+        height: 80vh;
+        z-index: 600;
+        transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .sidebar.mobile-open { top: 15px; }
+      .sidebar .logo-details .logo_name, 
+      .sidebar .search-box input, 
+      .sidebar .nav-item-title, 
+      .sidebar .nav-arrow, 
+      .sidebar .name_job { display: block !important; opacity: 1 !important; pointer-events: auto !important; }
+      .sidebar .logo-details { justify-content: space-between; }
+      .sidebar .profile { justify-content: space-between; padding: 10px 12px; }
+
+      .main-workspace {
+        position: relative;
+        top: 0; left: 0;
+        width: 100vw;
+        height: auto;
+        padding: 15px 15px 95px 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* Convert floating absolute cards into stacked linear mobile widgets */
+      .bento-card {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: unset;
+        resize: none;
+        border-radius: 24px;
+        padding: 16px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.25);
+      }
+
+      #weatherCard { order: 1; }
+      #quickDockCard { order: 2; }
+      #timezonesCard { order: 3; }
+      #topGamesCard { order: 4; }
+      #flashscoreCard { order: 5; }
+      #trendCard { order: 6; min-height: 320px; }
+
+      .drag-hint { display: none; }
+
+      /* Mobile Navigation Bar */
+      .mobile-nav-bar {
+        display: flex;
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 30px);
+        max-width: 420px;
+        height: 60px;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid var(--glass-border);
+        border-radius: 35px;
+        z-index: 500;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.3);
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 10px;
+      }
+      .mobile-nav-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-sub);
+        font-size: 20px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .mobile-nav-item.active, .mobile-nav-item:hover {
+        color: #ffffff;
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(168, 85, 247, 0.3));
+        border: 1px solid var(--glass-border);
+      }
+    }
   </style>
 </head>
 <body onmousemove="resetInactivityTimer()" onkeypress="resetInactivityTimer()">
@@ -169,7 +324,7 @@
         <div class="lamp-base"></div>
       </div>
       <div class="login-popup-card">
-        <div class="login-title">Welcome to Sportsbook Hub</div>
+        <div class="login-title">Sportsbook Hub</div>
         <div class="input-group">
           <label class="input-label">Username</label>
           <input type="text" id="loginUsername" class="login-input" value="sportsbookhub" readonly>
@@ -192,7 +347,7 @@
   <div class="sidebar" id="mainSidebar">
     <div class="logo-details">
       <div class="logo_name">SPORTSBOOK HUB</div>
-      <i class='bx bx-menu' id="btn"></i>
+      <i class='bx bx-x' id="closeSidebarBtn" style="font-size:22px; cursor:pointer;" onclick="toggleMobileSidebar()"></i>
     </div>
     <div class="search-box">
       <i class='bx bx-search'></i>
@@ -201,7 +356,7 @@
     <ul class="nav-list" id="navList"></ul>
     <li class="profile">
       <div class="profile-details">
-        <div style="font-size: 20px;">👤</div>
+        <div style="font-size: 18px;">👤</div>
         <div class="name_job">
           <div class="name">MAIN CONSOLE</div>
           <div class="job">Active Operator</div>
@@ -213,23 +368,31 @@
 
   <!-- Main Workspace -->
   <div class="main-workspace" id="workspace">
+    
     <div class="bento-card" id="timezonesCard">
       <div class="card-header-title"><span>WORD CLOCK (3 ZONES) <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
       <div class="tz-grid" id="timezoneGrid"></div>
     </div>
 
     <div class="bento-card" id="weatherCard">
-      <div class="card-header-title"><span>PHILIPPINES WEATHER <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
+      <div class="card-header-title">
+        <span>PHILIPPINES WEATHER</span>
+        <span class="drag-hint">
+          <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:4px;" onclick="fetchRealtimeWeather()" title="Refresh Weather"></i>
+          <i class='bx bx-move'></i> Drag
+        </span>
+      </div>
       <div class="weather-container">
         <div class="weather-main">
           <i class='bx bx-sun weather-icon' id="weatherIcon"></i>
-          <div><div class="weather-temp" id="phTemp">31°C</div><div class="weather-desc" id="phDesc">Partly Cloudy</div></div>
+          <div><div class="weather-temp" id="phTemp">--°C</div><div class="weather-desc" id="phDesc">Loading...</div></div>
         </div>
-        <div class="weather-details"><span>📍 Metro Manila, PH</span><span>Humidity: 78%</span><span>Wind: 14 km/h</span></div>
+        <div class="weather-details" id="weatherDetails">
+          <span>📍 Metro Manila, PH</span><span>Humidity: --%</span><span>Wind: -- km/h</span>
+        </div>
       </div>
     </div>
 
-    <!-- Top Week Games (Multi-League Auto-Padding) -->
     <div class="bento-card" id="topGamesCard">
       <div class="card-header-title">
         <span>⚽ TOP WEEK GAMES</span> 
@@ -252,7 +415,6 @@
       </div>
     </div>
 
-    <!-- Trend Chart Card -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
         <span>DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
@@ -280,7 +442,6 @@
       </div>
     </div>
 
-    <!-- FLOATING INTERACTIVE GLASS DOCK CARD (IBET, EDGE, PUBS) -->
     <div class="bento-card" id="quickDockCard">
       <div class="card-header-title">
         <span>🚀 BRAND DIRECTORY DOCK <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
@@ -297,7 +458,6 @@
         </button>
       </div>
 
-      <!-- IBET Panel -->
       <div class="dock-content-panel active" id="dock-ibet">
         <a href="https://admin.apexplatform.io/login" target="_blank" class="dock-link-item">
           <span>IBET ADMIN</span> <i class='bx bx-link-external'></i>
@@ -310,7 +470,6 @@
         </a>
       </div>
 
-      <!-- EDGE Panel -->
       <div class="dock-content-panel" id="dock-edge">
         <a href="https://p2ibet.sbx.bet/bets" target="_blank" class="dock-link-item">
           <span>KT SBX</span> <i class='bx bx-link-external'></i>
@@ -323,7 +482,6 @@
         </a>
       </div>
 
-      <!-- PUBS Panel -->
       <div class="dock-content-panel" id="dock-pubs">
         <a href="https://gg-backoffice-eu.gogaming.cc/en-US/member/list" target="_blank" class="dock-link-item">
           <span>GO GAMING</span> <i class='bx bx-link-external'></i>
@@ -332,6 +490,23 @@
     </div>
   </div>
 
+  <!-- Mobile Floating Navigation Dock -->
+  <div class="mobile-nav-bar">
+    <div class="mobile-nav-item active" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Home">
+      <i class='bx bx-home-alt'></i>
+    </div>
+    <div class="mobile-nav-item" onclick="toggleMobileSidebar()" title="Menu">
+      <i class='bx bx-category-alt'></i>
+    </div>
+    <div class="mobile-nav-item" onclick="document.getElementById('quickDockCard').scrollIntoView({behavior:'smooth'})" title="Quick Links">
+      <i class='bx bx-rocket'></i>
+    </div>
+    <div class="mobile-nav-item" onclick="toggleModal()" title="Settings">
+      <i class='bx bx-cog'></i>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
   <div class="modal" id="settingsModal">
     <div class="modal-content">
       <div class="card-header-title">
@@ -339,7 +514,6 @@
         <i class='bx bx-x' style="cursor:pointer; font-size: 22px;" onclick="toggleModal()"></i>
       </div>
 
-      <!-- DAILY RECORD LOG SECTION -->
       <div style="margin-top: 15px; padding-top: 5px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 15px;">
         <span style="font-size: 11px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; margin-bottom: 10px; display: block;">📝 DAILY RECORD LOG</span>
         
@@ -372,7 +546,7 @@
         <label class="switch"><input type="checkbox" id="modeToggle" onchange="toggleTheme()"><span class="slider"></span></label>
       </div>
       <div class="setting-row">
-        <span style="font-size: 12px; font-weight: 700;">Mobile View Mode</span>
+        <span style="font-size: 12px; font-weight: 700;">Mobile View Force Mode</span>
         <label class="switch"><input type="checkbox" id="mobileViewToggle" onchange="toggleMobileView()"><span class="slider"></span></label>
       </div>
       <button class="action-btn" onclick="saveLayoutToURL()" style="margin-top: 15px;"><i class='bx bx-link-external'></i> SAVE LAYOUT & COPY LINK</button>
@@ -499,6 +673,53 @@
     let inactivityTimer = null;
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
+    function isMobileOrTablet() {
+      return window.innerWidth <= 1024 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById("mainSidebar");
+      sidebar.classList.toggle("mobile-open");
+    }
+
+    async function fetchRealtimeWeather() {
+      const tempEl = document.getElementById("phTemp");
+      const descEl = document.getElementById("phDesc");
+      const iconEl = document.getElementById("weatherIcon");
+      const detailsEl = document.getElementById("weatherDetails");
+
+      try {
+        const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=14.5995&longitude=120.9842&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia%2FManila");
+        const data = await response.json();
+        
+        if (!data.current) return;
+
+        const temp = Math.round(data.current.temperature_2m);
+        const humidity = data.current.relative_humidity_2m;
+        const wind = Math.round(data.current.wind_speed_10m);
+        const code = data.current.weather_code;
+
+        let desc = "Clear Sky";
+        let iconClass = "bx-sun";
+
+        if (code === 0) { desc = "Clear Sky"; iconClass = "bx-sun"; }
+        else if (code === 1 || code === 2) { desc = "Partly Cloudy"; iconClass = "bx-cloud-sun"; }
+        else if (code === 3) { desc = "Overcast"; iconClass = "bx-cloud"; }
+        else if (code >= 45 && code <= 48) { desc = "Foggy"; iconClass = "bx-cloud-fog"; }
+        else if (code >= 51 && code <= 67) { desc = "Rainy"; iconClass = "bx-cloud-rain"; }
+        else if (code >= 80 && code <= 82) { desc = "Showers"; iconClass = "bx-cloud-drizzle"; }
+        else if (code >= 95) { desc = "Thunderstorm"; iconClass = "bx-cloud-lightning"; }
+
+        tempEl.innerText = `${temp}°C`;
+        descEl.innerText = desc;
+        iconEl.className = `bx ${iconClass} weather-icon`;
+        detailsEl.innerHTML = `<span>📍 Metro Manila, PH</span><span>Humidity: ${humidity}%</span><span>Wind: ${wind} km/h</span>`;
+
+      } catch (e) {
+        descEl.innerText = "Unavailable";
+      }
+    }
+
     function switchDockTab(tabKey, btnEl) {
       document.querySelectorAll('.dock-pill-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.dock-content-panel').forEach(panel => panel.classList.remove('active'));
@@ -517,14 +738,12 @@
       return `${year}${month}${day}`;
     }
 
-    // --- UPCOMING-ONLY MULTI-LEAGUE FETCHING LOGIC WITH AUTO-PADDING ---
     async function fetchLiveGames() {
       const container = document.getElementById("topGamesList");
-      container.innerHTML = `<div style="text-align:center; padding:20px; display:flex; flex-direction:column; align-items:center; gap:8px;"><i class='bx bx-loader-alt bx-spin' style="font-size:24px; color:var(--accent-glow);"></i><span style="font-size:10px; color:var(--text-sub); font-weight:700;">FETCHING UPCOMING FIXTURES...</span></div>`;
+      container.innerHTML = `<div style="text-align:center; padding:15px;"><i class='bx bx-loader-alt bx-spin' style="font-size:20px; color:var(--accent-glow);"></i></div>`;
       
       try {
         const datesParam = `${getFormattedDateQuery(0)}-${getFormattedDateQuery(14)}`;
-        
         const [uclRes, eplRes, espRes] = await Promise.all([
           fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${datesParam}`).catch(() => null),
           fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${datesParam}`).catch(() => null),
@@ -594,9 +813,7 @@
         if (renderedCount < 3) {
           const topFallbacks = [
             { league: "🏆 CHAMPIONS LEAGUE", home: "Liverpool", away: "Atlético Madrid", date: "Sep 10 - 04:00", link: "https://www.flashscore.ph/football/europe/champions-league/" },
-            { league: "🏆 CHAMPIONS LEAGUE", home: "Napoli", away: "Arsenal", date: "Sep 10 - 04:00", link: "https://www.flashscore.ph/football/europe/champions-league/" },
-            { league: "🇪🇸 LALIGA", home: "Real Madrid", away: "Rayo Vallecano", date: "Sep 13 - 04:00", link: "https://www.flashscore.ph/football/spain/laliga/" },
-            { league: "🇪🇸 LALIGA", home: "Levante", away: "FC Barcelona", date: "Sep 13 - 23:15", link: "https://www.flashscore.ph/football/spain/laliga/" }
+            { league: "🇪🇸 LALIGA", home: "Real Madrid", away: "Rayo Vallecano", date: "Sep 13 - 04:00", link: "https://www.flashscore.ph/football/spain/laliga/" }
           ];
 
           topFallbacks.forEach(fb => {
@@ -628,7 +845,6 @@
       }
     }
 
-    // --- CONTINUOUS DATA STORAGE LOGIC ---
     function loadDataForDate(dateStr) {
       if (!dateStr) return;
       const appData = JSON.parse(localStorage.getItem('sbhub_chart_data')) || {};
@@ -777,7 +993,6 @@
       });
     }
 
-    // --- AUTHENTICATION & LAMP LOGIC ---
     function playClickSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -847,7 +1062,6 @@
       }
     }
 
-    // --- WORLD CLOCK RENDERING AND UPDATING ---
     function renderClocks() {
       const grid = document.getElementById("timezoneGrid");
       grid.innerHTML = "";
@@ -879,7 +1093,6 @@
       saveBentoLayout(); 
     }
 
-    // --- URL LAYOUT SAVING AND LOADING ---
     function getBentoLayoutObj() {
       const layout = {};
       document.querySelectorAll(".bento-card").forEach(card => { 
@@ -891,11 +1104,13 @@
     }
 
     function saveBentoLayout() {
+      if (isMobileOrTablet()) return;
       const layout = getBentoLayoutObj();
       localStorage.setItem("sbhub_bento_layout_clean_v10", JSON.stringify(layout));
     }
 
     function restoreBentoLayout() {
+      if (isMobileOrTablet()) return;
       const urlParams = new URLSearchParams(window.location.search);
       const layoutFromURL = urlParams.get('layout');
       let layoutToApply = null;
@@ -947,7 +1162,6 @@
       });
     }
 
-    // --- LAYOUT & UTILITIES ---
     function renderSidebar() {
       const navList = document.getElementById("navList");
       navList.innerHTML = "";
@@ -962,6 +1176,7 @@
     }
 
     function makeElementDraggable(element) {
+      if (isMobileOrTablet()) return;
       const header = element.querySelector(".card-header-title");
       if (!header) return;
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -991,17 +1206,17 @@
     function toggleTheme() { const isLight = document.getElementById("modeToggle").checked; if (isLight) document.body.classList.add("light-mode"); else document.body.classList.remove("light-mode"); initTrendChart(); }
     function toggleMobileView() { const mobileToggle = document.getElementById("mobileViewToggle"); if (mobileToggle && mobileToggle.checked) document.body.classList.add("mobile-view-active"); else document.body.classList.remove("mobile-view-active"); setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300); }
     
-    // Boot up functions
     restoreBentoLayout(); 
     checkRememberedSession();
     initDataStore();
     renderSidebar();
     fetchLiveGames(); 
+    fetchRealtimeWeather();
     renderClocks();
     initTrendChart();
     
     setInterval(updateClocksTick, 1000);
-
+    setInterval(fetchRealtimeWeather, 15 * 60 * 1000);
   </script>
 </body>
 </html>
