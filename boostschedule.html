@@ -343,7 +343,7 @@
           📊 Open iBET Google Sheet
         </a>
         <a href="ibet-boosted.html" class="top-btn secondary">
-          🏠 iBET Dashboard
+          🏠 DASHBOARD
         </a>
       </div>
     </div>
@@ -390,7 +390,7 @@
 
     const POPULAR_TENNIS_PLAYERS = [
       "ALCARAZ", "SINNER", "DJOKOVIC", "MEDVEDEV", "FRITZ", "TIAFOE", "ZVEREV", "RUBLEV", "PAUL", "RUUD", "NORRIE", "SHELTON",
-      "SABALENKA", "SWIATEK", "GAUFF", "RYBAKINA", "PEGULA", "ZHENG", "OSAKA", "NAVARRO", "KOSTYUK", "ANDREEVA", "ANISIMOVA", "KEYS", "BLOCKX", "KHANANOV", "ZANDSCHULP"
+      "SABALENKA", "SWIATEK", "GAUFF", "RYBAKINA", "PEGULA", "ZHENG", "OSAKA", "NAVARRO", "KOSTYUK", "ANDREEVA", "ANISIMOVA", "KEYS", "KHANANOV", "ZANDSCHULP"
     ];
 
     let currentTab = 'FOOTBALL';
@@ -438,7 +438,8 @@
 
     function formatFlashscoreName(fullName) {
       if (!fullName) return "";
-      const parts = fullName.trim().split(" ");
+      const cleanName = fullName.replace(/\([^)]*\)/g, '').trim();
+      const parts = cleanName.split(" ");
       if (parts.length === 1) return parts[0];
       const lastName = parts.pop();
       const firstInitial = parts[0].charAt(0).toUpperCase();
@@ -461,10 +462,85 @@
       return `${year}${month}${day}`;
     }
 
-    function getISOFormattedDate(daysAhead) {
-      const d = new Date();
-      d.setDate(d.getDate() + daysAhead);
-      return d.toISOString().split('T')[0];
+    /* ENHANCED REAL-TIME TENNIS FETCH ENGINE */
+    async function fetchLiveTennisEvents(datesParam) {
+      const tennisItems = [];
+      const tennisEndpoints = [
+        { url: `https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=${datesParam}`, gender: 'ATP' },
+        { url: `https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=${datesParam}`, gender: 'WTA' }
+      ];
+
+      const now = new Date();
+
+      try {
+        const fetched = await Promise.all(
+          tennisEndpoints.map(ep => fetch(ep.url).then(res => res.json()).then(data => ({ data, gender: ep.gender })).catch(() => null))
+        );
+
+        fetched.forEach(res => {
+          if (!res || !res.data || !res.data.events) return;
+
+          res.data.events.forEach(event => {
+            const state = event.status?.type?.state;
+            const completed = event.status?.type?.completed;
+            const eventDate = new Date(event.date);
+
+            // STRICT FILTER: Discard completed, in-play ('in' / set 1 / live), or past kickoff events
+            if (state !== 'pre' || completed === true || eventDate <= now) {
+              return;
+            }
+
+            let p1 = "", p2 = "";
+            if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
+              const comps = event.competitions[0].competitors;
+              p1 = comps[0].athlete?.displayName || comps[0].athlete?.shortName || comps[0].team?.displayName || "";
+              p2 = comps[1].athlete?.displayName || comps[1].athlete?.shortName || comps[1].team?.displayName || "";
+            }
+
+            if (!p1 || !p2) {
+              const parts = (event.name || "").split(/ vs | v | at /i);
+              p1 = parts[0] ? parts[0].trim() : "";
+              p2 = parts[1] ? parts[1].trim() : "";
+            }
+
+            const titleUpper = `${p1} ${p2} ${event.name || ''}`.toUpperCase();
+            if (titleUpper.includes('/') || titleUpper.includes('DOUBLES') || !p1 || !p2) return;
+
+            let tournamentName = event.league?.name || event.season?.slug || res.gender;
+            if (event.competitions && event.competitions[0] && event.competitions[0].notes && event.competitions[0].notes[0]) {
+              tournamentName = event.competitions[0].notes[0].headline || tournamentName;
+            }
+
+            const isWTA = res.gender === 'WTA';
+            const leagueTitle = `${isWTA ? 'WTA' : 'ATP'} - SINGLES: ${tournamentName.toUpperCase().replace('SINGLES', '').trim()}`;
+
+            const p1Fs = formatFlashscoreName(p1);
+            const p2Fs = formatFlashscoreName(p2);
+            const isPopular = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
+
+            tennisItems.push({
+              id: 'tn-' + (event.id || Math.random().toString(36).substring(2, 7)),
+              category: "TENNIS",
+              sportCategory: leagueTitle,
+              league: leagueTitle,
+              title: `${p1} vs ${p2}`,
+              player1: p1,
+              player2: p2,
+              player1Fs: p1Fs,
+              player2Fs: p2Fs,
+              isoTime: event.date,
+              isTopTier: isPopular,
+              isHot: isPopular,
+              isOutright: false,
+              suggestedMarkets: [`${p1Fs} to Win 2-0`, "Match Winner", "First Set Winner", `${p2Fs} +1.5 Sets`]
+            });
+          });
+        });
+      } catch (err) {
+        console.error("Tennis live fetch error:", err);
+      }
+
+      return tennisItems;
     }
 
     async function fetchLiveESPNFeed() {
@@ -481,7 +557,7 @@
       }
 
       const datesParam = `${getFormattedDateQuery(0)}-${getFormattedDateQuery(7)}`;
-      const dateTodayISO = getISOFormattedDate(0);
+      const now = new Date();
 
       try {
         const espnEndpoints = [
@@ -496,82 +572,29 @@
           { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "USA Major League Soccer", tier: 3 },
           { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/nor.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Norway Eliteserien", tier: 3 },
           { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fin.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Finland Veikkausliiga", tier: 3 },
-          
-          { url: `https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=${datesParam}`, cat: "TENNIS", league: "ATP US Open Men's Singles", gender: "ATP" },
-          { url: `https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=${datesParam}`, cat: "TENNIS", league: "WTA US Open Women's Singles", gender: "WTA" },
 
           { url: `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "NBA Basketball", tier: 1 },
           { url: `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "NFL Football", tier: 1 },
           { url: `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "MLB Baseball", tier: 1 }
         ];
 
-        const sofaScoreTennisUrl = `https://corsproxy.io/?https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/${dateTodayISO}`;
-
-        const responses = await Promise.all([
-          ...espnEndpoints.map(ep => fetch(ep.url).then(res => res.json()).then(data => ({ data, meta: ep })).catch(() => null)),
-          fetch(sofaScoreTennisUrl).then(res => res.json()).then(data => ({ data, meta: { cat: "SOFA_TENNIS" } })).catch(() => null)
+        const [responses, tennisEvents] = await Promise.all([
+          Promise.all(espnEndpoints.map(ep => fetch(ep.url).then(res => res.json()).then(data => ({ data, meta: ep })).catch(() => null))),
+          fetchLiveTennisEvents(datesParam)
         ]);
         
-        let newDatabase = [];
-        const dailyTennisCounts = {}; 
+        let newDatabase = [...tennisEvents];
 
         responses.forEach(res => {
-          if (!res || !res.data) return;
-
-          if (res.meta.cat === "SOFA_TENNIS" && res.data.events) {
-            res.data.events.forEach(event => {
-              if (event.status && (event.status.type === 'finished' || event.status.code === 100)) return;
-
-              const p1 = event.homeTeam ? (event.homeTeam.name || event.homeTeam.shortName) : "";
-              const p2 = event.awayTeam ? (event.awayTeam.name || event.awayTeam.shortName) : "";
-              if (!p1 || !p2) return;
-
-              const matchTitle = `${p1} vs ${p2}`;
-              const titleUpper = matchTitle.toUpperCase();
-
-              if (titleUpper.includes('/') || titleUpper.includes('DOUBLES')) return;
-
-              const eventDateObj = new Date(event.startTimestamp * 1000);
-              const dateKey = eventDateObj.toISOString().split('T')[0];
-
-              if (!dailyTennisCounts[dateKey]) dailyTennisCounts[dateKey] = { ATP: 0, WTA: 0 };
-
-              const categoryName = event.tournament?.category?.name || "";
-              const isWTA = categoryName.toUpperCase().includes("WTA") || event.tournament?.name?.toUpperCase().includes("WTA");
-              const leagueTitle = isWTA ? "WTA - SINGLES: US Open (USA), hard" : "ATP - SINGLES: US Open (USA), hard";
-
-              if (isWTA && dailyTennisCounts[dateKey].WTA >= 2) return;
-              if (!isWTA && dailyTennisCounts[dateKey].ATP >= 2) return;
-
-              if (isWTA) dailyTennisCounts[dateKey].WTA++;
-              else dailyTennisCounts[dateKey].ATP++;
-
-              const isPopularMatch = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
-
-              newDatabase.push({
-                id: 'sofa-' + event.id,
-                category: "TENNIS",
-                sportCategory: leagueTitle,
-                league: leagueTitle,
-                title: matchTitle,
-                player1: p1,
-                player2: p2,
-                player1Fs: formatFlashscoreName(p1),
-                player2Fs: formatFlashscoreName(p2),
-                isoTime: eventDateObj.toISOString(),
-                isTopTier: isPopularMatch,
-                isHot: isPopularMatch,
-                isOutright: false,
-                suggestedMarkets: [`${p1} to Win 2-0`, "Match Winner", "First Set Winner", `${p2} +1.5 Sets`]
-              });
-            });
-            return;
-          }
-
-          if (!res.data.events) return;
+          if (!res || !res.data || !res.data.events) return;
 
           res.data.events.forEach(event => {
-             if (event.status && event.status.type && (event.status.type.state === 'post' || event.status.type.completed === true)) {
+             const state = event.status?.type?.state;
+             const completed = event.status?.type?.completed;
+             const eventDate = new Date(event.date);
+
+             // STRICT PRE-MATCH FILTER
+             if (state !== 'pre' || completed === true || eventDate <= now) {
                return; 
              }
 
@@ -580,52 +603,14 @@
 
              if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
                const comps = event.competitions[0].competitors;
-               p1 = comps[0].athlete?.displayName || comps[0].team?.displayName || "";
-               p2 = comps[1].athlete?.displayName || comps[1].team?.displayName || "";
+               p1 = comps[0].team?.displayName || comps[0].athlete?.displayName || "";
+               p2 = comps[1].team?.displayName || comps[1].athlete?.displayName || "";
              }
 
              if (!p1 || !p2) {
                const players = event.name.split(/ vs | v | at /i);
                p1 = players[0] ? players[0].trim() : "";
                p2 = players[1] ? players[1].trim() : "";
-             }
-
-             if (res.meta.cat === "TENNIS") {
-               if (titleUpper.includes('/') || titleUpper.includes('DOUBLES') || !p1 || !p2) return;
-
-               const dateKey = event.date.split('T')[0];
-               if (!dailyTennisCounts[dateKey]) dailyTennisCounts[dateKey] = { ATP: 0, WTA: 0 };
-
-               const isATP = res.meta.gender === "ATP";
-               const isWTA = res.meta.gender === "WTA";
-
-               if (isATP && dailyTennisCounts[dateKey].ATP >= 2) return;
-               if (isWTA && dailyTennisCounts[dateKey].WTA >= 2) return;
-
-               const isPopularMatch = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
-
-               if (isATP) dailyTennisCounts[dateKey].ATP++;
-               if (isWTA) dailyTennisCounts[dateKey].WTA++;
-
-               const leagueTitle = isWTA ? "WTA - SINGLES: US Open (USA), hard" : "ATP - SINGLES: US Open (USA), hard";
-
-               newDatabase.push({
-                 id: event.id,
-                 category: "TENNIS",
-                 sportCategory: leagueTitle,
-                 league: leagueTitle,
-                 title: `${p1} vs ${p2}`,
-                 player1: p1,
-                 player2: p2,
-                 player1Fs: formatFlashscoreName(p1),
-                 player2Fs: formatFlashscoreName(p2),
-                 isoTime: event.date,
-                 isTopTier: isPopularMatch,
-                 isHot: isPopularMatch,
-                 isOutright: false,
-                 suggestedMarkets: [`${p1} to Win 2-0`, "Match Winner", "First Set Winner", `${p2} +1.5 Sets`]
-               });
-               return;
              }
 
              if (res.meta.cat === "FOOTBALL") {
@@ -679,40 +664,7 @@
           });
         });
 
-        const hasTennis = newDatabase.some(item => item.category === "TENNIS");
-        if (!hasTennis) {
-          const nowObj = new Date();
-          const getExactTime = (dayOffset, hour, min) => {
-            const d = new Date(nowObj.getTime()); d.setDate(d.getDate() + dayOffset); d.setHours(hour, min, 0, 0); return d.toISOString();
-          };
-
-          newDatabase.push({
-            id: 'tn-usopen-m1', category: 'TENNIS', sportCategory: "ATP - SINGLES: US Open (USA), hard", league: "ATP - SINGLES: US Open (USA), hard",
-            title: 'Frances Tiafoe vs Alex Michelsen', player1: 'Frances Tiafoe', player2: 'Alex Michelsen', player1Fs: 'Tiafoe F.', player2Fs: 'Michelsen A.',
-            isoTime: getExactTime(1, 1, 0), isTopTier: true, isHot: true, isOutright: false,
-            suggestedMarkets: ["Tiafoe F. to Win 2-0", "Match Winner", "First Set Winner", "Michelsen A. +1.5 Sets"]
-          });
-          newDatabase.push({
-            id: 'tn-usopen-m2', category: 'TENNIS', sportCategory: "ATP - SINGLES: US Open (USA), hard", league: "ATP - SINGLES: US Open (USA), hard",
-            title: 'Ben Shelton vs Carlos Alcaraz', player1: 'Ben Shelton', player2: 'Carlos Alcaraz', player1Fs: 'Shelton B.', player2Fs: 'Alcaraz C.',
-            isoTime: getExactTime(1, 8, 30), isTopTier: true, isHot: true, isOutright: false,
-            suggestedMarkets: ["Alcaraz C. to Win 2-0", "Match Winner", "First Set Winner", "Shelton B. +1.5 Sets"]
-          });
-          newDatabase.push({
-            id: 'tn-usopen-w1', category: 'TENNIS', sportCategory: "WTA - SINGLES: US Open (USA), hard", league: "WTA - SINGLES: US Open (USA), hard",
-            title: 'Jessica Pegula vs Emma Navarro', player1: 'Jessica Pegula', player2: 'Emma Navarro', player1Fs: 'Pegula J.', player2Fs: 'Navarro E.',
-            isoTime: getExactTime(1, 7, 0), isTopTier: true, isHot: true, isOutright: false,
-            suggestedMarkets: ["Pegula J. to Win 2-0", "Match Winner", "First Set Winner", "Navarro E. +1.5 Sets"]
-          });
-          newDatabase.push({
-            id: 'tn-usopen-w2', category: 'TENNIS', sportCategory: "WTA - SINGLES: US Open (USA), hard", league: "WTA - SINGLES: US Open (USA), hard",
-            title: 'Qian Zheng vs Elena Rybakina', player1: 'Qian Zheng', player2: 'Elena Rybakina', player1Fs: 'Zheng Q.', player2Fs: 'Rybakina E.',
-            isoTime: getExactTime(1, 23, 0), isTopTier: true, isHot: true, isOutright: false,
-            suggestedMarkets: ["Rybakina E. to Win 2-0", "Match Winner", "First Set Winner", "Zheng Q. +1.5 Sets"]
-          });
-        }
-
-        const now = new Date();
+        // Dynamic Outrights
         const getExactTime = (dayOffset, hour, min) => {
           const d = new Date(now.getTime()); d.setDate(d.getDate() + dayOffset); d.setHours(hour, min, 0, 0); return d.toISOString();
         };
@@ -779,7 +731,7 @@
         if (priorityFilter === 'HOT' && !item.isHot) return false;
 
         const matchDate = parseIsoDate(item.isoTime);
-        const isNotExpired = matchDate >= now; 
+        const isNotExpired = matchDate > now; // STRICTLY UPCOMING FUTURE GAMES ONLY
         const isWithin7Days = matchDate <= new Date(now.getTime() + (7 * 24 * 3600 * 1000));
 
         return isNotExpired && isWithin7Days;
@@ -799,13 +751,33 @@
       });
 
       Object.keys(grouped).forEach(dateStr => {
-        const dayItems = grouped[dateStr];
+        let dayItems = grouped[dateStr];
         const dateKeySanitized = dateStr.replace(/[^a-zA-Z0-9]/g, '');
+
+        // DYNAMIC QUOTA & PRIORITY ENGINE
+        const sampleDate = parseIsoDate(dayItems[0].isoTime);
+        const dayOfWeek = sampleDate.getDay(); // 0 = Sun, 6 = Sat
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const maxLimit = isWeekend ? 10 : 5;
+
+        // 1. Sort by Priority (Hot/Derby matches & Tier 1 Big Leagues first, then Kickoff Time)
+        dayItems.sort((a, b) => {
+          const scoreA = (a.isHot ? 100 : 0) + (a.isTopTier ? 50 : 0);
+          const scoreB = (b.isHot ? 100 : 0) + (b.isTopTier ? 50 : 0);
+          if (scoreB !== scoreA) return scoreB - scoreA;
+          return parseIsoDate(a.isoTime) - parseIsoDate(b.isoTime);
+        });
+
+        // 2. Cap to daily max quota (Weekdays = 5, Weekends = 10)
+        dayItems = dayItems.slice(0, maxLimit);
+
+        // 3. Re-sort sliced matches chronologically by Kickoff Time for clean presentation
+        dayItems.sort((a, b) => parseIsoDate(a.isoTime) - parseIsoDate(b.isoTime));
 
         const banner = document.createElement("div");
         banner.className = "date-banner";
         banner.innerHTML = `
-          <div class="date-title">📅 ${dateStr}</div>
+          <div class="date-title">📅 ${dateStr} <span style="font-size:0.7rem; color:var(--text-muted); margin-left:6px;">(${dayItems.length}/${maxLimit} Max Limit)</span></div>
           <div class="date-actions">
             <button class="date-btn" onclick="bulkSelectDay('${dateStr}', true)">☑ Select Day</button>
             <button class="date-btn" onclick="bulkSelectDay('${dateStr}', false)">☐ Deselect Day</button>
@@ -986,7 +958,6 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    /* Background hidden form upload to Google Sheets */
     function sendToGoogleSheet(webAppUrl, payloads) {
       return new Promise((resolve) => {
         let iframe = document.getElementById("hidden_iframe_uploader");
@@ -1019,7 +990,6 @@
       });
     }
 
-    /* Core Batch Import Function with Dual Direct Sheet Routing */
     async function executeBatchImport(destination, dateStr) {
       let targetItems = scheduleDatabase.filter(item => {
         const dateObj = parseIsoDate(item.isoTime);
