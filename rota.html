@@ -27,6 +27,7 @@
             --table-header-bg: #1e293b;
             --accent-btn: #38bdf8;
             --accent-btn-text: #0f172a;
+            --week-divider: #38bdf8;
         }
 
         [data-theme="light"] {
@@ -38,6 +39,7 @@
             --table-header-bg: #f1f5f9;
             --accent-btn: #0284c7;
             --accent-btn-text: #ffffff;
+            --week-divider: #0284c7;
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
@@ -195,35 +197,65 @@
 
         .main-layout {
             display: flex;
+            flex-direction: column;
             gap: 25px;
-            align-items: flex-start;
-            flex-wrap: wrap;
             width: 100%;
         }
 
-        .table-container { overflow-x: auto; flex: 2; width: 100%; }
+        .table-container { 
+            overflow-x: auto; 
+            width: 100%; 
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
 
         table {
             border-collapse: collapse;
-            width: auto;
-            min-width: 650px;
+            width: max-content;
+            min-width: 100%;
         }
 
         th, td {
             border: 1px solid var(--border-color);
-            padding: 6px;
+            padding: 6px 4px;
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             position: relative;
+            min-width: 92px;
         }
 
         th {
             background-color: var(--table-header-bg);
             color: var(--text-color);
             font-weight: 700;
+            padding: 8px 4px;
         }
 
-        .day-col, .date-col { width: 75px; }
+        /* Desktop Sticky Person Column */
+        th.person-col, td.person-col {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            min-width: 135px;
+            width: 135px;
+            border-right: 2px solid var(--border-color);
+            text-align: left;
+            padding: 8px 10px;
+        }
+        th.person-col { background-color: var(--table-header-bg); }
+        td.person-col { background-color: var(--card-bg); }
+
+        /* Mobile Vertical View Column Controls */
+        .day-col-mobile, .date-col-mobile {
+            min-width: 65px;
+            width: 65px;
+        }
+
+        .week-divider {
+            border-right: 3px solid var(--week-divider) !important;
+        }
 
         .bulk-set-container {
             margin-top: 4px;
@@ -233,7 +265,7 @@
         }
         .bulk-select {
             font-size: 10px !important;
-            padding: 2px !important;
+            padding: 2px 4px !important;
             width: 100%;
         }
 
@@ -244,7 +276,7 @@
 
         .custom-dropdown-btn {
             width: 100%;
-            padding: 5px;
+            padding: 6px 3px;
             border-radius: 4px;
             font-weight: 600;
             text-align: center;
@@ -252,16 +284,11 @@
             background-color: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            font-size: 12px;
+            font-size: 11px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-        }
-
-        .custom-dropdown-btn::after {
-            content: '▼';
-            font-size: 8px;
-            margin-left: 2px;
+            justify-content: center;
+            white-space: nowrap;
         }
 
         .custom-dropdown-menu {
@@ -275,6 +302,7 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.6);
             z-index: 1000;
             max-height: 250px;
+            min-width: 110px;
             overflow-y: auto;
             margin-top: 2px;
         }
@@ -293,7 +321,7 @@
             transition: background-color 0.15s, color 0.15s;
         }
 
-        /* Systematic Dark Theme Shift Palette */
+        /* Shift Color Palette */
         .shift-bg-7-16 { background-color: #143323 !important; color: #4ade80 !important; border: 1px solid #1e4630; }
         .shift-bg-9-18 { background-color: #133a2d !important; color: #34d399 !important; border: 1px solid #1b4d3c; }
         .shift-bg-10-19 { background-color: #3b2814 !important; color: #fbbf24 !important; border: 1px solid #4d351b; }
@@ -327,9 +355,9 @@
 
         .custom-dropdown-item:hover { background-color: rgba(255, 255, 255, 0.08); }
 
-        .custom-editable-input, .miguel-editable-cell {
+        .miguel-editable-cell {
             width: 100%;
-            padding: 5px;
+            padding: 5px 3px;
             font-size: 11px;
             font-weight: 600;
             text-align: center;
@@ -346,12 +374,10 @@
             border-radius: 8px;
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            min-width: 300px;
-            flex: 1;
+            width: 100%;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            width: 100%;
         }
 
         .leave-section-title {
@@ -372,7 +398,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            max-width: 100%;
+            width: 100%;
         }
 
         .chart-container-inner {
@@ -428,156 +454,13 @@
             border-radius: 3px;
         }
 
-        /* Responsive Mobile Card View Styles */
-        #mobile-card-view {
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            max-width: 100%;
-        }
-        .mobile-day-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        .mobile-card-header {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--accent-btn);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .mobile-card-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            padding: 2px 0;
-            gap: 10px;
-        }
-        .mobile-card-row span:first-child {
-            font-weight: 600;
-        }
-        .mobile-shift-val {
-            font-weight: 600;
-            text-align: right;
-            word-break: break-word;
-        }
-
-        /* ==================================================
-           Mobile View Hard Overflow Blocking & Layout Fixes
-           ================================================== */
         @media screen and (max-width: 768px) {
-            body {
-                padding: 10px 4px; /* Maximize usable screen real estate */
-                overflow-x: hidden; /* Hard block on horizontal scrolling */
-            }
-            .header-top {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            .ph-holiday-container {
-                max-width: 100%;
-                width: 100%;
-                margin: 0;
-                box-sizing: border-box;
-            }
-            .header-top-controls {
-                justify-content: center;
-                width: 100%;
-                gap: 6px;
-            }
-            .header-top-controls .btn, .header-top-controls .viewer-badge {
-                flex: 1;
-                justify-content: center;
-                text-align: center;
-                padding: 8px 4px;
-            }
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-                width: 100%;
-                padding: 12px;
-                box-sizing: border-box;
-            }
-            .controls > div, .controls > button, .team-manager-dropdown {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .controls .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            .main-layout {
-                flex-direction: column;
-                width: 100%;
-                gap: 15px;
-            }
-            
-            /* FORCE ALL TABLES TO FIT EXACT SCREEN WIDTH */
-            .table-container {
-                width: 100%;
-                overflow-x: hidden; /* Disables scrollbar */
-            }
-            table {
-                min-width: 100% !important; /* Overrides the 650px limit */
-                width: 100% !important;
-                table-layout: fixed; /* Compresses columns to strictly fit available space */
-            }
-            th, td {
-                padding: 3px 1px !important;
-                font-size: 9px !important;
-                word-break: break-word;
-                white-space: normal;
-            }
-            
-            /* Shrink layout columns aggressively */
-            .day-col { width: 30px !important; }
-            .date-col { width: 36px !important; }
-            .leave-table th:first-child { width: 35px !important; }
-            
-            .bulk-select {
-                font-size: 8px !important;
-                padding: 2px 0px !important;
-            }
-            .custom-dropdown-btn {
-                font-size: 8px;
-                padding: 4px 1px;
-                line-height: 1.1;
-            }
-            .custom-dropdown-btn::after {
-                display: none; /* Hide dropdown arrow to save width space */
-            }
-            .custom-editable-input, .miguel-editable-cell, .date-input-cell {
-                font-size: 9px;
-                padding: 3px 1px;
-            }
-
-            .leave-section {
-                min-width: 100%;
-                width: 100%;
-                padding: 12px 6px;
-                box-sizing: border-box;
-            }
-            .chart-container-inner {
-                max-width: 100%;
-                height: 240px;
-            }
-            #mobileViewToggleBtn {
-                display: inline-flex !important;
-            }
+            body { padding: 10px 4px; }
+            .header-top { flex-direction: column; align-items: stretch; gap: 10px; }
+            .ph-holiday-container { max-width: 100%; width: 100%; margin: 0; }
+            .header-top-controls { justify-content: center; width: 100%; gap: 6px; }
+            .controls { flex-direction: column; align-items: stretch; width: 100%; padding: 12px; }
+            #mobileViewToggleBtn { display: inline-flex !important; }
         }
     </style>
 </head>
@@ -660,21 +543,15 @@
     </div>
 
     <div class="main-layout">
+        <!-- Responsive Dual Table Containers -->
         <div class="table-container" id="standardTableContainer">
             <table>
                 <thead>
-                    <tr id="schedule-header-row">
-                        <th class="day-col" rowspan="2">Day</th>
-                        <th class="date-col" rowspan="2">Date</th>
-                        <!-- Dynamically filled headers with bulk selectors -->
-                    </tr>
+                    <tr id="schedule-header-row"></tr>
                 </thead>
                 <tbody id="schedule-body"></tbody>
             </table>
         </div>
-
-        <!-- Mobile View Responsive Card Container -->
-        <div id="mobile-card-view"></div>
 
         <div class="leave-section">
             <div>
@@ -692,7 +569,6 @@
                     <thead>
                         <tr id="leave-header-row">
                             <th style="width: 50px;">Type</th>
-                            <!-- Dynamically populated member columns -->
                         </tr>
                     </thead>
                     <tbody id="leave-dates-body"></tbody>
@@ -868,19 +744,13 @@
         function toggleMobileView() {
             isMobileViewActive = !isMobileViewActive;
             const toggleBtn = document.getElementById('mobileViewToggleBtn');
-            const standardContainer = document.getElementById('standardTableContainer');
-            const mobileContainer = document.getElementById('mobile-card-view');
 
             if (isMobileViewActive) {
                 toggleBtn.innerText = '💻 Desktop View';
-                standardContainer.style.display = 'none';
-                mobileContainer.style.display = 'flex';
-                renderMobileCards();
             } else {
                 toggleBtn.innerText = '📱 Mobile View';
-                standardContainer.style.display = 'block';
-                mobileContainer.style.display = 'none';
             }
+            renderCalendar();
         }
 
         function setupPresenceSystem() {
@@ -1081,20 +951,173 @@
         }
 
         function renderAll() {
-            renderHeaders();
             renderCalendar();
             buildLeaveTables();
             renderWFHTracker();
             renderVLPieChart();
-            if (isMobileViewActive || window.innerWidth <= 768) renderMobileCards();
         }
 
-        function renderHeaders() {
-            let html = '<th class="day-col" rowspan="2">Day</th><th class="date-col" rowspan="2">Date</th>';
+        /* Dual View Calendar Engine */
+        function renderCalendar() {
+            const isMobile = isMobileViewActive || window.innerWidth <= 768;
+            if (isMobile) {
+                renderVerticalCalendar(); // Attached Image Layout (Day/Date Left, Persons Top)
+            } else {
+                renderHorizontalCalendar(); // Desktop Matrix (Person Left, Dates Top)
+            }
+
+            // Update Leave Header Row
+            let leaveHtml = '<th style="width: 50px;">Type</th>';
+            team.forEach(member => {
+                leaveHtml += `<th>${member}</th>`;
+            });
+            leaveHeaderRow.innerHTML = leaveHtml;
+
+            syncLeavesFromFullYearSchedule();
+        }
+
+        /* Desktop View Layout (Horizontal Matrix) */
+        function renderHorizontalCalendar() {
+            scheduleHeaderRow.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
+
+            let headerHtml = '<th class="person-col">Person</th>';
+            for (let d = 1; d <= totalDays; d++) {
+                const dateObj = new Date(selectedYear, selectedMonth, d);
+                const dayName = weekdays[dateObj.getDay()];
+                const isSunday = (dateObj.getDay() === 0);
+                const dividerClass = isSunday ? 'week-divider' : '';
+
+                headerHtml += `
+                    <th class="${dividerClass}">
+                        <div>${dayName}</div>
+                        <div style="font-size:11px; font-weight:600; opacity:0.8; margin-top:2px;">${d} ${monthLabel}</div>
+                    </th>
+                `;
+            }
+            scheduleHeaderRow.innerHTML = headerHtml;
+
             team.forEach((member, memberIdx) => {
-                html += `
+                const tr = document.createElement('tr');
+
+                const tdPerson = document.createElement('td');
+                tdPerson.className = 'person-col';
+                tdPerson.innerHTML = `
+                    <div style="font-weight:700; font-size:13px; color:var(--header-text);">${member}</div>
+                    <div class="bulk-set-container">
+                        <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
+                            <option value="">-- Bulk Set --</option>
+                            <option value="CLEAR">-- Clear --</option>
+                            <option value="7:00 - 16:00">7:00 - 16:00</option>
+                            <option value="9:00 - 18:00">9:00 - 18:00</option>
+                            <option value="10:00 - 19:00">10:00 - 19:00</option>
+                            <option value="12:00 - 21:00">12:00 - 21:00</option>
+                            <option value="14:00 - 23:00">14:00 - 23:00</option>
+                            <option value="RD">RD</option>
+                        </select>
+                    </div>
+                `;
+                tr.appendChild(tdPerson);
+
+                for (let d = 1; d <= totalDays; d++) {
+                    const dateObj = new Date(selectedYear, selectedMonth, d);
+                    const isSunday = (dateObj.getDay() === 0);
+                    const tdShift = document.createElement('td');
+                    if (isSunday) tdShift.classList.add('week-divider');
+
+                    let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
+
+                    if (member === "Miguel") {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'miguel-editable-cell';
+                        input.value = formatShiftForTimezone(activeShift);
+                        input.placeholder = "8:00 - 17:00";
+                        if (isViewOnlyMode) input.disabled = true;
+
+                        input.addEventListener('change', () => {
+                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                            rotaData[d][memberIdx] = input.value;
+                            saveRotaToDatabase();
+                        });
+                        tdShift.appendChild(input);
+                    } else {
+                        const activeInfo = getShiftInfo(activeShift);
+                        const convertedText = formatShiftForTimezone(activeShift);
+
+                        const dropdownContainer = document.createElement('div');
+                        dropdownContainer.className = 'custom-dropdown';
+
+                        const btn = document.createElement('div');
+                        btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
+                        btn.textContent = convertedText === "" ? "--" : convertedText;
+
+                        const menu = document.createElement('div');
+                        menu.className = 'custom-dropdown-menu';
+
+                        shiftList.forEach(s => {
+                            const item = document.createElement('div');
+                            item.className = `custom-dropdown-item ${s.itemClass}`;
+                            const displayShift = formatShiftForTimezone(s.text);
+                            item.textContent = displayShift === "" ? "-- Select --" : displayShift;
+
+                            item.addEventListener('click', (e) => {
+                                if (isViewOnlyMode) return;
+                                e.stopPropagation();
+
+                                btn.textContent = displayShift === "" ? "--" : displayShift;
+                                btn.className = `custom-dropdown-btn ${s.bgClass}`;
+                                menu.classList.remove('show');
+
+                                if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                                rotaData[d][memberIdx] = s.text;
+
+                                saveRotaToDatabase();
+                                syncLeavesFromFullYearSchedule();
+                            });
+                            menu.appendChild(item);
+                        });
+
+                        btn.addEventListener('click', (e) => {
+                            if (isViewOnlyMode) return;
+                            e.stopPropagation();
+                            document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+                                if (m !== menu) m.classList.remove('show');
+                            });
+                            menu.classList.toggle('show');
+                        });
+
+                        dropdownContainer.appendChild(btn);
+                        dropdownContainer.appendChild(menu);
+                        tdShift.appendChild(dropdownContainer);
+                    }
+                    tr.appendChild(tdShift);
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        /* Mobile View Layout (Vertical Matrix - Image Reference image_8eefb9.png) */
+        function renderVerticalCalendar() {
+            scheduleHeaderRow.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearInput.value);
+            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
+
+            // Top Header: Day | Date | Member Columns with Bulk Selectors
+            let headerHtml = '<th class="day-col-mobile">Day</th><th class="date-col-mobile">Date</th>';
+            team.forEach((member, memberIdx) => {
+                headerHtml += `
                     <th>
-                        ${member}
+                        <div>${member}</div>
                         <div class="bulk-set-container">
                             <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
                                 <option value="">-- Set All Month --</option>
@@ -1110,34 +1133,21 @@
                     </th>
                 `;
             });
-            scheduleHeaderRow.innerHTML = html;
+            scheduleHeaderRow.innerHTML = headerHtml;
 
-            let leaveHtml = '<th style="width: 50px;">Type</th>';
-            team.forEach(member => {
-                leaveHtml += `<th>${member}</th>`;
-            });
-            leaveHeaderRow.innerHTML = leaveHtml;
-        }
-
-        function renderCalendar() {
-            tbody.innerHTML = '';
-            const selectedMonth = parseInt(monthSelect.value);
-            const selectedYear = parseInt(yearInput.value);
-            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
-
+            // Rows: Day 1 to Month End
             for (let d = 1; d <= totalDays; d++) {
                 const dateObj = new Date(selectedYear, selectedMonth, d);
                 const dayName = weekdays[dateObj.getDay()];
                 const tr = document.createElement('tr');
 
                 const tdDay = document.createElement('td');
-                tdDay.className = 'day-col';
+                tdDay.className = 'day-col-mobile';
                 tdDay.textContent = dayName;
                 tr.appendChild(tdDay);
 
                 const tdDate = document.createElement('td');
-                tdDate.className = 'date-col';
+                tdDate.className = 'date-col-mobile';
                 tdDate.textContent = `${d}-${monthLabel}`;
                 tr.appendChild(tdDate);
 
@@ -1150,7 +1160,7 @@
                         input.type = 'text';
                         input.className = 'miguel-editable-cell';
                         input.value = formatShiftForTimezone(activeShift);
-                        input.placeholder = "e.g. 8:00 - 17:00";
+                        input.placeholder = "8:00 - 17:00";
                         if (isViewOnlyMode) input.disabled = true;
 
                         input.addEventListener('change', () => {
@@ -1212,38 +1222,6 @@
                     tr.appendChild(tdShift);
                 });
                 tbody.appendChild(tr);
-            }
-            syncLeavesFromFullYearSchedule();
-        }
-
-        function renderMobileCards() {
-            const mobileContainer = document.getElementById('mobile-card-view');
-            mobileContainer.innerHTML = '';
-            const selectedMonth = parseInt(monthSelect.value);
-            const selectedYear = parseInt(yearInput.value);
-            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-            const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
-
-            for (let d = 1; d <= totalDays; d++) {
-                const dateObj = new Date(selectedYear, selectedMonth, d);
-                const dayName = weekdays[dateObj.getDay()];
-                const card = document.createElement('div');
-                card.className = 'mobile-day-card';
-
-                const header = document.createElement('div');
-                header.className = 'mobile-card-header';
-                header.innerHTML = `<span>${dayName}</span> <span>${d} ${monthLabel}</span>`;
-                card.appendChild(header);
-
-                team.forEach((member, memberIdx) => {
-                    let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
-                    const convertedText = formatShiftForTimezone(activeShift) || "Off / Unassigned";
-                    const row = document.createElement('div');
-                    row.className = 'mobile-card-row';
-                    row.innerHTML = `<span>${member}:</span> <span class="mobile-shift-val">${convertedText}</span>`;
-                    card.appendChild(row);
-                });
-                mobileContainer.appendChild(card);
             }
         }
 
@@ -1424,6 +1402,7 @@
 
         monthSelect.addEventListener('change', () => { renderPHHolidays(); listenToDatabase(); });
         yearInput.addEventListener('input', () => { listenToDatabase(); });
+        window.addEventListener('resize', () => { renderCalendar(); });
 
         window.onload = function() {
             checkViewOnlyMode();
@@ -1434,10 +1413,6 @@
                 isMobileViewActive = true;
                 const toggleBtn = document.getElementById('mobileViewToggleBtn');
                 if (toggleBtn) toggleBtn.innerText = '💻 Desktop View';
-                const standardContainer = document.getElementById('standardTableContainer');
-                const mobileContainer = document.getElementById('mobile-card-view');
-                if (standardContainer) standardContainer.style.display = 'none';
-                if (mobileContainer) mobileContainer.style.display = 'flex';
             }
             setupPresenceSystem();
             renderPHHolidays();
