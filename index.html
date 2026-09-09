@@ -89,7 +89,7 @@
     .error-msg { color: var(--accent-red); font-size: 11px; font-weight: 700; text-align: center; margin-top: 8px; }
 
     /* Desktop Sidebar */
-    .sidebar { position: fixed; top: 15px; left: 15px; height: calc(100vh - 30px); width: var(--sidebar-width); background: var(--glass-bg); backdrop-filter: var(--card-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; transition: width 0.35s ease, transform 0.3s ease; z-index: 100; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); }
+    .sidebar { position: fixed; top: 15px; left: 15px; height: calc(100vh - 30px); width: var(--sidebar-width); background: var(--glass-bg); backdrop-filter: var(--card-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; transition: width 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 600; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); }
     .sidebar .logo-details { height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 4px; flex-shrink: 0; }
     .sidebar .logo-details .logo_name { color: var(--text-main); font-size: 13px; font-weight: 800; letter-spacing: 1.8px; white-space: nowrap; display: none; opacity: 0; }
     .sidebar #btn { font-size: 22px; cursor: pointer; color: var(--text-main); }
@@ -177,7 +177,7 @@
     .logger-input { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none; }
     .entry-grid { display: grid; grid-template-columns: 60px 1fr 1fr; gap: 8px; font-size: 10px; font-weight: 700; align-items: center; margin-bottom: 6px; }
 
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); z-index: 900; justify-content: center; align-items: center; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px); z-index: 900; justify-content: center; align-items: center; }
     .modal-content { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); padding: 24px; border-radius: 16px; width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: var(--glass-shadow); }
     .setting-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
     .action-btn { width: 100%; margin-top: 10px; background: var(--accent-glow); color: #ffffff; border: none; padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -190,6 +190,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     .mobile-nav-bar { display: none; }
+    #mobileBackdropOverlay { display: none; }
 
     /* ==================== 1. DESKTOP ONLY STYLES (> 1024px) ==================== */
     @media (min-width: 1025px) {
@@ -203,7 +204,7 @@
       body:not(.mobile-view-active) .sidebar:hover .logo-details { justify-content: space-between; }
       body:not(.mobile-view-active) .sidebar:hover .profile { justify-content: space-between; padding: 10px 12px; }
 
-      /* Original Bento Absolute Positions */
+      /* Desktop Absolute Layout */
       #timezonesCard { top: 20px; left: calc(var(--sidebar-width) + 35px); width: 335px; height: 165px; }
       #weatherCard   { top: 20px; left: calc(var(--sidebar-width) + 385px); width: 335px; height: 165px; }
       #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
@@ -212,20 +213,48 @@
       #quickDockCard { top: 500px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 225px; min-width: 320px; min-height: 180px; }
     }
 
-    /* ==================== 2. MOBILE / TABLET ONLY STYLES (<= 1024px) ==================== */
+    /* ==================== 2. MOBILE / TABLET STYLES (<= 1024px) ==================== */
     @media (max-width: 1024px), body.mobile-view-active {
       body { flex-direction: column; }
       
+      /* Dim Backdrop Overlay for Menu Drawer */
+      #mobileBackdropOverlay {
+        display: block;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 550;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      #mobileBackdropOverlay.active { opacity: 1; visibility: visible; }
+
+      /* Floating Sheet Sidebar for Mobile */
       .sidebar {
         position: fixed;
-        top: -100%;
-        left: 15px;
-        width: calc(100vw - 30px);
-        height: 80vh;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-130%);
+        width: calc(100vw - 32px);
+        max-width: 440px;
+        height: 75vh;
+        max-height: 620px;
         z-index: 600;
-        transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1.5px solid rgba(255, 255, 255, 0.25);
+        border-radius: 32px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.3);
       }
-      .sidebar.mobile-open { top: 15px; }
+      .sidebar.mobile-open {
+        transform: translateX(-50%) translateY(0);
+      }
       .sidebar .logo-details .logo_name, 
       .sidebar .search-box input, 
       .sidebar .nav-item-title, 
@@ -239,13 +268,13 @@
         top: 0; left: 0;
         width: 100vw;
         height: auto;
-        padding: 15px 15px 95px 15px;
+        padding: 15px 15px 105px 15px;
         display: flex;
         flex-direction: column;
         gap: 12px;
       }
 
-      /* Convert floating absolute cards into stacked linear mobile widgets */
+      /* Stacked Bento Cards for Mobile */
       .bento-card {
         position: relative !important;
         top: auto !important;
@@ -254,8 +283,8 @@
         height: auto !important;
         min-height: unset;
         resize: none;
-        border-radius: 24px;
-        padding: 16px;
+        border-radius: 26px;
+        padding: 16px 18px;
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
         box-shadow: 0 12px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.25);
       }
@@ -269,42 +298,56 @@
 
       .drag-hint { display: none; }
 
-      /* Mobile Navigation Bar */
+      /* Stylish Ultra-Glass Mobile Bottom Dock */
       .mobile-nav-bar {
         display: flex;
         position: fixed;
-        bottom: 15px;
+        bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        width: calc(100% - 30px);
-        max-width: 420px;
-        height: 60px;
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        border: 1px solid var(--glass-border);
-        border-radius: 35px;
-        z-index: 500;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.3);
+        width: calc(100% - 32px);
+        max-width: 380px;
+        height: 64px;
+        background: rgba(15, 23, 42, 0.72);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        border-radius: 36px;
+        z-index: 700;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.3);
         align-items: center;
-        justify-content: space-around;
-        padding: 0 10px;
+        justify-content: space-evenly;
+        padding: 0 8px;
       }
       .mobile-nav-item {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--text-sub);
-        font-size: 20px;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 22px;
+        width: 48px;
+        height: 48px;
+        border-radius: 24px;
         cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        text-decoration: none;
       }
-      .mobile-nav-item.active, .mobile-nav-item:hover {
-        color: #ffffff;
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(168, 85, 247, 0.3));
-        border: 1px solid var(--glass-border);
+      .mobile-nav-item i {
+        transition: transform 0.25s ease, color 0.25s ease;
+      }
+      .mobile-nav-item.active {
+        color: #38bdf8;
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      }
+      .mobile-nav-item.active i {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+      }
+      .mobile-nav-item:active {
+        transform: scale(0.92);
       }
     }
   </style>
@@ -343,11 +386,14 @@
     </div>
   </div>
 
+  <!-- Mobile Backdrop Overlay -->
+  <div id="mobileBackdropOverlay" onclick="closeMobileSidebar()"></div>
+
   <!-- Sidebar -->
   <div class="sidebar" id="mainSidebar">
     <div class="logo-details">
       <div class="logo_name">SPORTSBOOK HUB</div>
-      <i class='bx bx-x' id="closeSidebarBtn" style="font-size:22px; cursor:pointer;" onclick="toggleMobileSidebar()"></i>
+      <i class='bx bx-x' id="closeSidebarBtn" style="font-size:24px; cursor:pointer;" onclick="closeMobileSidebar()"></i>
     </div>
     <div class="search-box">
       <i class='bx bx-search'></i>
@@ -362,7 +408,7 @@
           <div class="job">Active Operator</div>
         </div>
       </div>
-      <i class='bx bx-cog' id="settings_btn" style="cursor: pointer; font-size: 20px;" onclick="toggleModal()"></i>
+      <i class='bx bx-cog' id="settings_btn" style="cursor: pointer; font-size: 20px;" onclick="handleNavClick(null, toggleModal)"></i>
     </li>
   </div>
 
@@ -492,16 +538,16 @@
 
   <!-- Mobile Floating Navigation Dock -->
   <div class="mobile-nav-bar">
-    <div class="mobile-nav-item active" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Home">
+    <div class="mobile-nav-item active" id="navHomeBtn" onclick="handleNavClick(this, () => window.scrollTo({top:0, behavior:'smooth'}))" title="Home">
       <i class='bx bx-home-alt'></i>
     </div>
-    <div class="mobile-nav-item" onclick="toggleMobileSidebar()" title="Menu">
+    <div class="mobile-nav-item" id="navMenuBtn" onclick="handleNavClick(this, toggleMobileSidebar)" title="Menu">
       <i class='bx bx-category-alt'></i>
     </div>
-    <div class="mobile-nav-item" onclick="document.getElementById('quickDockCard').scrollIntoView({behavior:'smooth'})" title="Quick Links">
+    <div class="mobile-nav-item" id="navDockBtn" onclick="handleNavClick(this, () => document.getElementById('quickDockCard').scrollIntoView({behavior:'smooth'}))" title="Quick Links">
       <i class='bx bx-rocket'></i>
     </div>
-    <div class="mobile-nav-item" onclick="toggleModal()" title="Settings">
+    <div class="mobile-nav-item" id="navSettingsBtn" onclick="handleNavClick(this, toggleModal)" title="Settings">
       <i class='bx bx-cog'></i>
     </div>
   </div>
@@ -677,9 +723,33 @@
       return window.innerWidth <= 1024 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById("mainSidebar");
+      const backdrop = document.getElementById("mobileBackdropOverlay");
+      if (sidebar) sidebar.classList.remove("mobile-open");
+      if (backdrop) backdrop.classList.remove("active");
+    }
+
     function toggleMobileSidebar() {
       const sidebar = document.getElementById("mainSidebar");
-      sidebar.classList.toggle("mobile-open");
+      const backdrop = document.getElementById("mobileBackdropOverlay");
+      const isOpen = sidebar.classList.contains("mobile-open");
+      
+      if (isOpen) {
+        closeMobileSidebar();
+      } else {
+        sidebar.classList.add("mobile-open");
+        if (backdrop) backdrop.classList.add("active");
+      }
+    }
+
+    function handleNavClick(targetTab, action) {
+      if (targetTab) {
+        document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+        targetTab.classList.add('active');
+      }
+      closeMobileSidebar();
+      if (action) action();
     }
 
     async function fetchRealtimeWeather() {
@@ -1169,7 +1239,7 @@
         const li = document.createElement("li");
         li.className = "nav-item-group";
         let subsHtml = "";
-        item.subs.forEach(sub => subsHtml += `<li><a href="${sub.url}" target="_blank" class="sub-menu-item">${sub.name}</a></li>`);
+        item.subs.forEach(sub => subsHtml += `<li><a href="${sub.url}" target="_blank" onclick="closeMobileSidebar()" class="sub-menu-item">${sub.name}</a></li>`);
         li.innerHTML = `<div class="nav-header-btn" onclick="this.parentElement.classList.toggle('expanded')"><i class='bx ${item.icon} nav-icon'></i><span class="nav-item-title">${item.category}</span><i class='bx bx-chevron-down nav-arrow'></i></div><ul class="sub-menu-list">${subsHtml}</ul>`;
         navList.appendChild(li);
       });
