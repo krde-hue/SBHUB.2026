@@ -93,6 +93,17 @@
     #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
     #flashscoreCard{ top: 195px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 285px; }
     #trendCard { top: 290px; left: calc(var(--sidebar-width) + 395px); width: 700px; height: 435px; min-width: 450px; min-height: 250px; }
+    
+    /* FLOATING INTERACTIVE GLASS DOCK CARD */
+    #quickDockCard { top: 500px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 225px; min-width: 320px; min-height: 180px; }
+    .dock-pill-container { display: flex; gap: 8px; background: rgba(15, 23, 42, 0.45); padding: 6px; border-radius: 30px; border: 1px solid var(--glass-border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.3); margin-bottom: 10px; flex-shrink: 0; }
+    .dock-pill-btn { flex: 1; border: none; outline: none; background: transparent; color: var(--text-sub); padding: 8px 12px; font-size: 11px; font-weight: 800; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .dock-pill-btn:hover, .dock-pill-btn.active { background: var(--glass-bg-hover); color: var(--text-main); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border); }
+    .dock-pill-btn.active { background: rgba(56, 189, 248, 0.2); color: var(--accent-glow); border-color: var(--accent-glow); }
+    .dock-content-panel { display: none; flex-direction: column; gap: 6px; overflow-y: auto; flex-grow: 1; padding-right: 2px; }
+    .dock-content-panel.active { display: flex; animation: bentoContainerReveal 0.3s ease forwards; }
+    .dock-link-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 800; letter-spacing: 0.5px; transition: all 0.2s ease; }
+    .dock-link-item:hover { border-color: var(--accent-glow); background: var(--glass-bg); transform: translateY(-1px); }
 
     .tz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .tz-item { background: var(--glass-bg-hover); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
@@ -268,6 +279,57 @@
         <canvas id="trendChart"></canvas>
       </div>
     </div>
+
+    <!-- FLOATING INTERACTIVE GLASS DOCK CARD (IBET, EDGE, PUBS) -->
+    <div class="bento-card" id="quickDockCard">
+      <div class="card-header-title">
+        <span>🚀 BRAND DIRECTORY DOCK <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+      </div>
+      <div class="dock-pill-container">
+        <button class="dock-pill-btn active" onclick="switchDockTab('ibet', this)">
+          <i class='bx bx-layer'></i> IBET
+        </button>
+        <button class="dock-pill-btn" onclick="switchDockTab('edge', this)">
+          <i class='bx bx-shield-quarter'></i> EDGE
+        </button>
+        <button class="dock-pill-btn" onclick="switchDockTab('pubs', this)">
+          <i class='bx bx-globe'></i> PUBS
+        </button>
+      </div>
+
+      <!-- IBET Panel -->
+      <div class="dock-content-panel active" id="dock-ibet">
+        <a href="https://admin.apexplatform.io/login" target="_blank" class="dock-link-item">
+          <span>IBET ADMIN</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://b2b.betssonbusiness.com/" target="_blank" class="dock-link-item">
+          <span>BETSSON</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://backoffice.betconstruct.com/" target="_blank" class="dock-link-item">
+          <span>BET CONSTRUCT</span> <i class='bx bx-link-external'></i>
+        </a>
+      </div>
+
+      <!-- EDGE Panel -->
+      <div class="dock-content-panel" id="dock-edge">
+        <a href="https://p2ibet.sbx.bet/bets" target="_blank" class="dock-link-item">
+          <span>KT SBX</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://admin.edgegaming.io/admin/qbet/homepage" target="_blank" class="dock-link-item">
+          <span>EDGE ADMIN</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://kickertech.atlassian.net/servicedesk/customer/user/login?destination=portals" target="_blank" class="dock-link-item">
+          <span>SERVICE DESK</span> <i class='bx bx-link-external'></i>
+        </a>
+      </div>
+
+      <!-- PUBS Panel -->
+      <div class="dock-content-panel" id="dock-pubs">
+        <a href="https://gg-backoffice-eu.gogaming.cc/en-US/member/list" target="_blank" class="dock-link-item">
+          <span>GO GAMING</span> <i class='bx bx-link-external'></i>
+        </a>
+      </div>
+    </div>
   </div>
 
   <div class="modal" id="settingsModal">
@@ -436,6 +498,15 @@
     let trendChartInstance = null;
     let inactivityTimer = null;
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
+
+    function switchDockTab(tabKey, btnEl) {
+      document.querySelectorAll('.dock-pill-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.dock-content-panel').forEach(panel => panel.classList.remove('active'));
+      
+      btnEl.classList.add('active');
+      const targetPanel = document.getElementById(`dock-${tabKey}`);
+      if (targetPanel) targetPanel.classList.add('active');
+    }
 
     function getFormattedDateQuery(daysAhead) {
       const d = new Date();
