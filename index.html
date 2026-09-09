@@ -110,7 +110,7 @@
     .sub-menu-item { display: block; padding: 8px 12px; font-size: 10px; font-weight: 700; color: var(--text-sub); text-decoration: none; text-transform: uppercase; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
     .sub-menu-item:hover { background: rgba(255, 255, 255, 0.2); color: var(--text-main); }
     
-    /* Sleek Customization Controls in Sidebar */
+    /* Customization Panel in Sidebar */
     .sidebar-customization-panel {
       display: none;
       opacity: 0;
@@ -126,64 +126,14 @@
       transition: opacity 0.25s ease, border-color 0.2s ease;
       flex-shrink: 0;
     }
-    .sidebar-customization-panel:hover {
-      border-color: var(--accent-glow);
-    }
-    .custom-control-label {
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 0.8px;
-      color: var(--accent-glow);
-      text-transform: uppercase;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-    }
-    .custom-slider-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    input[type=range].styled-slider {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 5px;
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.2);
-      outline: none;
-      border: 1px solid var(--glass-border);
-      cursor: pointer;
-    }
-    input[type=range].styled-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent-glow);
-      cursor: pointer;
-      box-shadow: 0 0 10px var(--accent-glow);
-      border: 1.5px solid #ffffff;
-      transition: transform 0.15s ease, background-color 0.2s ease;
-    }
+    .sidebar-customization-panel:hover { border-color: var(--accent-glow); }
+    .custom-control-label { font-size: 9px; font-weight: 800; letter-spacing: 0.8px; color: var(--accent-glow); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+    .custom-slider-wrapper { display: flex; align-items: center; gap: 8px; }
+    input[type=range].styled-slider { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; border: 1px solid var(--glass-border); cursor: pointer; }
+    input[type=range].styled-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-glow); cursor: pointer; box-shadow: 0 0 10px var(--accent-glow); border: 1.5px solid #ffffff; transition: transform 0.15s ease; }
     input[type=range].styled-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
-    .color-swatch-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      margin-top: 2px;
-    }
-    .color-swatch {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 1.5px solid transparent;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      position: relative;
-    }
+    .color-swatch-container { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
+    .color-swatch { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 1.5px solid transparent; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; position: relative; }
     .color-swatch:hover { transform: scale(1.2); }
     .color-swatch.active { border-color: #ffffff; box-shadow: 0 0 10px var(--swatch-color); transform: scale(1.15); }
 
@@ -255,11 +205,28 @@
     .stat-badge.down { background: rgba(239, 68, 68, 0.25); color: #ef4444; }
     
     .chart-container { position: relative; flex-grow: 1; width: 100%; min-height: 100px; }
-    .logger-input { background: rgba(8, 12, 20, 0.65); border: 1px solid var(--glass-border); padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none; }
-    .entry-grid { display: grid; grid-template-columns: 60px 1fr 1fr; gap: 8px; font-size: 10px; font-weight: 700; align-items: center; margin-bottom: 6px; }
+    
+    /* Perfect Fit Input & Grid Layout for Modal Log */
+    .logger-input { background: rgba(8, 12, 20, 0.65); border: 1px solid var(--glass-border); padding: 5px 6px; border-radius: 8px; font-size: 10px; font-weight: 700; color: var(--text-main); outline: none; width: 100%; min-width: 0; text-align: center; }
+    .entry-grid { display: grid; grid-template-columns: 48px repeat(3, 1fr); gap: 6px; font-size: 9px; font-weight: 800; align-items: center; margin-bottom: 6px; }
 
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(14px); z-index: 900; justify-content: center; align-items: center; }
-    .modal-content { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--card-blur); padding: 24px; border-radius: 16px; width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: var(--glass-shadow); }
+    
+    /* Expanded Modal Content to fit 4-Brand Table without horizontal scroll */
+    .modal-content { 
+      background: var(--glass-bg); 
+      border: 1px solid var(--glass-border); 
+      backdrop-filter: var(--card-blur); 
+      padding: 24px; 
+      border-radius: 16px; 
+      width: 520px; 
+      max-width: 92vw; 
+      max-height: 90vh; 
+      overflow-y: auto; 
+      overflow-x: hidden; 
+      box-shadow: var(--glass-shadow); 
+    }
+
     .setting-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
     .action-btn { width: 100%; margin-top: 10px; background: var(--accent-glow); color: #ffffff; border: none; padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
     .action-btn.logout-btn { background: linear-gradient(135deg, #f87171, #dc2626); margin-top: 14px; }
@@ -273,7 +240,7 @@
     .mobile-nav-bar { display: none; }
     #mobileBackdropOverlay { display: none; }
 
-    /* ==================== 1. DESKTOP ONLY STYLES (> 1024px) ==================== */
+    /* Desktop Absolute Layout */
     @media (min-width: 1025px) {
       body:not(.mobile-view-active) .sidebar:hover { width: var(--sidebar-expanded-width); }
       body:not(.mobile-view-active) .sidebar:hover .logo-details .logo_name, 
@@ -286,7 +253,6 @@
       body:not(.mobile-view-active) .sidebar:hover .logo-details { justify-content: space-between; }
       body:not(.mobile-view-active) .sidebar:hover .profile { justify-content: space-between; padding: 10px 12px; }
 
-      /* Desktop Absolute Layout */
       #timezonesCard { top: 20px; left: calc(var(--sidebar-width) + 35px); width: 335px; height: 165px; }
       #weatherCard   { top: 20px; left: calc(var(--sidebar-width) + 385px); width: 335px; height: 165px; }
       #topGamesCard  { top: 20px; left: calc(var(--sidebar-width) + 735px); width: 360px; height: 260px; }
@@ -296,133 +262,21 @@
       #dailyTaskCard { top: 735px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 210px; min-width: 320px; min-height: 180px; }
     }
 
-    /* ==================== 2. MOBILE / TABLET STYLES (<= 1024px) ==================== */
+    /* Mobile / Tablet Styles */
     @media (max-width: 1024px), body.mobile-view-active {
       body { flex-direction: column; }
-      
-      #mobileBackdropOverlay {
-        display: block;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        background: rgba(0, 0, 0, 0.65);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        z-index: 550;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-      }
+      #mobileBackdropOverlay { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(10px); z-index: 550; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
       #mobileBackdropOverlay.active { opacity: 1; visibility: visible; }
-
-      .sidebar {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%) translateY(-130%);
-        width: calc(100vw - 32px);
-        max-width: 440px;
-        height: 75vh;
-        max-height: 620px;
-        z-index: 600;
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        background: rgba(15, 23, 42, 0.88);
-        backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(30px);
-        border: 1.5px solid rgba(255, 255, 255, 0.25);
-        border-radius: 32px;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-      }
-      .sidebar.mobile-open {
-        transform: translateX(-50%) translateY(0);
-      }
-      .sidebar .logo-details .logo_name, 
-      .sidebar .search-box input, 
-      .sidebar .nav-item-title, 
-      .sidebar .nav-arrow, 
-      .sidebar .name_job,
-      .sidebar .sidebar-customization-panel { display: flex !important; opacity: 1 !important; pointer-events: auto !important; }
-      .sidebar .logo-details { justify-content: space-between; }
-      .sidebar .profile { justify-content: space-between; padding: 10px 12px; }
-
-      .main-workspace {
-        position: relative;
-        top: 0; left: 0;
-        width: 100vw;
-        height: auto;
-        padding: 15px 15px 105px 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .bento-card {
-        position: relative !important;
-        top: auto !important;
-        left: auto !important;
-        width: 100% !important;
-        height: auto !important;
-        min-height: unset;
-        resize: none;
-        border-radius: 26px;
-        padding: 16px 18px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.25);
-      }
-
-      #weatherCard { order: 1; }
-      #quickDockCard { order: 2; }
-      #dailyTaskCard { order: 3; }
-      #timezonesCard { order: 4; }
-      #topGamesCard { order: 5; }
-      #flashscoreCard { order: 6; }
-      #trendCard { order: 7; min-height: 320px; }
-
+      .sidebar { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-130%); width: calc(100vw - 32px); max-width: 440px; height: 75vh; max-height: 620px; z-index: 600; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(30px); border: 1.5px solid rgba(255, 255, 255, 0.25); border-radius: 32px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8); }
+      .sidebar.mobile-open { transform: translateX(-50%) translateY(0); }
+      .sidebar .logo-details .logo_name, .sidebar .search-box input, .sidebar .nav-item-title, .sidebar .nav-arrow, .sidebar .name_job, .sidebar .sidebar-customization-panel { display: flex !important; opacity: 1 !important; pointer-events: auto !important; }
+      .main-workspace { position: relative; top: 0; left: 0; width: 100vw; height: auto; padding: 15px 15px 105px 15px; display: flex; flex-direction: column; gap: 12px; }
+      .bento-card { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; min-height: unset; resize: none; border-radius: 26px; padding: 16px 18px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%); }
+      #weatherCard { order: 1; } #quickDockCard { order: 2; } #dailyTaskCard { order: 3; } #timezonesCard { order: 4; } #topGamesCard { order: 5; } #flashscoreCard { order: 6; } #trendCard { order: 7; min-height: 320px; }
       .drag-hint { display: none; }
-
-      .mobile-nav-bar {
-        display: flex;
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: calc(100% - 32px);
-        max-width: 380px;
-        height: 64px;
-        background: rgba(15, 23, 42, 0.72);
-        backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(30px);
-        border: 1.5px solid rgba(255, 255, 255, 0.22);
-        border-radius: 36px;
-        z-index: 700;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-        align-items: center;
-        justify-content: space-evenly;
-        padding: 0 8px;
-      }
-      .mobile-nav-item {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 22px;
-        width: 48px;
-        height: 48px;
-        border-radius: 24px;
-        cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        text-decoration: none;
-      }
-      .mobile-nav-item i { transition: transform 0.25s ease, color 0.25s ease; }
-      .mobile-nav-item.active {
-        color: var(--accent-glow);
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-      }
-      .mobile-nav-item.active i { transform: scale(1.1); filter: drop-shadow(0 0 6px var(--accent-glow)); }
-      .mobile-nav-item:active { transform: scale(0.92); }
+      .mobile-nav-bar { display: flex; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 380px; height: 64px; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(30px); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 36px; z-index: 700; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); align-items: center; justify-content: space-evenly; padding: 0 8px; }
+      .mobile-nav-item { position: relative; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.6); font-size: 22px; width: 48px; height: 48px; border-radius: 24px; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); text-decoration: none; }
+      .mobile-nav-item.active { color: var(--accent-glow); background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%); border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
     }
   </style>
 </head>
@@ -560,17 +414,18 @@
       </div>
     </div>
 
-    <!-- Multi-Brand Trend Bento Card (Increased & Limited Dual Visualization) -->
+    <!-- Multi-Brand Combo Chart Bento Card (Bar Towers for Inc + Lines for Red/Lim) -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
-        <span>📈 DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+        <span>📊 DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; gap: 8px;">
         <select id="trackerSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 170px;" onchange="initTrendChart()">
-          <option value="all">📊 ALL BRANDS (Inc & Lim)</option>
-          <option value="ibet">IBET TRACKER</option>
-          <option value="edge">EDGE TRACKER</option>
-          <option value="tracker7a">7A TRACKER</option>
+          <option value="all">📊 ALL BRANDS (Combo Trend)</option>
+          <option value="ibet">IBET (Inc, Red, Lim)</option>
+          <option value="edge">EDGE (Inc, Red, Lim)</option>
+          <option value="tracker7a">7A (Inc, Red, Lim)</option>
+          <option value="pubs">PUBS (Inc, Red, Lim)</option>
         </select>
         
         <select id="timeframeSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 110px;" onchange="initTrendChart()">
@@ -581,7 +436,7 @@
 
         <div class="trend-stats" style="margin-bottom: 0;">
           <div class="stat-badge up" id="trendBadge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">
-            🟢 Inc | 🔴 Lim
+            📊 Tower: Inc | 🔴 Line: Red | 🖤 Line: Lim
           </div>
         </div>
       </div>
@@ -673,7 +528,7 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
+  <!-- Settings Modal with Compact Layout -->
   <div class="modal" id="settingsModal">
     <div class="modal-content">
       <div class="card-header-title">
@@ -684,27 +539,42 @@
       <div style="margin-top: 15px; padding-top: 5px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 15px;">
         <span style="font-size: 11px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; margin-bottom: 10px; display: block;">📝 DAILY RECORD LOG</span>
         
-        <div style="margin-bottom: 8px;">
-          <input type="date" id="logDate" class="logger-input" style="width: 100%;" onchange="loadDataForDate(this.value)">
+        <div style="margin-bottom: 10px;">
+          <input type="date" id="logDate" class="logger-input" style="width: 100%; text-align: left; padding: 6px 10px;" onchange="loadDataForDate(this.value)">
         </div>
+        
         <div class="entry-grid" style="color: var(--accent-glow);">
-          <div>BRAND</div><div style="text-align: center;">INCREASED</div><div style="text-align: center;">LIMITED</div>
+          <div>BRAND</div><div style="text-align: center;">INCREASED</div><div style="text-align: center;">REDUCED</div><div style="text-align: center;">LIMITED</div>
         </div>
+
         <div class="entry-grid">
-          <div>IBET</div>
+          <div style="font-weight: 800; color: #881337;">IBET</div>
           <input type="number" id="ibetIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="ibetRedInput" class="logger-input" placeholder="0">
           <input type="number" id="ibetLimInput" class="logger-input" placeholder="0">
         </div>
+
         <div class="entry-grid">
-          <div>EDGE</div>
+          <div style="font-weight: 800; color: #10b981;">EDGE</div>
           <input type="number" id="edgeIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="edgeRedInput" class="logger-input" placeholder="0">
           <input type="number" id="edgeLimInput" class="logger-input" placeholder="0">
         </div>
+
         <div class="entry-grid">
-          <div>7A</div>
+          <div style="font-weight: 800; color: #a855f7;">7A</div>
           <input type="number" id="sevenIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="sevenRedInput" class="logger-input" placeholder="0">
           <input type="number" id="sevenLimInput" class="logger-input" placeholder="0">
         </div>
+
+        <div class="entry-grid">
+          <div style="font-weight: 800; color: #f97316;">PUBS</div>
+          <input type="number" id="pubsIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="pubsRedInput" class="logger-input" placeholder="0">
+          <input type="number" id="pubsLimInput" class="logger-input" placeholder="0">
+        </div>
+
         <button class="action-btn" id="saveLogBtn" onclick="saveDailyLog()"><i class='bx bx-save'></i> SAVE DAILY DATA</button>
       </div>
 
@@ -716,7 +586,7 @@
         <span style="font-size: 12px; font-weight: 700;">Mobile View Force Mode</span>
         <label class="switch"><input type="checkbox" id="mobileViewToggle" onchange="toggleMobileView()"><span class="slider"></span></label>
       </div>
-      <button class="action-btn" onclick="saveLayoutToURL()" style="margin-top: 15px;"><i class='bx bx-link-external'></i> SAVE LAYOUT & COPY LINK</button>
+      <button class="action-btn" onclick="saveLayout()" style="margin-top: 15px;"><i class='bx bx-save'></i> SAVE LAYOUT</button>
       <button class="action-btn logout-btn" onclick="triggerLogout()"><i class='bx bx-log-out'></i> LOGOUT NOW</button>
     </div>
   </div>
@@ -1075,18 +945,26 @@
       
       if (dateData) {
         document.getElementById('ibetIncInput').value = dateData.ibet?.inc || 0;
+        document.getElementById('ibetRedInput').value = dateData.ibet?.red || 0;
         document.getElementById('ibetLimInput').value = dateData.ibet?.lim || 0;
+
         document.getElementById('edgeIncInput').value = dateData.edge?.inc || 0;
+        document.getElementById('edgeRedInput').value = dateData.edge?.red || 0;
         document.getElementById('edgeLimInput').value = dateData.edge?.lim || 0;
+
         document.getElementById('sevenIncInput').value = dateData.tracker7a?.inc || 0;
+        document.getElementById('sevenRedInput').value = dateData.tracker7a?.red || 0;
         document.getElementById('sevenLimInput').value = dateData.tracker7a?.lim || 0;
+
+        document.getElementById('pubsIncInput').value = dateData.pubs?.inc || 0;
+        document.getElementById('pubsRedInput').value = dateData.pubs?.red || 0;
+        document.getElementById('pubsLimInput').value = dateData.pubs?.lim || 0;
       } else {
-        document.getElementById('ibetIncInput').value = '';
-        document.getElementById('ibetLimInput').value = '';
-        document.getElementById('edgeIncInput').value = '';
-        document.getElementById('edgeLimInput').value = '';
-        document.getElementById('sevenIncInput').value = '';
-        document.getElementById('sevenLimInput').value = '';
+        ['ibet', 'edge', 'seven', 'pubs'].forEach(b => {
+          document.getElementById(`${b}IncInput`).value = '';
+          document.getElementById(`${b}RedInput`).value = '';
+          document.getElementById(`${b}LimInput`).value = '';
+        });
       }
     }
 
@@ -1099,9 +977,10 @@
           d.setDate(d.getDate() - i);
           const dateStr = d.toISOString().split('T')[0]; 
           baseData[dateStr] = {
-            ibet: { inc: Math.floor(Math.random() * 8) + 8, lim: Math.floor(Math.random() * 4) + 2 },
-            edge: { inc: Math.floor(Math.random() * 10) + 10, lim: Math.floor(Math.random() * 5) + 3 },
-            tracker7a: { inc: Math.floor(Math.random() * 7) + 6, lim: Math.floor(Math.random() * 3) + 1 }
+            ibet: { inc: Math.floor(Math.random() * 8) + 8, red: Math.floor(Math.random() * 4) + 1, lim: Math.floor(Math.random() * 3) + 1 },
+            edge: { inc: Math.floor(Math.random() * 10) + 10, red: Math.floor(Math.random() * 5) + 2, lim: Math.floor(Math.random() * 4) + 1 },
+            tracker7a: { inc: Math.floor(Math.random() * 7) + 6, red: Math.floor(Math.random() * 3) + 1, lim: Math.floor(Math.random() * 2) + 1 },
+            pubs: { inc: Math.floor(Math.random() * 9) + 7, red: Math.floor(Math.random() * 4) + 1, lim: Math.floor(Math.random() * 3) + 1 }
           };
         }
         localStorage.setItem('sbhub_chart_data', JSON.stringify(baseData));
@@ -1121,15 +1000,23 @@
       appData[dateStr] = {
         ibet: { 
           inc: Number(document.getElementById('ibetIncInput').value) || 0, 
+          red: Number(document.getElementById('ibetRedInput').value) || 0,
           lim: Number(document.getElementById('ibetLimInput').value) || 0 
         },
         edge: { 
           inc: Number(document.getElementById('edgeIncInput').value) || 0, 
+          red: Number(document.getElementById('edgeRedInput').value) || 0,
           lim: Number(document.getElementById('edgeLimInput').value) || 0 
         },
         tracker7a: { 
           inc: Number(document.getElementById('sevenIncInput').value) || 0, 
+          red: Number(document.getElementById('sevenRedInput').value) || 0,
           lim: Number(document.getElementById('sevenLimInput').value) || 0 
+        },
+        pubs: { 
+          inc: Number(document.getElementById('pubsIncInput').value) || 0, 
+          red: Number(document.getElementById('pubsRedInput').value) || 0,
+          lim: Number(document.getElementById('pubsLimInput').value) || 0 
         }
       };
 
@@ -1142,7 +1029,49 @@
       setTimeout(() => btn.innerHTML = originalText, 1500);
     }
 
-    /* Trend Chart Engine: Plots Both Increased & Limited Trends */
+    /* Custom Plugin to Draw Vertical Text Labels Inside Bars ONLY */
+    const verticalBarLabelPlugin = {
+      id: 'verticalBarLabelPlugin',
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+          // Draw text labels ONLY on Bar datasets, ignore Line datasets
+          if (dataset.type === 'bar' || !dataset.type) {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (!meta.hidden) {
+              meta.data.forEach((bar, index) => {
+                const val = dataset.data[index];
+                if (val !== null && val !== undefined && val > 0) {
+                  ctx.save();
+                  const barHeight = Math.abs(bar.base - bar.y);
+                  const x = bar.x;
+                  const y = (bar.y + bar.base) / 2;
+
+                  ctx.translate(x, y);
+                  ctx.rotate(-Math.PI / 2); // Vertical orientation
+
+                  ctx.fillStyle = '#ffffff';
+                  ctx.shadowColor = 'rgba(0,0,0,0.9)';
+                  ctx.shadowBlur = 4;
+                  ctx.font = '800 9px "Plus Jakarta Sans", sans-serif';
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'middle';
+
+                  const barText = dataset.customBarLabel ? dataset.customBarLabel : dataset.label;
+                  
+                  if (barHeight > 18) {
+                    ctx.fillText(barText, 0, 0);
+                  }
+                  ctx.restore();
+                }
+              });
+            }
+          }
+        });
+      }
+    };
+
+    /* Combo Chart Engine: Bar Towers for Increase + Lines for Decrease & Limited */
     function initTrendChart() {
       const viewMode = document.getElementById("trackerSelector").value;
       const timeframe = document.getElementById("timeframeSelector").value;
@@ -1171,60 +1100,125 @@
       let chartConfigData = { labels: dateLabels, datasets: [] };
       const badge = document.getElementById("trendBadge");
 
-      /* Exact Requested Brand & Limited Line Colors */
-      const colors = {
-        ibet: '#881337',      /* IBET - Maroon Line */
-        edge: '#10b981',      /* EDGE - Green Line */
-        tracker7a: '#a855f7', /* 7A - Purple Line */
-        limited: '#ef4444'    /* Limited / Decrease Trend - Thick Solid Red Line */
+      const brandList = [
+        { key: 'ibet', label: 'IBET', color: '#881337' },      /* IBET - Maroon Bar Tower */
+        { key: 'edge', label: 'EDGE', color: '#10b981' },      /* EDGE - Green Bar Tower */
+        { key: 'tracker7a', label: '7A', color: '#a855f7' },  /* 7A - Purple Bar Tower */
+        { key: 'pubs', label: 'PUBS', color: '#f97316' }        /* PUBS - Orange Bar Tower */
+      ];
+
+      const lineColors = {
+        red: '#ef4444',      /* Reduced / Decrease - Solid Red Line */
+        lim: '#a1a1aa'       /* Limited - Broken / Dashed Line */
       };
 
       if (viewMode === "all") {
-        const ibetInc = sortedDates.map(d => appData[d].ibet?.inc || 0);
-        const edgeInc = sortedDates.map(d => appData[d].edge?.inc || 0);
-        const sevenInc = sortedDates.map(d => appData[d].tracker7a?.inc || 0);
-
-        const ibetLim = sortedDates.map(d => appData[d].ibet?.lim || 0);
-        const edgeLim = sortedDates.map(d => appData[d].edge?.lim || 0);
-        const sevenLim = sortedDates.map(d => appData[d].tracker7a?.lim || 0);
-
-        chartConfigData.datasets = [
-          /* Increased Lines (Brand Colors) */
-          { label: 'IBET Inc', data: ibetInc, borderColor: colors.ibet, backgroundColor: 'rgba(136, 19, 55, 0.1)', borderWidth: 3, tension: 0.4 },
-          { label: 'EDGE Inc', data: edgeInc, borderColor: colors.edge, backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, tension: 0.4 },
-          { label: '7A Inc', data: sevenInc, borderColor: colors.tracker7a, backgroundColor: 'rgba(168, 85, 247, 0.1)', borderWidth: 3, tension: 0.4 },
-          
-          /* Limited Lines (Thick Solid Red Lines) */
-          { label: 'IBET Lim', data: ibetLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderWidth: 3.5, borderDash: [4, 4], tension: 0.4 },
-          { label: 'EDGE Lim', data: edgeLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderWidth: 3.5, borderDash: [2, 2], tension: 0.4 },
-          { label: '7A Lim', data: sevenLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderWidth: 3.5, tension: 0.4 }
-        ];
-
-        badge.className = "stat-badge up";
-        badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative All`;
-      } else {
-        const curInc = sortedDates.map(d => appData[d][viewMode]?.inc || 0);
-        const curLim = sortedDates.map(d => appData[d][viewMode]?.lim || 0);
-
-        const latestInc = curInc[curInc.length - 1] || 0;
-        const prevInc = curInc[curInc.length - 2] || latestInc;
-        const diff = latestInc - prevInc;
-        const pct = prevInc !== 0 ? ((diff / prevInc) * 100).toFixed(1) : 0;
+        // Combo Chart: Bar Towers for Increase (Per Brand) + Lines for Decrease & Limited
+        const allDatasets = [];
         
-        if (diff >= 0) {
-          badge.className = "stat-badge up"; badge.innerHTML = `<i class='bx bx-trending-up'></i> +${pct}%`;
-        } else {
-          badge.className = "stat-badge down"; badge.innerHTML = `<i class='bx bx-trending-down'></i> ${pct}%`;
-        }
+        // 1. Bar Towers for Increase (Per Brand Color)
+        brandList.forEach(b => {
+          allDatasets.push({
+            type: 'bar',
+            label: `${b.label} Inc`,
+            customBarLabel: `inc ${b.label}`,
+            data: sortedDates.map(d => appData[d][b.key]?.inc || 0),
+            backgroundColor: b.color,
+            borderColor: '#ffffff',
+            borderWidth: 1,
+            borderRadius: 4
+          });
+        });
+
+        // 2. Global / Total Decreased Line Trend (Solid Red Line)
+        allDatasets.push({
+          type: 'line',
+          label: 'Total Reduced',
+          data: sortedDates.map(d => {
+            return (appData[d].ibet?.red || 0) + (appData[d].edge?.red || 0) + (appData[d].tracker7a?.red || 0) + (appData[d].pubs?.red || 0);
+          }),
+          borderColor: lineColors.red,
+          backgroundColor: 'transparent',
+          borderWidth: 3.5,
+          pointRadius: 4,
+          pointBackgroundColor: lineColors.red,
+          tension: 0.3
+        });
+
+        // 3. Global / Total Limited Line Trend (Broken Black/Zinc Line)
+        allDatasets.push({
+          type: 'line',
+          label: 'Total Limited',
+          data: sortedDates.map(d => {
+            return (appData[d].ibet?.lim || 0) + (appData[d].edge?.lim || 0) + (appData[d].tracker7a?.lim || 0) + (appData[d].pubs?.lim || 0);
+          }),
+          borderColor: lineColors.lim,
+          backgroundColor: 'transparent',
+          borderWidth: 3,
+          borderDash: [6, 6],
+          pointRadius: 4,
+          pointBackgroundColor: lineColors.lim,
+          tension: 0.3
+        });
+
+        chartConfigData.datasets = allDatasets;
+        badge.className = "stat-badge up";
+        badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Hybrid Bar & Lines`;
+      } else {
+        // Specific Brand View
+        const brandKey = viewMode;
+        const brandObj = brandList.find(b => b.key === brandKey) || brandList[0];
+        const brandName = brandObj.label;
+
+        const curInc = sortedDates.map(d => appData[d][brandKey]?.inc || 0);
+        const curRed = sortedDates.map(d => appData[d][brandKey]?.red || 0);
+        const curLim = sortedDates.map(d => appData[d][brandKey]?.lim || 0);
 
         chartConfigData.datasets = [
-          { label: `Increased`, data: curInc, borderColor: colors[viewMode], backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 3.5, fill: true, tension: 0.4 },
-          { label: `Limited`, data: curLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.15)', borderWidth: 3.5, fill: true, tension: 0.4 }
+          // Tower Bar Graph for Increase (Specific Brand Color)
+          {
+            type: 'bar',
+            label: `${brandName} Increased`,
+            customBarLabel: `inc ${brandName}`,
+            data: curInc,
+            backgroundColor: brandObj.color,
+            borderColor: '#ffffff',
+            borderWidth: 1.5,
+            borderRadius: 4
+          },
+          // Solid Red Line for Decrease
+          {
+            type: 'line',
+            label: `${brandName} Reduced`,
+            data: curRed,
+            borderColor: lineColors.red,
+            backgroundColor: 'transparent',
+            borderWidth: 3.5,
+            pointRadius: 4,
+            pointBackgroundColor: lineColors.red,
+            tension: 0.3
+          },
+          // Broken Black Line for Limited
+          {
+            type: 'line',
+            label: `${brandName} Limited`,
+            data: curLim,
+            borderColor: lineColors.lim,
+            backgroundColor: 'transparent',
+            borderWidth: 3,
+            borderDash: [6, 6],
+            pointRadius: 4,
+            pointBackgroundColor: lineColors.lim,
+            tension: 0.3
+          }
         ];
+
+        badge.className = "stat-badge up"; 
+        badge.innerHTML = `<i class='bx bx-trending-up'></i> ${brandName} Hybrid Trend`;
       }
 
       trendChartInstance = new Chart(ctx, {
-        type: 'line', 
+        type: 'bar', 
         data: chartConfigData,
         options: {
           responsive: true, 
@@ -1234,16 +1228,23 @@
               labels: { 
                 color: textColor, 
                 font: { size: 10, weight: '800' },
-                boxWidth: 16
+                boxWidth: 14
               }, 
               display: true 
             } 
           },
           scales: {
-            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: '800' } } },
-            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10, weight: '800' } } }
+            x: { 
+              grid: { display: false }, 
+              ticks: { color: textColor, font: { size: 10, weight: '800' } } 
+            },
+            y: { 
+              grid: { color: gridColor }, 
+              ticks: { color: textColor, font: { size: 10, weight: '800' } } 
+            }
           }
-        }
+        },
+        plugins: [verticalBarLabelPlugin]
       });
     }
 
@@ -1404,16 +1405,10 @@
       }
     }
 
-    function saveLayoutToURL() {
+    /* Save Layout Function */
+    function saveLayout() {
       saveBentoLayout();
-      const layoutObj = getBentoLayoutObj();
-      const encodedLayout = btoa(JSON.stringify(layoutObj)); 
-      const url = new URL(window.location.origin + window.location.pathname);
-      url.searchParams.set('layout', encodedLayout);
-
-      navigator.clipboard.writeText(url.toString()).then(() => {
-        alert("Bento layout saved & URL copied! Anyone with this link will load your exact layout.");
-      });
+      alert("Bento layout saved successfully!");
     }
 
     function renderSidebar() {
