@@ -110,14 +110,14 @@
     .sub-menu-item { display: block; padding: 8px 12px; font-size: 10px; font-weight: 700; color: var(--text-sub); text-decoration: none; text-transform: uppercase; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
     .sub-menu-item:hover { background: rgba(255, 255, 255, 0.2); color: var(--text-main); }
     
-    /* Sleek Customization Controls in Sidebar (Yellow Box Position) */
+    /* Sleek Customization Controls in Sidebar */
     .sidebar-customization-panel {
       display: none;
       opacity: 0;
       flex-direction: column;
       gap: 10px;
       padding: 12px;
-      margin-bottom: 68px; /* Offset for fixed profile bar */
+      margin-bottom: 68px;
       background: rgba(8, 12, 20, 0.55);
       border: 1px solid var(--glass-border);
       border-radius: 14px;
@@ -167,9 +167,7 @@
       border: 1.5px solid #ffffff;
       transition: transform 0.15s ease, background-color 0.2s ease;
     }
-    input[type=range].styled-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.25);
-    }
+    input[type=range].styled-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
     .color-swatch-container {
       display: flex;
       align-items: center;
@@ -186,14 +184,8 @@
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       position: relative;
     }
-    .color-swatch:hover {
-      transform: scale(1.2);
-    }
-    .color-swatch.active {
-      border-color: #ffffff;
-      box-shadow: 0 0 10px var(--swatch-color);
-      transform: scale(1.15);
-    }
+    .color-swatch:hover { transform: scale(1.2); }
+    .color-swatch.active { border-color: #ffffff; box-shadow: 0 0 10px var(--swatch-color); transform: scale(1.15); }
 
     .sidebar li.profile { position: absolute; height: 52px; width: calc(100% - 32px); left: 16px; bottom: 16px; padding: 10px 0; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); }
     .sidebar .profile-details { display: flex; align-items: center; }
@@ -224,11 +216,9 @@
     }
     .bento-card:hover { border-color: var(--accent-glow); }
     
-    /* Text Contrast Enhancements for High Wallpaper Visibility */
     .card-header-title { font-size: 11px; font-weight: 800; color: var(--accent-glow); letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: grab; flex-shrink: 0; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
     .drag-hint { font-size: 9px; color: var(--text-sub); font-weight: 600; display: flex; align-items: center; gap: 3px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
-    /* Interactive Docks with Crisp Contrast */
     .dock-pill-container { display: flex; gap: 8px; background: rgba(8, 12, 20, 0.55); padding: 6px; border-radius: 30px; border: 1px solid var(--glass-border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); margin-bottom: 10px; flex-shrink: 0; }
     .dock-pill-btn { flex: 1; border: none; outline: none; background: transparent; color: var(--text-sub); padding: 8px 12px; font-size: 11px; font-weight: 800; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
     .dock-pill-btn:hover, .dock-pill-btn.active { background: rgba(255, 255, 255, 0.18); color: var(--text-main); border: 1px solid var(--glass-border); }
@@ -261,8 +251,8 @@
 
     .trend-stats { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 700; align-items: center; }
     .stat-badge { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-    .stat-badge.up { background: rgba(52, 211, 153, 0.25); color: var(--accent-green); }
-    .stat-badge.down { background: rgba(248, 113, 113, 0.25); color: var(--accent-red); }
+    .stat-badge.up { background: rgba(16, 185, 129, 0.25); color: #10b981; }
+    .stat-badge.down { background: rgba(239, 68, 68, 0.25); color: #ef4444; }
     
     .chart-container { position: relative; flex-grow: 1; width: 100%; min-height: 100px; }
     .logger-input { background: rgba(8, 12, 20, 0.65); border: 1px solid var(--glass-border); padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none; }
@@ -310,7 +300,6 @@
     @media (max-width: 1024px), body.mobile-view-active {
       body { flex-direction: column; }
       
-      /* Dim Backdrop Overlay for Menu Drawer */
       #mobileBackdropOverlay {
         display: block;
         position: fixed;
@@ -326,7 +315,6 @@
       }
       #mobileBackdropOverlay.active { opacity: 1; visibility: visible; }
 
-      /* Floating Sheet Sidebar for Mobile */
       .sidebar {
         position: fixed;
         top: 20px;
@@ -368,7 +356,6 @@
         gap: 12px;
       }
 
-      /* Stacked Bento Cards for Mobile */
       .bento-card {
         position: relative !important;
         top: auto !important;
@@ -393,7 +380,6 @@
 
       .drag-hint { display: none; }
 
-      /* Mobile Bottom Navigation Dock */
       .mobile-nav-bar {
         display: flex;
         position: fixed;
@@ -428,22 +414,15 @@
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         text-decoration: none;
       }
-      .mobile-nav-item i {
-        transition: transform 0.25s ease, color 0.25s ease;
-      }
+      .mobile-nav-item i { transition: transform 0.25s ease, color 0.25s ease; }
       .mobile-nav-item.active {
         color: var(--accent-glow);
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%);
         border: 1px solid rgba(56, 189, 248, 0.4);
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
       }
-      .mobile-nav-item.active i {
-        transform: scale(1.1);
-        filter: drop-shadow(0 0 6px var(--accent-glow));
-      }
-      .mobile-nav-item:active {
-        transform: scale(0.92);
-      }
+      .mobile-nav-item.active i { transform: scale(1.1); filter: drop-shadow(0 0 6px var(--accent-glow)); }
+      .mobile-nav-item:active { transform: scale(0.92); }
     }
   </style>
 </head>
@@ -481,7 +460,6 @@
     </div>
   </div>
 
-  <!-- Mobile Backdrop Overlay -->
   <div id="mobileBackdropOverlay" onclick="closeMobileSidebar()"></div>
 
   <!-- Sidebar -->
@@ -497,9 +475,7 @@
     
     <ul class="nav-list" id="navList"></ul>
     
-    <!-- Sidebar Customization Controls (Yellow Box Reference Position) -->
     <div class="sidebar-customization-panel">
-      <!-- Transparency Slider (5% to 90%) -->
       <div>
         <div class="custom-control-label">
           <span>Glass Opacity</span>
@@ -510,7 +486,6 @@
         </div>
       </div>
 
-      <!-- Accent Color Swatches -->
       <div style="margin-top: 2px;">
         <div class="custom-control-label">Accent Palette</div>
         <div class="color-swatch-container">
@@ -585,13 +560,14 @@
       </div>
     </div>
 
+    <!-- Multi-Brand Trend Bento Card (Increased & Limited Dual Visualization) -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
-        <span>DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+        <span>📈 DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; gap: 8px;">
         <select id="trackerSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 170px;" onchange="initTrendChart()">
-          <option value="all">📊 ALL BRANDS (Increase)</option>
+          <option value="all">📊 ALL BRANDS (Inc & Lim)</option>
           <option value="ibet">IBET TRACKER</option>
           <option value="edge">EDGE TRACKER</option>
           <option value="tracker7a">7A TRACKER</option>
@@ -604,7 +580,9 @@
         </select>
 
         <div class="trend-stats" style="margin-bottom: 0;">
-          <div class="stat-badge up" id="trendBadge"><i class='bx bx-trending-up'></i> Active</div>
+          <div class="stat-badge up" id="trendBadge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">
+            🟢 Inc | 🔴 Lim
+          </div>
         </div>
       </div>
       <div class="chart-container">
@@ -1164,6 +1142,7 @@
       setTimeout(() => btn.innerHTML = originalText, 1500);
     }
 
+    /* Trend Chart Engine: Plots Both Increased & Limited Trends */
     function initTrendChart() {
       const viewMode = document.getElementById("trackerSelector").value;
       const timeframe = document.getElementById("timeframeSelector").value;
@@ -1184,7 +1163,7 @@
 
       const isLight = document.body.classList.contains("light-mode");
       const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || (isLight ? '#080c14' : '#ffffff');
-      const gridColor = 'rgba(255,255,255,0.18)'; /* High contrast gridlines for glass transparency */
+      const gridColor = 'rgba(255,255,255,0.18)';
 
       const ctx = document.getElementById("trendChart").getContext("2d");
       if (trendChartInstance) trendChartInstance.destroy();
@@ -1192,18 +1171,37 @@
       let chartConfigData = { labels: dateLabels, datasets: [] };
       const badge = document.getElementById("trendBadge");
 
+      /* Exact Requested Brand & Limited Line Colors */
+      const colors = {
+        ibet: '#881337',      /* IBET - Maroon Line */
+        edge: '#10b981',      /* EDGE - Green Line */
+        tracker7a: '#a855f7', /* 7A - Purple Line */
+        limited: '#ef4444'    /* Limited / Decrease Trend - Thick Solid Red Line */
+      };
+
       if (viewMode === "all") {
         const ibetInc = sortedDates.map(d => appData[d].ibet?.inc || 0);
         const edgeInc = sortedDates.map(d => appData[d].edge?.inc || 0);
         const sevenInc = sortedDates.map(d => appData[d].tracker7a?.inc || 0);
 
+        const ibetLim = sortedDates.map(d => appData[d].ibet?.lim || 0);
+        const edgeLim = sortedDates.map(d => appData[d].edge?.lim || 0);
+        const sevenLim = sortedDates.map(d => appData[d].tracker7a?.lim || 0);
+
         chartConfigData.datasets = [
-          { label: 'IBET (Inc)', data: ibetInc, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.1)', borderWidth: 3, tension: 0.4 },
-          { label: 'EDGE (Inc)', data: edgeInc, borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.1)', borderWidth: 3, tension: 0.4 },
-          { label: '7A (Inc)', data: sevenInc, borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', borderWidth: 3, tension: 0.4 }
+          /* Increased Lines (Brand Colors) */
+          { label: 'IBET Inc', data: ibetInc, borderColor: colors.ibet, backgroundColor: 'rgba(136, 19, 55, 0.1)', borderWidth: 3, tension: 0.4 },
+          { label: 'EDGE Inc', data: edgeInc, borderColor: colors.edge, backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, tension: 0.4 },
+          { label: '7A Inc', data: sevenInc, borderColor: colors.tracker7a, backgroundColor: 'rgba(168, 85, 247, 0.1)', borderWidth: 3, tension: 0.4 },
+          
+          /* Limited Lines (Thick Solid Red Lines) */
+          { label: 'IBET Lim', data: ibetLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderWidth: 3.5, borderDash: [4, 4], tension: 0.4 },
+          { label: 'EDGE Lim', data: edgeLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderWidth: 3.5, borderDash: [2, 2], tension: 0.4 },
+          { label: '7A Lim', data: sevenLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderWidth: 3.5, tension: 0.4 }
         ];
+
         badge.className = "stat-badge up";
-        badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative`;
+        badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Comparative All`;
       } else {
         const curInc = sortedDates.map(d => appData[d][viewMode]?.inc || 0);
         const curLim = sortedDates.map(d => appData[d][viewMode]?.lim || 0);
@@ -1220,16 +1218,27 @@
         }
 
         chartConfigData.datasets = [
-          { label: `Increase Count`, data: curInc, borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.18)', borderWidth: 3, fill: true, tension: 0.4 },
-          { label: `Limit Dropped Count`, data: curLim, borderColor: '#f87171', backgroundColor: 'rgba(248, 113, 113, 0.18)', borderWidth: 3, fill: true, tension: 0.4 }
+          { label: `Increased`, data: curInc, borderColor: colors[viewMode], backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 3.5, fill: true, tension: 0.4 },
+          { label: `Limited`, data: curLim, borderColor: colors.limited, backgroundColor: 'rgba(239, 68, 68, 0.15)', borderWidth: 3.5, fill: true, tension: 0.4 }
         ];
       }
 
       trendChartInstance = new Chart(ctx, {
-        type: 'line', data: chartConfigData,
+        type: 'line', 
+        data: chartConfigData,
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: textColor, font: { size: 10, weight: '800' } }, display: true } },
+          responsive: true, 
+          maintainAspectRatio: false,
+          plugins: { 
+            legend: { 
+              labels: { 
+                color: textColor, 
+                font: { size: 10, weight: '800' },
+                boxWidth: 16
+              }, 
+              display: true 
+            } 
+          },
           scales: {
             x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: '800' } } },
             y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10, weight: '800' } } }
