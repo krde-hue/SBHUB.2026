@@ -448,7 +448,7 @@
       </div>
     </div>
 
-    <!-- Multi-Brand Combo Chart Bento Card (Bar Towers for Inc + Lines for Red/Lim) -->
+    <!-- Multi-Brand Combo Chart Bento Card (Bar Towers for Inc + Brand Lines for Red/Lim) -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
         <span>📊 DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
@@ -456,8 +456,8 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; gap: 8px;">
         <select id="trackerSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 170px;" onchange="initTrendChart()">
           <option value="all">📊 ALL BRANDS (Combo Trend)</option>
-          <option value="ibet">IBET (Inc, Red, Lim)</option>
           <option value="edge">EDGE (Inc, Red, Lim)</option>
+          <option value="ibet">IBET (Inc, Red, Lim)</option>
           <option value="tracker7a">7A (Inc, Red, Lim)</option>
           <option value="pubs">PUBS (Inc, Red, Lim)</option>
         </select>
@@ -585,13 +585,6 @@
         </div>
 
         <div class="entry-grid">
-          <div style="font-weight: 800; color: #881337;">IBET</div>
-          <input type="number" id="ibetIncInput" class="logger-input" placeholder="0">
-          <input type="number" id="ibetRedInput" class="logger-input" placeholder="0">
-          <input type="number" id="ibetLimInput" class="logger-input" placeholder="0">
-        </div>
-
-        <div class="entry-grid">
           <div style="font-weight: 800; color: #10b981;">EDGE</div>
           <input type="number" id="edgeIncInput" class="logger-input" placeholder="0">
           <input type="number" id="edgeRedInput" class="logger-input" placeholder="0">
@@ -599,14 +592,21 @@
         </div>
 
         <div class="entry-grid">
-          <div style="font-weight: 800; color: #a855f7;">7A</div>
+          <div style="font-weight: 800; color: #f472b6;">IBET</div>
+          <input type="number" id="ibetIncInput" class="logger-input" placeholder="0">
+          <input type="number" id="ibetRedInput" class="logger-input" placeholder="0">
+          <input type="number" id="ibetLimInput" class="logger-input" placeholder="0">
+        </div>
+
+        <div class="entry-grid">
+          <div style="font-weight: 800; color: #38bdf8;">7A</div>
           <input type="number" id="sevenIncInput" class="logger-input" placeholder="0">
           <input type="number" id="sevenRedInput" class="logger-input" placeholder="0">
           <input type="number" id="sevenLimInput" class="logger-input" placeholder="0">
         </div>
 
         <div class="entry-grid">
-          <div style="font-weight: 800; color: #f97316;">PUBS</div>
+          <div style="font-weight: 800; color: #fb923c;">PUBS</div>
           <input type="number" id="pubsIncInput" class="logger-input" placeholder="0">
           <input type="number" id="pubsRedInput" class="logger-input" placeholder="0">
           <input type="number" id="pubsLimInput" class="logger-input" placeholder="0">
@@ -1125,7 +1125,7 @@
       }
     };
 
-    /* Combo Chart Engine: Bar Towers for Increase + Lines for Decrease & Limited */
+    /* Combo Chart Engine: Bar Towers for Increase + Exact Requested Custom Palette for Lines */
     function initTrendChart() {
       const viewMode = document.getElementById("trackerSelector").value;
       const timeframe = document.getElementById("timeframeSelector").value;
@@ -1154,72 +1154,97 @@
       let chartConfigData = { labels: dateLabels, datasets: [] };
       const badge = document.getElementById("trendBadge");
 
-      const brandList = [
-        { key: 'ibet', label: 'IBET', color: '#881337' },      /* IBET - Maroon Bar Tower */
-        { key: 'edge', label: 'EDGE', color: '#10b981' },      /* EDGE - Green Bar Tower */
-        { key: 'tracker7a', label: '7A', color: '#a855f7' },  /* 7A - Purple Bar Tower */
-        { key: 'pubs', label: 'PUBS', color: '#f97316' }        /* PUBS - Orange Bar Tower */
+      /* Exact Brand Specifications & Color Scheme requested */
+      const brandSpecs = [
+        { 
+          key: 'edge', 
+          label: 'EDGE', 
+          inc: '#4ade80',  /* Light Green Bar */
+          red: '#15803d',  /* Dark Green Solid Line */
+          lim: '#000000'   /* Black Broken Line */
+        },
+        { 
+          key: 'ibet', 
+          label: 'IBET', 
+          inc: '#f472b6',  /* Pink Bar */
+          red: '#991b1b',  /* Dark Red Solid Line */
+          lim: '#881337'   /* Dark Maroon Broken Line */
+        },
+        { 
+          key: 'tracker7a', 
+          label: '7A', 
+          inc: '#38bdf8',  /* Light Blue Bar */
+          red: '#2563eb',  /* Blue Solid Line */
+          lim: '#1e3a8a'   /* Dark Blue Broken Line */
+        },
+        { 
+          key: 'pubs', 
+          label: 'PUBS', 
+          inc: '#fb923c',  /* Light Orange Bar */
+          red: '#ea580c',  /* Orange Solid Line */
+          lim: '#7c2d12'   /* Dark Orange Broken Line */
+        }
       ];
-
-      const lineColors = {
-        red: '#ef4444',      /* Reduced / Decrease - Solid Red Line */
-        lim: '#a1a1aa'       /* Limited - Broken / Dashed Line */
-      };
 
       if (viewMode === "all") {
         const allDatasets = [];
         
-        // 1. Bar Towers for Increase (Per Brand Color)
-        brandList.forEach(b => {
+        // 1. Bar Towers for Increase (Light Colors)
+        brandSpecs.forEach(b => {
           allDatasets.push({
             type: 'bar',
             label: `${b.label} Inc`,
             customBarLabel: `inc ${b.label}`,
             data: sortedDates.map(d => appData[d][b.key]?.inc || 0),
-            backgroundColor: b.color,
+            backgroundColor: b.inc,
             borderColor: '#ffffff',
             borderWidth: 1,
             borderRadius: 4
           });
         });
 
-        // 2. Global / Total Decreased Line Trend (Solid Red Line)
-        allDatasets.push({
-          type: 'line',
-          label: 'Total Reduced',
-          data: sortedDates.map(d => {
-            return (appData[d].ibet?.red || 0) + (appData[d].edge?.red || 0) + (appData[d].tracker7a?.red || 0) + (appData[d].pubs?.red || 0);
-          }),
-          borderColor: lineColors.red,
-          backgroundColor: 'transparent',
-          borderWidth: 3.5,
-          pointRadius: 4,
-          pointBackgroundColor: lineColors.red,
-          tension: 0.3
+        // 2. Solid Lines for Decrease (Red / Decrease Colors)
+        brandSpecs.forEach(b => {
+          allDatasets.push({
+            type: 'line',
+            label: `${b.label} Red`,
+            data: sortedDates.map(d => appData[d][b.key]?.red || 0),
+            borderColor: b.red,
+            backgroundColor: 'transparent',
+            borderWidth: 3,
+            pointRadius: 3.5,
+            pointBackgroundColor: b.red,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1,
+            tension: 0.3
+          });
         });
 
-        // 3. Global / Total Limited Line Trend (Broken Line)
-        allDatasets.push({
-          type: 'line',
-          label: 'Total Limited',
-          data: sortedDates.map(d => {
-            return (appData[d].ibet?.lim || 0) + (appData[d].edge?.lim || 0) + (appData[d].tracker7a?.lim || 0) + (appData[d].pubs?.lim || 0);
-          }),
-          borderColor: lineColors.lim,
-          backgroundColor: 'transparent',
-          borderWidth: 3,
-          borderDash: [6, 6],
-          pointRadius: 4,
-          pointBackgroundColor: lineColors.lim,
-          tension: 0.3
+        // 3. Broken Lines for Limited (Lim Colors)
+        brandSpecs.forEach(b => {
+          allDatasets.push({
+            type: 'line',
+            label: `${b.label} Lim`,
+            data: sortedDates.map(d => appData[d][b.key]?.lim || 0),
+            borderColor: b.lim,
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            borderDash: [5, 5],
+            pointRadius: 3.5,
+            pointBackgroundColor: b.lim,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1,
+            tension: 0.3
+          });
         });
 
         chartConfigData.datasets = allDatasets;
         badge.className = "stat-badge up";
-        badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Hybrid Bar & Lines`;
+        badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Custom Brand Palette`;
       } else {
+        // Individual Brand View
         const brandKey = viewMode;
-        const brandObj = brandList.find(b => b.key === brandKey) || brandList[0];
+        const brandObj = brandSpecs.find(b => b.key === brandKey) || brandSpecs[0];
         const brandName = brandObj.label;
 
         const curInc = sortedDates.map(d => appData[d][brandKey]?.inc || 0);
@@ -1232,7 +1257,7 @@
             label: `${brandName} Increased`,
             customBarLabel: `inc ${brandName}`,
             data: curInc,
-            backgroundColor: brandObj.color,
+            backgroundColor: brandObj.inc,
             borderColor: '#ffffff',
             borderWidth: 1.5,
             borderRadius: 4
@@ -1241,29 +1266,33 @@
             type: 'line',
             label: `${brandName} Reduced`,
             data: curRed,
-            borderColor: lineColors.red,
+            borderColor: brandObj.red,
             backgroundColor: 'transparent',
             borderWidth: 3.5,
             pointRadius: 4,
-            pointBackgroundColor: lineColors.red,
+            pointBackgroundColor: brandObj.red,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
             tension: 0.3
           },
           {
             type: 'line',
             label: `${brandName} Limited`,
             data: curLim,
-            borderColor: lineColors.lim,
+            borderColor: brandObj.lim,
             backgroundColor: 'transparent',
             borderWidth: 3,
-            borderDash: [6, 6],
+            borderDash: [5, 5],
             pointRadius: 4,
-            pointBackgroundColor: lineColors.lim,
+            pointBackgroundColor: brandObj.lim,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
             tension: 0.3
           }
         ];
 
         badge.className = "stat-badge up"; 
-        badge.innerHTML = `<i class='bx bx-trending-up'></i> ${brandName} Hybrid Trend`;
+        badge.innerHTML = `<i class='bx bx-trending-up'></i> ${brandName} Palette Trend`;
       }
 
       trendChartInstance = new Chart(ctx, {
@@ -1276,8 +1305,8 @@
             legend: { 
               labels: { 
                 color: textColor, 
-                font: { size: 10, weight: '800' },
-                boxWidth: 14
+                font: { size: 9, weight: '800' },
+                boxWidth: 12
               }, 
               display: true 
             } 
