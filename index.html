@@ -211,6 +211,7 @@
       #flashscoreCard{ top: 195px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 285px; }
       #trendCard     { top: 290px; left: calc(var(--sidebar-width) + 395px); width: 700px; height: 435px; min-width: 450px; min-height: 250px; }
       #quickDockCard { top: 500px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 225px; min-width: 320px; min-height: 180px; }
+      #dailyTaskCard { top: 735px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 210px; min-width: 320px; min-height: 180px; }
     }
 
     /* ==================== 2. MOBILE / TABLET STYLES (<= 1024px) ==================== */
@@ -291,10 +292,11 @@
 
       #weatherCard { order: 1; }
       #quickDockCard { order: 2; }
-      #timezonesCard { order: 3; }
-      #topGamesCard { order: 4; }
-      #flashscoreCard { order: 5; }
-      #trendCard { order: 6; min-height: 320px; }
+      #dailyTaskCard { order: 3; }
+      #timezonesCard { order: 4; }
+      #topGamesCard { order: 5; }
+      #flashscoreCard { order: 6; }
+      #trendCard { order: 7; min-height: 320px; }
 
       .drag-hint { display: none; }
 
@@ -534,6 +536,25 @@
         </a>
       </div>
     </div>
+
+    <!-- Floating Daily Task Dock Widget -->
+    <div class="bento-card" id="dailyTaskCard">
+      <div class="card-header-title">
+        <span>📋 DAILY TASK DOCK <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+      </div>
+      <div class="dock-content-panel active">
+        <a href="boostschedule.html" target="_blank" class="dock-link-item">
+          <span>TOP PICKS</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890" target="_blank" class="dock-link-item">
+          <span>EDGE BOOST EXCEL</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114" target="_blank" class="dock-link-item">
+          <span>IBET BOOST EXCEL</span> <i class='bx bx-link-external'></i>
+        </a>
+      </div>
+    </div>
+
   </div>
 
   <!-- Mobile Floating Navigation Dock -->
@@ -851,7 +872,7 @@
           
           const dateObj = new Date(event.date);
           const dateStr = dateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }) + " - " + 
-                          dateObj.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false });
+                        dateObj.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false });
           
           let status = "Upcoming";
           let statusColor = "var(--accent-green)";
