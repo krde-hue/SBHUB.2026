@@ -750,7 +750,14 @@
         grouped[dateStr].push(item);
       });
 
-      Object.keys(grouped).forEach(dateStr => {
+      // SORT DATES CHRONOLOGICALLY (e.g., Sep 14, Sep 15, Sep 16)
+      const sortedDateKeys = Object.keys(grouped).sort((a, b) => {
+        const timeA = parseIsoDate(grouped[a][0].isoTime);
+        const timeB = parseIsoDate(grouped[b][0].isoTime);
+        return timeA - timeB;
+      });
+
+      sortedDateKeys.forEach(dateStr => {
         let dayItems = grouped[dateStr];
         const dateKeySanitized = dateStr.replace(/[^a-zA-Z0-9]/g, '');
 
