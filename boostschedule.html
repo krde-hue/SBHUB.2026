@@ -1127,9 +1127,9 @@
       renderSchedule();
     }
 
-    /* BRAND-AWARE PREPARE IMPORT PAYLOAD FUNCTION */
+    /* BRAND-AWARE PREPARE IMPORT PAYLOAD FUNCTION WITH FULL FIELD FALLBACKS */
     function prepareImportPayload(item, brandTarget) {
-      const dateObj = parseIsoDate(item.isoTime);
+      const dateObj = parseIsoDate(item.isoTime || item.date || item.eventDate);
       const cat = (item.category || currentTab || 'FOOTBALL').toUpperCase();
 
       let targetTabName = '';
@@ -1143,15 +1143,20 @@
         else targetTabName = '7aBVB football Boost';
       }
 
+      const eventTitle = item.title || item.event || item.name || item.match || 'Match Event';
+      const leagueName = item.league || item.sportCategory || item.category || 'General League';
+      const sportName = item.sportCategory || item.league || item.category || 'Other Sports';
+
       return {
         id: 'imp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         brand: brandTarget || 'BOTH',
         koDate: formatGMT8Date(dateObj),
         koTime: formatGMT8Time(dateObj),
         sport: cat,
-        sportCategory: item.sportCategory || item.category || 'Other Sports',
-        league: item.league || '',
-        event: item.title || '',
+        sportCategory: sportName,
+        league: leagueName,
+        event: eventTitle,
+        title: eventTitle,
         market: (item.suggestedMarkets && item.suggestedMarkets.length > 0) ? item.suggestedMarkets[0] : 'Betbuilder / Price Boost',
 
         sheetName: targetTabName,
@@ -1166,7 +1171,7 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    /* ISOLATED FORM SUBMISSION VIA DYNAMIC IFRAME */
+    /* ISOLATED FORM SUBMISSION WITH SAFE ENCODING */
     function sendToGoogleSheet(webAppUrl, payloads) {
       return new Promise((resolve) => {
         const frameId = "iframe_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
@@ -1184,7 +1189,7 @@
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = "postData";
-        input.value = JSON.stringify({ items: payloads });
+        input.value = encodeURIComponent(JSON.stringify({ items: payloads }));
         form.appendChild(input);
 
         document.body.appendChild(form);
