@@ -353,19 +353,6 @@
         .shift-bg-15-0-wfh    { background-color: #881337 !important; color: #ffffff !important; border: 1px solid #fecdd3; font-weight: 800; }
         .shift-bg-adjusted    { background-color: #b45309 !important; color: #ffffff !important; border: 1px solid #fde047; font-weight: 800; }
 
-        .miguel-editable-cell {
-            width: 100%;
-            padding: 5px 3px;
-            font-size: 11px;
-            font-weight: 800;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            outline: none;
-        }
-
         .leave-section {
             background: var(--card-bg);
             padding: 15px;
@@ -620,7 +607,7 @@
             11: [{ date: "Dec 8", name: "Feast of Immaculate Conception" }, { date: "Dec 25", name: "Christmas Day" }, { date: "Dec 30", name: "Rizal Day" }, { date: "Dec 31", name: "Last Day of the Year" }]
         };
 
-        /* Updated Shift List with High Visibility Solid Fill Classes */
+        /* Updated Shift List with High-Visibility Solid Fill Classes */
         const shiftList = [
             { text: "", bgClass: "", itemClass: "", start: null, end: null },
             { text: "RD", bgClass: "shift-bg-rd", itemClass: "shift-bg-rd", start: null, end: null },
@@ -968,8 +955,9 @@
                 renderHorizontalCalendar();
             }
 
+            const leaveTeam = team.filter(m => m !== "Miguel");
             let leaveHtml = '<th style="width: 50px;">Type</th>';
-            team.forEach(member => {
+            leaveTeam.forEach(member => {
                 leaveHtml += `<th>${member}</th>`;
             });
             leaveHeaderRow.innerHTML = leaveHtml;
@@ -1033,70 +1021,55 @@
 
                     let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
 
-                    if (member === "Miguel") {
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.className = 'miguel-editable-cell';
-                        input.value = formatShiftForTimezone(activeShift);
-                        input.placeholder = "8:00 - 17:00";
-                        if (isViewOnlyMode) input.disabled = true;
+                    const activeInfo = getShiftInfo(activeShift);
+                    const convertedText = formatShiftForTimezone(activeShift);
 
-                        input.addEventListener('change', () => {
-                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                            rotaData[d][memberIdx] = input.value;
-                            saveRotaToDatabase();
-                        });
-                        tdShift.appendChild(input);
-                    } else {
-                        const activeInfo = getShiftInfo(activeShift);
-                        const convertedText = formatShiftForTimezone(activeShift);
+                    const dropdownContainer = document.createElement('div');
+                    dropdownContainer.className = 'custom-dropdown';
 
-                        const dropdownContainer = document.createElement('div');
-                        dropdownContainer.className = 'custom-dropdown';
+                    const btn = document.createElement('div');
+                    btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
+                    btn.textContent = convertedText === "" ? "--" : convertedText;
 
-                        const btn = document.createElement('div');
-                        btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
-                        btn.textContent = convertedText === "" ? "--" : convertedText;
+                    const menu = document.createElement('div');
+                    menu.className = 'custom-dropdown-menu';
 
-                        const menu = document.createElement('div');
-                        menu.className = 'custom-dropdown-menu';
+                    shiftList.forEach(s => {
+                        const item = document.createElement('div');
+                        item.className = `custom-dropdown-item ${s.itemClass}`;
+                        const displayShift = formatShiftForTimezone(s.text);
+                        item.textContent = displayShift === "" ? "-- Select --" : displayShift;
 
-                        shiftList.forEach(s => {
-                            const item = document.createElement('div');
-                            item.className = `custom-dropdown-item ${s.itemClass}`;
-                            const displayShift = formatShiftForTimezone(s.text);
-                            item.textContent = displayShift === "" ? "-- Select --" : displayShift;
-
-                            item.addEventListener('click', (e) => {
-                                if (isViewOnlyMode) return;
-                                e.stopPropagation();
-
-                                btn.textContent = displayShift === "" ? "--" : displayShift;
-                                btn.className = `custom-dropdown-btn ${s.bgClass}`;
-                                menu.classList.remove('show');
-
-                                if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                                rotaData[d][memberIdx] = s.text;
-
-                                saveRotaToDatabase();
-                                syncLeavesFromFullYearSchedule();
-                            });
-                            menu.appendChild(item);
-                        });
-
-                        btn.addEventListener('click', (e) => {
+                        item.addEventListener('click', (e) => {
                             if (isViewOnlyMode) return;
                             e.stopPropagation();
-                            document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
-                                if (m !== menu) m.classList.remove('show');
-                            });
-                            menu.classList.toggle('show');
-                        });
 
-                        dropdownContainer.appendChild(btn);
-                        dropdownContainer.appendChild(menu);
-                        tdShift.appendChild(dropdownContainer);
-                    }
+                            btn.textContent = displayShift === "" ? "--" : displayShift;
+                            btn.className = `custom-dropdown-btn ${s.bgClass}`;
+                            menu.classList.remove('show');
+
+                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                            rotaData[d][memberIdx] = s.text;
+
+                            saveRotaToDatabase();
+                            syncLeavesFromFullYearSchedule();
+                        });
+                        menu.appendChild(item);
+                    });
+
+                    btn.addEventListener('click', (e) => {
+                        if (isViewOnlyMode) return;
+                        e.stopPropagation();
+                        document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+                            if (m !== menu) m.classList.remove('show');
+                        });
+                        menu.classList.toggle('show');
+                    });
+
+                    dropdownContainer.appendChild(btn);
+                    dropdownContainer.appendChild(menu);
+                    tdShift.appendChild(dropdownContainer);
+
                     tr.appendChild(tdShift);
                 }
                 tbody.appendChild(tr);
@@ -1154,70 +1127,55 @@
                     const tdShift = document.createElement('td');
                     let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
 
-                    if (member === "Miguel") {
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.className = 'miguel-editable-cell';
-                        input.value = formatShiftForTimezone(activeShift);
-                        input.placeholder = "8:00 - 17:00";
-                        if (isViewOnlyMode) input.disabled = true;
+                    const activeInfo = getShiftInfo(activeShift);
+                    const convertedText = formatShiftForTimezone(activeShift);
 
-                        input.addEventListener('change', () => {
-                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                            rotaData[d][memberIdx] = input.value;
-                            saveRotaToDatabase();
-                        });
-                        tdShift.appendChild(input);
-                    } else {
-                        const activeInfo = getShiftInfo(activeShift);
-                        const convertedText = formatShiftForTimezone(activeShift);
+                    const dropdownContainer = document.createElement('div');
+                    dropdownContainer.className = 'custom-dropdown';
 
-                        const dropdownContainer = document.createElement('div');
-                        dropdownContainer.className = 'custom-dropdown';
+                    const btn = document.createElement('div');
+                    btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
+                    btn.textContent = convertedText === "" ? "-- Select --" : convertedText;
 
-                        const btn = document.createElement('div');
-                        btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
-                        btn.textContent = convertedText === "" ? "-- Select --" : convertedText;
+                    const menu = document.createElement('div');
+                    menu.className = 'custom-dropdown-menu';
 
-                        const menu = document.createElement('div');
-                        menu.className = 'custom-dropdown-menu';
+                    shiftList.forEach(s => {
+                        const item = document.createElement('div');
+                        item.className = `custom-dropdown-item ${s.itemClass}`;
+                        const displayShift = formatShiftForTimezone(s.text);
+                        item.textContent = displayShift === "" ? "-- Select --" : displayShift;
 
-                        shiftList.forEach(s => {
-                            const item = document.createElement('div');
-                            item.className = `custom-dropdown-item ${s.itemClass}`;
-                            const displayShift = formatShiftForTimezone(s.text);
-                            item.textContent = displayShift === "" ? "-- Select --" : displayShift;
-
-                            item.addEventListener('click', (e) => {
-                                if (isViewOnlyMode) return;
-                                e.stopPropagation();
-
-                                btn.textContent = displayShift === "" ? "-- Select --" : displayShift;
-                                btn.className = `custom-dropdown-btn ${s.bgClass}`;
-                                menu.classList.remove('show');
-
-                                if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                                rotaData[d][memberIdx] = s.text;
-
-                                saveRotaToDatabase();
-                                syncLeavesFromFullYearSchedule();
-                            });
-                            menu.appendChild(item);
-                        });
-
-                        btn.addEventListener('click', (e) => {
+                        item.addEventListener('click', (e) => {
                             if (isViewOnlyMode) return;
                             e.stopPropagation();
-                            document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
-                                if (m !== menu) m.classList.remove('show');
-                            });
-                            menu.classList.toggle('show');
-                        });
 
-                        dropdownContainer.appendChild(btn);
-                        dropdownContainer.appendChild(menu);
-                        tdShift.appendChild(dropdownContainer);
-                    }
+                            btn.textContent = displayShift === "" ? "-- Select --" : displayShift;
+                            btn.className = `custom-dropdown-btn ${s.bgClass}`;
+                            menu.classList.remove('show');
+
+                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
+                            rotaData[d][memberIdx] = s.text;
+
+                            saveRotaToDatabase();
+                            syncLeavesFromFullYearSchedule();
+                        });
+                        menu.appendChild(item);
+                    });
+
+                    btn.addEventListener('click', (e) => {
+                        if (isViewOnlyMode) return;
+                        e.stopPropagation();
+                        document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+                            if (m !== menu) m.classList.remove('show');
+                        });
+                        menu.classList.toggle('show');
+                    });
+
+                    dropdownContainer.appendChild(btn);
+                    dropdownContainer.appendChild(menu);
+                    tdShift.appendChild(dropdownContainer);
+
                     tr.appendChild(tdShift);
                 });
                 tbody.appendChild(tr);
@@ -1283,6 +1241,8 @@
 
         function buildLeaveTables() {
             leaveDatesBody.innerHTML = '';
+            const leaveTeam = team.filter(m => m !== "Miguel");
+
             for (let rowIdx = 0; rowIdx < 15; rowIdx++) {
                 let tr = document.createElement('tr');
                 let isVL = rowIdx < 10;
@@ -1293,7 +1253,7 @@
                 tdType.innerHTML = isVL ? '<span class="badge-vl">VL</span>' : '<span class="badge-sl">SL</span>';
                 tr.appendChild(tdType);
 
-                team.forEach((member) => {
+                leaveTeam.forEach((member) => {
                     let tdDate = document.createElement('td');
                     let input = document.createElement('input');
                     input.type = 'text';
@@ -1324,8 +1284,9 @@
             const selectedYear = parseInt(yearInput.value);
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
+            const wfhTeam = team.filter(m => m !== "Miguel");
 
-            team.forEach((member) => {
+            wfhTeam.forEach((member) => {
                 const memberIdx = team.indexOf(member);
                 let wfhDates = [];
 
@@ -1352,12 +1313,13 @@
 
         function renderVLPieChart() {
             document.getElementById('vlChartYearLabel').innerText = yearInput.value;
-            let memberVLCounts = team.map(() => 0);
+            const chartTeam = team.filter(m => m !== "Miguel");
+            let memberVLCounts = chartTeam.map(() => 0);
 
-            team.forEach((member, memberIdx) => {
+            chartTeam.forEach((member, idx) => {
                 if (leaveMatrixData[member] && leaveMatrixData[member].vl) {
                     let count = leaveMatrixData[member].vl.filter(v => v && v.trim() !== "").length;
-                    memberVLCounts[memberIdx] = count;
+                    memberVLCounts[idx] = count;
                 }
             });
 
@@ -1370,7 +1332,7 @@
             vlChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: team,
+                    labels: chartTeam,
                     datasets: [{
                         label: 'VL Days Taken',
                         data: memberVLCounts,
