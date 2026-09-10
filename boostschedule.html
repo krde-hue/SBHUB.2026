@@ -437,7 +437,11 @@
       return new Date(isoStr);
     }
 
+    // Fail-safe date string formatter
     function formatGMT8Date(dateObj) {
+      if (!dateObj || isNaN(dateObj.getTime())) {
+        return new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Singapore', weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+      }
       return dateObj.toLocaleDateString('en-US', {
         timeZone: 'Asia/Singapore',
         weekday: 'long',
@@ -447,7 +451,11 @@
       });
     }
 
+    // Fail-safe time string formatter
     function formatGMT8Time(dateObj) {
+      if (!dateObj || isNaN(dateObj.getTime())) {
+        return "12:00";
+      }
       return dateObj.toLocaleTimeString('en-US', {
         timeZone: 'Asia/Singapore',
         hour: '2-digit',
@@ -1140,8 +1148,8 @@
         brand: brandTarget || 'BOTH',
         koDate: formatGMT8Date(dateObj),
         koTime: formatGMT8Time(dateObj),
-        sport: item.category || 'FOOTBALL',
-        sportCategory: item.sportCategory || item.category || '',
+        sport: cat,
+        sportCategory: item.sportCategory || item.category || 'Other Sports',
         league: item.league || '',
         event: item.title || '',
         market: (item.suggestedMarkets && item.suggestedMarkets.length > 0) ? item.suggestedMarkets[0] : 'Betbuilder / Price Boost',
