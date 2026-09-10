@@ -1140,7 +1140,7 @@
       }
     }
 
-    /* BATCH IMPORT EXECUTOR WITH DYNAMIC TAB REDIRECTS */
+    /* OPTIMIZED BATCH IMPORT EXECUTOR (INSTANT RESPONSE + REUSED WINDOW TABS) */
     async function executeBatchImport(destination, dateStr) {
       const visibleDayItems = getDisplayedItemsForDay(dateStr);
       let targetItems = visibleDayItems.filter(item => selectedItemIds.has(item.id));
@@ -1156,29 +1156,30 @@
 
       const activeCat = currentTab || 'FOOTBALL';
 
-      if (destination === 'EDGE') {
-        const edgePayloads = targetItems.map(item => prepareImportPayload(item, 'EDGE'));
-        await sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, edgePayloads);
-        window.location.href = getTargetSheetUrl('EDGE', activeCat);
+      // 1. Prepare Payloads
+      const edgePayloads = (destination === 'EDGE' || destination === 'BOTH') 
+        ? targetItems.map(item => prepareImportPayload(item, 'EDGE')) 
+        : [];
+      const ibetPayloads = (destination === 'IBET' || destination === 'BOTH') 
+        ? targetItems.map(item => prepareImportPayload(item, 'IBET')) 
+        : [];
 
-      } else if (destination === 'IBET') {
-        const ibetPayloads = targetItems.map(item => prepareImportPayload(item, 'IBET'));
-        await sendToGoogleSheet(IBET_APPS_SCRIPT_URL, ibetPayloads);
+      // 2. OPEN / REUSE SPECIFIC TAB HANDLES IMMEDIATELY
+      // Fixed window targets ('EdgeSheetTab' & 'IBetSheetTab') keep dashboard active & prevent tab flooding
+      if (destination === 'EDGE' || destination === 'BOTH') {
+        window.open(getTargetSheetUrl('EDGE', activeCat), 'EdgeSheetTab');
+      }
+      if (destination === 'IBET' || destination === 'BOTH') {
+        window.open(getTargetSheetUrl('IBET', activeCat), 'IBetSheetTab');
+      }
+
+      // 3. FIRE BACKGROUND DATA TRANSMISSION (Non-blocking)
+      if (edgePayloads.length > 0) {
+        sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, edgePayloads);
+      }
+      if (ibetPayloads.length > 0) {
+        sendToGoogleSheet(IBET_APPS_SCRIPT_URL, ibetPayloads);
         saveToStorageBottom('ibet_boosts_list', ibetPayloads);
-        window.location.href = getTargetSheetUrl('IBET', activeCat);
-
-      } else if (destination === 'BOTH') {
-        const edgePayloads = targetItems.map(item => prepareImportPayload(item, 'EDGE'));
-        const ibetPayloads = targetItems.map(item => prepareImportPayload(item, 'IBET'));
-
-        await Promise.all([
-          sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, edgePayloads),
-          sendToGoogleSheet(IBET_APPS_SCRIPT_URL, ibetPayloads)
-        ]);
-
-        saveToStorageBottom('ibet_boosts_list', ibetPayloads);
-        window.open(getTargetSheetUrl('IBET', activeCat), '_blank');
-        window.location.href = getTargetSheetUrl('EDGE', activeCat);
       }
     }
 
