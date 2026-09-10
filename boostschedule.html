@@ -437,7 +437,6 @@
       return new Date(isoStr);
     }
 
-    // Fail-safe date string formatter
     function formatGMT8Date(dateObj) {
       if (!dateObj || isNaN(dateObj.getTime())) {
         return new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Singapore', weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
@@ -451,7 +450,6 @@
       });
     }
 
-    // Fail-safe time string formatter
     function formatGMT8Time(dateObj) {
       if (!dateObj || isNaN(dateObj.getTime())) {
         return "12:00";
@@ -1127,7 +1125,7 @@
       renderSchedule();
     }
 
-    /* BRAND-AWARE PREPARE IMPORT PAYLOAD FUNCTION WITH FULL FIELD FALLBACKS */
+    /* BRAND-AWARE PREPARE IMPORT PAYLOAD FUNCTION WITH DROPDOWN-COMPATIBLE SPORTS */
     function prepareImportPayload(item, brandTarget) {
       const dateObj = parseIsoDate(item.isoTime || item.date || item.eventDate);
       const cat = (item.category || currentTab || 'FOOTBALL').toUpperCase();
@@ -1143,9 +1141,17 @@
         else targetTabName = '7aBVB football Boost';
       }
 
-      const eventTitle = item.title || item.event || item.name || item.match || 'Match Event';
-      const leagueName = item.league || item.sportCategory || item.category || 'General League';
-      const sportName = item.sportCategory || item.league || item.category || 'Other Sports';
+      const eventTitle = item.title || item.event || item.name || 'Match Event';
+      const leagueName = item.league || item.sportCategory || 'General League';
+
+      // Map sport categories to Google Sheet Data Validation dropdown options
+      let sportName = item.sportCategory || item.league || 'Other Sports';
+      const upperSport = sportName.toUpperCase();
+      if (upperSport.includes('NFL') || upperSport.includes('FOOTBALL')) sportName = 'American Football';
+      else if (upperSport.includes('NBA') || upperSport.includes('BASKETBALL')) sportName = 'Basketball';
+      else if (upperSport.includes('MLB') || upperSport.includes('BASEBALL')) sportName = 'Baseball';
+      else if (upperSport.includes('NHL') || upperSport.includes('HOCKEY')) sportName = 'Ice Hockey';
+      else if (upperSport.includes('MMA') || upperSport.includes('UFC')) sportName = 'MMA';
 
       return {
         id: 'imp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
@@ -1171,36 +1177,20 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    /* ISOLATED FORM SUBMISSION WITH SAFE ENCODING */
-    function sendToGoogleSheet(webAppUrl, payloads) {
-      return new Promise((resolve) => {
-        const frameId = "iframe_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-        const iframe = document.createElement("iframe");
-        iframe.id = frameId;
-        iframe.name = frameId;
-        iframe.style.display = "none";
-        document.body.appendChild(iframe);
-
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = webAppUrl;
-        form.target = frameId;
-
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = "postData";
-        input.value = encodeURIComponent(JSON.stringify({ items: payloads }));
-        form.appendChild(input);
-
-        document.body.appendChild(form);
-        form.submit();
-
-        setTimeout(() => {
-          document.body.removeChild(form);
-          document.body.removeChild(iframe);
-          resolve();
-        }, 1500);
-      });
+    /* DIRECT FETCH POST REQUEST TO APPS SCRIPT */
+    async function sendToGoogleSheet(webAppUrl, payloads) {
+      try {
+        await fetch(webAppUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify({ items: payloads })
+        });
+      } catch (err) {
+        console.error("Error sending payload to Apps Script:", err);
+      }
     }
 
     /* BATCH IMPORT EXECUTOR WITH DYNAMIC TAB REDIRECTS */
