@@ -545,6 +545,7 @@
             const completed = event.status?.type?.completed;
             const eventDate = new Date(event.date);
 
+            // Exclude live, finished, or past matches
             if (state === 'in' || state === 'post' || completed === true || eventDate <= now) {
               return;
             }
@@ -602,60 +603,6 @@
         });
       } catch (err) {
         console.error("ESPN Tennis fetch error:", err);
-      }
-
-      if (tennisItems.length < 4) {
-        const getExactFutureTime = (dayOffset, hour, min) => {
-          const d = new Date(now.getTime());
-          d.setDate(d.getDate() + dayOffset);
-          d.setHours(hour, min, 0, 0);
-          return d.toISOString();
-        };
-
-        const upcomingTennisMock = [
-          {
-            id: 'tn-usopen-m1', league: 'ATP - SINGLES: US Open (USA), hard',
-            title: 'K. Khachanov vs A. Blockx', p1: 'K. Khachanov', p2: 'A. Blockx', p1Fs: 'Khachanov K.', p2Fs: 'Blockx A.',
-            isoTime: getExactFutureTime(1, 2, 0), isPopular: true
-          },
-          {
-            id: 'tn-usopen-m2', league: 'ATP - SINGLES: US Open (USA), hard',
-            title: 'A. Zverev vs B. Van de Zandschulp', p1: 'A. Zverev', p2: 'B. Van de Zandschulp', p1Fs: 'Zverev A.', p2Fs: 'Zandschulp B.',
-            isoTime: getExactFutureTime(1, 7, 30), isPopular: true
-          },
-          {
-            id: 'tn-usopen-w1', league: 'WTA - SINGLES: US Open (USA), hard',
-            title: 'M. Andreeva vs C. Gauff', p1: 'M. Andreeva', p2: 'C. Gauff', p1Fs: 'Andreeva M.', p2Fs: 'Gauff C.',
-            isoTime: getExactFutureTime(1, 0, 30), isPopular: true
-          },
-          {
-            id: 'tn-usopen-w2', league: 'WTA - SINGLES: US Open (USA), hard',
-            title: 'A. Sabalenka vs I. Swiatek', p1: 'A. Sabalenka', p2: 'I. Swiatek', p1Fs: 'Sabalenka A.', p2Fs: 'Swiatek I.',
-            isoTime: getExactFutureTime(2, 23, 30), isPopular: true
-          }
-        ];
-
-        upcomingTennisMock.forEach(m => {
-          const exists = tennisItems.some(t => t.title.toLowerCase() === m.title.toLowerCase());
-          if (!exists) {
-            tennisItems.push({
-              id: m.id,
-              category: "TENNIS",
-              sportCategory: m.league,
-              league: m.league,
-              title: m.title,
-              player1: m.p1,
-              player2: m.p2,
-              player1Fs: m.p1Fs,
-              player2Fs: m.p2Fs,
-              isoTime: m.isoTime,
-              isTopTier: m.isPopular,
-              isHot: m.isPopular,
-              isOutright: false,
-              suggestedMarkets: [`${m.p1Fs} to Win 2-0`, "Match Winner", "First Set Winner", `${m.p2Fs} +1.5 Sets`]
-            });
-          }
-        });
       }
 
       return tennisItems;
