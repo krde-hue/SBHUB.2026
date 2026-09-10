@@ -485,7 +485,7 @@
             <button class="btn btn-success action-protected" type="button" onclick="autoDistributeTasks()" style="width: 100%; justify-content: center;" title="Auto-Distribute Tasks">🎲 <span>Auto-Distribute Tasks</span></button>
             <button class="btn btn-warning action-protected" type="button" onclick="shuffleTasks()" style="width: 100%; justify-content: center;" title="SHUFFLE Tasks">🔀 <span>SHUFFLE Tasks</span></button>
             <button class="btn btn-primary action-protected" type="button" onclick="addNewDay()" style="width: 100%; justify-content: center;" title="Add Next Day">➕ <span>Add Next Day</span></button>
-            <button class="btn btn-secondary" type="button" onclick="window.print()" style="width: 100%; justify-content: center;" title="Print Active Day">🖨️ <span>Print Active Day</span></button>
+            <button class="btn btn-secondary" type="button" onclick="window.print()" style="width: 100%; justify-content: center;" title="Print Active Day">𖤂 <span>Print Active Day</span></button>
             <button class="btn btn-secondary" type="button" onclick="toggleDarkMode()" style="width: 100%; justify-content: center;" title="Theme">🌓 <span id="themeBtnText">Theme</span></button>
             <button class="btn btn-danger action-protected" type="button" onclick="clearAllData()" style="width: 100%; justify-content: center;" title="Clear All Data">🗑️ <span>Clear All Data</span></button>
         </div>
@@ -498,7 +498,7 @@
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <button class="btn btn-secondary" type="button" onclick="toggleMaximizeCalendar()" id="maximizeCalendarBtn" title="Maximize/Minimize Calendar View">
-                    🗖 <span id="maximizeBtnText">Maximize</span>
+                    𗁤 <span id="maximizeBtnText">Maximize</span>
                 </button>
                 <button id="lockUnlockBtn" class="btn btn-lock" type="button" onclick="handleLockToggle()" title="Lock / Unlock Roster Editing">
                     🔒 <span id="lockBtnText">Locked (View Only)</span>
@@ -577,34 +577,51 @@
             "Others (As instructed)"
         ];
 
+        /* Updated Shifts List Matching Attached Image & Added 6:00 - 15:00 Shifts */
         const shifts = [
-            { id: 'shift-rd', label: 'RD', endHour: null, endMinute: null },
-            { id: 'shift-vl', label: 'VL', endHour: null, endMinute: null },
-            { id: 'shift-sl', label: 'SL', endHour: null, endMinute: null },
+            { id: 'shift-6-15', label: '6:00 - 15:00', endHour: 15, endMinute: 0 },
             { id: 'shift-7-16', label: '7:00 - 16:00', endHour: 16, endMinute: 0 },
             { id: 'shift-9-18', label: '9:00 - 18:00', endHour: 18, endMinute: 0 },
+            { id: 'shift-10-19', label: '10:00 - 19:00', endHour: 19, endMinute: 0 },
             { id: 'shift-12-21', label: '12:00 - 21:00', endHour: 21, endMinute: 0 },
+            { id: 'shift-14-23', label: '14:00 - 23:00', endHour: 23, endMinute: 0 },
             { id: 'shift-15-0', label: '15:00 - 00:00', endHour: 0, endMinute: 0 },
+            { id: 'shift-16-1', label: '16:00 - 1:00', endHour: 1, endMinute: 0 },
+            { id: 'shift-6-15-wfh', label: '6:00 - 15:00 (WFH)', endHour: 15, endMinute: 0 },
             { id: 'shift-7-16-wfh', label: '7:00 - 16:00 (WFH)', endHour: 16, endMinute: 0 },
             { id: 'shift-9-18-wfh', label: '9:00 - 18:00 (WFH)', endHour: 18, endMinute: 0 },
+            { id: 'shift-10-19-wfh', label: '10:00 - 19:00 (WFH)', endHour: 19, endMinute: 0 },
             { id: 'shift-12-21-wfh', label: '12:00 - 21:00 (WFH)', endHour: 21, endMinute: 0 },
+            { id: 'shift-14-23-wfh', label: '14:00 - 23:00 (WFH)', endHour: 23, endMinute: 0 },
             { id: 'shift-15-0-wfh', label: '15:00 - 00:00 (WFH)', endHour: 0, endMinute: 0 },
-            { id: 'shift-adjusted', label: 'Adjusted', endHour: null, endMinute: null }
+            { id: 'shift-16-1-wfh', label: '16:00 - 1:00 (WFH)', endHour: 1, endMinute: 0 },
+            { id: 'shift-adjusted', label: 'Adjusted', endHour: null, endMinute: null },
+            { id: 'shift-rd', label: 'RD', endHour: null, endMinute: null },
+            { id: 'shift-vl', label: 'VL', endHour: null, endMinute: null },
+            { id: 'shift-sl', label: 'SL', endHour: null, endMinute: null }
         ];
 
-        /* Updated Off-Duty Mapping matching the new 6 slots */
+        /* Updated Off-Duty Mapping matching the shifts list */
         const shiftOffDutyMap = {
             'shift-rd': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
             'shift-vl': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
             'shift-sl': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
+            'shift-6-15': ['slot_15_18', 'slot_18_21', 'slot_21_0'],
+            'shift-6-15-wfh': ['slot_15_18', 'slot_18_21', 'slot_21_0'],
             'shift-7-16': ['slot_18_21', 'slot_21_0'],
-            'shift-9-18': ['slot_6_9', 'slot_18_21', 'slot_21_0'],
-            'shift-12-21': ['slot_6_9', 'slot_9_12', 'slot_21_0'],
-            'shift-15-0': ['slot_6_9', 'slot_9_12', 'slot_12_15'],
             'shift-7-16-wfh': ['slot_18_21', 'slot_21_0'],
+            'shift-9-18': ['slot_6_9', 'slot_18_21', 'slot_21_0'],
             'shift-9-18-wfh': ['slot_6_9', 'slot_18_21', 'slot_21_0'],
+            'shift-10-19': ['slot_6_9', 'slot_21_0'],
+            'shift-10-19-wfh': ['slot_6_9', 'slot_21_0'],
+            'shift-12-21': ['slot_6_9', 'slot_9_12', 'slot_21_0'],
             'shift-12-21-wfh': ['slot_6_9', 'slot_9_12', 'slot_21_0'],
+            'shift-14-23': ['slot_6_9', 'slot_9_12'],
+            'shift-14-23-wfh': ['slot_6_9', 'slot_9_12'],
+            'shift-15-0': ['slot_6_9', 'slot_9_12', 'slot_12_15'],
             'shift-15-0-wfh': ['slot_6_9', 'slot_9_12', 'slot_12_15'],
+            'shift-16-1': ['slot_6_9', 'slot_9_12', 'slot_12_15'],
+            'shift-16-1-wfh': ['slot_6_9', 'slot_9_12', 'slot_12_15'],
             'shift-adjusted': []
         };
 
@@ -614,7 +631,7 @@
         let selectedDayKey = "day_1";
         let isCalendarMaximized = false;
         let fontSliderRafId = null;
-        let isLocked = true; // Default locked to prevent accidental changes
+        let isLocked = true;
 
         function createDefaultDatabase() {
             let defaultDb = {
@@ -630,7 +647,6 @@
             return defaultDb;
         }
 
-        // Lock & View Only Authentication Controller
         function handleLockToggle() {
             if (isLocked) {
                 showPasswordModal((success) => {
@@ -827,14 +843,22 @@
             if (text === "RD") return "shift-rd";
             if (text === "VL") return "shift-vl";
             if (text === "SL") return "shift-sl";
+            if (text === "6:00 - 15:00") return "shift-6-15";
+            if (text === "6:00 - 15:00 (WFH)") return "shift-6-15-wfh";
             if (text === "7:00 - 16:00") return "shift-7-16";
-            if (text === "9:00 - 18:00") return "shift-9-18";
-            if (text === "12:00 - 21:00") return "shift-12-21";
-            if (text === "15:00 - 00:00") return "shift-15-0";
             if (text === "7:00 - 16:00 (WFH)") return "shift-7-16-wfh";
+            if (text === "9:00 - 18:00") return "shift-9-18";
             if (text === "9:00 - 18:00 (WFH)") return "shift-9-18-wfh";
+            if (text === "10:00 - 19:00") return "shift-10-19";
+            if (text === "10:00 - 19:00 (WFH)") return "shift-10-19-wfh";
+            if (text === "12:00 - 21:00") return "shift-12-21";
             if (text === "12:00 - 21:00 (WFH)") return "shift-12-21-wfh";
+            if (text === "14:00 - 23:00") return "shift-14-23";
+            if (text === "14:00 - 23:00 (WFH)") return "shift-14-23-wfh";
+            if (text === "15:00 - 00:00") return "shift-15-0";
             if (text === "15:00 - 00:00 (WFH)") return "shift-15-0-wfh";
+            if (text === "16:00 - 1:00" || text === "16:00 - 01:00") return "shift-16-1";
+            if (text === "16:00 - 1:00 (WFH)" || text === "16:00 - 01:00 (WFH)") return "shift-16-1-wfh";
             return "shift-adjusted";
         }
 
@@ -872,7 +896,7 @@
         }
 
         function saveToDatabase() {
-            if (isLocked) return; // Prevent saving if locked
+            if (isLocked) return;
             if (!database) database = createDefaultDatabase();
             db.ref('roster_data').set(database);
             let statusBadge = document.getElementById('saveStatus');
@@ -908,7 +932,7 @@
                 let shiftObj = shifts.find(s => s.id === memberData.shift);
                 if (shiftObj && shiftObj.endHour !== null) {
                     let endMinutesOfDay = shiftObj.endHour * 60 + shiftObj.endMinute;
-                    if (shiftObj.endHour === 0 && currentMinutesOfDay > 12 * 60) endMinutesOfDay += 24 * 60;
+                    if ((shiftObj.endHour === 0 || shiftObj.endHour === 1) && currentMinutesOfDay > 12 * 60) endMinutesOfDay += 24 * 60;
                     let minutesRemaining = endMinutesOfDay - currentMinutesOfDay;
                     if (minutesRemaining > 0 && minutesRemaining <= 20) endingMembers.push(m.name);
                 }
@@ -991,14 +1015,14 @@
                 if (workingSlots.length > 0) {
                     let finalSlot = workingSlots[workingSlots.length - 1];
                     
-                    if (memberShift.includes('9-18')) {
+                    if (memberShift.includes('9-18') || memberShift.includes('6-15') || memberShift.includes('7-16')) {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
                         if (!grid[m.id].slots[finalSlot.id].includes("Handover Report AM")) {
                             grid[m.id].slots[finalSlot.id].push("Handover Report AM");
                         }
                     }
 
-                    if (memberShift.includes('15-0') || memberShift.includes('12-21') || finalSlot.id === 'slot_21_0') {
+                    if (memberShift.includes('15-0') || memberShift.includes('12-21') || memberShift.includes('14-23') || memberShift.includes('16-1') || finalSlot.id === 'slot_21_0') {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
                         if (!grid[m.id].slots[finalSlot.id].includes("Handover Report PM")) {
                             grid[m.id].slots[finalSlot.id].push("Handover Report PM");
@@ -1074,14 +1098,14 @@
                 if (workingSlots.length > 0) {
                     let finalSlot = workingSlots[workingSlots.length - 1];
                     
-                    if (memberShift.includes('9-18')) {
+                    if (memberShift.includes('9-18') || memberShift.includes('6-15') || memberShift.includes('7-16')) {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
                         if (!grid[m.id].slots[finalSlot.id].includes("Handover Report AM")) {
                             grid[m.id].slots[finalSlot.id].push("Handover Report AM");
                         }
                     }
 
-                    if (memberShift.includes('15-0') || memberShift.includes('12-21') || finalSlot.id === 'slot_21_0') {
+                    if (memberShift.includes('15-0') || memberShift.includes('12-21') || memberShift.includes('14-23') || memberShift.includes('16-1') || finalSlot.id === 'slot_21_0') {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
                         if (!grid[m.id].slots[finalSlot.id].includes("Handover Report PM")) {
                             grid[m.id].slots[finalSlot.id].push("Handover Report PM");
