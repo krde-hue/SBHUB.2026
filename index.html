@@ -66,20 +66,119 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* Auth Overlay */
-    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 7, 14, 0.88); backdrop-filter: blur(30px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
+    /* Auth Overlay & Realistic Lamp Styling */
+    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 7, 14, 0.92); backdrop-filter: blur(30px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
     #authOverlay.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
-    .lamp-login-container { position: relative; display: flex; align-items: center; gap: 40px; flex-direction: column; width: 90%; max-width: 400px; }
-    .lamp-scene { position: relative; width: 180px; height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
-    .lamp-shade { width: 160px; height: 85px; background: radial-gradient(circle at 40% 30%, #475569 0%, #1e293b 60%, #0f172a 100%); border-radius: 100px 100px 10px 10px; position: relative; box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.18); z-index: 3; transition: box-shadow 0.4s ease; }
-    body.lamp-is-on .lamp-shade { box-shadow: inset 0 8px 16px rgba(255, 255, 255, 0.25), 0 0 60px 20px rgba(245, 158, 11, 0.5); }
-    .lamp-stand-rod { width: 10px; height: 140px; background: linear-gradient(90deg, #b45309, #fbbf24, #92400e); border-radius: 4px; position: relative; z-index: 2; }
-    .lamp-base { width: 110px; height: 18px; background: linear-gradient(180deg, #f59e0b, #b45309); border-radius: 10px 10px 2px 2px; z-index: 2; }
-    .pull-cord-wrapper { position: absolute; bottom: 120px; right: 20px; cursor: pointer; z-index: 10; }
-    .cord-string { width: 2px; height: 50px; background: #cbd5e1; }
-    .cord-handle { width: 16px; height: 18px; background: #fde047; border-radius: 50%; }
-    .login-popup-card { width: 100%; background: var(--glass-bg-card); border: 1.5px solid var(--glass-border); backdrop-filter: var(--card-blur); border-radius: 24px; padding: 24px; box-shadow: var(--glass-shadow); opacity: 0; visibility: hidden; transition: all 0.5s ease; }
-    body.lamp-is-on .login-popup-card { opacity: 1; visibility: visible; }
+    .lamp-login-container { position: relative; display: flex; align-items: center; gap: 20px; flex-direction: column; width: 90%; max-width: 420px; }
+    
+    .lamp-scene { position: relative; width: 220px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+    
+    /* Directional Ambient Light Beam Cone */
+    .lamp-light-beam {
+      position: absolute;
+      top: 68px;
+      width: 380px;
+      height: 380px;
+      background: linear-gradient(180deg, rgba(253, 224, 71, 0.35) 0%, rgba(245, 158, 11, 0.12) 50%, rgba(245, 158, 11, 0) 100%);
+      clip-path: polygon(36% 0%, 64% 0%, 100% 100%, 0% 100%);
+      pointer-events: none;
+      opacity: 0;
+      transform: scaleY(0.85);
+      transform-origin: top center;
+      transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1;
+      filter: blur(10px);
+    }
+    body.lamp-is-on .lamp-light-beam { opacity: 1; transform: scaleY(1); }
+
+    /* Realistic Lamp Shade */
+    .lamp-shade { 
+      width: 170px; 
+      height: 90px; 
+      background: linear-gradient(145deg, #334155 0%, #1e293b 55%, #0f172a 100%); 
+      border-radius: 110px 110px 12px 12px; 
+      position: relative; 
+      box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.25), inset 0 -6px 12px rgba(0, 0, 0, 0.7), 0 12px 25px rgba(0,0,0,0.6); 
+      z-index: 4; 
+      transition: all 0.4s ease; 
+      border-bottom: 2px solid #b45309; 
+    }
+    .lamp-shade::before {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 20px;
+      background: radial-gradient(ellipse at center, rgba(254, 240, 138, 1) 0%, rgba(245, 158, 11, 0.8) 40%, rgba(245, 158, 11, 0) 75%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border-radius: 50%;
+    }
+    .lamp-shade::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 12px;
+      background: linear-gradient(90deg, #78350f, #fbbf24, #92400e);
+      border-radius: 6px 6px 2px 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    body.lamp-is-on .lamp-shade { 
+      box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.35), inset 0 -4px 10px rgba(253, 224, 71, 0.5), 0 0 55px 18px rgba(245, 158, 11, 0.5), 0 0 110px 35px rgba(251, 191, 36, 0.25); 
+      border-bottom-color: #fde047;
+    }
+    body.lamp-is-on .lamp-shade::before { opacity: 1; }
+
+    /* Metallic Brass Stand & Base */
+    .lamp-stand-rod { width: 12px; height: 130px; background: linear-gradient(90deg, #78350f 0%, #d97706 30%, #fef08a 50%, #b45309 85%, #451a03 100%); border-radius: 3px; position: relative; z-index: 2; box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5); }
+    .lamp-base { width: 124px; height: 18px; background: linear-gradient(180deg, #f59e0b 0%, #b45309 60%, #78350f 100%); border-radius: 12px 12px 3px 3px; z-index: 2; box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.5); position: relative; }
+
+    /* Realistic Interactive Pull Cord with Bounce Animation */
+    .pull-cord-wrapper { 
+      position: absolute; 
+      bottom: 100px; 
+      right: 30px; 
+      cursor: pointer; 
+      z-index: 10; 
+      transform-origin: top center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+    .pull-cord-wrapper.bouncing {
+      animation: cordSpringBounce 0.65s cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
+    }
+
+    @keyframes cordSpringBounce {
+      0% { transform: translateY(0) scaleY(1); }
+      28% { transform: translateY(26px) scaleY(1.18); }
+      48% { transform: translateY(-8px) scaleY(0.92); }
+      68% { transform: translateY(5px) scaleY(1.04); }
+      84% { transform: translateY(-2px) scaleY(0.98); }
+      100% { transform: translateY(0) scaleY(1); }
+    }
+
+    .cord-string { width: 2.5px; height: 58px; background: linear-gradient(180deg, #94a3b8, #cbd5e1, #64748b); box-shadow: 1px 1px 3px rgba(0,0,0,0.4); }
+    .cord-handle { 
+      width: 18px; 
+      height: 22px; 
+      background: radial-gradient(circle at 35% 35%, #fef08a 0%, #f59e0b 55%, #78350f 100%); 
+      border-radius: 50% 50% 45% 45%; 
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset -1px -2px 4px rgba(0,0,0,0.4), inset 1px 2px 3px rgba(255,255,255,0.8);
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .pull-cord-wrapper:hover .cord-handle { transform: scale(1.15); filter: brightness(1.2); }
+
+    /* Login Card Lighting Reaction */
+    .login-popup-card { width: 100%; background: var(--glass-bg-card); border: 1.5px solid var(--glass-border); backdrop-filter: var(--card-blur); border-radius: 24px; padding: 24px; box-shadow: var(--glass-shadow); opacity: 0; visibility: hidden; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    body.lamp-is-on .login-popup-card { opacity: 1; visibility: visible; border-color: rgba(245, 158, 11, 0.45); box-shadow: 0 25px 60px rgba(245, 158, 11, 0.2), var(--glass-shadow); }
     .login-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 18px; text-align: center; }
     .input-group { margin-bottom: 14px; }
     .input-label { font-size: 10px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; margin-bottom: 4px; display: block; }
@@ -206,7 +305,7 @@
     
     .chart-container { position: relative; flex-grow: 1; width: 100%; min-height: 100px; }
     
-    /* Perfect Fit Input & Grid Layout for Modal Log with Forced High-Contrast Dark Scheme for Native Calendar Picker Icon */
+    /* Perfect Fit Input & Grid Layout for Modal Log */
     .logger-input { 
       background: rgba(8, 12, 20, 0.65); 
       border: 1px solid var(--glass-border); 
@@ -246,7 +345,6 @@
 
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(14px); z-index: 900; justify-content: center; align-items: center; }
     
-    /* Expanded Modal Content to fit 4-Brand Table without horizontal scroll */
     .modal-content { 
       background: var(--glass-bg); 
       border: 1px solid var(--glass-border); 
@@ -320,6 +418,7 @@
   <div id="authOverlay">
     <div class="lamp-login-container">
       <div class="lamp-scene">
+        <div class="lamp-light-beam"></div>
         <div class="lamp-shade"></div>
         <div class="pull-cord-wrapper" id="pullCord" onclick="toggleLamp()">
           <div class="cord-string"></div>
@@ -448,7 +547,7 @@
       </div>
     </div>
 
-    <!-- Multi-Brand Combo Chart Bento Card (Bar Towers for Inc + Brand Lines for Red/Lim) -->
+    <!-- Multi-Brand Combo Chart Bento Card -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
         <span>📊 DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
@@ -1084,7 +1183,7 @@
       setTimeout(() => btn.innerHTML = originalText, 1500);
     }
 
-    /* Custom Plugin to Draw Vertical Text Labels Inside Bars ONLY */
+    /* Custom Plugin to Draw Vertical Text Labels Inside Bars */
     const verticalBarLabelPlugin = {
       id: 'verticalBarLabelPlugin',
       afterDatasetsDraw(chart) {
@@ -1125,7 +1224,7 @@
       }
     };
 
-    /* Combo Chart Engine: Bar Towers for Increase + Exact Requested Custom Palette for Lines */
+    /* Combo Chart Engine */
     function initTrendChart() {
       const viewMode = document.getElementById("trackerSelector").value;
       const timeframe = document.getElementById("timeframeSelector").value;
@@ -1154,42 +1253,16 @@
       let chartConfigData = { labels: dateLabels, datasets: [] };
       const badge = document.getElementById("trendBadge");
 
-      /* Exact Brand Specifications & Color Scheme requested */
       const brandSpecs = [
-        { 
-          key: 'edge', 
-          label: 'EDGE', 
-          inc: '#4ade80',  /* Light Green Bar */
-          red: '#15803d',  /* Dark Green Solid Line */
-          lim: '#000000'   /* Black Broken Line */
-        },
-        { 
-          key: 'ibet', 
-          label: 'IBET', 
-          inc: '#f472b6',  /* Pink Bar */
-          red: '#991b1b',  /* Dark Red Solid Line */
-          lim: '#881337'   /* Dark Maroon Broken Line */
-        },
-        { 
-          key: 'tracker7a', 
-          label: '7A', 
-          inc: '#38bdf8',  /* Light Blue Bar */
-          red: '#2563eb',  /* Blue Solid Line */
-          lim: '#1e3a8a'   /* Dark Blue Broken Line */
-        },
-        { 
-          key: 'pubs', 
-          label: 'PUBS', 
-          inc: '#fb923c',  /* Light Orange Bar */
-          red: '#ea580c',  /* Orange Solid Line */
-          lim: '#7c2d12'   /* Dark Orange Broken Line */
-        }
+        { key: 'edge', label: 'EDGE', inc: '#4ade80', red: '#15803d', lim: '#000000' },
+        { key: 'ibet', label: 'IBET', inc: '#f472b6', red: '#991b1b', lim: '#881337' },
+        { key: 'tracker7a', label: '7A', inc: '#38bdf8', red: '#2563eb', lim: '#1e3a8a' },
+        { key: 'pubs', label: 'PUBS', inc: '#fb923c', red: '#ea580c', lim: '#7c2d12' }
       ];
 
       if (viewMode === "all") {
         const allDatasets = [];
         
-        // 1. Bar Towers for Increase (Light Colors)
         brandSpecs.forEach(b => {
           allDatasets.push({
             type: 'bar',
@@ -1203,7 +1276,6 @@
           });
         });
 
-        // 2. Solid Lines for Decrease (Red / Decrease Colors)
         brandSpecs.forEach(b => {
           allDatasets.push({
             type: 'line',
@@ -1220,7 +1292,6 @@
           });
         });
 
-        // 3. Broken Lines for Limited (Lim Colors)
         brandSpecs.forEach(b => {
           allDatasets.push({
             type: 'line',
@@ -1242,7 +1313,6 @@
         badge.className = "stat-badge up";
         badge.innerHTML = `<i class='bx bx-bar-chart-alt-2'></i> Custom Brand Palette`;
       } else {
-        // Individual Brand View
         const brandKey = viewMode;
         const brandObj = brandSpecs.find(b => b.key === brandKey) || brandSpecs[0];
         const brandName = brandObj.label;
@@ -1338,8 +1408,12 @@
     function toggleLamp() {
       playClickSound();
       const cordEl = document.getElementById("pullCord");
+      
+      // Trigger smooth spring-bounce pull animation
+      cordEl.classList.remove("bouncing");
+      void cordEl.offsetWidth; // Trigger DOM reflow to re-start animation
       cordEl.classList.add("bouncing");
-      setTimeout(() => cordEl.classList.remove("bouncing"), 550);
+
       document.body.classList.toggle("lamp-is-on");
       if (document.body.classList.contains("lamp-is-on")) setTimeout(() => document.getElementById("loginPassword").focus(), 300);
     }
@@ -1483,7 +1557,6 @@
       }
     }
 
-    /* Save Layout Function */
     function saveLayout() {
       saveBentoLayout();
       alert("Bento layout saved successfully!");
