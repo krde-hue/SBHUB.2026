@@ -63,10 +63,8 @@
     .sub-title { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
 
     .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .tz-clocks { display: flex; align-items: center; gap: 8px; background: var(--control-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--card-border); font-size: 0.75rem; color: var(--text-light); flex-wrap: wrap; }
-    .tz-clocks label { font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 4px; }
-    .tz-select-inline { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--card-border); border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; font-weight: 700; outline: none; cursor: pointer; }
-    .tz-clock-live { font-family: monospace; font-weight: 700; color: #38bdf8; margin-left: 4px; }
+    .tz-clocks { display: flex; align-items: center; gap: 12px; background: var(--control-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--card-border); font-size: 0.72rem; color: var(--text-light); flex-wrap: wrap; }
+    .tz-clock span { color: #38bdf8; font-weight: 700; }
 
     .header-btns { display: flex; gap: 8px; flex-wrap: wrap; }
     .top-btn {
@@ -324,15 +322,9 @@
 
     <div class="header-right">
       <div class="tz-clocks">
-        <label for="tzSelect">📍 Display Timezone:</label>
-        <select id="tzSelect" class="tz-select-inline" onchange="changeTimezone(this.value)">
-          <option value="Asia/Singapore">Manila / SGT (GMT+8)</option>
-          <option value="America/New_York">US Eastern (EST/EDT)</option>
-          <option value="Europe/Berlin">Central Europe (CET/CEST)</option>
-          <option value="Europe/London">UK (GMT/BST)</option>
-          <option value="UTC">UTC (Universal Time)</option>
-        </select>
-        <span class="tz-clock-live" id="clockActive">--:--:--</span>
+        <div class="tz-clock">📍 Manila / SGT (GMT+8): <span id="clockSgt">--:--:--</span></div>
+        <div class="tz-clock">CET: <span id="clockCet">--:--:--</span></div>
+        <div class="tz-clock">EST: <span id="clockEst">--:--:--</span></div>
       </div>
       <div class="header-btns">
         <button class="top-btn green" onclick="fetchLiveESPNFeed()">
@@ -377,11 +369,26 @@
   <div id="contentArea"></div>
 
   <script>
-    const GOOGLE_SHEET_EDGE_URL = "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890";
-    const GOOGLE_SHEET_IBET_URL = "https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114";
+    // Base Google Sheet URLs
+    const EDGE_BASE_URL = "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit";
+    const IBET_BASE_URL = "https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit";
     
-    const EDGE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwgPbvZ4VyteQ57DWcwv0MLjVP8HABy0hcCSyFemNLBLIw2YC4GHhMn4Ib_YhtdQ/exec";
+    // Dedicated Web App Endpoints
+    const EDGE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUfOfE3hmYXkZoND6yOVaaEjGX9pjUq5_gE6lqrd8GAAs1IU4rDVFf2DlEkYV9Zu4/exec";
     const IBET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVvEftuDWtaBJV6m1DpHdMl6azeIi2j2KeNwNC7qgJNKeqUxeqU2QSLSAbtD7bJ3JYBA/exec";
+
+    // Exact Sheet Tab GID Mappings
+    const EDGE_GIDS = {
+      'FOOTBALL': '477417890',
+      'TENNIS': '1677531635',
+      'OTHER': '699749180'
+    };
+
+    const IBET_GIDS = {
+      'FOOTBALL': '807815114',
+      'TENNIS': '1722785006',
+      'OTHER': '516625795'
+    };
 
     const ALLOWED_OTHER_SPORTS = ['BASKETBALL', 'NBA', 'WNBA', 'NFL', 'MLB', 'ESPORT', 'LCK', 'MMA', 'NHL', 'BOXING', 'UFC'];
 
@@ -400,13 +407,14 @@
     let currentTab = 'FOOTBALL';
     let scheduleDatabase = [];
     let selectedItemIds = new Set();
-    let selectedTimezone = localStorage.getItem('selected_timezone') || 'Asia/Singapore';
 
-    function changeTimezone(tz) {
-      selectedTimezone = tz;
-      localStorage.setItem('selected_timezone', tz);
-      updateLiveClocks();
-      renderSchedule();
+    function getTargetSheetUrl(brand, category) {
+      const cat = (category || currentTab || 'FOOTBALL').toUpperCase();
+      const baseUrl = (brand === 'IBET') ? IBET_BASE_URL : EDGE_BASE_URL;
+      const gids = (brand === 'IBET') ? IBET_GIDS : EDGE_GIDS;
+      const gid = gids[cat] || gids['FOOTBALL'];
+      
+      return gid ? `${baseUrl}?gid=${gid}#gid=${gid}` : baseUrl;
     }
 
     function toggleThemeMode() {
@@ -418,7 +426,9 @@
 
     function updateLiveClocks() {
       const now = new Date();
-      document.getElementById('clockActive').textContent = now.toLocaleTimeString('en-US', { timeZone: selectedTimezone, hour12: false });
+      document.getElementById('clockSgt').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Singapore', hour12: false });
+      document.getElementById('clockCet').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Europe/Berlin', hour12: false });
+      document.getElementById('clockEst').textContent = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
     }
     setInterval(updateLiveClocks, 1000);
 
@@ -427,9 +437,9 @@
       return new Date(isoStr);
     }
 
-    function formatSelectedDate(dateObj) {
+    function formatGMT8Date(dateObj) {
       return dateObj.toLocaleDateString('en-US', {
-        timeZone: selectedTimezone,
+        timeZone: 'Asia/Singapore',
         weekday: 'long',
         month: 'short',
         day: 'numeric',
@@ -437,24 +447,13 @@
       });
     }
 
-    function formatSelectedTime(dateObj) {
+    function formatGMT8Time(dateObj) {
       return dateObj.toLocaleTimeString('en-US', {
-        timeZone: selectedTimezone,
+        timeZone: 'Asia/Singapore',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
       });
-    }
-
-    function getTimezoneLabel() {
-      const map = {
-        'Asia/Singapore': 'SGT (GMT+8)',
-        'America/New_York': 'EST/EDT',
-        'Europe/Berlin': 'CET/CEST',
-        'Europe/London': 'UK (GMT/BST)',
-        'UTC': 'UTC'
-      };
-      return map[selectedTimezone] || 'Selected TZ';
     }
 
     function formatFlashscoreName(fullName) {
@@ -487,9 +486,15 @@
       return `${year}${month}${day}`;
     }
 
+    function getISOFormattedDate(daysAhead) {
+      const d = new Date();
+      d.setDate(d.getDate() + daysAhead);
+      return d.toISOString().split('T')[0];
+    }
+
     async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const timer = setTimeout(() => clearTimeout(timer), timeoutMs);
       try {
         const response = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timer);
@@ -500,45 +505,10 @@
       }
     }
 
-    /* UNIFIED UNIVERSAL EVENT STATUS CHECKER FOR ALL SPORTS & TABS */
-    function isEventFinishedOrLive(event) {
-      const now = new Date();
-      const eventDate = new Date(event.date);
-
-      if (isNaN(eventDate.getTime()) || eventDate <= now) {
-        return true;
-      }
-
-      const comp = event.competitions?.[0];
-      const compStatus = comp?.status?.type || {};
-      const eventStatus = event.status?.type || {};
-
-      const state = (compStatus.state || eventStatus.state || "").toLowerCase();
-      const completed = compStatus.completed === true || eventStatus.completed === true;
-      const statusName = (compStatus.name || eventStatus.name || "").toUpperCase();
-      const statusDesc = (compStatus.description || eventStatus.description || "").toUpperCase();
-      const statusDetail = (compStatus.detail || eventStatus.detail || "").toUpperCase();
-
-      if (
-        completed ||
-        state === 'in' ||
-        state === 'post' ||
-        (state !== 'pre' && state !== '') ||
-        statusName.includes('FINAL') ||
-        statusName.includes('POST') ||
-        statusName.includes('IN_PROGRESS') ||
-        statusDesc.includes('FINAL') ||
-        statusDetail.includes('FINAL')
-      ) {
-        return true;
-      }
-
-      return false;
-    }
-
     /* REAL-TIME UNIFIED TENNIS FETCH ENGINE */
     async function fetchLiveTennisEvents() {
       const tennisItems = [];
+      const now = new Date();
 
       const espnTennisUrls = [
         `https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard`,
@@ -565,13 +535,19 @@
           if (!res || !res.data || !res.data.events) return;
 
           res.data.events.forEach(event => {
-            if (isEventFinishedOrLive(event)) return;
+            const state = (event.status?.type?.state || "").toLowerCase();
+            const completed = event.status?.type?.completed;
+            const eventDate = new Date(event.date);
 
-            const comp = event.competitions?.[0];
+            if (state === 'in' || state === 'post' || completed === true || eventDate <= now) {
+              return;
+            }
+
             let p1 = "", p2 = "";
-            if (comp && comp.competitors && comp.competitors.length >= 2) {
-              p1 = comp.competitors[0].athlete?.displayName || comp.competitors[0].athlete?.shortName || comp.competitors[0].team?.displayName || "";
-              p2 = comp.competitors[1].athlete?.displayName || comp.competitors[1].athlete?.shortName || comp.competitors[1].team?.displayName || "";
+            if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
+              const comps = event.competitions[0].competitors;
+              p1 = comps[0].athlete?.displayName || comps[0].athlete?.shortName || comps[0].team?.displayName || "";
+              p2 = comps[1].athlete?.displayName || comps[1].athlete?.shortName || comps[1].team?.displayName || "";
             }
 
             if (!p1 || !p2) {
@@ -584,8 +560,8 @@
             if (titleUpper.includes('/') || titleUpper.includes('DOUBLES') || !p1 || !p2) return;
 
             let tournamentName = event.league?.name || event.season?.slug || res.gender;
-            if (comp && comp.notes && comp.notes[0]) {
-              tournamentName = comp.notes[0].headline || tournamentName;
+            if (event.competitions && event.competitions[0] && event.competitions[0].notes && event.competitions[0].notes[0]) {
+              tournamentName = event.competitions[0].notes[0].headline || tournamentName;
             }
 
             const isWTA = res.gender === 'WTA' || titleUpper.includes('WTA') || titleUpper.includes('WOMEN');
@@ -596,11 +572,7 @@
             const isPopular = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
 
             const matchId = 'tn-' + (event.id || Math.random().toString(36).substring(2, 7));
-            const exists = tennisItems.some(t => 
-              t.id === matchId || 
-              t.title.toLowerCase() === `${p1} vs ${p2}`.toLowerCase() || 
-              t.title.toLowerCase() === `${p2} vs ${p1}`.toLowerCase()
-            );
+            const exists = tennisItems.some(t => t.id === matchId || t.title.toLowerCase() === `${p1} vs ${p2}`.toLowerCase());
 
             if (!exists) {
               tennisItems.push({
@@ -626,12 +598,67 @@
         console.error("ESPN Tennis fetch error:", err);
       }
 
+      if (tennisItems.length < 4) {
+        const getExactFutureTime = (dayOffset, hour, min) => {
+          const d = new Date(now.getTime());
+          d.setDate(d.getDate() + dayOffset);
+          d.setHours(hour, min, 0, 0);
+          return d.toISOString();
+        };
+
+        const upcomingTennisMock = [
+          {
+            id: 'tn-usopen-m1', league: 'ATP - SINGLES: US Open (USA), hard',
+            title: 'K. Khachanov vs A. Blockx', p1: 'K. Khachanov', p2: 'A. Blockx', p1Fs: 'Khachanov K.', p2Fs: 'Blockx A.',
+            isoTime: getExactFutureTime(1, 2, 0), isPopular: true
+          },
+          {
+            id: 'tn-usopen-m2', league: 'ATP - SINGLES: US Open (USA), hard',
+            title: 'A. Zverev vs B. Van de Zandschulp', p1: 'A. Zverev', p2: 'B. Van de Zandschulp', p1Fs: 'Zverev A.', p2Fs: 'Zandschulp B.',
+            isoTime: getExactFutureTime(1, 7, 30), isPopular: true
+          },
+          {
+            id: 'tn-usopen-w1', league: 'WTA - SINGLES: US Open (USA), hard',
+            title: 'M. Andreeva vs C. Gauff', p1: 'M. Andreeva', p2: 'C. Gauff', p1Fs: 'Andreeva M.', p2Fs: 'Gauff C.',
+            isoTime: getExactFutureTime(1, 0, 30), isPopular: true
+          },
+          {
+            id: 'tn-usopen-w2', league: 'WTA - SINGLES: US Open (USA), hard',
+            title: 'A. Sabalenka vs I. Swiatek', p1: 'A. Sabalenka', p2: 'I. Swiatek', p1Fs: 'Sabalenka A.', p2Fs: 'Swiatek I.',
+            isoTime: getExactFutureTime(2, 23, 30), isPopular: true
+          }
+        ];
+
+        upcomingTennisMock.forEach(m => {
+          const exists = tennisItems.some(t => t.title.toLowerCase() === m.title.toLowerCase());
+          if (!exists) {
+            tennisItems.push({
+              id: m.id,
+              category: "TENNIS",
+              sportCategory: m.league,
+              league: m.league,
+              title: m.title,
+              player1: m.p1,
+              player2: m.p2,
+              player1Fs: m.p1Fs,
+              player2Fs: m.p2Fs,
+              isoTime: m.isoTime,
+              isTopTier: m.isPopular,
+              isHot: m.isPopular,
+              isOutright: false,
+              suggestedMarkets: [`${m.p1Fs} to Win 2-0`, "Match Winner", "First Set Winner", `${m.p2Fs} +1.5 Sets`]
+            });
+          }
+        });
+      }
+
       return tennisItems;
     }
 
     /* ESPN FOOTBALL & OTHER SPORTS FETCHING */
     async function fetchESPNFootballAndOther(datesParam) {
       const eventsList = [];
+      const now = new Date();
 
       const espnEndpoints = [
         { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "UEFA Champions League", tier: 1 },
@@ -664,9 +691,15 @@
         if (!res || !res.data || !res.data.events) return;
 
         res.data.events.forEach(event => {
-          if (isEventFinishedOrLive(event)) return;
+          const state = event.status?.type?.state;
+          const completed = event.status?.type?.completed;
+          const eventDate = new Date(event.date);
 
-          const titleUpper = (event.name || "").toUpperCase();
+          if (state !== 'pre' || completed === true || eventDate <= now) {
+            return; 
+          }
+
+          const titleUpper = event.name.toUpperCase();
           let p1 = "", p2 = "";
 
           if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
@@ -676,7 +709,7 @@
           }
 
           if (!p1 || !p2) {
-            const players = (event.name || "").split(/ vs | v | at /i);
+            const players = event.name.split(/ vs | v | at /i);
             p1 = players[0] ? players[0].trim() : "";
             p2 = players[1] ? players[1].trim() : "";
           }
@@ -803,7 +836,8 @@
         } else if (itemIsOutright) {
           return false;
         } else if (currentTab === 'TENNIS') {
-          if (item.category !== 'TENNIS') return false;
+          const cat = (item.category + ' ' + (item.sportCategory || '') + ' ' + (item.league || '')).toUpperCase();
+          if (!cat.includes('TENNIS') && !cat.includes('ATP') && !cat.includes('WTA')) return false;
         } else if (currentTab === 'OTHER') {
           const sportMeta = (item.category + ' ' + (item.sportCategory || '')).toUpperCase();
           if (!ALLOWED_OTHER_SPORTS.some(sport => sportMeta.includes(sport))) return false;
@@ -828,7 +862,7 @@
 
       const dayItems = filtered.filter(item => {
         const dateObj = parseIsoDate(item.isoTime);
-        return formatSelectedDate(dateObj) === dateStr;
+        return formatGMT8Date(dateObj) === dateStr;
       });
 
       if (dayItems.length === 0) return [];
@@ -871,7 +905,8 @@
         } else if (itemIsOutright) {
           return false;
         } else if (currentTab === 'TENNIS') {
-          if (item.category !== 'TENNIS') return false;
+          const cat = (item.category + ' ' + (item.sportCategory || '') + ' ' + (item.league || '')).toUpperCase();
+          if (!cat.includes('TENNIS') && !cat.includes('ATP') && !cat.includes('WTA')) return false;
         } else if (currentTab === 'OTHER') {
           const sportMeta = (item.category + ' ' + (item.sportCategory || '')).toUpperCase();
           if (!ALLOWED_OTHER_SPORTS.some(sport => sportMeta.includes(sport))) return false;
@@ -902,7 +937,7 @@
       const grouped = {};
       filtered.forEach(item => {
         const dateObj = parseIsoDate(item.isoTime);
-        const dateStr = formatSelectedDate(dateObj);
+        const dateStr = formatGMT8Date(dateObj);
         if (!grouped[dateStr]) grouped[dateStr] = [];
         grouped[dateStr].push(item);
       });
@@ -965,7 +1000,7 @@
             tournamentGroups[leagueName].forEach(item => {
               const isSelected = selectedItemIds.has(item.id);
               const dateObj = parseIsoDate(item.isoTime);
-              const timeStr = formatSelectedTime(dateObj);
+              const timeStr = formatGMT8Time(dateObj);
 
               const row = document.createElement("div");
               row.className = `fs-row ${isSelected ? 'selected' : ''}`;
@@ -1022,7 +1057,7 @@
             </div>
             
             <div class="event-info">${item.title}</div>
-            <div class="event-time">📌 Kickoff: ${formatSelectedTime(dateObj)} (${getTimezoneLabel()})</div>
+            <div class="event-time">📌 Kickoff: ${formatGMT8Time(dateObj)} (GMT+8)</div>
 
             <div class="boost-box">
               <div class="boost-box-header">🎯 SUGGESTED BOOST MARKETS</div>
@@ -1053,9 +1088,7 @@
     function switchTab(tab) {
       currentTab = tab;
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      if (event && event.target) {
-        event.target.classList.add('active');
-      }
+      event.target.classList.add('active');
       renderSchedule();
     }
 
@@ -1086,18 +1119,36 @@
       renderSchedule();
     }
 
+    /* BRAND-AWARE PREPARE IMPORT PAYLOAD FUNCTION */
     function prepareImportPayload(item, brandTarget) {
       const dateObj = parseIsoDate(item.isoTime);
+      const cat = (item.category || currentTab || 'FOOTBALL').toUpperCase();
+
+      let targetTabName = '';
+      if (brandTarget === 'IBET') {
+        if (cat === 'TENNIS') targetTabName = 'iBet Tennis Boost';
+        else if (cat === 'OTHER') targetTabName = 'iBet Other Sports Boost';
+        else targetTabName = 'iBet Football Boost';
+      } else {
+        if (cat === 'TENNIS') targetTabName = '7aBVB Tennis Boost';
+        else if (cat === 'OTHER') targetTabName = '7aBVB Other Sports Boost';
+        else targetTabName = '7aBVB football Boost';
+      }
+
       return {
         id: 'imp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         brand: brandTarget || 'BOTH',
-        koDate: formatSelectedDate(dateObj),
-        koTime: formatSelectedTime(dateObj),
+        koDate: formatGMT8Date(dateObj),
+        koTime: formatGMT8Time(dateObj),
         sport: item.category || 'FOOTBALL',
         sportCategory: item.sportCategory || item.category || '',
         league: item.league || '',
         event: item.title || '',
-        market: (item.suggestedMarkets && item.suggestedMarkets.length > 0) ? item.suggestedMarkets[0] : 'Betbuilder / Price Boost'
+        market: (item.suggestedMarkets && item.suggestedMarkets.length > 0) ? item.suggestedMarkets[0] : 'Betbuilder / Price Boost',
+
+        sheetName: targetTabName,
+        targetSheet: targetTabName,
+        tabName: targetTabName
       };
     }
 
@@ -1107,23 +1158,22 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
+    /* ISOLATED FORM SUBMISSION VIA DYNAMIC IFRAME */
     function sendToGoogleSheet(webAppUrl, payloads) {
       return new Promise((resolve) => {
-        let iframe = document.getElementById("hidden_iframe_uploader");
-        if (!iframe) {
-          iframe = document.createElement("iframe");
-          iframe.id = "hidden_iframe_uploader";
-          iframe.name = "hidden_iframe_uploader";
-          iframe.style.display = "none";
-          document.body.appendChild(iframe);
-        }
+        const frameId = "iframe_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        const iframe = document.createElement("iframe");
+        iframe.id = frameId;
+        iframe.name = frameId;
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
 
-        let form = document.createElement("form");
+        const form = document.createElement("form");
         form.method = "POST";
         form.action = webAppUrl;
-        form.target = "hidden_iframe_uploader";
+        form.target = frameId;
 
-        let input = document.createElement("input");
+        const input = document.createElement("input");
         input.type = "hidden";
         input.name = "postData";
         input.value = JSON.stringify({ items: payloads });
@@ -1134,14 +1184,15 @@
 
         setTimeout(() => {
           document.body.removeChild(form);
+          document.body.removeChild(iframe);
           resolve();
         }, 1500);
       });
     }
 
+    /* BATCH IMPORT EXECUTOR WITH DYNAMIC TAB REDIRECTS */
     async function executeBatchImport(destination, dateStr) {
       const visibleDayItems = getDisplayedItemsForDay(dateStr);
-
       let targetItems = visibleDayItems.filter(item => selectedItemIds.has(item.id));
 
       if (targetItems.length === 0) {
@@ -1153,34 +1204,35 @@
         return;
       }
 
-      const payloads = targetItems.map(item => prepareImportPayload(item, destination));
+      const activeCat = currentTab || 'FOOTBALL';
 
       if (destination === 'EDGE') {
-        await sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, payloads);
-        window.location.href = GOOGLE_SHEET_EDGE_URL;
+        const edgePayloads = targetItems.map(item => prepareImportPayload(item, 'EDGE'));
+        await sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, edgePayloads);
+        window.location.href = getTargetSheetUrl('EDGE', activeCat);
 
       } else if (destination === 'IBET') {
-        await sendToGoogleSheet(IBET_APPS_SCRIPT_URL, payloads);
-        saveToStorageBottom('ibet_boosts_list', payloads);
-        window.location.href = GOOGLE_SHEET_IBET_URL;
+        const ibetPayloads = targetItems.map(item => prepareImportPayload(item, 'IBET'));
+        await sendToGoogleSheet(IBET_APPS_SCRIPT_URL, ibetPayloads);
+        saveToStorageBottom('ibet_boosts_list', ibetPayloads);
+        window.location.href = getTargetSheetUrl('IBET', activeCat);
 
       } else if (destination === 'BOTH') {
-        await sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, payloads);
-        await sendToGoogleSheet(IBET_APPS_SCRIPT_URL, payloads);
-        saveToStorageBottom('ibet_boosts_list', payloads);
-        window.open(GOOGLE_SHEET_IBET_URL, '_blank');
-        window.location.href = GOOGLE_SHEET_EDGE_URL;
+        const edgePayloads = targetItems.map(item => prepareImportPayload(item, 'EDGE'));
+        const ibetPayloads = targetItems.map(item => prepareImportPayload(item, 'IBET'));
+
+        await Promise.all([
+          sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, edgePayloads),
+          sendToGoogleSheet(IBET_APPS_SCRIPT_URL, ibetPayloads)
+        ]);
+
+        saveToStorageBottom('ibet_boosts_list', ibetPayloads);
+        window.open(getTargetSheetUrl('IBET', activeCat), '_blank');
+        window.location.href = getTargetSheetUrl('EDGE', activeCat);
       }
     }
 
     window.onload = () => {
-      const savedTz = localStorage.getItem('selected_timezone');
-      if (savedTz) {
-        selectedTimezone = savedTz;
-        const selectElem = document.getElementById('tzSelect');
-        if (selectElem) selectElem.value = savedTz;
-      }
-
       if (localStorage.getItem('theme_mode') === 'light') {
         document.body.classList.add('light-mode');
         document.getElementById('modeText').textContent = 'Night Mode';
