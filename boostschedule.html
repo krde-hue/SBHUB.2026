@@ -63,8 +63,10 @@
     .sub-title { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
 
     .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .tz-clocks { display: flex; align-items: center; gap: 12px; background: var(--control-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--card-border); font-size: 0.72rem; color: var(--text-light); flex-wrap: wrap; }
-    .tz-clock span { color: #38bdf8; font-weight: 700; }
+    .tz-clocks { display: flex; align-items: center; gap: 8px; background: var(--control-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--card-border); font-size: 0.75rem; color: var(--text-light); flex-wrap: wrap; }
+    .tz-clocks label { font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 4px; }
+    .tz-select-inline { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--card-border); border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; font-weight: 700; outline: none; cursor: pointer; }
+    .tz-clock-live { font-family: monospace; font-weight: 700; color: #38bdf8; margin-left: 4px; }
 
     .header-btns { display: flex; gap: 8px; flex-wrap: wrap; }
     .top-btn {
@@ -322,9 +324,15 @@
 
     <div class="header-right">
       <div class="tz-clocks">
-        <div class="tz-clock">📍 Manila / SGT (GMT+8): <span id="clockSgt">--:--:--</span></div>
-        <div class="tz-clock">CET: <span id="clockCet">--:--:--</span></div>
-        <div class="tz-clock">EST: <span id="clockEst">--:--:--</span></div>
+        <label for="tzSelect">📍 Display Timezone:</label>
+        <select id="tzSelect" class="tz-select-inline" onchange="changeTimezone(this.value)">
+          <option value="Asia/Singapore">Manila / SGT (GMT+8)</option>
+          <option value="America/New_York">US Eastern (EST/EDT)</option>
+          <option value="Europe/Berlin">Central Europe (CET/CEST)</option>
+          <option value="Europe/London">UK (GMT/BST)</option>
+          <option value="UTC">UTC (Universal Time)</option>
+        </select>
+        <span class="tz-clock-live" id="clockActive">--:--:--</span>
       </div>
       <div class="header-btns">
         <button class="top-btn green" onclick="fetchLiveESPNFeed()">
@@ -392,6 +400,14 @@
     let currentTab = 'FOOTBALL';
     let scheduleDatabase = [];
     let selectedItemIds = new Set();
+    let selectedTimezone = localStorage.getItem('selected_timezone') || 'Asia/Singapore';
+
+    function changeTimezone(tz) {
+      selectedTimezone = tz;
+      localStorage.setItem('selected_timezone', tz);
+      updateLiveClocks();
+      renderSchedule();
+    }
 
     function toggleThemeMode() {
       document.body.classList.toggle('light-mode');
@@ -402,9 +418,7 @@
 
     function updateLiveClocks() {
       const now = new Date();
-      document.getElementById('clockSgt').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Singapore', hour12: false });
-      document.getElementById('clockCet').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Europe/Berlin', hour12: false });
-      document.getElementById('clockEst').textContent = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
+      document.getElementById('clockActive').textContent = now.toLocaleTimeString('en-US', { timeZone: selectedTimezone, hour12: false });
     }
     setInterval(updateLiveClocks, 1000);
 
@@ -413,9 +427,9 @@
       return new Date(isoStr);
     }
 
-    function formatGMT8Date(dateObj) {
+    function formatSelectedDate(dateObj) {
       return dateObj.toLocaleDateString('en-US', {
-        timeZone: 'Asia/Singapore',
+        timeZone: selectedTimezone,
         weekday: 'long',
         month: 'short',
         day: 'numeric',
@@ -423,13 +437,24 @@
       });
     }
 
-    function formatGMT8Time(dateObj) {
+    function formatSelectedTime(dateObj) {
       return dateObj.toLocaleTimeString('en-US', {
-        timeZone: 'Asia/Singapore',
+        timeZone: selectedTimezone,
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
       });
+    }
+
+    function getTimezoneLabel() {
+      const map = {
+        'Asia/Singapore': 'SGT (GMT+8)',
+        'America/New_York': 'EST/EDT',
+        'Europe/Berlin': 'CET/CEST',
+        'Europe/London': 'UK (GMT/BST)',
+        'UTC': 'UTC'
+      };
+      return map[selectedTimezone] || 'Selected TZ';
     }
 
     function formatFlashscoreName(fullName) {
@@ -462,15 +487,9 @@
       return `${year}${month}${day}`;
     }
 
-    function getISOFormattedDate(daysAhead) {
-      const d = new Date();
-      d.setDate(d.getDate() + daysAhead);
-      return d.toISOString().split('T')[0];
-    }
-
     async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
       const controller = new AbortController();
-      const timer = setTimeout(() => clearTimeout(timer), timeoutMs);
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
         const response = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timer);
@@ -481,10 +500,45 @@
       }
     }
 
-    /* REAL-TIME UNIFIED TENNIS FETCH ENGINE WITH FAIL-SAFE FALLBACK */
+    /* UNIFIED UNIVERSAL EVENT STATUS CHECKER FOR ALL SPORTS & TABS */
+    function isEventFinishedOrLive(event) {
+      const now = new Date();
+      const eventDate = new Date(event.date);
+
+      if (isNaN(eventDate.getTime()) || eventDate <= now) {
+        return true;
+      }
+
+      const comp = event.competitions?.[0];
+      const compStatus = comp?.status?.type || {};
+      const eventStatus = event.status?.type || {};
+
+      const state = (compStatus.state || eventStatus.state || "").toLowerCase();
+      const completed = compStatus.completed === true || eventStatus.completed === true;
+      const statusName = (compStatus.name || eventStatus.name || "").toUpperCase();
+      const statusDesc = (compStatus.description || eventStatus.description || "").toUpperCase();
+      const statusDetail = (compStatus.detail || eventStatus.detail || "").toUpperCase();
+
+      if (
+        completed ||
+        state === 'in' ||
+        state === 'post' ||
+        (state !== 'pre' && state !== '') ||
+        statusName.includes('FINAL') ||
+        statusName.includes('POST') ||
+        statusName.includes('IN_PROGRESS') ||
+        statusDesc.includes('FINAL') ||
+        statusDetail.includes('FINAL')
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    /* REAL-TIME UNIFIED TENNIS FETCH ENGINE */
     async function fetchLiveTennisEvents() {
       const tennisItems = [];
-      const now = new Date();
 
       const espnTennisUrls = [
         `https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard`,
@@ -511,20 +565,13 @@
           if (!res || !res.data || !res.data.events) return;
 
           res.data.events.forEach(event => {
-            const state = (event.status?.type?.state || "").toLowerCase();
-            const completed = event.status?.type?.completed;
-            const eventDate = new Date(event.date);
+            if (isEventFinishedOrLive(event)) return;
 
-            // Exclude live or finished matches
-            if (state === 'in' || state === 'post' || completed === true || eventDate <= now) {
-              return;
-            }
-
+            const comp = event.competitions?.[0];
             let p1 = "", p2 = "";
-            if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
-              const comps = event.competitions[0].competitors;
-              p1 = comps[0].athlete?.displayName || comps[0].athlete?.shortName || comps[0].team?.displayName || "";
-              p2 = comps[1].athlete?.displayName || comps[1].athlete?.shortName || comps[1].team?.displayName || "";
+            if (comp && comp.competitors && comp.competitors.length >= 2) {
+              p1 = comp.competitors[0].athlete?.displayName || comp.competitors[0].athlete?.shortName || comp.competitors[0].team?.displayName || "";
+              p2 = comp.competitors[1].athlete?.displayName || comp.competitors[1].athlete?.shortName || comp.competitors[1].team?.displayName || "";
             }
 
             if (!p1 || !p2) {
@@ -537,8 +584,8 @@
             if (titleUpper.includes('/') || titleUpper.includes('DOUBLES') || !p1 || !p2) return;
 
             let tournamentName = event.league?.name || event.season?.slug || res.gender;
-            if (event.competitions && event.competitions[0] && event.competitions[0].notes && event.competitions[0].notes[0]) {
-              tournamentName = event.competitions[0].notes[0].headline || tournamentName;
+            if (comp && comp.notes && comp.notes[0]) {
+              tournamentName = comp.notes[0].headline || tournamentName;
             }
 
             const isWTA = res.gender === 'WTA' || titleUpper.includes('WTA') || titleUpper.includes('WOMEN');
@@ -549,7 +596,11 @@
             const isPopular = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
 
             const matchId = 'tn-' + (event.id || Math.random().toString(36).substring(2, 7));
-            const exists = tennisItems.some(t => t.id === matchId || t.title.toLowerCase() === `${p1} vs ${p2}`.toLowerCase());
+            const exists = tennisItems.some(t => 
+              t.id === matchId || 
+              t.title.toLowerCase() === `${p1} vs ${p2}`.toLowerCase() || 
+              t.title.toLowerCase() === `${p2} vs ${p1}`.toLowerCase()
+            );
 
             if (!exists) {
               tennisItems.push({
@@ -575,68 +626,12 @@
         console.error("ESPN Tennis fetch error:", err);
       }
 
-      // FAIL-SAFE TENNIS GENERATOR FOR UPCOMING DATES IF ESPN FEEDS ARE IN TRANSITION
-      if (tennisItems.length < 4) {
-        const getExactFutureTime = (dayOffset, hour, min) => {
-          const d = new Date(now.getTime());
-          d.setDate(d.getDate() + dayOffset);
-          d.setHours(hour, min, 0, 0);
-          return d.toISOString();
-        };
-
-        const upcomingTennisMock = [
-          {
-            id: 'tn-usopen-m1', league: 'ATP - SINGLES: US Open (USA), hard',
-            title: 'K. Khachanov vs A. Blockx', p1: 'K. Khachanov', p2: 'A. Blockx', p1Fs: 'Khachanov K.', p2Fs: 'Blockx A.',
-            isoTime: getExactFutureTime(1, 2, 0), isPopular: true
-          },
-          {
-            id: 'tn-usopen-m2', league: 'ATP - SINGLES: US Open (USA), hard',
-            title: 'A. Zverev vs B. Van de Zandschulp', p1: 'A. Zverev', p2: 'B. Van de Zandschulp', p1Fs: 'Zverev A.', p2Fs: 'Zandschulp B.',
-            isoTime: getExactFutureTime(1, 7, 30), isPopular: true
-          },
-          {
-            id: 'tn-usopen-w1', league: 'WTA - SINGLES: US Open (USA), hard',
-            title: 'M. Andreeva vs C. Gauff', p1: 'M. Andreeva', p2: 'C. Gauff', p1Fs: 'Andreeva M.', p2Fs: 'Gauff C.',
-            isoTime: getExactFutureTime(1, 0, 30), isPopular: true
-          },
-          {
-            id: 'tn-usopen-w2', league: 'WTA - SINGLES: US Open (USA), hard',
-            title: 'A. Sabalenka vs I. Swiatek', p1: 'A. Sabalenka', p2: 'I. Swiatek', p1Fs: 'Sabalenka A.', p2Fs: 'Swiatek I.',
-            isoTime: getExactFutureTime(2, 23, 30), isPopular: true
-          }
-        ];
-
-        upcomingTennisMock.forEach(m => {
-          const exists = tennisItems.some(t => t.title.toLowerCase() === m.title.toLowerCase());
-          if (!exists) {
-            tennisItems.push({
-              id: m.id,
-              category: "TENNIS",
-              sportCategory: m.league,
-              league: m.league,
-              title: m.title,
-              player1: m.p1,
-              player2: m.p2,
-              player1Fs: m.p1Fs,
-              player2Fs: m.p2Fs,
-              isoTime: m.isoTime,
-              isTopTier: m.isPopular,
-              isHot: m.isPopular,
-              isOutright: false,
-              suggestedMarkets: [`${m.p1Fs} to Win 2-0`, "Match Winner", "First Set Winner", `${m.p2Fs} +1.5 Sets`]
-            });
-          }
-        });
-      }
-
       return tennisItems;
     }
 
-    /* ESPN FOOTBALL & OTHER SPORTS FETCHING (DIRECT & GUARANTEED) */
+    /* ESPN FOOTBALL & OTHER SPORTS FETCHING */
     async function fetchESPNFootballAndOther(datesParam) {
       const eventsList = [];
-      const now = new Date();
 
       const espnEndpoints = [
         { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "UEFA Champions League", tier: 1 },
@@ -669,15 +664,9 @@
         if (!res || !res.data || !res.data.events) return;
 
         res.data.events.forEach(event => {
-          const state = event.status?.type?.state;
-          const completed = event.status?.type?.completed;
-          const eventDate = new Date(event.date);
+          if (isEventFinishedOrLive(event)) return;
 
-          if (state !== 'pre' || completed === true || eventDate <= now) {
-            return; 
-          }
-
-          const titleUpper = event.name.toUpperCase();
+          const titleUpper = (event.name || "").toUpperCase();
           let p1 = "", p2 = "";
 
           if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
@@ -687,7 +676,7 @@
           }
 
           if (!p1 || !p2) {
-            const players = event.name.split(/ vs | v | at /i);
+            const players = (event.name || "").split(/ vs | v | at /i);
             p1 = players[0] ? players[0].trim() : "";
             p2 = players[1] ? players[1].trim() : "";
           }
@@ -814,8 +803,7 @@
         } else if (itemIsOutright) {
           return false;
         } else if (currentTab === 'TENNIS') {
-          const cat = (item.category + ' ' + (item.sportCategory || '') + ' ' + (item.league || '')).toUpperCase();
-          if (!cat.includes('TENNIS') && !cat.includes('ATP') && !cat.includes('WTA')) return false;
+          if (item.category !== 'TENNIS') return false;
         } else if (currentTab === 'OTHER') {
           const sportMeta = (item.category + ' ' + (item.sportCategory || '')).toUpperCase();
           if (!ALLOWED_OTHER_SPORTS.some(sport => sportMeta.includes(sport))) return false;
@@ -840,7 +828,7 @@
 
       const dayItems = filtered.filter(item => {
         const dateObj = parseIsoDate(item.isoTime);
-        return formatGMT8Date(dateObj) === dateStr;
+        return formatSelectedDate(dateObj) === dateStr;
       });
 
       if (dayItems.length === 0) return [];
@@ -883,8 +871,7 @@
         } else if (itemIsOutright) {
           return false;
         } else if (currentTab === 'TENNIS') {
-          const cat = (item.category + ' ' + (item.sportCategory || '') + ' ' + (item.league || '')).toUpperCase();
-          if (!cat.includes('TENNIS') && !cat.includes('ATP') && !cat.includes('WTA')) return false;
+          if (item.category !== 'TENNIS') return false;
         } else if (currentTab === 'OTHER') {
           const sportMeta = (item.category + ' ' + (item.sportCategory || '')).toUpperCase();
           if (!ALLOWED_OTHER_SPORTS.some(sport => sportMeta.includes(sport))) return false;
@@ -915,7 +902,7 @@
       const grouped = {};
       filtered.forEach(item => {
         const dateObj = parseIsoDate(item.isoTime);
-        const dateStr = formatGMT8Date(dateObj);
+        const dateStr = formatSelectedDate(dateObj);
         if (!grouped[dateStr]) grouped[dateStr] = [];
         grouped[dateStr].push(item);
       });
@@ -978,7 +965,7 @@
             tournamentGroups[leagueName].forEach(item => {
               const isSelected = selectedItemIds.has(item.id);
               const dateObj = parseIsoDate(item.isoTime);
-              const timeStr = formatGMT8Time(dateObj);
+              const timeStr = formatSelectedTime(dateObj);
 
               const row = document.createElement("div");
               row.className = `fs-row ${isSelected ? 'selected' : ''}`;
@@ -1035,7 +1022,7 @@
             </div>
             
             <div class="event-info">${item.title}</div>
-            <div class="event-time">📌 Kickoff: ${formatGMT8Time(dateObj)} (GMT+8)</div>
+            <div class="event-time">📌 Kickoff: ${formatSelectedTime(dateObj)} (${getTimezoneLabel()})</div>
 
             <div class="boost-box">
               <div class="boost-box-header">🎯 SUGGESTED BOOST MARKETS</div>
@@ -1066,7 +1053,9 @@
     function switchTab(tab) {
       currentTab = tab;
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
       renderSchedule();
     }
 
@@ -1102,8 +1091,8 @@
       return {
         id: 'imp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         brand: brandTarget || 'BOTH',
-        koDate: formatGMT8Date(dateObj),
-        koTime: formatGMT8Time(dateObj),
+        koDate: formatSelectedDate(dateObj),
+        koTime: formatSelectedTime(dateObj),
         sport: item.category || 'FOOTBALL',
         sportCategory: item.sportCategory || item.category || '',
         league: item.league || '',
@@ -1185,6 +1174,13 @@
     }
 
     window.onload = () => {
+      const savedTz = localStorage.getItem('selected_timezone');
+      if (savedTz) {
+        selectedTimezone = savedTz;
+        const selectElem = document.getElementById('tzSelect');
+        if (selectElem) selectElem.value = savedTz;
+      }
+
       if (localStorage.getItem('theme_mode') === 'light') {
         document.body.classList.add('light-mode');
         document.getElementById('modeText').textContent = 'Night Mode';
