@@ -8,7 +8,7 @@
     <!-- Google Fonts for professional typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Chart.js CDN for Pie Chart Visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -35,8 +35,8 @@
             --card-bg: #ffffff;
             --text-color: #1e293b;
             --header-text: #0f172a;
-            --border-color: #e2e8f0;
-            --table-header-bg: #f1f5f9;
+            --border-color: #cbd5e1;
+            --table-header-bg: #e2e8f0;
             --accent-btn: #0284c7;
             --accent-btn-text: #ffffff;
             --week-divider: #0284c7;
@@ -276,19 +276,22 @@
 
         .custom-dropdown-btn {
             width: 100%;
-            padding: 6px 3px;
-            border-radius: 4px;
-            font-weight: 600;
+            padding: 6px 4px;
+            border-radius: 6px;
+            font-weight: 800;
             text-align: center;
             cursor: pointer;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
             font-size: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            transition: transform 0.1s ease, filter 0.15s ease;
+        }
+        .custom-dropdown-btn:hover {
+            filter: brightness(1.15);
+            transform: scale(1.02);
         }
 
         .custom-dropdown-menu {
@@ -296,15 +299,16 @@
             position: absolute;
             top: 100%;
             left: 0;
-            background-color: var(--card-bg);
+            background-color: #1e293b;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            border-radius: 6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
             z-index: 1000;
-            max-height: 250px;
-            min-width: 110px;
+            max-height: 260px;
+            min-width: 130px;
             overflow-y: auto;
-            margin-top: 2px;
+            margin-top: 4px;
+            padding: 4px;
         }
 
         .custom-dropdown-menu.show {
@@ -313,53 +317,47 @@
 
         .custom-dropdown-item {
             padding: 6px 8px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 11px;
             cursor: pointer;
             text-align: center;
-            color: var(--text-color);
-            transition: background-color 0.15s, color 0.15s;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            transition: filter 0.15s ease;
+        }
+        .custom-dropdown-item:hover {
+            filter: brightness(1.2);
         }
 
-        /* Shift Color Palette */
-        .shift-bg-7-16 { background-color: #143323 !important; color: #4ade80 !important; border: 1px solid #1e4630; }
-        .shift-bg-9-18 { background-color: #133a2d !important; color: #34d399 !important; border: 1px solid #1b4d3c; }
-        .shift-bg-10-19 { background-color: #3b2814 !important; color: #fbbf24 !important; border: 1px solid #4d351b; }
-        .shift-bg-12-21 { background-color: #153147 !important; color: #38bdf8 !important; border: 1px solid #1d4361; }
-        .shift-bg-14-23 { background-color: #2b1d42 !important; color: #c084fc !important; border: 1px solid #3b285c; }
-        .shift-bg-16-1 { background-color: #421d22 !important; color: #f87171 !important; border: 1px solid #59262e; }
-        .shift-bg-7-10-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
-        .shift-bg-7-16-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
-        .shift-bg-9-18-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
-        .shift-bg-12-21-wfh { background-color: #421e33 !important; color: #f472b6 !important; border: 1px solid #592945; }
-        .shift-bg-rd { background-color: #242c3d !important; color: #94a3b8 !important; border: 1px solid #333f57; }
-        .shift-bg-vl { background-color: #423814 !important; color: #facc15 !important; border: 1px solid #594c1c; }
-        .shift-bg-sl { background-color: #321d42 !important; color: #d8b4fe !important; border: 1px solid #45265c; }
-        .shift-bg-adjusted { background-color: #423814 !important; color: #fde047 !important; border: 1px solid #594c1c; }
+        /* High-Visibility Solid Fill Shift Palette */
+        .shift-bg-rd          { background-color: #334155 !important; color: #94a3b8 !important; border: 1px solid #475569; font-weight: 700; }
+        .shift-bg-vl          { background-color: #ca8a04 !important; color: #ffffff !important; border: 1px solid #eab308; font-weight: 800; }
+        .shift-bg-sl          { background-color: #7e22ce !important; color: #ffffff !important; border: 1px solid #a855f7; font-weight: 800; }
 
-        /* Light Theme Overrides */
-        [data-theme="light"] .shift-bg-7-16 { background-color: #dcfce7 !important; color: #166534 !important; border: 1px solid #bbf7d0; }
-        [data-theme="light"] .shift-bg-9-18 { background-color: #d1fae5 !important; color: #065f46 !important; border: 1px solid #a7f3d0; }
-        [data-theme="light"] .shift-bg-10-19 { background-color: #ffedd5 !important; color: #9a3412 !important; border: 1px solid #fed7aa; }
-        [data-theme="light"] .shift-bg-12-21 { background-color: #e0f2fe !important; color: #0369a1 !important; border: 1px solid #bae6fd; }
-        [data-theme="light"] .shift-bg-14-23 { background-color: #f3e8ff !important; color: #6b21a8 !important; border: 1px solid #e9d5ff; }
-        [data-theme="light"] .shift-bg-16-1 { background-color: #fee2e2 !important; color: #991b1b !important; border: 1px solid #fecaca; }
-        [data-theme="light"] .shift-bg-7-10-wfh { background-color: #fce7f3 !important; color: #9d174d !important; border: 1px solid #fbcfe8; }
-        [data-theme="light"] .shift-bg-7-16-wfh { background-color: #fbcfe8 !important; color: #831843 !important; border: 1px solid #f472b6; }
-        [data-theme="light"] .shift-bg-9-18-wfh { background-color: #fce7f3 !important; color: #9d174d !important; border: 1px solid #fbcfe8; }
-        [data-theme="light"] .shift-bg-12-21-wfh { background-color: #fbcfe8 !important; color: #831843 !important; border: 1px solid #f472b6; }
-        [data-theme="light"] .shift-bg-rd { background-color: #f1f5f9 !important; color: #475569 !important; border: 1px solid #e2e8f0; }
-        [data-theme="light"] .shift-bg-vl { background-color: #fef9c3 !important; color: #854d0e !important; border: 1px solid #fef08a; }
-        [data-theme="light"] .shift-bg-sl { background-color: #f3e8ff !important; color: #6b21a8 !important; border: 1px solid #e9d5ff; }
-        [data-theme="light"] .shift-bg-adjusted { background-color: #fef08a !important; color: #713f12 !important; border: 1px solid #fde047; }
+        /* Solid Office Shifts */
+        .shift-bg-6-15        { background-color: #f97316 !important; color: #0f172a !important; border: 1px solid #fb923c; font-weight: 800; }
+        .shift-bg-7-16        { background-color: #475569 !important; color: #ffffff !important; border: 1px solid #64748b; font-weight: 700; }
+        .shift-bg-9-18        { background-color: #059669 !important; color: #ffffff !important; border: 1px solid #10b981; font-weight: 800; }
+        .shift-bg-10-19       { background-color: #d97706 !important; color: #ffffff !important; border: 1px solid #f59e0b; font-weight: 800; }
+        .shift-bg-12-21       { background-color: #db2777 !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
+        .shift-bg-14-23       { background-color: #7c3aed !important; color: #ffffff !important; border: 1px solid #a78bfa; font-weight: 800; }
+        .shift-bg-15-0        { background-color: #e11d48 !important; color: #ffffff !important; border: 1px solid #fda4af; font-weight: 800; }
+        .shift-bg-16-1        { background-color: #be123c !important; color: #ffffff !important; border: 1px solid #f43f5e; font-weight: 800; }
 
-        .custom-dropdown-item:hover { background-color: rgba(255, 255, 255, 0.08); }
+        /* Solid WFH Shifts - Distinct Rich Contrast */
+        .shift-bg-6-15-wfh    { background-color: #c2410c !important; color: #ffffff !important; border: 1px solid #fdba74; font-weight: 800; }
+        .shift-bg-7-10-wfh    { background-color: #be185d !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
+        .shift-bg-7-16-wfh    { background-color: #1e293b !important; color: #38bdf8 !important; border: 1.5px solid #38bdf8; font-weight: 800; }
+        .shift-bg-9-18-wfh    { background-color: #047857 !important; color: #ffffff !important; border: 1px solid #6ee7b7; font-weight: 800; }
+        .shift-bg-12-21-wfh   { background-color: #9d174d !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
+        .shift-bg-15-0-wfh    { background-color: #881337 !important; color: #ffffff !important; border: 1px solid #fecdd3; font-weight: 800; }
+        .shift-bg-adjusted    { background-color: #b45309 !important; color: #ffffff !important; border: 1px solid #fde047; font-weight: 800; }
 
         .miguel-editable-cell {
             width: 100%;
             padding: 5px 3px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 800;
             text-align: center;
             border: 1px solid var(--border-color);
             border-radius: 4px;
@@ -414,28 +412,28 @@
         }
 
         .badge-vl {
-            background-color: #143323;
-            color: #4ade80;
-            border: 1px solid #1e4630;
-            font-weight: 600;
+            background-color: #ca8a04;
+            color: #ffffff;
+            border: 1px solid #eab308;
+            font-weight: 800;
             padding: 2px 6px;
             border-radius: 3px;
         }
 
         .badge-sl {
-            background-color: #421d22;
-            color: #f87171;
-            border: 1px solid #59262e;
-            font-weight: 600;
+            background-color: #7e22ce;
+            color: #ffffff;
+            border: 1px solid #a855f7;
+            font-weight: 800;
             padding: 2px 6px;
             border-radius: 3px;
         }
 
         .badge-wfh {
-            background-color: #153147;
-            color: #38bdf8;
-            border: 1px solid #1d4361;
-            font-weight: 600;
+            background-color: #0284c7;
+            color: #ffffff;
+            border: 1px solid #38bdf8;
+            font-weight: 700;
             padding: 2px 6px;
             border-radius: 3px;
             display: inline-block;
@@ -622,22 +620,27 @@
             11: [{ date: "Dec 8", name: "Feast of Immaculate Conception" }, { date: "Dec 25", name: "Christmas Day" }, { date: "Dec 30", name: "Rizal Day" }, { date: "Dec 31", name: "Last Day of the Year" }]
         };
 
+        /* Updated Shift List with High Visibility Solid Fill Classes */
         const shiftList = [
             { text: "", bgClass: "", itemClass: "", start: null, end: null },
-            { text: "7:00 - 16:00", bgClass: "shift-bg-7-16", itemClass: "item-7-16", start: 7, end: 16 },
-            { text: "9:00 - 18:00", bgClass: "shift-bg-9-18", itemClass: "item-9-18", start: 9, end: 18 },
-            { text: "10:00 - 19:00", bgClass: "shift-bg-10-19", itemClass: "item-10-19", start: 10, end: 19 },
-            { text: "12:00 - 21:00", bgClass: "shift-bg-12-21", itemClass: "item-12-21", start: 12, end: 21 },
-            { text: "14:00 - 23:00", bgClass: "shift-bg-14-23", itemClass: "item-14-23", start: 14, end: 23 },
-            { text: "16:00 - 1:00", bgClass: "shift-bg-16-1", itemClass: "item-16-1", start: 16, end: 1 },
-            { text: "7:00 - 10:00 (WFH)", bgClass: "shift-bg-7-10-wfh", itemClass: "item-7-10-wfh", start: 7, end: 10 },
-            { text: "7:00 - 16:00 (WFH)", bgClass: "shift-bg-7-16-wfh", itemClass: "item-7-16-wfh", start: 7, end: 16 },
-            { text: "9:00 - 18:00 (WFH)", bgClass: "shift-bg-9-18-wfh", itemClass: "item-9-18-wfh", start: 9, end: 18 },
-            { text: "12:00 - 21:00 (WFH)", bgClass: "shift-bg-12-21-wfh", itemClass: "item-12-21-wfh", start: 12, end: 21 },
-            { text: "Adjusted", bgClass: "shift-bg-adjusted", itemClass: "item-adjusted", start: null, end: null },
-            { text: "RD", bgClass: "shift-bg-rd", itemClass: "item-rd", start: null, end: null },
-            { text: "VL", bgClass: "shift-bg-vl", itemClass: "item-vl", start: null, end: null },
-            { text: "SL", bgClass: "shift-bg-sl", itemClass: "item-sl", start: null, end: null }
+            { text: "RD", bgClass: "shift-bg-rd", itemClass: "shift-bg-rd", start: null, end: null },
+            { text: "VL", bgClass: "shift-bg-vl", itemClass: "shift-bg-vl", start: null, end: null },
+            { text: "SL", bgClass: "shift-bg-sl", itemClass: "shift-bg-sl", start: null, end: null },
+            { text: "6:00 - 15:00", bgClass: "shift-bg-6-15", itemClass: "shift-bg-6-15", start: 6, end: 15 },
+            { text: "7:00 - 16:00", bgClass: "shift-bg-7-16", itemClass: "shift-bg-7-16", start: 7, end: 16 },
+            { text: "9:00 - 18:00", bgClass: "shift-bg-9-18", itemClass: "shift-bg-9-18", start: 9, end: 18 },
+            { text: "10:00 - 19:00", bgClass: "shift-bg-10-19", itemClass: "shift-bg-10-19", start: 10, end: 19 },
+            { text: "12:00 - 21:00", bgClass: "shift-bg-12-21", itemClass: "shift-bg-12-21", start: 12, end: 21 },
+            { text: "14:00 - 23:00", bgClass: "shift-bg-14-23", itemClass: "shift-bg-14-23", start: 14, end: 23 },
+            { text: "15:00 - 00:00", bgClass: "shift-bg-15-0", itemClass: "shift-bg-15-0", start: 15, end: 0 },
+            { text: "16:00 - 1:00", bgClass: "shift-bg-16-1", itemClass: "shift-bg-16-1", start: 16, end: 1 },
+            { text: "6:00 - 15:00 (WFH)", bgClass: "shift-bg-6-15-wfh", itemClass: "shift-bg-6-15-wfh", start: 6, end: 15 },
+            { text: "7:00 - 10:00 (WFH)", bgClass: "shift-bg-7-10-wfh", itemClass: "shift-bg-7-10-wfh", start: 7, end: 10 },
+            { text: "7:00 - 16:00 (WFH)", bgClass: "shift-bg-7-16-wfh", itemClass: "shift-bg-7-16-wfh", start: 7, end: 16 },
+            { text: "9:00 - 18:00 (WFH)", bgClass: "shift-bg-9-18-wfh", itemClass: "shift-bg-9-18-wfh", start: 9, end: 18 },
+            { text: "12:00 - 21:00 (WFH)", bgClass: "shift-bg-12-21-wfh", itemClass: "shift-bg-12-21-wfh", start: 12, end: 21 },
+            { text: "15:00 - 00:00 (WFH)", bgClass: "shift-bg-15-0-wfh", itemClass: "shift-bg-15-0-wfh", start: 15, end: 0 },
+            { text: "Adjusted", bgClass: "shift-bg-adjusted", itemClass: "shift-bg-adjusted", start: null, end: null }
         ];
 
         const monthNames = [
@@ -957,16 +960,14 @@
             renderVLPieChart();
         }
 
-        /* Dual View Calendar Engine */
         function renderCalendar() {
             const isMobile = isMobileViewActive || window.innerWidth <= 768;
             if (isMobile) {
-                renderVerticalCalendar(); // Attached Image Layout (Day/Date Left, Persons Top)
+                renderVerticalCalendar();
             } else {
-                renderHorizontalCalendar(); // Desktop Matrix (Person Left, Dates Top)
+                renderHorizontalCalendar();
             }
 
-            // Update Leave Header Row
             let leaveHtml = '<th style="width: 50px;">Type</th>';
             team.forEach(member => {
                 leaveHtml += `<th>${member}</th>`;
@@ -976,7 +977,6 @@
             syncLeavesFromFullYearSchedule();
         }
 
-        /* Desktop View Layout (Horizontal Matrix) */
         function renderHorizontalCalendar() {
             scheduleHeaderRow.innerHTML = '';
             tbody.innerHTML = '';
@@ -1013,6 +1013,7 @@
                         <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
                             <option value="">-- Bulk Set --</option>
                             <option value="CLEAR">-- Clear --</option>
+                            <option value="6:00 - 15:00">6:00 - 15:00</option>
                             <option value="7:00 - 16:00">7:00 - 16:00</option>
                             <option value="9:00 - 18:00">9:00 - 18:00</option>
                             <option value="10:00 - 19:00">10:00 - 19:00</option>
@@ -1102,7 +1103,6 @@
             });
         }
 
-        /* Mobile View Layout (Vertical Matrix - Image Reference image_8eefb9.png) */
         function renderVerticalCalendar() {
             scheduleHeaderRow.innerHTML = '';
             tbody.innerHTML = '';
@@ -1112,7 +1112,6 @@
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
 
-            // Top Header: Day | Date | Member Columns with Bulk Selectors
             let headerHtml = '<th class="day-col-mobile">Day</th><th class="date-col-mobile">Date</th>';
             team.forEach((member, memberIdx) => {
                 headerHtml += `
@@ -1122,6 +1121,7 @@
                             <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
                                 <option value="">-- Set All Month --</option>
                                 <option value="CLEAR">-- Clear --</option>
+                                <option value="6:00 - 15:00">6:00 - 15:00</option>
                                 <option value="7:00 - 16:00">7:00 - 16:00</option>
                                 <option value="9:00 - 18:00">9:00 - 18:00</option>
                                 <option value="10:00 - 19:00">10:00 - 19:00</option>
@@ -1135,7 +1135,6 @@
             });
             scheduleHeaderRow.innerHTML = headerHtml;
 
-            // Rows: Day 1 to Month End
             for (let d = 1; d <= totalDays; d++) {
                 const dateObj = new Date(selectedYear, selectedMonth, d);
                 const dayName = weekdays[dateObj.getDay()];
