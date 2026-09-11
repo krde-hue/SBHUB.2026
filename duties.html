@@ -435,11 +435,27 @@
         .task-dropdown-btn { border: 1px solid var(--card-border); background: rgba(0,0,0,0.2); font-weight: 600; font-size: var(--ui-font-size); cursor: pointer; outline: none; width: 100%; padding: 3px 6px; border-radius: 6px; text-align: left; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); backdrop-filter: blur(4px); }
         .task-dropdown-btn:hover { background: rgba(255,255,255,0.1); }
 
-        .task-dropdown-content { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--sidebar-bg); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--card-shadow); z-index: 100; max-height: 200px; overflow-y: auto; padding: 6px; margin-top: 2px; }
+        .task-dropdown-content { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--sidebar-bg); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--card-shadow); z-index: 100; max-height: 240px; overflow-y: auto; padding: 6px; margin-top: 2px; }
         .task-dropdown-content.show { display: block; }
 
-        .task-option-label { display: flex; align-items: center; padding: 4px 6px; font-size: var(--ui-font-size); cursor: pointer; color: var(--text-color); gap: 6px; user-select: none; border-radius: 4px; }
+        .task-option-label { display: flex; align-items: center; padding: 3px 6px; font-size: var(--ui-font-size); cursor: pointer; color: var(--text-color); gap: 6px; user-select: none; border-radius: 4px; }
         .task-option-label:hover { background-color: rgba(255, 255, 255, 0.1); }
+
+        .remove-task-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0 3px;
+            line-height: 1;
+            border-radius: 3px;
+            transition: all 0.15s ease;
+        }
+        .remove-task-btn:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
 
         /* Checkbox Task List inside Cells */
         .task-items-container {
@@ -453,7 +469,7 @@
 
         .task-item-row {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 6px;
             padding: 3px 6px;
             border-radius: 6px;
@@ -483,7 +499,6 @@
             width: 13px;
             height: 13px;
             accent-color: #10b981;
-            margin-top: 2px;
             flex-shrink: 0;
         }
 
@@ -558,7 +573,7 @@
 
         @media print {
             body { background: white !important; display: block !important; height: auto !important; overflow: visible !important; color: black !important; }
-            .sidebar, .top-navbar, .no-print, .task-dropdown-container, .shift-end-banner { display: none !important; }
+            .sidebar, .top-navbar, .no-print, .task-dropdown-container, .shift-end-banner, .remove-task-btn { display: none !important; }
             .main-workspace { padding: 0 !important; overflow: visible !important; height: auto !important; }
             .day-panel { border: none !important; box-shadow: none !important; padding: 0 !important; height: auto !important; background: transparent !important; }
             .schedule-table-wrapper { border: none !important; overflow: visible !important; height: auto !important; background: transparent !important; }
@@ -600,7 +615,7 @@
 
         <div class="sidebar-actions">
             <button class="btn btn-success action-protected" type="button" onclick="autoDistributeTasks()" style="width: 100%; justify-content: center;" title="Auto-Distribute Tasks">🎲 <span>Auto-Distribute Tasks</span></button>
-            <button class="btn btn-warning action-protected" type="button" onclick="shuffleTasks()" style="width: 100%; justify-content: center;" title="SHUFFLE Tasks">🔀 <span>SHUFFLE Tasks</span></button>
+            <button class="btn btn-warning action-protected" type="button" onclick="shuffleTasks()" style="width: 100%; justify-content: center;" title="SHUFFLE Tasks">𔤁 <span>SHUFFLE Tasks</span></button>
             <button class="btn btn-primary action-protected" type="button" onclick="addNewDay()" style="width: 100%; justify-content: center;" title="Add Next Day">➕ <span>Add Next Day</span></button>
             <button class="btn btn-secondary" type="button" onclick="window.print()" style="width: 100%; justify-content: center;" title="Print Active Day">𖤂 <span>Print Active Day</span></button>
             <button class="btn btn-secondary" type="button" onclick="toggleDarkMode()" style="width: 100%; justify-content: center;" title="Theme">🌓 <span id="themeBtnText">Theme</span></button>
@@ -669,29 +684,58 @@
             { id: 'slot_21_0', label: '21:00 - 00:00', startHour: 21 }
         ];
 
-        const availableTasks = [
-            "Prediction Market Ticker",
-            "Pubs Prediction Market Ticker",
-            "@Sportsbookrisk Escalation",
-            "Site Checking (Web/Mobile)",
-            "Big Winners Check",
-            "Boost Check",
-            "Escalation Check",
-            "ALL Tickers",
-            "Qbet tickers",
-            "30Bet tickers",
-            "55Bet tickers",
-            "Ibet tickers",
-            "7A/BV/GqBet",
-            "SoftSwiss Files",
-            "Handover Report AM",
-            "Handover Report PM",
-            "Overnight Bets",
-            "Edge Boost / Banner creation",
-            "iBet Boost",
-            "7A Boosts",
-            "Others (As instructed)"
+        /* Categorized New Task List */
+        const taskCategories = [
+            {
+                category: "Early Checks",
+                tasks: [
+                    "Overnight Bets",
+                    "Overnight Escalations",
+                    "Big Winners Check",
+                    "Published Boost Check",
+                    "Softswiss Limit File Check",
+                    "@Sportsbook Escalation Check"
+                ]
+            },
+            {
+                category: "Realtime Checks",
+                tasks: [
+                    "ALL Tickers",
+                    "Qbet tickers",
+                    "30Bet tickers",
+                    "55Bet tickers",
+                    "Edge Prediction Market Ticker",
+                    "Ibet tickers (Swe & Betsson)",
+                    "Pubs Ticker",
+                    "Pubs Prediction Market Ticker",
+                    "KT Tickers (7a/BVB/GQ)",
+                    "Rejected Bets Monitoring",
+                    "Telegram Channel Monitoring",
+                    "@Sportsbook Escalation check"
+                ]
+            },
+            {
+                category: "Afternoon Checks",
+                tasks: [
+                    "KT Boosts / Banner Creation",
+                    "Ibet Boosts",
+                    "Softswiss Files",
+                    "Site Checking (Web/Mobile)"
+                ]
+            },
+            {
+                category: "Others",
+                tasks: [
+                    "Sports Events Booking Check (BR Portal)",
+                    "SB Files Checking (Update if needed)",
+                    "Handover Report AM",
+                    "Handover Report PM",
+                    "Others (As instructed)"
+                ]
+            }
         ];
+
+        const availableTasks = taskCategories.flatMap(c => c.tasks);
 
         const shifts = [
             { id: 'shift-6-15', label: '6:00 - 15:00', endHour: 15, endMinute: 0 },
@@ -761,7 +805,6 @@
             return defaultDb;
         }
 
-        // Helper to normalize task items into object structure { text, done }
         function getNormalizedSlotTasks(rawList) {
             if (!Array.isArray(rawList)) return [];
             return rawList.map(item => {
@@ -1090,9 +1133,9 @@
             let grid = dayData.grid || {};
 
             const continuousCoreTasks = [
-                "Prediction Market Ticker",
+                "Edge Prediction Market Ticker",
                 "Pubs Prediction Market Ticker",
-                "@Sportsbookrisk Escalation",
+                "@Sportsbook Escalation Check",
                 "Site Checking (Web/Mobile)"
             ];
 
@@ -1177,9 +1220,9 @@
             }
 
             const continuousCoreTasks = [
-                "Prediction Market Ticker",
+                "Edge Prediction Market Ticker",
                 "Pubs Prediction Market Ticker",
-                "@Sportsbookrisk Escalation",
+                "@Sportsbook Escalation Check",
                 "Site Checking (Web/Mobile)"
             ];
 
@@ -1374,27 +1417,44 @@
                         let normalizedTasks = getNormalizedSlotTasks(rawTaskList);
                         let offDutyClass = isSlotOffDuty ? 'off-duty-active' : '';
 
-                        let td = document.createElement('td');
-                        let taskCheckboxes = availableTasks.map(t => {
-                            let isChecked = normalizedTasks.some(item => item.text === t) ? 'checked' : '';
+                        let taskCheckboxes = taskCategories.map(cat => {
+                            let catTasks = cat.tasks.map(t => {
+                                let isChecked = normalizedTasks.some(item => item.text === t) ? 'checked' : '';
+                                return `
+                                    <label class="task-option-label" onclick="event.stopPropagation();">
+                                        <input type="checkbox" value="${t}" ${isChecked} ${isLocked ? 'disabled' : ''} onchange="toggleTask('${m.id}', '${slot.id}', this, event)">
+                                        ${t}
+                                    </label>
+                                `;
+                            }).join('');
+
                             return `
-                                <label class="task-option-label" onclick="event.stopPropagation();">
-                                    <input type="checkbox" value="${t}" ${isChecked} ${isLocked ? 'disabled' : ''} onchange="toggleTask('${m.id}', '${slot.id}', this, event)">
-                                    ${t}
-                                </label>
+                                <div style="margin-bottom:6px;">
+                                    <div style="font-size:9px; font-weight:800; color:var(--header-text); text-transform:uppercase; letter-spacing:0.5px; padding:2px 4px; background:rgba(255,255,255,0.05); border-radius:3px; margin-bottom:2px;">${cat.category}</div>
+                                    ${catTasks}
+                                </div>
                             `;
                         }).join('');
 
                         let dropdownId = `${selectedDayKey}-${m.id}-${slot.id}`;
                         let dropdownOpenClass = (activeOpenDropdownId === dropdownId) ? 'show' : '';
 
+                        let customInputSection = `
+                            <div style="display:flex; gap:4px; padding: 6px 0 2px 0; border-top: 1px solid var(--border-color); margin-top: 4px;" onclick="event.stopPropagation();">
+                                <input type="text" id="custom-input-${dropdownId}" placeholder="+ Add custom task..." style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--card-border); color:var(--text-color); font-size:10px; border-radius:4px; padding:3px 6px; outline:none;" onkeydown="if(event.key==='Enter'){ addCustomTask('${m.id}', '${slot.id}', this.value); event.stopPropagation(); }">
+                                <button type="button" class="btn btn-primary" style="padding:2px 8px; font-size:10px;" onclick="addCustomTask('${m.id}', '${slot.id}', document.getElementById('custom-input-${dropdownId}').value); event.stopPropagation();">+</button>
+                            </div>
+                        `;
+
                         let taskItemsHtml = normalizedTasks.map((tObj, tIdx) => `
                             <div class="task-item-row ${tObj.done ? 'completed' : ''}">
                                 <input type="checkbox" class="task-item-checkbox" ${tObj.done ? 'checked' : ''} ${isLocked ? 'disabled' : ''} onchange="toggleTaskDone('${m.id}', '${slot.id}', ${tIdx}, this.checked, event)">
                                 <span class="task-item-text">${tObj.text}</span>
+                                ${!isLocked ? `<button type="button" class="remove-task-btn no-print" onclick="removeTask('${m.id}', '${slot.id}', ${tIdx}, event)" title="Remove task">×</button>` : ''}
                             </div>
                         `).join('');
 
+                        let td = document.createElement('td');
                         td.innerHTML = `
                             <div class="task-card ${memberGrid.shift} ${offDutyClass}">
                                 <div class="task-dropdown-container no-print" onclick="event.stopPropagation();" ${isLocked ? 'style="display:none;"' : ''}>
@@ -1403,6 +1463,7 @@
                                     </button>
                                     <div id="dropdown-${dropdownId}" class="task-dropdown-content ${dropdownOpenClass}" onclick="event.stopPropagation();">
                                         ${taskCheckboxes}
+                                        ${customInputSection}
                                     </div>
                                 </div>
                                 <div class="task-items-container">
@@ -1455,6 +1516,40 @@
                 normalized = normalized.filter(item => item.text !== checkbox.value);
             }
 
+            dayGrid.slots[slotId] = normalized;
+            saveToDatabase();
+            renderActiveDayPanel();
+        }
+
+        function addCustomTask(memberId, slotId, taskText) {
+            if (isLocked) return;
+            if (!taskText || !taskText.trim()) return;
+            let text = taskText.trim();
+
+            if (!database[selectedDayKey]) database[selectedDayKey] = { grid: {} };
+            if (!database[selectedDayKey].grid[memberId]) database[selectedDayKey].grid[memberId] = { shift: 'shift-7-16', slots: {} };
+            let dayGrid = database[selectedDayKey].grid[memberId];
+            if (!dayGrid.slots) dayGrid.slots = {};
+            if (!dayGrid.slots[slotId]) dayGrid.slots[slotId] = [];
+
+            let normalized = getNormalizedSlotTasks(dayGrid.slots[slotId]);
+            if (!normalized.some(item => item.text.toLowerCase() === text.toLowerCase())) {
+                normalized.push({ text: text, done: false });
+                dayGrid.slots[slotId] = normalized;
+                saveToDatabase();
+                renderActiveDayPanel();
+            }
+        }
+
+        function removeTask(memberId, slotId, taskIdx, event) {
+            if (event) event.stopPropagation();
+            if (isLocked) return;
+            if (!database[selectedDayKey] || !database[selectedDayKey].grid[memberId]) return;
+            let dayGrid = database[selectedDayKey].grid[memberId];
+            if (!dayGrid.slots || !dayGrid.slots[slotId]) return;
+
+            let normalized = getNormalizedSlotTasks(dayGrid.slots[slotId]);
+            normalized.splice(taskIdx, 1);
             dayGrid.slots[slotId] = normalized;
             saveToDatabase();
             renderActiveDayPanel();
