@@ -32,7 +32,7 @@
             --accent-cyan: #38bdf8;
             --accent-glow: rgba(56, 189, 248, 0.25);
             --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            --table-header-bg: rgba(15, 23, 42, 0.8);
+            --table-header-bg: rgba(15, 23, 42, 0.85);
             --week-divider: #38bdf8;
         }
 
@@ -47,7 +47,7 @@
             --accent-cyan: #0284c7;
             --accent-glow: rgba(2, 132, 199, 0.15);
             --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --table-header-bg: rgba(226, 232, 240, 0.9);
+            --table-header-bg: rgba(226, 232, 240, 0.95);
             --week-divider: #0284c7;
         }
 
@@ -222,6 +222,7 @@
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             box-shadow: var(--card-shadow);
+            scroll-behavior: smooth;
         }
 
         table { border-collapse: collapse; width: max-content; min-width: 100%; }
@@ -232,7 +233,7 @@
             text-align: center;
             font-size: 12px;
             position: relative;
-            min-width: 96px;
+            min-width: 102px;
         }
 
         th {
@@ -242,10 +243,28 @@
             padding: 10px 6px;
         }
 
+        /* CURRENT TODAY DATE HIGHLIGHT STYLES */
+        .today-header-box {
+            background: linear-gradient(135deg, #facc15 0%, #eab308 100%) !important;
+            color: #0f172a !important;
+            border-radius: 8px;
+            padding: 5px 10px;
+            box-shadow: 0 0 16px rgba(250, 204, 21, 0.6);
+            font-weight: 900;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .today-cell {
+            background-color: rgba(250, 204, 21, 0.12) !important;
+            border-left: 2px solid rgba(250, 204, 21, 0.5) !important;
+            border-right: 2px solid rgba(250, 204, 21, 0.5) !important;
+        }
+
         th.person-col, td.person-col {
             position: sticky;
             left: 0;
-            z-index: 20;
+            z-index: 25;
             min-width: 145px;
             width: 145px;
             border-right: 2px solid var(--glass-border);
@@ -770,13 +789,11 @@
                 renderAll();
             });
 
-            // REALTIME LISTENER: Monthly Rota Data
             db.ref(`rota_data/${monthKey}`).on('value', (snapshot) => {
                 rotaData = snapshot.val() || {};
                 renderAll();
             });
 
-            // REALTIME LISTENER: Full-Year Schedule Sync (Captures leave-req.html imports across all months)
             db.ref(`rota_data`).on('value', (snapshot) => {
                 const allData = snapshot.val() || {};
                 allYearRotaData = {};
@@ -949,6 +966,22 @@
             syncLeavesFromFullYearSchedule();
         }
 
+        /**
+         * Auto-scrolls the horizontal schedule to align Monday of the current week
+         * right next to the sticky "Person" column.
+         */
+        function scrollToCurrentWeek() {
+            requestAnimationFrame(() => {
+                const container = document.getElementById('standardTableContainer');
+                const mondayHeader = document.getElementById('current-week-monday-col');
+                if (container && mondayHeader) {
+                    const personColWidth = 145; // Sticky Person column width
+                    const scrollTarget = mondayHeader.offsetLeft - personColWidth - 5;
+                    container.scrollLeft = Math.max(0, scrollTarget);
+                }
+            });
+        }
+
         function renderHorizontalCalendar() {
             scheduleHeaderRow.innerHTML = '';
             tbody.innerHTML = '';
@@ -958,17 +991,44 @@
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
 
+            // Real Today Date Detection
+            const realToday = new Date();
+            const isCurrentMonthAndYear = (selectedMonth === realToday.getMonth() && selectedYear === realToday.getFullYear());
+            const todayDayNum = realToday.getDate();
+
+            // Calculate Monday of the current week
+            const dayOfWeek = realToday.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+            const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            const currentMondayDate = new Date(realToday);
+            currentMondayDate.setDate(realToday.getDate() + diffToMonday);
+
+            // Determine target day to align with Monday
+            let mondayTargetDay = null;
+            if (isCurrentMonthAndYear) {
+                if (currentMondayDate.getMonth() === selectedMonth) {
+                    mondayTargetDay = currentMondayDate.getDate();
+                } else {
+                    mondayTargetDay = 1; // If Monday was in previous month, align to day 1
+                }
+            }
+
             let headerHtml = '<th class="person-col">Person</th>';
             for (let d = 1; d <= totalDays; d++) {
                 const dateObj = new Date(selectedYear, selectedMonth, d);
                 const dayName = weekdays[dateObj.getDay()];
                 const isSunday = (dateObj.getDay() === 0);
                 const dividerClass = isSunday ? 'week-divider' : '';
+                const isToday = isCurrentMonthAndYear && (d === todayDayNum);
+                const isMondayTarget = isCurrentMonthAndYear && (d === mondayTargetDay);
+
+                const mondayHeaderId = isMondayTarget ? 'id="current-week-monday-col"' : '';
+                const todayHeaderBox = isToday 
+                    ? `<div class="today-header-box">${dayName}<br><span style="font-size:11px;">${d} ${monthLabel}</span></div>`
+                    : `<div>${dayName}</div><div style="font-size:11px; font-weight:600; opacity:0.8; margin-top:2px;">${d} ${monthLabel}</div>`;
 
                 headerHtml += `
-                    <th class="${dividerClass}">
-                        <div>${dayName}</div>
-                        <div style="font-size:11px; font-weight:600; opacity:0.8; margin-top:2px;">${d} ${monthLabel}</div>
+                    <th ${mondayHeaderId} class="${dividerClass}">
+                        ${todayHeaderBox}
                     </th>
                 `;
             }
@@ -1000,10 +1060,12 @@
                 for (let d = 1; d <= totalDays; d++) {
                     const dateObj = new Date(selectedYear, selectedMonth, d);
                     const isSunday = (dateObj.getDay() === 0);
+                    const isToday = isCurrentMonthAndYear && (d === todayDayNum);
+
                     const tdShift = document.createElement('td');
                     if (isSunday) tdShift.classList.add('week-divider');
+                    if (isToday) tdShift.classList.add('today-cell');
 
-                    // Safely extract active shift value even if sparse
                     let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
 
                     const activeInfo = getShiftInfo(activeShift);
@@ -1059,6 +1121,11 @@
                 }
                 tbody.appendChild(tr);
             });
+
+            // Automatically scroll to align Monday of current week after sticky Person column
+            if (isCurrentMonthAndYear) {
+                scrollToCurrentWeek();
+            }
         }
 
         function renderVerticalCalendar() {
@@ -1069,6 +1136,10 @@
             const selectedYear = parseInt(yearInput.value);
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
+
+            const realToday = new Date();
+            const isCurrentMonthAndYear = (selectedMonth === realToday.getMonth() && selectedYear === realToday.getFullYear());
+            const todayDayNum = realToday.getDate();
 
             let headerHtml = '<th class="day-col-mobile">Day</th><th class="date-col-mobile">Date</th>';
             team.forEach((member, memberIdx) => {
@@ -1096,20 +1167,28 @@
             for (let d = 1; d <= totalDays; d++) {
                 const dateObj = new Date(selectedYear, selectedMonth, d);
                 const dayName = weekdays[dateObj.getDay()];
+                const isToday = isCurrentMonthAndYear && (d === todayDayNum);
+
                 const tr = document.createElement('tr');
 
                 const tdDay = document.createElement('td');
                 tdDay.className = 'day-col-mobile';
                 tdDay.textContent = dayName;
+                if (isToday) tdDay.classList.add('today-cell');
                 tr.appendChild(tdDay);
 
                 const tdDate = document.createElement('td');
                 tdDate.className = 'date-col-mobile';
                 tdDate.textContent = `${d}-${monthLabel}`;
+                if (isToday) {
+                    tdDate.innerHTML = `<span class="today-header-box">${d}-${monthLabel}</span>`;
+                }
                 tr.appendChild(tdDate);
 
                 team.forEach((member, memberIdx) => {
                     const tdShift = document.createElement('td');
+                    if (isToday) tdShift.classList.add('today-cell');
+
                     let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
 
                     const activeInfo = getShiftInfo(activeShift);
@@ -1186,10 +1265,6 @@
             selectElem.value = "";
         }
 
-        /**
-         * Real-time Sync: Reads all VL and SL tags directly from full-year schedule (including
-         * imports from leave-req.html) and dynamically updates Leave Matrix & Pie Chart.
-         */
         function syncLeavesFromFullYearSchedule() {
             let tempMatrix = {};
             team.forEach(m => tempMatrix[m] = { vl: [], sl: [] });
@@ -1364,6 +1439,12 @@
                 const toggleBtn = document.getElementById('mobileViewToggleBtn');
                 if (toggleBtn) toggleBtn.innerText = '💻 Desktop View';
             }
+
+            // Set current month/year on load
+            const now = new Date();
+            monthSelect.value = now.getMonth();
+            yearInput.value = now.getFullYear();
+
             setupPresenceSystem();
             renderPHHolidays();
             listenToDatabase();
