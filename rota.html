@@ -169,6 +169,7 @@
             backdrop-filter: blur(10px);
             transition: color 0.3s ease, border-color 0.3s ease;
             cursor: pointer;
+            user-select: none;
         }
 
         .viewer-badge.reliance-detected {
@@ -472,7 +473,7 @@
         </div>
 
         <div class="header-top-controls">
-            <span id="viewerBadge" class="viewer-badge" title="Active Viewers">
+            <span id="viewerBadge" class="viewer-badge" onclick="showActiveViewers()" title="Active Viewers">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
             <a id="btnLeaveReq" href="leave-req.html" class="btn btn-leave-req">📝 Leave Application</a>
@@ -670,6 +671,7 @@
         let rotaData = {};
         let leaveMatrixData = {};
         let allYearRotaData = {};
+        let activeViewerNamesList = [];
         let isMobileViewActive = false;
         let isViewOnlyMode = true;
         const ADMIN_PASSWORD = "sb2026";
@@ -717,22 +719,30 @@
             if (isViewOnlyMode) {
                 banner.style.display = 'block';
                 if (btnBackToDashboard) btnBackToDashboard.style.display = 'none';
-                if (authBtn) authBtn.style.display = 'none';
                 if (mobileBtn) mobileBtn.style.display = 'none';
                 if (memberDropdown) memberDropdown.style.display = 'none';
                 if (btnLeaveReq) btnLeaveReq.href = 'leave-req.html?viewonly=true';
+                
+                if (authBtn) {
+                    authBtn.style.display = 'inline-flex';
+                    authBtn.innerText = '🔑 Admin Login';
+                    authBtn.className = 'btn btn-admin';
+                }
+                
                 bulkSelects.forEach(el => el.disabled = true);
             } else {
                 banner.style.display = 'none';
                 if (btnBackToDashboard) btnBackToDashboard.style.display = 'inline-flex';
+                if (mobileBtn) mobileBtn.style.display = 'inline-flex';
+                if (memberDropdown) memberDropdown.style.display = 'inline-block';
+                if (btnLeaveReq) btnLeaveReq.href = 'leave-req.html';
+                
                 if (authBtn) {
                     authBtn.style.display = 'inline-flex';
                     authBtn.innerText = '🔒 Lock';
                     authBtn.className = 'btn btn-warning';
                 }
-                if (mobileBtn) mobileBtn.style.display = 'inline-flex';
-                if (memberDropdown) memberDropdown.style.display = 'inline-block';
-                if (btnLeaveReq) btnLeaveReq.href = 'leave-req.html';
+                
                 bulkSelects.forEach(el => el.disabled = false);
             }
         }
@@ -773,12 +783,12 @@
         }
 
         function getValidatedViewerName() {
-            let storedName = sessionStorage.getItem("viewer_name");
+            let storedName = localStorage.getItem("viewer_name");
             while (!storedName || storedName.trim() === "" || storedName.trim().toLowerCase() === "guest") {
                 let inputName = prompt("Please enter your name to view the rota ('Guest' is not allowed):");
                 if (inputName !== null && inputName.trim() !== "" && inputName.trim().toLowerCase() !== "guest") {
                     storedName = inputName.trim();
-                    sessionStorage.setItem("viewer_name", storedName);
+                    localStorage.setItem("viewer_name", storedName);
                 } else if (inputName !== null) {
                     alert("The name 'Guest' or empty entries are not allowed. Please enter your real name.");
                 }
@@ -804,12 +814,12 @@
 
             presenceRef.on('value', (snap) => {
                 const sessions = snap.val() || {};
-                const viewerNames = [];
+                activeViewerNamesList = [];
                 let hasRelianceUser = false;
 
                 Object.values(sessions).forEach(session => {
                     if (session.name) {
-                        viewerNames.push(session.name);
+                        activeViewerNamesList.push(session.name);
                         if (session.name.toLowerCase().includes('reliance')) {
                             hasRelianceUser = true;
                         }
@@ -820,13 +830,10 @@
                 const badgeElem = document.getElementById('viewerBadge');
 
                 if (countElem) {
-                    countElem.innerText = viewerNames.length > 0 ? viewerNames.length : 1;
+                    countElem.innerText = activeViewerNamesList.length > 0 ? activeViewerNamesList.length : 1;
                 }
 
                 if (badgeElem) {
-                    const activeListText = viewerNames.length > 0 ? viewerNames.join(', ') : userName;
-                    badgeElem.title = `Active Viewers: ${activeListText}`;
-
                     if (hasRelianceUser) {
                         badgeElem.classList.add('reliance-detected');
                     } else {
@@ -834,6 +841,22 @@
                     }
                 }
             });
+        }
+
+        /**
+         * Shows the active viewer list ONLY if signed in as Admin.
+         */
+        function showActiveViewers() {
+            if (isViewOnlyMode) {
+                alert("🔒 Admin authorization required to view active viewer names. Please click 'Admin Login' to sign in.");
+                return;
+            }
+
+            const list = activeViewerNamesList.length > 0 
+                ? activeViewerNamesList 
+                : [localStorage.getItem("viewer_name") || "Active Viewer"];
+
+            alert("👥 Currently Active Viewers (" + list.length + "):\n\n" + list.map(n => "• " + n).join("\n"));
         }
 
         function renderPHHolidays() {
