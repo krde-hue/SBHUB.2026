@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Application Hub</title>
+
+    <!-- Firebase Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #0b2240;
+            --card-bg: #133054;
+            --text-color: #ffffff;
+            --header-text: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --accent-btn: #38bdf8;
+            --input-bg: #071931;
+            --month-bg: #facc15;
+            --month-text: #000000;
+            --date-badge-bg: rgba(255, 255, 255, 0.1);
+            --slack-quote-bg: rgba(15, 23, 42, 0.6);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --header-text: #0d233a;
+            --border-color: #cbd5e0;
+            --accent-btn: #0d233a;
+            --input-bg: #ffffff;
+            --month-bg: #facc15;
+            --month-text: #000000;
+            --date-badge-bg: #e2e8f0;
+            --slack-quote-bg: #f8fafc;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .title-group { display: flex; flex-direction: column; gap: 2px; }
+        h1 { font-size: 20px; color: var(--header-text); }
+        .title-credit { font-size: 11px; font-weight: 600; color: var(--accent-btn); opacity: 0.85; }
+
+        .btn-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background-color: #38bdf8; color: #0b2240; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.15); color: var(--text-color); border: 1px solid var(--border-color); }
+        
+        .btn-dashboard {
+            background-color: #0d233a !important;
+            color: #ffffff !important;
+            border: 2px solid #38bdf8 !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            border-radius: 6px !important;
+        }
+
+        .btn-approve { background-color: #16a34a !important; color: #ffffff !important; }
+        .btn-approve:hover { background-color: #15803d !important; }
+        .btn-decline { background-color: #dc2626 !important; color: #ffffff !important; }
+        .btn-decline:hover { background-color: #b91c1c !important; }
+
+        .filter-bar {
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input, .filter-bar select, .form-control {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .filter-bar input { flex: 1; min-width: 200px; }
+
+        .form-control:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .month-header {
+            background-color: var(--month-bg);
+            color: var(--month-text);
+            display: inline-block;
+            padding: 6px 20px;
+            font-size: 16px;
+            font-weight: 900;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .date-section {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .date-badge {
+            font-size: 14px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--date-badge-bg);
+            display: inline-block;
+            width: fit-content;
+            border-left: 3px solid var(--accent-btn);
+        }
+
+        .date-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 15px;
+        }
+
+        .leave-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .leave-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .leave-target-header {
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-btn);
+        }
+
+        .status-badge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-pending { background-color: #f59e0b; color: #000000; }
+        .status-approved { background-color: #22c55e; color: #ffffff; }
+        .status-declined { background-color: #ef4444; color: #ffffff; }
+
+        .leave-message-box {
+            background: var(--slack-quote-bg);
+            border-left: 3px solid var(--accent-btn);
+            border-radius: 4px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .user-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #0284c7;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .category-badge {
+            font-size: 10px;
+            font-weight: 800;
+            background: var(--accent-btn);
+            color: #0b2240;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-left: auto;
+            letter-spacing: 0.5px;
+        }
+
+        .card-image-preview {
+            width: 100%;
+            max-height: 280px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            object-fit: contain;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .approval-actions-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .approval-label {
+            font-size: 11px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        .card-footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .notice-banner {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid #f59e0b;
+            color: #fcd34d;
+            font-size: 11px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            display: none;
+            line-height: 1.3;
+        }
+
+        /* MODALS */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.show { display: flex; }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .paste-drop-zone {
+            border: 2px dashed var(--border-color);
+            padding: 16px;
+            text-align: center;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 6px;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .lightbox-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .lightbox-backdrop.show { display: flex; }
+        .lightbox-backdrop img { max-width: 92%; max-height: 92%; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="title-group">
+            <h1>LEAVE APPLICATION HUB</h1>
+            <span class="title-credit">kdv_2026 model</span>
+        </div>
+        <div class="btn-controls">
+            <button class="btn btn-primary" onclick="openNewLeaveModal()">➕ Submit Leave Application</button>
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+            <a href="rota.html" class="btn btn-dashboard">📅 Back to Rota</a>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="filter-bar">
+        <i class="fa-solid fa-magnifying-glass" style="opacity: 0.7;"></i>
+        <input type="text" id="searchInput" placeholder="Search by Employee, Leave Context, or Target Dates..." oninput="renderLeaves()">
+        
+        <select id="filterStatus" onchange="renderLeaves()">
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">⏳ Pending</option>
+            <option value="APPROVED">✅ Approved</option>
+            <option value="DECLINED">❌ Declined</option>
+        </select>
+
+        <select id="filterEmployee" onchange="renderLeaves()">
+            <option value="ALL">All Employees</option>
+            <option value="ANN">ANN</option>
+            <option value="DAVE">DAVE</option>
+            <option value="KENNETH">KENNETH</option>
+            <option value="KRIZTEL">KRIZTEL</option>
+        </select>
+
+        <select id="filterCategory" onchange="renderLeaves()">
+            <option value="ALL">All Categories</option>
+            <option value="VL">Vacation Leave (VL)</option>
+            <option value="SL">Sick Leave (SL)</option>
+            <option value="EMERGENCY">Emergency Leave</option>
+            <option value="PERSONAL">Personal Leave</option>
+        </select>
+    </div>
+
+    <!-- TIMELINE CONTAINER -->
+    <div class="timeline-container" id="timelineContainer"></div>
+
+    <!-- NEW / EDIT ENTRY MODAL -->
+    <div class="modal-backdrop" id="leaveModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalTitle">Submit Leave Application</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal()"></i>
+            </div>
+            
+            <input type="hidden" id="editLeaveId">
+
+            <div id="noticeBanner" class="notice-banner"></div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Date Submitted *</label>
+                    <input type="date" id="dateSubmitted" class="form-control" style="width: 100%;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Category *</label>
+                    <select id="leaveCategory" class="form-control" style="width: 100%;">
+                        <option value="VL">Vacation Leave (VL)</option>
+                        <option value="SL">Sick Leave (SL)</option>
+                        <option value="EMERGENCY">Emergency Leave</option>
+                        <option value="PERSONAL">Personal Leave</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Employee Name *</label>
+                    <select id="leaveEmployee" class="form-control" style="width: 100%;">
+                        <option value="ANN">ANN</option>
+                        <option value="DAVE">DAVE</option>
+                        <option value="KENNETH">KENNETH</option>
+                        <option value="KRIZTEL">KRIZTEL</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Target VL/Leave Date(s) *</label>
+                    <input type="text" id="targetLeaveDates" class="form-control" style="width: 100%;" placeholder="e.g. Oct 12 or Oct 12, Oct 14-15">
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Message / Leave Context *</label>
+                <textarea id="leaveContext" class="form-control" style="width: 100%; height: 90px; resize: vertical;" placeholder="Enter leave details, coverage plan, or context..."></textarea>
+            </div>
+
+            <div>
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px;">Attachment (e.g., Medical Certificate for SL)</label>
+                <div class="paste-drop-zone" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 20px; margin-bottom: 4px; opacity: 0.8;"></i>
+                    <p style="font-size: 11px;">Click to Upload OR Press <strong>Ctrl+V / Cmd+V</strong> to Paste Screenshot</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+                <img id="imagePreview" class="image-preview" alt="Attachment Preview">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveLeave()">Save Application</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX MODAL -->
+    <div class="lightbox-backdrop" id="lightbox" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="Enlarged View">
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+            authDomain: "test-daily-task--sb.firebaseapp.com",
+            databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+            projectId: "test-daily-task--sb",
+            storageBucket: "test-daily-task--sb.firebasestorage.app",
+            messagingSenderId: "928476661919",
+            appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // SECURITY PIN FOR BRIAN
+        const BRIAN_APPROVAL_PIN = "2026";
+
+        let leaveApplications = {};
+        let currentImageData = "";
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        function listenToDatabase() {
+            db.ref('leave_applications').on('value', (snapshot) => {
+                leaveApplications = snapshot.val() || {};
+                renderLeaves();
+            });
+        }
+
+        function setApprovalStatus(id, newStatus) {
+            const enteredPin = prompt(`🔒 Security Authorization Required:\nEnter Brian's PIN to ${newStatus.toLowerCase()} this request:`);
+            
+            if (enteredPin === null) return;
+            
+            if (enteredPin.trim() !== BRIAN_APPROVAL_PIN) {
+                alert("❌ Incorrect Authorization PIN! Only Brian can approve or decline leave requests.");
+                return;
+            }
+
+            const now = new Date();
+            const timeFormatted = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            db.ref(`leave_applications/${id}`).update({
+                status: newStatus,
+                approvedBy: "Brian",
+                actionTimestamp: timeFormatted
+            });
+
+            alert(`✅ Leave request successfully ${newStatus.toLowerCase()}ed by Brian.`);
+        }
+
+        function renderLeaves() {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filterStat = document.getElementById('filterStatus').value;
+            const filterEmp = document.getElementById('filterEmployee').value;
+            const filterCat = document.getElementById('filterCategory').value;
+
+            const logsArray = Object.keys(leaveApplications).map(id => ({ id, ...leaveApplications[id] }));
+
+            const filteredLogs = logsArray.filter(log => {
+                const logStatus = log.status || 'PENDING';
+                const matchesSearch = (log.context && log.context.toLowerCase().includes(searchText)) ||
+                                      (log.employee && log.employee.toLowerCase().includes(searchText)) ||
+                                      (log.targetDates && log.targetDates.toLowerCase().includes(searchText));
+                const matchesStatus = (filterStat === 'ALL' || logStatus === filterStat);
+                const matchesEmp = (filterEmp === 'ALL' || log.employee === filterEmp);
+                const matchesCat = (filterCat === 'ALL' || log.category === filterCat);
+                return matchesSearch && matchesStatus && matchesEmp && matchesCat;
+            });
+
+            filteredLogs.sort((a, b) => {
+                const timeA = a.dateSubmitted ? new Date(a.dateSubmitted).getTime() : (a.timestamp || 0);
+                const timeB = b.dateSubmitted ? new Date(b.dateSubmitted).getTime() : (b.timestamp || 0);
+                if (timeB !== timeA) {
+                    return timeB - timeA;
+                }
+                return (b.timestamp || 0) - (a.timestamp || 0);
+            });
+
+            const groupedMonths = [];
+
+            filteredLogs.forEach(log => {
+                const dateObj = new Date(log.dateSubmitted || log.timestamp);
+                const monthName = monthNames[dateObj.getMonth()];
+                const dayNum = dateObj.getDate();
+                const monthShort = monthName.substring(0, 3);
+                const dateKey = `${dayNum}-${monthShort}`;
+
+                let lastMonth = groupedMonths[groupedMonths.length - 1];
+                if (!lastMonth || lastMonth.name !== monthName) {
+                    lastMonth = { name: monthName, dates: [] };
+                    groupedMonths.push(lastMonth);
+                }
+
+                let lastDate = lastMonth.dates[lastMonth.dates.length - 1];
+                if (!lastDate || lastDate.key !== dateKey) {
+                    lastDate = { key: dateKey, logs: [] };
+                    lastMonth.dates.push(lastDate);
+                }
+
+                lastDate.logs.push(log);
+            });
+
+            groupedMonths.forEach(mGroup => {
+                const monthBlock = document.createElement('div');
+                monthBlock.innerHTML = `<div class="month-header">${mGroup.name}</div>`;
+
+                mGroup.dates.forEach(dGroup => {
+                    const dateSec = document.createElement('div');
+                    dateSec.className = 'date-section';
+                    dateSec.innerHTML = `<div class="date-badge">Submitted: ${dGroup.key}</div>`;
+
+                    const grid = document.createElement('div');
+                    grid.className = 'date-grid';
+
+                    dGroup.logs.forEach(log => {
+                        const card = document.createElement('div');
+                        card.className = 'leave-card';
+
+                        const userInitial = (log.employee || 'E').substring(0, 1).toUpperCase();
+                        const status = log.status || 'PENDING';
+
+                        let statusBadgeClass = 'status-pending';
+                        let statusIcon = 'fa-hourglass-half';
+                        if (status === 'APPROVED') {
+                            statusBadgeClass = 'status-approved';
+                            statusIcon = 'fa-circle-check';
+                        } else if (status === 'DECLINED') {
+                            statusBadgeClass = 'status-declined';
+                            statusIcon = 'fa-circle-xmark';
+                        }
+
+                        let auditMetaHtml = '';
+                        if (status !== 'PENDING' && log.approvedBy) {
+                            auditMetaHtml = `<span style="font-size: 10px; opacity: 0.85; margin-top: 2px; font-weight: 600;">by ${escapeHtml(log.approvedBy)}${log.actionTimestamp ? ` (${escapeHtml(log.actionTimestamp)})` : ''}</span>`;
+                        }
+
+                        card.innerHTML = `
+                            <div class="leave-card-top">
+                                <div class="leave-target-header">
+                                    <i class="fa-regular fa-calendar-check"></i>
+                                    <span>Target Dates: ${escapeHtml(log.targetDates || 'N/A')}</span>
+                                </div>
+                                <div class="status-badge-container">
+                                    <span class="status-badge ${statusBadgeClass}">
+                                        <i class="fa-solid ${statusIcon}"></i> ${status}
+                                    </span>
+                                    ${auditMetaHtml}
+                                </div>
+                            </div>
+
+                            <div class="leave-message-box">
+                                <div class="user-meta">
+                                    <span class="user-avatar">${userInitial}</span>
+                                    <span>${escapeHtml(log.employee || 'Employee')}</span>
+                                    <span class="category-badge">${escapeHtml(log.category || 'LEAVE')}</span>
+                                </div>
+                                <div style="font-size: 13px; line-height: 1.4; white-space: pre-line;">${escapeHtml(log.context || '')}</div>
+                            </div>
+
+                            ${log.image ? `
+                                <img src="${log.image}" class="card-image-preview" alt="Attachment" onclick="openLightbox('${log.image}')">
+                            ` : ''}
+
+                            <div class="approval-actions-bar">
+                                <span class="approval-label">Brian's Decision:</span>
+                                <div style="display: flex; gap: 6px;">
+                                    <button class="btn btn-approve" style="padding: 4px 10px; font-size: 11px;" onclick="setApprovalStatus('${log.id}', 'APPROVED')">
+                                        <i class="fa-solid fa-check"></i> Approve
+                                    </button>
+                                    <button class="btn btn-decline" style="padding: 4px 10px; font-size: 11px;" onclick="setApprovalStatus('${log.id}', 'DECLINED')">
+                                        <i class="fa-solid fa-xmark"></i> Decline
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-footer-actions">
+                                <span style="font-size: 11px; opacity: 0.7; font-weight: 700;">📋 Submitted: ${log.dateSubmitted || 'N/A'}</span>
+                                <div>
+                                    <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="editLeave('${log.id}')">✏️ Edit</button>
+                                    <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px; color: #f87171;" onclick="deleteLeave('${log.id}')">🗑️ Delete</button>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    dateSec.appendChild(grid);
+                    monthBlock.appendChild(dateSec);
+                });
+
+                container.appendChild(monthBlock);
+            });
+
+            if (container.children.length === 0) {
+                container.innerHTML = `<div style="text-align: center; opacity: 0.6; padding: 40px;">No leave applications found. Click <strong>"➕ Submit Leave Application"</strong> to log one.</div>`;
+            }
+        }
+
+        function openNewLeaveModal() {
+            document.getElementById('editLeaveId').value = '';
+            document.getElementById('dateSubmitted').value = new Date().toISOString().split('T')[0];
+            document.getElementById('targetLeaveDates').value = '';
+            document.getElementById('leaveEmployee').value = 'ANN';
+            document.getElementById('leaveCategory').value = 'VL';
+            document.getElementById('leaveContext').value = '';
+            
+            // Enable date inputs for new logs
+            document.getElementById('dateSubmitted').disabled = false;
+            document.getElementById('targetLeaveDates').disabled = false;
+            document.getElementById('noticeBanner').style.display = 'none';
+
+            currentImageData = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('modalTitle').innerText = 'Submit Leave Application';
+            document.getElementById('leaveModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('leaveModal').classList.remove('show');
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentImageData = evt.target.result;
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = currentImageData;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.addEventListener('paste', function(e) {
+            if (!document.getElementById('leaveModal').classList.contains('show')) return;
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file') {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        currentImageData = evt.target.result;
+                        const preview = document.getElementById('imagePreview');
+                        preview.src = currentImageData;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+
+        function saveLeave() {
+            const dateSubmitted = document.getElementById('dateSubmitted').value;
+            const targetDates = document.getElementById('targetLeaveDates').value.trim();
+            const employee = document.getElementById('leaveEmployee').value;
+            const category = document.getElementById('leaveCategory').value;
+            const context = document.getElementById('leaveContext').value.trim();
+            const editId = document.getElementById('editLeaveId').value;
+
+            if (!dateSubmitted || !targetDates || !context) {
+                return alert("Please enter the Submission Date, Target Leave Date(s), and Message Context.");
+            }
+
+            // ALWAYS reset status to PENDING upon any edits/saving to prevent unnoticed changes
+            const leaveData = {
+                dateSubmitted,
+                targetDates,
+                employee,
+                category,
+                context,
+                image: currentImageData,
+                status: 'PENDING',
+                approvedBy: '',
+                actionTimestamp: '',
+                timestamp: editId && leaveApplications[editId] ? leaveApplications[editId].timestamp : Date.now()
+            };
+
+            if (editId) {
+                db.ref(`leave_applications/${editId}`).set(leaveData);
+            } else {
+                db.ref('leave_applications').push(leaveData);
+            }
+
+            closeModal();
+        }
+
+        function editLeave(id) {
+            const log = leaveApplications[id];
+            if (!log) return;
+
+            document.getElementById('editLeaveId').value = id;
+            document.getElementById('dateSubmitted').value = log.dateSubmitted || new Date().toISOString().split('T')[0];
+            document.getElementById('targetLeaveDates').value = log.targetDates || '';
+            document.getElementById('leaveEmployee').value = log.employee || 'ANN';
+            document.getElementById('leaveCategory').value = log.category || 'VL';
+            document.getElementById('leaveContext').value = log.context || '';
+            currentImageData = log.image || '';
+
+            const isApproved = (log.status === 'APPROVED');
+            const noticeBanner = document.getElementById('noticeBanner');
+
+            // Lock date inputs if already approved
+            document.getElementById('dateSubmitted').disabled = isApproved;
+            document.getElementById('targetLeaveDates').disabled = isApproved;
+
+            if (isApproved) {
+                noticeBanner.innerHTML = `<i class="fa-solid fa-lock"></i> <strong>Approved Request Locked:</strong> Target dates cannot be altered. Saving any updates will reset status back to <strong>PENDING</strong> for Brian's re-approval.`;
+                noticeBanner.style.display = 'block';
+            } else {
+                noticeBanner.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <strong>Note:</strong> Saving edits will reset status back to <strong>PENDING</strong> for Brian's approval.`;
+                noticeBanner.style.display = 'block';
+            }
+
+            const preview = document.getElementById('imagePreview');
+            if (currentImageData) {
+                preview.src = currentImageData;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+
+            document.getElementById('modalTitle').innerText = 'Edit Leave Application';
+            document.getElementById('leaveModal').classList.add('show');
+        }
+
+        function deleteLeave(id) {
+            if (confirm("Delete this leave entry?")) {
+                db.ref(`leave_applications/${id}`).remove();
+            }
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightbox').classList.add('show');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('show');
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('sb_theme', newTheme);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem('sb_theme') === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+            listenToDatabase();
+        };
+    </script>
+</body>
+</html>
