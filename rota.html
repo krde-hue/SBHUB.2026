@@ -181,7 +181,6 @@
             box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
         }
 
-        /* CONTROLS BAR GLASS WIDGET WITH ELEVATED STACKING CONTEXT */
         .controls {
             margin-bottom: 22px;
             background: var(--glass-bg);
@@ -214,7 +213,6 @@
 
         .main-layout { display: flex; flex-direction: column; gap: 28px; width: 100%; position: relative; z-index: 1; }
 
-        /* GLASS TABLE CONTAINERS */
         .table-container { 
             overflow-x: auto; 
             width: 100%; 
@@ -245,7 +243,6 @@
             padding: 10px 6px;
         }
 
-        /* CURRENT TODAY DATE HIGHLIGHT STYLES */
         .today-header-box {
             background: linear-gradient(135deg, #facc15 0%, #eab308 100%) !important;
             color: #0f172a !important;
@@ -302,7 +299,6 @@
         }
         .custom-dropdown-btn:hover { filter: brightness(1.15); transform: scale(1.02); }
 
-        /* UN-CLIPPED DROPDOWN MENU */
         .custom-dropdown-menu {
             display: none;
             position: absolute;
@@ -336,7 +332,6 @@
         }
         .custom-dropdown-item:hover { filter: brightness(1.2); }
 
-        /* HIGH-VISIBILITY SOLID SHIFT FILL PALETTE */
         .shift-bg-rd          { background-color: #334155 !important; color: #94a3b8 !important; border: 1px solid #475569; font-weight: 700; }
         .shift-bg-vl          { background: linear-gradient(135deg, #ca8a04, #a16207) !important; color: #ffffff !important; border: 1px solid #facc15; font-weight: 800; }
         .shift-bg-sl          { background: linear-gradient(135deg, #7e22ce, #6b21a8) !important; color: #ffffff !important; border: 1px solid #c084fc; font-weight: 800; }
@@ -477,7 +472,7 @@
             <span class="viewer-badge" title="Active Viewers">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
-            <a href="leave-req.html" class="btn btn-leave-req">📝 Leave Application</a>
+            <a id="btnLeaveReq" href="leave-req.html" class="btn btn-leave-req">📝 Leave Application</a>
             <button id="mobileViewToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View</button>
             <button id="adminAuthBtn" class="btn btn-admin" onclick="handleAdminAuth()">🔑 Admin Login</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
@@ -715,17 +710,20 @@
             const banner = document.getElementById('viewOnlyBanner');
             const authBtn = document.getElementById('adminAuthBtn');
             const btnBackToDashboard = document.getElementById('btnBackToDashboard');
+            const btnLeaveReq = document.getElementById('btnLeaveReq');
             const bulkSelects = document.querySelectorAll('.bulk-select');
 
             if (isViewOnlyMode) {
                 banner.style.display = 'block';
                 if (btnBackToDashboard) btnBackToDashboard.style.display = 'none';
+                if (btnLeaveReq) btnLeaveReq.href = 'leave-req.html?viewonly=true';
                 authBtn.innerText = '🔑 Admin Login';
                 authBtn.className = 'btn btn-admin';
                 bulkSelects.forEach(el => el.disabled = true);
             } else {
                 banner.style.display = 'none';
                 if (btnBackToDashboard) btnBackToDashboard.style.display = 'inline-flex';
+                if (btnLeaveReq) btnLeaveReq.href = 'leave-req.html';
                 authBtn.innerText = '🔒 Lock';
                 authBtn.className = 'btn btn-warning';
                 bulkSelects.forEach(el => el.disabled = false);
@@ -903,10 +901,16 @@
             }
         }
 
+        /**
+         * Allows View-Only users to change timezone locally to preview shift times,
+         * but skips database write unless in Admin mode.
+         */
         function changeTimezoneGlobal(val) {
-            if (isViewOnlyMode) return;
             globalTzOffset = parseFloat(val);
-            db.ref('rota_global_timezone').set(globalTzOffset);
+            if (!isViewOnlyMode) {
+                db.ref('rota_global_timezone').set(globalTzOffset);
+            }
+            renderAll();
         }
 
         function toggleDarkMode() {
@@ -1020,12 +1024,11 @@
             const todayDayNum = realToday.getDate();
 
             // Calculate Monday of the current week
-            const dayOfWeek = realToday.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+            const dayOfWeek = realToday.getDay();
             const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
             const currentMondayDate = new Date(realToday);
             currentMondayDate.setDate(realToday.getDate() + diffToMonday);
 
-            // Determine target day to align with Monday
             let mondayTargetDay = null;
             if (isCurrentMonthAndYear) {
                 if (currentMondayDate.getMonth() === selectedMonth) {
