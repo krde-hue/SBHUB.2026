@@ -10,21 +10,23 @@
 
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --sidebar-bg: #111827;
-            --card-bg: #1f2937;
-            --text-color: #f3f4f6;
-            --text-muted: #9ca3af;
+            --bg-color: #0f172a;
+            --sidebar-bg: rgba(15, 23, 42, 0.65);
+            --card-bg: rgba(30, 41, 59, 0.55);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --glass-blur: blur(16px) saturate(180%);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
             --header-text: #38bdf8;
-            --border-color: #374151;
-            --table-border: #4b5563;
-            --accent-gradient: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
-            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-            --hover-glow: rgba(56, 189, 248, 0.08);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --table-border: rgba(255, 255, 255, 0.12);
+            --accent-gradient: linear-gradient(135deg, rgba(2, 132, 199, 0.8) 0%, rgba(37, 99, 235, 0.8) 100%);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --hover-glow: rgba(56, 189, 248, 0.12);
             
             /* Rest Day Cell Specific Styling Variable */
-            --rd-cell-bg: rgba(148, 163, 184, 0.06);
-            --rd-cell-border: rgba(148, 163, 184, 0.15);
+            --rd-cell-bg: rgba(148, 163, 184, 0.04);
+            --rd-cell-border: rgba(148, 163, 184, 0.1);
             
             /* Dynamic Font Scaling Variables */
             --base-font-scale: 1rem;
@@ -34,36 +36,55 @@
         }
 
         [data-theme="light"] {
-            --bg-color: #f1f5f9;
-            --sidebar-bg: #ffffff;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
+            --bg-color: #cbd5e1;
+            --sidebar-bg: rgba(255, 255, 255, 0.65);
+            --card-bg: rgba(255, 255, 255, 0.55);
+            --card-border: rgba(255, 255, 255, 0.5);
+            --glass-blur: blur(16px) saturate(180%);
+            --text-color: #0f172a;
             --text-muted: #64748b;
             --header-text: #0284c7;
-            --border-color: #e2e8f0;
-            --table-border: #cbd5e1;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --table-border: rgba(0, 0, 0, 0.12);
             --accent-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            --hover-glow: rgba(2, 132, 199, 0.05);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+            --hover-glow: rgba(2, 132, 199, 0.08);
             
             --rd-cell-bg: rgba(100, 116, 139, 0.04);
-            --rd-cell-border: rgba(100, 116, 139, 0.12);
+            --rd-cell-border: rgba(100, 116, 139, 0.1);
         }
 
         * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s; font-size: var(--base-font-scale); }
+        
+        body { 
+            background-color: var(--bg-color); 
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-color); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+            transition: background-color 0.3s; 
+            font-size: var(--base-font-scale); 
+        }
 
-        /* Sidebar Navigation */
+        /* Sidebar Navigation Glass Panel */
         .sidebar {
             width: 280px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
+            background: var(--sidebar-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--card-border);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 16px 12px;
             z-index: 20;
-            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+            box-shadow: var(--card-shadow);
             transition: width 0.3s ease, padding 0.3s ease;
             position: relative;
             flex-shrink: 0;
@@ -106,12 +127,12 @@
         .sidebar-top { display: flex; flex-direction: column; gap: 16px; flex: 1; overflow: hidden; }
         .brand-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-left: 8px; }
         .brand-text-container { display: flex; flex-direction: column; }
-        .brand-box h2 { font-size: 15px; font-weight: 800; color: var(--header-text); letter-spacing: -0.01em; }
+        .brand-box h2 { font-size: 15px; font-weight: 800; color: var(--header-text); letter-spacing: -0.01em; text-shadow: 0 0 12px rgba(56, 189, 248, 0.3); }
         .brand-subtitle { font-size: 9px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
 
         .collapse-toggle-btn {
-            background: var(--border-color);
-            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
             color: var(--text-color);
             width: 26px;
             height: 26px;
@@ -124,7 +145,7 @@
             transition: all 0.2s;
             flex-shrink: 0;
         }
-        .collapse-toggle-btn:hover { background: var(--header-text); color: white; }
+        .collapse-toggle-btn:hover { background: var(--header-text); color: white; border-color: transparent; }
 
         .sidebar-section-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; padding-left: 8px; margin-bottom: 6px; }
 
@@ -138,11 +159,11 @@
         }
 
         .day-nav-btn {
-            background: transparent;
-            border: none;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             color: var(--text-color);
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
@@ -152,19 +173,20 @@
             justify-content: space-between;
             transition: all 0.2s ease;
         }
-        .day-nav-btn:hover { background-color: var(--border-color); }
+        .day-nav-btn:hover { background-color: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); }
         .day-nav-btn.active {
             background: var(--accent-gradient);
             color: white;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
         }
 
         .sidebar-actions { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid var(--border-color); }
 
         .font-size-control-container {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
             padding: 8px;
             display: flex;
             flex-direction: column;
@@ -190,7 +212,7 @@
             user-select: none;
         }
 
-        /* Main Workspace Area */
+        /* Main Workspace Glass Container */
         .main-workspace {
             flex: 1;
             display: flex;
@@ -206,42 +228,59 @@
             justify-content: space-between;
             align-items: center;
             background: var(--card-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
             padding: 8px 14px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--card-border);
             flex-shrink: 0;
         }
 
         .workspace-title { font-size: calc(var(--ui-font-size) + 3px); font-weight: 700; color: var(--header-text); display: flex; align-items: center; gap: 8px; }
 
-        .btn { padding: 5px 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: var(--ui-font-size); transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-        .btn-primary { background: var(--accent-gradient); color: white; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3); }
-        .btn-primary:hover { filter: brightness(1.1); }
-        .btn-secondary { background-color: var(--border-color); color: var(--text-color); }
-        .btn-secondary:hover { filter: brightness(1.05); }
-        .btn-danger { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-danger:hover { background-color: rgba(239, 68, 68, 0.25); }
-        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); }
-        .btn-success:hover { filter: brightness(1.1); }
-        .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3); }
-        .btn-warning:hover { filter: brightness(1.1); }
+        .btn { 
+            padding: 6px 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: var(--ui-font-size); 
+            transition: all 0.2s; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            text-decoration: none; 
+            backdrop-filter: blur(8px);
+        }
+        .btn-primary { background: var(--accent-gradient); color: white; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); border-color: rgba(255,255,255,0.2); }
+        .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.08); color: var(--text-color); border-color: var(--card-border); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.35); }
+        .btn-success { background: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.8) 100%); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); border-color: rgba(255,255,255,0.2); }
+        .btn-success:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .btn-warning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.8) 0%, rgba(217, 119, 6, 0.8) 100%); color: white; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); border-color: rgba(255,255,255,0.2); }
+        .btn-warning:hover { filter: brightness(1.15); transform: translateY(-1px); }
         
-        .btn-lock { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3); }
-        .btn-lock:hover { filter: brightness(1.1); }
-        .btn-unlock { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3); }
-        .btn-unlock:hover { filter: brightness(1.1); }
+        .btn-lock { background: linear-gradient(135deg, rgba(139, 92, 246, 0.8) 0%, rgba(109, 40, 217, 0.8) 100%); color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25); border-color: rgba(255,255,255,0.2); }
+        .btn-lock:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .btn-unlock { background: linear-gradient(135deg, rgba(236, 72, 153, 0.8) 0%, rgba(190, 24, 93, 0.8) 100%); color: white; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25); border-color: rgba(255,255,255,0.2); }
+        .btn-unlock:hover { filter: brightness(1.15); transform: translateY(-1px); }
 
-        /* Active Day Card View */
+        /* Glass Panel View */
         .day-panel {
             background: var(--card-bg);
-            border-radius: 10px;
-            padding: 10px 14px;
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border-radius: 12px;
+            padding: 12px 16px;
             box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--card-border);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             flex: 1;
             overflow: hidden;
         }
@@ -252,36 +291,46 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 8px;
-            padding-bottom: 6px;
+            padding-bottom: 8px;
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
         }
 
-        .date-picker-wrapper { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-color); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 700; font-size: var(--ui-font-size); }
+        .date-picker-wrapper { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            background: rgba(0, 0, 0, 0.2); 
+            padding: 5px 10px; 
+            border-radius: 8px; 
+            border: 1px solid var(--card-border); 
+            font-weight: 700; 
+            font-size: var(--ui-font-size); 
+        }
         .date-picker-input { border: none; font-size: var(--ui-font-size); font-weight: 700; color: var(--text-color); background: transparent; outline: none; cursor: pointer; }
 
         .reminder-box-wrapper {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background-color: var(--bg-color);
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
             flex: 1;
-            max-width: 380px;
+            max-width: 420px;
         }
         .reminder-box-input { border: none; background: transparent; font-size: var(--ui-font-size); font-weight: 600; color: var(--text-color); outline: none; width: 100%; }
 
-        /* Schedule Table Wrapper & Auto-Fit Grid Layout */
+        /* Schedule Glass Table Layout */
         .schedule-table-wrapper {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            border-radius: 8px;
-            border: 1px solid var(--table-border);
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
             position: relative;
-            background: var(--card-bg);
+            background: rgba(0, 0, 0, 0.1);
             width: 100%;
         }
 
@@ -293,21 +342,18 @@
             table-layout: fixed; 
         }
 
-        /* Sticky Headers & Column Width Layout Optimization */
         th, td {
             border-bottom: 1px solid var(--table-border);
             border-right: 1px solid var(--border-color);
-            background-color: var(--card-bg);
+            background-color: transparent;
             transition: background 0.15s;
         }
         th:last-child, td:last-child { border-right: none; }
         tr:last-child td { border-bottom: none; }
 
-        /* Column Width Distribution for 6 slots (Team: 10%, Shift: 11%, 6 slots: ~13.16% each) */
         th.col-member, td:nth-child(1) { width: 10%; min-width: 80px; }
         th.col-shift, td:nth-child(2) { width: 11%; min-width: 100px; }
         
-        /* 6 Time Slots share remaining 79% space (13.16% each) */
         th:nth-child(n+3), td:nth-child(n+3) {
             width: 13.16%;
         }
@@ -315,9 +361,11 @@
         th {
             position: sticky;
             top: 0;
-            background-color: var(--bg-color);
+            background: var(--sidebar-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
             color: var(--header-text);
-            padding: 8px 6px;
+            padding: 10px 6px;
             text-align: center;
             font-weight: 700;
             border-bottom: 2px solid var(--table-border);
@@ -330,12 +378,12 @@
         td { vertical-align: top; height: 25%; }
         td:hover { background-color: var(--hover-glow); }
 
-        .team-member-cell { padding: 4px; font-weight: 800; font-size: calc(var(--ui-font-size) + 1px); color: var(--text-color); text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; height: 100%; background: rgba(0,0,0,0.02); }
+        .team-member-cell { padding: 4px; font-weight: 800; font-size: calc(var(--ui-font-size) + 1px); color: var(--text-color); text-align: center; text-transform: uppercase; display: flex; align-items: center; justify-content: center; height: 100%; background: rgba(0,0,0,0.1); }
         
         .shift-select-container { padding: 4px; display: flex; align-items: center; justify-content: center; height: 100%; }
-        .shift-select { border: 1px solid var(--border-color); background: var(--bg-color); font-weight: 600; font-size: var(--ui-font-size); cursor: pointer; outline: none; width: 100%; padding: 4px; border-radius: 6px; color: var(--text-color); text-align: center; }
+        .shift-select { border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); font-weight: 600; font-size: var(--ui-font-size); cursor: pointer; outline: none; width: 100%; padding: 4px; border-radius: 6px; color: var(--text-color); text-align: center; }
 
-        /* Rest Day Row & Subtle Watermark Styling */
+        /* Rest Day Row & Watermark */
         tr.row-rest-day td {
             background-color: var(--rd-cell-bg) !important;
             border-color: var(--rd-cell-border) !important;
@@ -351,7 +399,7 @@
             font-size: calc(var(--ui-font-size) + 4px);
             font-weight: 800;
             color: var(--text-muted);
-            opacity: 0.25;
+            opacity: 0.3;
             letter-spacing: 2px;
             text-transform: uppercase;
             user-select: none;
@@ -360,8 +408,17 @@
             white-space: nowrap;
         }
 
-        /* Task Card & Off-Duty Styling */
-        .task-card { padding: 4px; height: 100%; display: flex; flex-direction: column; gap: 3px; position: relative; width: 100%; box-sizing: border-box; }
+        /* Task Card & Checkbox Styling */
+        .task-card { 
+            padding: 6px; 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+            position: relative; 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
         
         .task-card.off-duty-active {
             background-color: transparent !important;
@@ -369,34 +426,89 @@
             opacity: 0.9;
         }
 
-        .task-card.off-duty-active .editable-content-area,
+        .task-card.off-duty-active .task-items-container,
         .task-card.off-duty-active .task-dropdown-container {
             display: none !important;
         }
 
         .task-dropdown-container { position: relative; width: 100%; flex-shrink: 0; }
-        .task-dropdown-btn { border: 1px solid var(--border-color); background: var(--bg-color); font-weight: 600; font-size: var(--ui-font-size); cursor: pointer; outline: none; width: 100%; padding: 3px 5px; border-radius: 4px; text-align: left; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); }
-        .task-dropdown-btn:hover { filter: brightness(1.1); }
+        .task-dropdown-btn { border: 1px solid var(--card-border); background: rgba(0,0,0,0.2); font-weight: 600; font-size: var(--ui-font-size); cursor: pointer; outline: none; width: 100%; padding: 3px 6px; border-radius: 6px; text-align: left; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); backdrop-filter: blur(4px); }
+        .task-dropdown-btn:hover { background: rgba(255,255,255,0.1); }
 
-        .task-dropdown-content { display: none; position: absolute; top: 100%; left: 0; right: 0; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; max-height: 200px; overflow-y: auto; padding: 6px; margin-top: 2px; }
+        .task-dropdown-content { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--sidebar-bg); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--card-shadow); z-index: 100; max-height: 200px; overflow-y: auto; padding: 6px; margin-top: 2px; }
         .task-dropdown-content.show { display: block; }
 
-        .task-option-label { display: flex; align-items: center; padding: 3px 5px; font-size: var(--ui-font-size); cursor: pointer; color: var(--text-color); gap: 6px; user-select: none; border-radius: 4px; }
-        .task-option-label:hover { background-color: var(--border-color); }
+        .task-option-label { display: flex; align-items: center; padding: 4px 6px; font-size: var(--ui-font-size); cursor: pointer; color: var(--text-color); gap: 6px; user-select: none; border-radius: 4px; }
+        .task-option-label:hover { background-color: rgba(255, 255, 255, 0.1); }
 
-        .editable-content-area { font-size: var(--task-font-size); font-weight: 600; color: var(--text-color); width: 100%; flex: 1; outline: none; line-height: 1.35; word-break: break-word; white-space: pre-wrap; padding: 3px; border-radius: 4px; overflow-y: auto; }
-        .editable-content-area:focus { background: rgba(56, 189, 248, 0.05); box-shadow: inset 0 0 0 1px var(--header-text); }
+        /* Checkbox Task List inside Cells */
+        .task-items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow-y: auto;
+            flex: 1;
+            padding-top: 2px;
+        }
 
-        .autosave-badge { font-size: var(--ui-font-size); color: #10b981; font-weight: 700; opacity: 0; transition: opacity 0.3s; background: rgba(16, 185, 129, 0.15); padding: 3px 7px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px; }
+        .task-item-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 3px 6px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .task-item-row:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.25);
+        }
+
+        .task-item-row.completed {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .task-item-row.completed .task-item-text {
+            text-decoration: line-through;
+            opacity: 0.55;
+            color: var(--text-muted);
+        }
+
+        .task-item-checkbox {
+            cursor: pointer;
+            width: 13px;
+            height: 13px;
+            accent-color: #10b981;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .task-item-text {
+            font-size: var(--task-font-size);
+            font-weight: 600;
+            color: var(--text-color);
+            word-break: break-word;
+            line-height: 1.35;
+            flex: 1;
+            user-select: none;
+        }
+
+        .autosave-badge { font-size: var(--ui-font-size); color: #10b981; font-weight: 700; opacity: 0; transition: opacity 0.3s; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px; }
         
         @keyframes bounceSticker { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.1); } }
         .jumping-sticker { display: inline-block; font-size: 16px; animation: bounceSticker 0.6s infinite ease-in-out; margin: 0 4px; }
         
         .shift-end-banner {
-            background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(16, 185, 129, 0.15));
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(16, 185, 129, 0.2));
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
             border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
             font-weight: 700;
             font-size: var(--ui-font-size);
             display: flex;
@@ -404,9 +516,10 @@
             justify-content: center;
             text-align: center;
             flex-shrink: 0;
+            box-shadow: var(--card-shadow);
         }
 
-        /* Password Modal Styling */
+        /* Password Glass Modal */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -415,15 +528,17 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
         }
         .modal-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            width: 320px;
+            background: var(--sidebar-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: var(--card-shadow);
+            width: 330px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -431,10 +546,10 @@
         .modal-card h3 { font-size: 15px; font-weight: 800; color: var(--header-text); }
         .modal-input {
             width: 100%;
-            padding: 8px 10px;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
             color: var(--text-color);
             font-size: 13px;
             outline: none;
@@ -445,12 +560,14 @@
             body { background: white !important; display: block !important; height: auto !important; overflow: visible !important; color: black !important; }
             .sidebar, .top-navbar, .no-print, .task-dropdown-container, .shift-end-banner { display: none !important; }
             .main-workspace { padding: 0 !important; overflow: visible !important; height: auto !important; }
-            .day-panel { border: none !important; box-shadow: none !important; padding: 0 !important; height: auto !important; }
-            .schedule-table-wrapper { border: none !important; overflow: visible !important; height: auto !important; }
+            .day-panel { border: none !important; box-shadow: none !important; padding: 0 !important; height: auto !important; background: transparent !important; }
+            .schedule-table-wrapper { border: none !important; overflow: visible !important; height: auto !important; background: transparent !important; }
             .schedule-table { border: 2px solid #000 !important; height: auto !important; width: 100% !important; }
             td, th { border: 1px solid #000 !important; background: white !important; color: black !important; position: static !important; height: auto !important; }
             .team-member-cell { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             tr.row-rest-day td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .task-item-row { border: none !important; background: transparent !important; padding: 0 !important; }
+            .task-item-checkbox { display: none !important; }
         }
     </style>
 </head>
@@ -543,7 +660,6 @@
             { id: 'kriztel', name: 'KRIZTEL', index: 3, defaultShift: 'shift-15-0' }
         ];
 
-        /* Updated Hourly Distribution Time Slots */
         const timeSlots = [
             { id: 'slot_6_9', label: '6:00 - 9:00', startHour: 6 },
             { id: 'slot_9_12', label: '9:00 - 12:00', startHour: 9 },
@@ -577,7 +693,6 @@
             "Others (As instructed)"
         ];
 
-        /* Updated Shifts List Matching Attached Image & Added 6:00 - 15:00 Shifts */
         const shifts = [
             { id: 'shift-6-15', label: '6:00 - 15:00', endHour: 15, endMinute: 0 },
             { id: 'shift-7-16', label: '7:00 - 16:00', endHour: 16, endMinute: 0 },
@@ -601,7 +716,6 @@
             { id: 'shift-sl', label: 'SL', endHour: null, endMinute: null }
         ];
 
-        /* Updated Off-Duty Mapping matching the shifts list */
         const shiftOffDutyMap = {
             'shift-rd': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
             'shift-vl': ['slot_6_9', 'slot_9_12', 'slot_12_15', 'slot_15_18', 'slot_18_21', 'slot_21_0'],
@@ -645,6 +759,15 @@
                 defaultDb["day_1"].grid[m.id] = { shift: m.defaultShift, slots: {} };
             });
             return defaultDb;
+        }
+
+        // Helper to normalize task items into object structure { text, done }
+        function getNormalizedSlotTasks(rawList) {
+            if (!Array.isArray(rawList)) return [];
+            return rawList.map(item => {
+                if (typeof item === 'string') return { text: item, done: false };
+                return { text: item.text || '', done: !!item.done };
+            });
         }
 
         function handleLockToggle() {
@@ -985,8 +1108,9 @@
                     continuousCoreTasks.forEach((coreTask, idx) => {
                         let assignedMember = activeInSlot[idx % activeInSlot.length];
                         if (!grid[assignedMember.id].slots[slot.id]) grid[assignedMember.id].slots[slot.id] = [];
-                        if (!grid[assignedMember.id].slots[slot.id].includes(coreTask)) {
-                            grid[assignedMember.id].slots[slot.id].push(coreTask);
+                        let normalized = getNormalizedSlotTasks(grid[assignedMember.id].slots[slot.id]);
+                        if (!normalized.some(t => t.text === coreTask)) {
+                            grid[assignedMember.id].slots[slot.id].push({ text: coreTask, done: false });
                         }
                     });
                 }
@@ -1002,8 +1126,9 @@
                     generalPoolIdx += 2;
 
                     [task1, task2].forEach(t => {
-                        if (!grid[m.id].slots[slot.id].includes(t)) {
-                            grid[m.id].slots[slot.id].push(t);
+                        let normalized = getNormalizedSlotTasks(grid[m.id].slots[slot.id]);
+                        if (!normalized.some(item => item.text === t)) {
+                            grid[m.id].slots[slot.id].push({ text: t, done: false });
                         }
                     });
                 });
@@ -1017,15 +1142,17 @@
                     
                     if (memberShift.includes('9-18') || memberShift.includes('6-15') || memberShift.includes('7-16')) {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
-                        if (!grid[m.id].slots[finalSlot.id].includes("Handover Report AM")) {
-                            grid[m.id].slots[finalSlot.id].push("Handover Report AM");
+                        let normalized = getNormalizedSlotTasks(grid[m.id].slots[finalSlot.id]);
+                        if (!normalized.some(item => item.text === "Handover Report AM")) {
+                            grid[m.id].slots[finalSlot.id].push({ text: "Handover Report AM", done: false });
                         }
                     }
 
                     if (memberShift.includes('15-0') || memberShift.includes('12-21') || memberShift.includes('14-23') || memberShift.includes('16-1') || finalSlot.id === 'slot_21_0') {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
-                        if (!grid[m.id].slots[finalSlot.id].includes("Handover Report PM")) {
-                            grid[m.id].slots[finalSlot.id].push("Handover Report PM");
+                        let normalized = getNormalizedSlotTasks(grid[m.id].slots[finalSlot.id]);
+                        if (!normalized.some(item => item.text === "Handover Report PM")) {
+                            grid[m.id].slots[finalSlot.id].push({ text: "Handover Report PM", done: false });
                         }
                     }
                 }
@@ -1072,8 +1199,9 @@
                     shuffledCore.forEach((coreTask, idx) => {
                         let assignedMember = activeInSlot[idx % activeInSlot.length];
                         if (!grid[assignedMember.id].slots[slot.id]) grid[assignedMember.id].slots[slot.id] = [];
-                        if (!grid[assignedMember.id].slots[slot.id].includes(coreTask)) {
-                            grid[assignedMember.id].slots[slot.id].push(coreTask);
+                        let normalized = getNormalizedSlotTasks(grid[assignedMember.id].slots[slot.id]);
+                        if (!normalized.some(item => item.text === coreTask)) {
+                            grid[assignedMember.id].slots[slot.id].push({ text: coreTask, done: false });
                         }
                     });
 
@@ -1084,8 +1212,9 @@
                         genIdx += 2;
 
                         [t1, t2].forEach(t => {
-                            if (!grid[m.id].slots[slot.id].includes(t)) {
-                                grid[m.id].slots[slot.id].push(t);
+                            let normalized = getNormalizedSlotTasks(grid[m.id].slots[slot.id]);
+                            if (!normalized.some(item => item.text === t)) {
+                                grid[m.id].slots[slot.id].push({ text: t, done: false });
                             }
                         });
                     });
@@ -1100,15 +1229,17 @@
                     
                     if (memberShift.includes('9-18') || memberShift.includes('6-15') || memberShift.includes('7-16')) {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
-                        if (!grid[m.id].slots[finalSlot.id].includes("Handover Report AM")) {
-                            grid[m.id].slots[finalSlot.id].push("Handover Report AM");
+                        let normalized = getNormalizedSlotTasks(grid[m.id].slots[finalSlot.id]);
+                        if (!normalized.some(item => item.text === "Handover Report AM")) {
+                            grid[m.id].slots[finalSlot.id].push({ text: "Handover Report AM", done: false });
                         }
                     }
 
                     if (memberShift.includes('15-0') || memberShift.includes('12-21') || memberShift.includes('14-23') || memberShift.includes('16-1') || finalSlot.id === 'slot_21_0') {
                         if (!grid[m.id].slots[finalSlot.id]) grid[m.id].slots[finalSlot.id] = [];
-                        if (!grid[m.id].slots[finalSlot.id].includes("Handover Report PM")) {
-                            grid[m.id].slots[finalSlot.id].push("Handover Report PM");
+                        let normalized = getNormalizedSlotTasks(grid[m.id].slots[finalSlot.id]);
+                        if (!normalized.some(item => item.text === "Handover Report PM")) {
+                            grid[m.id].slots[finalSlot.id].push({ text: "Handover Report PM", done: false });
                         }
                     }
                 }
@@ -1239,13 +1370,13 @@
                 } else {
                     timeSlots.forEach(slot => {
                         let isSlotOffDuty = isOffDuty(memberGrid.shift, slot.id);
-                        let selectedTaskList = (memberGrid.slots && memberGrid.slots[slot.id]) ? memberGrid.slots[slot.id] : [];
-                        let formattedText = isSlotOffDuty ? '' : selectedTaskList.join('\n');
+                        let rawTaskList = (memberGrid.slots && memberGrid.slots[slot.id]) ? memberGrid.slots[slot.id] : [];
+                        let normalizedTasks = getNormalizedSlotTasks(rawTaskList);
                         let offDutyClass = isSlotOffDuty ? 'off-duty-active' : '';
 
                         let td = document.createElement('td');
                         let taskCheckboxes = availableTasks.map(t => {
-                            let isChecked = selectedTaskList.includes(t) ? 'checked' : '';
+                            let isChecked = normalizedTasks.some(item => item.text === t) ? 'checked' : '';
                             return `
                                 <label class="task-option-label" onclick="event.stopPropagation();">
                                     <input type="checkbox" value="${t}" ${isChecked} ${isLocked ? 'disabled' : ''} onchange="toggleTask('${m.id}', '${slot.id}', this, event)">
@@ -1257,9 +1388,15 @@
                         let dropdownId = `${selectedDayKey}-${m.id}-${slot.id}`;
                         let dropdownOpenClass = (activeOpenDropdownId === dropdownId) ? 'show' : '';
 
+                        let taskItemsHtml = normalizedTasks.map((tObj, tIdx) => `
+                            <div class="task-item-row ${tObj.done ? 'completed' : ''}">
+                                <input type="checkbox" class="task-item-checkbox" ${tObj.done ? 'checked' : ''} ${isLocked ? 'disabled' : ''} onchange="toggleTaskDone('${m.id}', '${slot.id}', ${tIdx}, this.checked, event)">
+                                <span class="task-item-text">${tObj.text}</span>
+                            </div>
+                        `).join('');
+
                         td.innerHTML = `
                             <div class="task-card ${memberGrid.shift} ${offDutyClass}">
-                                <div class="off-duty-notice"></div>
                                 <div class="task-dropdown-container no-print" onclick="event.stopPropagation();" ${isLocked ? 'style="display:none;"' : ''}>
                                     <button type="button" class="task-dropdown-btn" onclick="toggleDropdown(event, '${dropdownId}')">
                                         <span>▼ Tasks</span>
@@ -1268,7 +1405,9 @@
                                         ${taskCheckboxes}
                                     </div>
                                 </div>
-                                <div class="editable-content-area" id="editor-${dropdownId}" contenteditable="${!isSlotOffDuty && !isLocked}" oninput="updateCellText('${m.id}', '${slot.id}', this)">${formattedText}</div>
+                                <div class="task-items-container">
+                                    ${taskItemsHtml}
+                                </div>
                             </div>
                         `;
                         tr.appendChild(td);
@@ -1306,15 +1445,35 @@
             if (!dayGrid.slots) dayGrid.slots = {};
             if (!dayGrid.slots[slotId]) dayGrid.slots[slotId] = [];
 
+            let normalized = getNormalizedSlotTasks(dayGrid.slots[slotId]);
+
             if (checkbox.checked) {
-                if (!dayGrid.slots[slotId].includes(checkbox.value)) dayGrid.slots[slotId].push(checkbox.value);
+                if (!normalized.some(item => item.text === checkbox.value)) {
+                    normalized.push({ text: checkbox.value, done: false });
+                }
             } else {
-                dayGrid.slots[slotId] = dayGrid.slots[slotId].filter(t => t !== checkbox.value);
+                normalized = normalized.filter(item => item.text !== checkbox.value);
             }
 
-            let editor = document.getElementById(`editor-${selectedDayKey}-${memberId}-${slotId}`);
-            if (editor) editor.innerText = dayGrid.slots[slotId].join('\n');
+            dayGrid.slots[slotId] = normalized;
             saveToDatabase();
+            renderActiveDayPanel();
+        }
+
+        function toggleTaskDone(memberId, slotId, taskIdx, isDone, event) {
+            if (event) event.stopPropagation();
+            if (isLocked) return;
+            if (!database[selectedDayKey] || !database[selectedDayKey].grid[memberId]) return;
+            let dayGrid = database[selectedDayKey].grid[memberId];
+            if (!dayGrid.slots || !dayGrid.slots[slotId]) return;
+
+            let normalized = getNormalizedSlotTasks(dayGrid.slots[slotId]);
+            if (normalized[taskIdx]) {
+                normalized[taskIdx].done = isDone;
+                dayGrid.slots[slotId] = normalized;
+                saveToDatabase();
+                renderActiveDayPanel();
+            }
         }
 
         function syncActiveDropdownCheckboxes() {
@@ -1325,13 +1484,14 @@
             let memberId = parts[1];
             let slotId = parts[2];
 
-            let selectedList = (database[dayKey] && database[dayKey].grid[memberId] && database[dayKey].grid[memberId].slots[slotId]) 
+            let rawTaskList = (database[dayKey] && database[dayKey].grid[memberId] && database[dayKey].grid[memberId].slots[slotId]) 
                 ? database[dayKey].grid[memberId].slots[slotId] : [];
+            let normalized = getNormalizedSlotTasks(rawTaskList);
 
             let dropdown = document.getElementById(`dropdown-${activeOpenDropdownId}`);
             if (dropdown) {
                 dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                    cb.checked = selectedList.includes(cb.value);
+                    cb.checked = normalized.some(item => item.text === cb.value);
                 });
             }
         }
@@ -1344,16 +1504,6 @@
             saveToDatabase();
             checkNearShiftEnd();
             renderActiveDayPanel();
-        }
-
-        function updateCellText(memberId, slotId, element) {
-            if (isLocked) return;
-            let lines = element.innerText.split('\n').filter(l => l.trim() !== '');
-            if (!database[selectedDayKey]) database[selectedDayKey] = { grid: {} };
-            if (!database[selectedDayKey].grid[memberId]) database[selectedDayKey].grid[memberId] = { shift: 'shift-7-16', slots: {} };
-            if (!database[selectedDayKey].grid[memberId].slots) database[selectedDayKey].grid[memberId].slots = {};
-            database[selectedDayKey].grid[memberId].slots[slotId] = lines;
-            saveToDatabase();
         }
 
         function updateDayDate(newIsoDate) {
