@@ -336,18 +336,16 @@
         .shift-bg-vl          { background: linear-gradient(135deg, #ca8a04, #a16207) !important; color: #ffffff !important; border: 1px solid #facc15; font-weight: 800; }
         .shift-bg-sl          { background: linear-gradient(135deg, #7e22ce, #6b21a8) !important; color: #ffffff !important; border: 1px solid #c084fc; font-weight: 800; }
 
-        .shift-bg-6-15        { background-color: #f97316 !important; color: #0f172a !important; border: 1px solid #fb923c; font-weight: 800; }
-        .shift-bg-7-16        { background-color: #475569 !important; color: #ffffff !important; border: 1px solid #64748b; font-weight: 700; }
+        /* Swapped Fill Colors for 6:00 - 15:00 and 7:00 - 16:00 */
+        .shift-bg-6-15        { background-color: #475569 !important; color: #ffffff !important; border: 1px solid #64748b; font-weight: 700; }
+        .shift-bg-7-16        { background-color: #f97316 !important; color: #0f172a !important; border: 1px solid #fb923c; font-weight: 800; }
         .shift-bg-9-18        { background-color: #059669 !important; color: #ffffff !important; border: 1px solid #10b981; font-weight: 800; }
-        .shift-bg-10-19       { background-color: #d97706 !important; color: #ffffff !important; border: 1px solid #f59e0b; font-weight: 800; }
         .shift-bg-12-21       { background-color: #db2777 !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
-        .shift-bg-14-23       { background-color: #7c3aed !important; color: #ffffff !important; border: 1px solid #a78bfa; font-weight: 800; }
         .shift-bg-15-0        { background-color: #e11d48 !important; color: #ffffff !important; border: 1px solid #fda4af; font-weight: 800; }
-        .shift-bg-16-1        { background-color: #be123c !important; color: #ffffff !important; border: 1px solid #f43f5e; font-weight: 800; }
 
-        .shift-bg-6-15-wfh    { background-color: #c2410c !important; color: #ffffff !important; border: 1px solid #fdba74; font-weight: 800; }
-        .shift-bg-7-10-wfh    { background-color: #be185d !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
-        .shift-bg-7-16-wfh    { background-color: #1e293b !important; color: #38bdf8 !important; border: 1.5px solid #38bdf8; font-weight: 800; }
+        /* Swapped Fill Colors for 6:00 - 15:00 (WFH) and 7:00 - 16:00 (WFH) */
+        .shift-bg-6-15-wfh    { background-color: #1e293b !important; color: #38bdf8 !important; border: 1.5px solid #38bdf8; font-weight: 800; }
+        .shift-bg-7-16-wfh    { background-color: #c2410c !important; color: #ffffff !important; border: 1px solid #fdba74; font-weight: 800; }
         .shift-bg-9-18-wfh    { background-color: #047857 !important; color: #ffffff !important; border: 1px solid #6ee7b7; font-weight: 800; }
         .shift-bg-12-21-wfh   { background-color: #9d174d !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
         .shift-bg-15-0-wfh    { background-color: #881337 !important; color: #ffffff !important; border: 1px solid #fecdd3; font-weight: 800; }
@@ -627,6 +625,7 @@
             11: [{ date: "Dec 8", name: "Feast of Immaculate Conception" }, { date: "Dec 25", name: "Christmas Day" }, { date: "Dec 30", name: "Rizal Day" }, { date: "Dec 31", name: "Last Day of the Year" }]
         };
 
+        /* Updated shift list removing: 10:00-19:00, 14:00-23:00, 16:00-1:00, and 7:00-10:00 (WFH) */
         const shiftList = [
             { text: "", bgClass: "", itemClass: "", start: null, end: null },
             { text: "RD", bgClass: "shift-bg-rd", itemClass: "shift-bg-rd", start: null, end: null },
@@ -635,13 +634,9 @@
             { text: "6:00 - 15:00", bgClass: "shift-bg-6-15", itemClass: "shift-bg-6-15", start: 6, end: 15 },
             { text: "7:00 - 16:00", bgClass: "shift-bg-7-16", itemClass: "shift-bg-7-16", start: 7, end: 16 },
             { text: "9:00 - 18:00", bgClass: "shift-bg-9-18", itemClass: "shift-bg-9-18", start: 9, end: 18 },
-            { text: "10:00 - 19:00", bgClass: "shift-bg-10-19", itemClass: "shift-bg-10-19", start: 10, end: 19 },
             { text: "12:00 - 21:00", bgClass: "shift-bg-12-21", itemClass: "shift-bg-12-21", start: 12, end: 21 },
-            { text: "14:00 - 23:00", bgClass: "shift-bg-14-23", itemClass: "shift-bg-14-23", start: 14, end: 23 },
             { text: "15:00 - 00:00", bgClass: "shift-bg-15-0", itemClass: "shift-bg-15-0", start: 15, end: 0 },
-            { text: "16:00 - 1:00", bgClass: "shift-bg-16-1", itemClass: "shift-bg-16-1", start: 16, end: 1 },
             { text: "6:00 - 15:00 (WFH)", bgClass: "shift-bg-6-15-wfh", itemClass: "shift-bg-6-15-wfh", start: 6, end: 15 },
-            { text: "7:00 - 10:00 (WFH)", bgClass: "shift-bg-7-10-wfh", itemClass: "shift-bg-7-10-wfh", start: 7, end: 10 },
             { text: "7:00 - 16:00 (WFH)", bgClass: "shift-bg-7-16-wfh", itemClass: "shift-bg-7-16-wfh", start: 7, end: 16 },
             { text: "9:00 - 18:00 (WFH)", bgClass: "shift-bg-9-18-wfh", itemClass: "shift-bg-9-18-wfh", start: 9, end: 18 },
             { text: "12:00 - 21:00 (WFH)", bgClass: "shift-bg-12-21-wfh", itemClass: "shift-bg-12-21-wfh", start: 12, end: 21 },
@@ -901,10 +896,6 @@
             }
         }
 
-        /**
-         * Allows View-Only users to change timezone locally to preview shift times,
-         * but skips database write unless in Admin mode.
-         */
         function changeTimezoneGlobal(val) {
             globalTzOffset = parseFloat(val);
             if (!isViewOnlyMode) {
@@ -993,10 +984,6 @@
             syncLeavesFromFullYearSchedule();
         }
 
-        /**
-         * Auto-scrolls the horizontal schedule to align Monday of the current week
-         * right next to the sticky "Person" column.
-         */
         function scrollToCurrentWeek() {
             requestAnimationFrame(() => {
                 const container = document.getElementById('standardTableContainer');
@@ -1018,12 +1005,10 @@
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
 
-            // Real Today Date Detection
             const realToday = new Date();
             const isCurrentMonthAndYear = (selectedMonth === realToday.getMonth() && selectedYear === realToday.getFullYear());
             const todayDayNum = realToday.getDate();
 
-            // Calculate Monday of the current week
             const dayOfWeek = realToday.getDay();
             const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
             const currentMondayDate = new Date(realToday);
@@ -1074,9 +1059,7 @@
                             <option value="6:00 - 15:00">6:00 - 15:00</option>
                             <option value="7:00 - 16:00">7:00 - 16:00</option>
                             <option value="9:00 - 18:00">9:00 - 18:00</option>
-                            <option value="10:00 - 19:00">10:00 - 19:00</option>
                             <option value="12:00 - 21:00">12:00 - 21:00</option>
-                            <option value="14:00 - 23:00">14:00 - 23:00</option>
                             <option value="RD">RD</option>
                         </select>
                     </div>
@@ -1178,9 +1161,7 @@
                                 <option value="6:00 - 15:00">6:00 - 15:00</option>
                                 <option value="7:00 - 16:00">7:00 - 16:00</option>
                                 <option value="9:00 - 18:00">9:00 - 18:00</option>
-                                <option value="10:00 - 19:00">10:00 - 19:00</option>
                                 <option value="12:00 - 21:00">12:00 - 21:00</option>
-                                <option value="14:00 - 23:00">14:00 - 23:00</option>
                                 <option value="RD">RD</option>
                             </select>
                         </div>
@@ -1465,7 +1446,6 @@
                 if (toggleBtn) toggleBtn.innerText = '💻 Desktop View';
             }
 
-            // Set current month/year on load
             const now = new Date();
             monthSelect.value = now.getMonth();
             yearInput.value = now.getFullYear();
