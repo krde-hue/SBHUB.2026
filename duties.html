@@ -438,6 +438,26 @@
         .task-dropdown-content { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--sidebar-bg); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--card-shadow); z-index: 100; max-height: 240px; overflow-y: auto; padding: 6px; margin-top: 2px; }
         .task-dropdown-content.show { display: block; }
 
+        .category-header-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--header-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            margin-bottom: 3px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .category-header-label:hover {
+            background: rgba(56, 189, 248, 0.15);
+        }
+
         .task-option-label { display: flex; align-items: center; padding: 3px 6px; font-size: var(--ui-font-size); cursor: pointer; color: var(--text-color); gap: 6px; user-select: none; border-radius: 4px; }
         .task-option-label:hover { background-color: rgba(255, 255, 255, 0.1); }
 
@@ -684,7 +704,7 @@
             { id: 'slot_21_0', label: '21:00 - 00:00', startHour: 21 }
         ];
 
-        /* Categorized New Task List */
+        /* Categorized Task List */
         const taskCategories = [
             {
                 category: "Early Checks",
@@ -1417,7 +1437,9 @@
                         let normalizedTasks = getNormalizedSlotTasks(rawTaskList);
                         let offDutyClass = isSlotOffDuty ? 'off-duty-active' : '';
 
-                        let taskCheckboxes = taskCategories.map(cat => {
+                        let taskCheckboxes = taskCategories.map((cat, catIdx) => {
+                            let isCategoryChecked = cat.tasks.length > 0 && cat.tasks.every(t => normalizedTasks.some(item => item.text === t));
+
                             let catTasks = cat.tasks.map(t => {
                                 let isChecked = normalizedTasks.some(item => item.text === t) ? 'checked' : '';
                                 return `
@@ -1430,7 +1452,10 @@
 
                             return `
                                 <div style="margin-bottom:6px;">
-                                    <div style="font-size:9px; font-weight:800; color:var(--header-text); text-transform:uppercase; letter-spacing:0.5px; padding:2px 4px; background:rgba(255,255,255,0.05); border-radius:3px; margin-bottom:2px;">${cat.category}</div>
+                                    <label class="category-header-label" onclick="event.stopPropagation();">
+                                        <input type="checkbox" ${isCategoryChecked ? 'checked' : ''} ${isLocked ? 'disabled' : ''} onchange="toggleCategoryTasks('${m.id}', '${slot.id}', ${catIdx}, this.checked, event)">
+                                        <span>${cat.category}</span>
+                                    </label>
                                     ${catTasks}
                                 </div>
                             `;
@@ -1521,6 +1546,33 @@
             renderActiveDayPanel();
         }
 
+        function toggleCategoryTasks(memberId, slotId, catIdx, isChecked, event) {
+            if (isLocked) return;
+            if (event) event.stopPropagation();
+            if (!database[selectedDayKey]) database[selectedDayKey] = { grid: {} };
+            if (!database[selectedDayKey].grid[memberId]) database[selectedDayKey].grid[memberId] = { shift: 'shift-7-16', slots: {} };
+            let dayGrid = database[selectedDayKey].grid[memberId];
+            if (!dayGrid.slots) dayGrid.slots = {};
+            if (!dayGrid.slots[slotId]) dayGrid.slots[slotId] = [];
+
+            let normalized = getNormalizedSlotTasks(dayGrid.slots[slotId]);
+            let catTasks = taskCategories[catIdx] ? taskCategories[catIdx].tasks : [];
+
+            if (isChecked) {
+                catTasks.forEach(t => {
+                    if (!normalized.some(item => item.text === t)) {
+                        normalized.push({ text: t, done: false });
+                    }
+                });
+            } else {
+                normalized = normalized.filter(item => !catTasks.includes(item.text));
+            }
+
+            dayGrid.slots[slotId] = normalized;
+            saveToDatabase();
+            renderActiveDayPanel();
+        }
+
         function addCustomTask(memberId, slotId, taskText) {
             if (isLocked) return;
             if (!taskText || !taskText.trim()) return;
@@ -1586,7 +1638,9 @@
             let dropdown = document.getElementById(`dropdown-${activeOpenDropdownId}`);
             if (dropdown) {
                 dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                    cb.checked = normalized.some(item => item.text === cb.value);
+                    if (cb.value) {
+                        cb.checked = normalized.some(item => item.text === cb.value);
+                    }
                 });
             }
         }
