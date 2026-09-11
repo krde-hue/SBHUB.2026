@@ -329,9 +329,6 @@
     .game-teams-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; }
     .game-time-row { font-size: 9px; font-weight: 600; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 4px; }
 
-    .flashscore-links-grid { display: grid; grid-template-columns: 1fr; gap: 6px; overflow-y: auto; max-height: calc(100% - 40px); }
-    .flashscore-link-item { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--glass-border); border-radius: 10px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 700; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
-
     /* Handover List & TV News Breaking Strobe/Pulse Animation */
     .handover-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1; padding-right: 2px; }
     .handover-item { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; }
@@ -566,12 +563,13 @@
         </div>
       </div>
 
-      <!-- MANAGE WIDGETS CONTROL PANEL -->
+      <!-- MANAGE WIDGETS COLLAPSIBLE CONTROL PANEL -->
       <div style="margin-top: 4px; border-top: 1px solid var(--glass-border); padding-top: 8px;">
-        <div class="custom-control-label" style="margin-bottom: 6px;">
+        <div class="custom-control-label" style="margin-bottom: 6px; cursor: pointer; user-select: none;" onclick="toggleManageWidgetsAccordion()">
           <span>⚙️ Manage Widgets</span>
+          <i class='bx bx-chevron-down' id="manageWidgetsChevron" style="font-size: 14px; transition: transform 0.25s ease;"></i>
         </div>
-        <div id="widgetManagerContainer" style="display: flex; flex-direction: column; gap: 4px;">
+        <div id="widgetManagerContainer" style="display: none; flex-direction: column; gap: 4px;">
           <!-- Dynamically Generated Widget Toggles -->
         </div>
       </div>
@@ -625,7 +623,7 @@
 
     <div class="bento-card" id="topGamesCard">
       <div class="card-header-title">
-        <span>⚽ TOP WEEK GAMES</span> 
+        <span>⚽ NEXT DAY TOP GAMES</span> 
         <span class="drag-hint">
           <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:2px;" onclick="fetchLiveGames()" title="Refresh Live Feeds"></i>
           <i class='bx bx-move'></i> Drag
@@ -900,7 +898,7 @@
     const widgetRegistry = {
       timezonesCard: "World Clock",
       weatherCard: "Weather PH",
-      topGamesCard: "Top Games",
+      topGamesCard: "Next Day Top Games",
       flashscoreCard: "Flashscore Hub",
       trendCard: "Monitoring Trend",
       quickDockCard: "Directory Dock",
@@ -1038,7 +1036,20 @@
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
     let handoverItems = [];
 
-    /* Manage Widgets Engine */
+    /* Manage Widgets Engine & Collapsible Accordion */
+    function toggleManageWidgetsAccordion() {
+      const container = document.getElementById('widgetManagerContainer');
+      const chevron = document.getElementById('manageWidgetsChevron');
+      if (!container) return;
+      
+      const isHidden = container.style.display === 'none' || container.style.display === '';
+      container.style.display = isHidden ? 'flex' : 'none';
+      
+      if (chevron) {
+        chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
+
     function initWidgetManagerUI() {
       const savedVisibility = localStorage.getItem('sbhub_widget_visibility');
       if (savedVisibility) {
