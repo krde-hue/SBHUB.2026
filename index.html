@@ -35,7 +35,7 @@
     }
 
     body.light-mode {
-      --bg-overlay: rgba(255, 255, 255, 0.3);
+      --bg-overlay: rgba(255, 255, 255, 0.35);
       --glass-bg: rgba(255, 255, 255, var(--glass-alpha));
       --glass-bg-card: rgba(255, 255, 255, var(--glass-alpha));
       --glass-bg-hover: rgba(15, 23, 42, 0.12);
@@ -52,9 +52,6 @@
     body {
       min-height: 100vh;
       background-color: #080c14;
-      background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
-                        url('SB background.jpg'), 
-                        url('https://raw.githubusercontent.com/krde-hue/SBHUB.2026/main/SB%20background.jpg');
       background-repeat: no-repeat;
       background-position: center center;
       background-attachment: fixed;
@@ -63,7 +60,7 @@
       display: flex;
       overflow-x: hidden;
       overflow-y: auto;
-      transition: background 0.3s ease, color 0.3s ease;
+      transition: background 0.4s ease, color 0.3s ease;
     }
 
     /* Auth Overlay & Lamp Styling */
@@ -209,8 +206,8 @@
       display: none;
       opacity: 0;
       flex-direction: column;
-      gap: 10px;
-      padding: 12px;
+      gap: 6px;
+      padding: 10px 12px;
       margin-bottom: 68px;
       background: rgba(8, 12, 20, 0.55);
       border: 1px solid var(--glass-border);
@@ -219,19 +216,73 @@
       -webkit-backdrop-filter: blur(12px);
       transition: opacity 0.25s ease, border-color 0.2s ease;
       flex-shrink: 0;
-      max-height: 280px;
+      max-height: 320px;
       overflow-y: auto;
     }
     .sidebar-customization-panel:hover { border-color: var(--accent-glow); }
-    .custom-control-label { font-size: 9px; font-weight: 800; letter-spacing: 0.8px; color: var(--accent-glow); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+    .custom-control-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.8px; color: var(--accent-glow); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
     .custom-slider-wrapper { display: flex; align-items: center; gap: 8px; }
     input[type=range].styled-slider { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; border: 1px solid var(--glass-border); cursor: pointer; }
     input[type=range].styled-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-glow); cursor: pointer; box-shadow: 0 0 10px var(--accent-glow); border: 1.5px solid #ffffff; transition: transform 0.15s ease; }
     input[type=range].styled-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
-    .color-swatch-container { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
+    
+    .color-swatch-container { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 2px; }
     .color-swatch { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 1.5px solid transparent; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; position: relative; }
     .color-swatch:hover { transform: scale(1.2); }
     .color-swatch.active { border-color: #ffffff; box-shadow: 0 0 10px var(--swatch-color); transform: scale(1.15); }
+
+    /* WALLPAPER THUMBNAIL PICKER STYLING */
+    .wallpaper-thumbnail-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      margin-top: 4px;
+    }
+    .wallpaper-thumb {
+      width: 100%;
+      height: 32px;
+      border-radius: 7px;
+      border: 1.5px solid var(--glass-border);
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .wallpaper-thumb:hover {
+      transform: scale(1.12);
+      border-color: var(--accent-glow);
+      box-shadow: 0 0 10px var(--accent-glow);
+      z-index: 2;
+    }
+    .wallpaper-thumb.active {
+      border-color: #ffffff;
+      box-shadow: 0 0 12px var(--accent-glow);
+      transform: scale(1.08);
+    }
+
+    .upload-bg-btn {
+      width: 100%;
+      margin-top: 6px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px dashed var(--glass-border);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 6px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .upload-bg-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent-glow);
+      color: var(--accent-glow);
+    }
 
     .widget-toggle-item {
       display: flex;
@@ -338,7 +389,6 @@
     .handover-tag { padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-size: 9px; font-weight: 800; letter-spacing: 0.5px; }
     .handover-tag.normal { background: rgba(56, 189, 248, 0.2); color: var(--accent-glow); border: 1px solid rgba(56, 189, 248, 0.3); }
 
-    /* TV News Breaking Alert - Smooth Non-eyesore Flashing Pulse */
     @keyframes newsFlashPulse {
       0%, 100% {
         border-color: rgba(239, 68, 68, 0.4);
@@ -541,35 +591,63 @@
     <ul class="nav-list" id="navList"></ul>
     
     <div class="sidebar-customization-panel">
+      <!-- ACCORDION 1: GLASS OPACITY & ACCENT PALETTE -->
       <div>
-        <div class="custom-control-label">
-          <span>Glass Opacity</span>
-          <span id="opacityValLabel" style="font-family: var(--font-mono);">30%</span>
+        <div class="custom-control-label" style="cursor: pointer; user-select: none;" onclick="toggleAccordion('glassAccentContainer', 'glassChevron')">
+          <span>🎛️ Glass & Color</span>
+          <i class='bx bx-chevron-down' id="glassChevron" style="font-size: 14px; transition: transform 0.25s ease;"></i>
         </div>
-        <div class="custom-slider-wrapper" style="margin-top: 6px;">
-          <input type="range" id="opacitySlider" class="styled-slider" min="5" max="90" value="30" oninput="updateGlassOpacity(this.value)">
+        <div id="glassAccentContainer" style="display: none; flex-direction: column; gap: 8px; margin-top: 6px;">
+          <div>
+            <div class="custom-control-label" style="font-size: 8.5px; color: var(--text-sub);">
+              <span>GLASS OPACITY</span>
+              <span id="opacityValLabel" style="font-family: var(--font-mono);">30%</span>
+            </div>
+            <div class="custom-slider-wrapper" style="margin-top: 4px;">
+              <input type="range" id="opacitySlider" class="styled-slider" min="5" max="90" value="30" oninput="updateGlassOpacity(this.value)">
+            </div>
+          </div>
+
+          <div>
+            <div class="custom-control-label" style="font-size: 8.5px; color: var(--text-sub);">ACCENT PALETTE</div>
+            <div class="color-swatch-container">
+              <div class="color-swatch active" style="background-color: #38bdf8; --swatch-color: #38bdf8;" onclick="setAccentColor('#38bdf8', this)" title="Sky Blue"></div>
+              <div class="color-swatch" style="background-color: #a855f7; --swatch-color: #a855f7;" onclick="setAccentColor('#a855f7', this)" title="Neon Purple"></div>
+              <div class="color-swatch" style="background-color: #34d399; --swatch-color: #34d399;" onclick="setAccentColor('#34d399', this)" title="Emerald Green"></div>
+              <div class="color-swatch" style="background-color: #f59e0b; --swatch-color: #f59e0b;" onclick="setAccentColor('#f59e0b', this)" title="Amber Gold"></div>
+              <div class="color-swatch" style="background-color: #ec4899; --swatch-color: #ec4899;" onclick="setAccentColor('#ec4899', this)" title="Hot Pink"></div>
+              <div class="color-swatch" style="background-color: #f43f5e; --swatch-color: #f43f5e;" onclick="setAccentColor('#f43f5e', this)" title="Crimson Red"></div>
+              <div class="color-swatch" style="background-color: #ffffff; --swatch-color: #ffffff;" onclick="setAccentColor('#ffffff', this)" title="Pure White"></div>
+              <div class="color-swatch" style="background-color: #0f172a; --swatch-color: #0f172a; border-color: rgba(255,255,255,0.3);" onclick="setAccentColor('#0f172a', this)" title="Obsidian Black"></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style="margin-top: 2px;">
-        <div class="custom-control-label">Accent Palette</div>
-        <div class="color-swatch-container">
-          <div class="color-swatch active" style="background-color: #38bdf8; --swatch-color: #38bdf8;" onclick="setAccentColor('#38bdf8', this)" title="Sky Blue"></div>
-          <div class="color-swatch" style="background-color: #a855f7; --swatch-color: #a855f7;" onclick="setAccentColor('#a855f7', this)" title="Neon Purple"></div>
-          <div class="color-swatch" style="background-color: #34d399; --swatch-color: #34d399;" onclick="setAccentColor('#34d399', this)" title="Emerald Green"></div>
-          <div class="color-swatch" style="background-color: #f59e0b; --swatch-color: #f59e0b;" onclick="setAccentColor('#f59e0b', this)" title="Amber Gold"></div>
-          <div class="color-swatch" style="background-color: #ec4899; --swatch-color: #ec4899;" onclick="setAccentColor('#ec4899', this)" title="Hot Pink"></div>
-          <div class="color-swatch" style="background-color: #f43f5e; --swatch-color: #f43f5e;" onclick="setAccentColor('#f43f5e', this)" title="Crimson Red"></div>
+      <!-- ACCORDION 2: BACKGROUND GALLERY & UPLOAD -->
+      <div style="border-top: 1px solid var(--glass-border); padding-top: 6px;">
+        <div class="custom-control-label" style="cursor: pointer; user-select: none;" onclick="toggleAccordion('wallpaperContainer', 'wpChevron')">
+          <span>🖼️ Background Gallery</span>
+          <i class='bx bx-chevron-down' id="wpChevron" style="font-size: 14px; transition: transform 0.25s ease;"></i>
+        </div>
+        <div id="wallpaperContainer" style="display: none; flex-direction: column; gap: 4px; margin-top: 6px;">
+          <div class="wallpaper-thumbnail-grid" id="wallpaperPickerContainer">
+            <!-- Rendered via JS -->
+          </div>
+          <input type="file" id="customBgUpload" accept="image/*" style="display:none;" onchange="handleCustomBgUpload(event)">
+          <button type="button" class="upload-bg-btn" onclick="document.getElementById('customBgUpload').click()">
+            <i class='bx bx-cloud-upload'></i> Upload Custom Background
+          </button>
         </div>
       </div>
 
-      <!-- MANAGE WIDGETS COLLAPSIBLE CONTROL PANEL -->
-      <div style="margin-top: 4px; border-top: 1px solid var(--glass-border); padding-top: 8px;">
-        <div class="custom-control-label" style="margin-bottom: 6px; cursor: pointer; user-select: none;" onclick="toggleManageWidgetsAccordion()">
+      <!-- ACCORDION 3: MANAGE WIDGETS CONTROL PANEL -->
+      <div style="border-top: 1px solid var(--glass-border); padding-top: 6px;">
+        <div class="custom-control-label" style="cursor: pointer; user-select: none;" onclick="toggleAccordion('widgetManagerContainer', 'manageWidgetsChevron')">
           <span>⚙️ Manage Widgets</span>
           <i class='bx bx-chevron-down' id="manageWidgetsChevron" style="font-size: 14px; transition: transform 0.25s ease;"></i>
         </div>
-        <div id="widgetManagerContainer" style="display: none; flex-direction: column; gap: 4px;">
+        <div id="widgetManagerContainer" style="display: none; flex-direction: column; gap: 4px; margin-top: 6px;">
           <!-- Dynamically Generated Widget Toggles -->
         </div>
       </div>
@@ -895,6 +973,70 @@
   </div>
 
   <script>
+    /* 10 Preset Background Wallpapers + Upload Option */
+    const wallpaperPresets = [
+      {
+        id: "orig",
+        name: "Sportsbook Hub (Default)",
+        type: "dark",
+        url: "https://raw.githubusercontent.com/krde-hue/SBHUB.2026/main/SB%20background.jpg"
+      },
+      {
+        id: "nature1",
+        name: "Nature Forest 4K",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "nature2",
+        name: "Mountain Lake 4K",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "sports1",
+        name: "Stadium Arena HD",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "sports2",
+        name: "Football Pitch HD",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "plain_white",
+        name: "Pearl White (Plain)",
+        type: "light",
+        url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "plain_black",
+        name: "Slate Carbon (Plain)",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "clear1",
+        name: "Clear Blue Sky",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1534088568595-a066f410bcda?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "clear2",
+        name: "Clear Ocean View",
+        type: "light",
+        url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop"
+      },
+      {
+        id: "clear3",
+        name: "Cyber Minimal Gradient",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"
+      }
+    ];
+
     const widgetRegistry = {
       timezonesCard: "World Clock",
       weatherCard: "Weather PH",
@@ -1036,10 +1178,10 @@
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
     let handoverItems = [];
 
-    /* Manage Widgets Engine & Collapsible Accordion */
-    function toggleManageWidgetsAccordion() {
-      const container = document.getElementById('widgetManagerContainer');
-      const chevron = document.getElementById('manageWidgetsChevron');
+    /* Accordion Toggle Engine for All Sections */
+    function toggleAccordion(containerId, chevronId) {
+      const container = document.getElementById(containerId);
+      const chevron = document.getElementById(chevronId);
       if (!container) return;
       
       const isHidden = container.style.display === 'none' || container.style.display === '';
@@ -1048,6 +1190,92 @@
       if (chevron) {
         chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
       }
+    }
+
+    /* Wallpaper Gallery & Custom Upload Engine */
+    function initWallpaperPicker() {
+      const container = document.getElementById('wallpaperPickerContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const activeWpId = localStorage.getItem('sbhub_selected_wallpaper') || 'orig';
+
+      wallpaperPresets.forEach(wp => {
+        const thumb = document.createElement('div');
+        thumb.className = `wallpaper-thumb ${wp.id === activeWpId ? 'active' : ''}`;
+        thumb.style.backgroundImage = `url('${wp.url}')`;
+        thumb.title = wp.name;
+        thumb.onclick = () => selectWallpaper(wp.id);
+        container.appendChild(thumb);
+      });
+
+      applyWallpaper(activeWpId);
+    }
+
+    function selectWallpaper(id) {
+      localStorage.setItem('sbhub_selected_wallpaper', id);
+      
+      document.querySelectorAll('.wallpaper-thumb').forEach((thumb, idx) => {
+        if (wallpaperPresets[idx] && wallpaperPresets[idx].id === id) thumb.classList.add('active');
+        else thumb.classList.remove('active');
+      });
+
+      applyWallpaper(id);
+    }
+
+    function handleCustomBgUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const dataUrl = evt.target.result;
+        try {
+          localStorage.setItem('sbhub_custom_wallpaper_data', dataUrl);
+          localStorage.setItem('sbhub_selected_wallpaper', 'custom');
+          document.querySelectorAll('.wallpaper-thumb').forEach(thumb => thumb.classList.remove('active'));
+          applyWallpaper('custom');
+        } catch(err) {
+          alert("Image file is too large for local storage! Please upload an image under 3MB.");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyWallpaper(id) {
+      if (id === 'custom') {
+        const customData = localStorage.getItem('sbhub_custom_wallpaper_data');
+        if (customData) {
+          document.body.style.backgroundImage = `linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('${customData}')`;
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center center';
+          document.body.style.backgroundRepeat = 'no-repeat';
+          document.body.style.backgroundAttachment = 'fixed';
+        } else {
+          applyWallpaper('orig');
+        }
+        return;
+      }
+
+      const wp = wallpaperPresets.find(w => w.id === id) || wallpaperPresets[0];
+      
+      document.body.style.backgroundImage = `linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('${wp.url}')`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundAttachment = 'fixed';
+      
+      if (wp.type === 'light') {
+        document.body.classList.add('light-mode');
+        const modeToggle = document.getElementById('modeToggle');
+        if (modeToggle) modeToggle.checked = true;
+      } else {
+        document.body.classList.remove('light-mode');
+        const modeToggle = document.getElementById('modeToggle');
+        if (modeToggle) modeToggle.checked = false;
+      }
+
+      if (trendChartInstance) initTrendChart();
     }
 
     function initWidgetManagerUI() {
@@ -1301,7 +1529,7 @@
 
         if (renderedCount < 3) {
           const topFallbacks = [
-            { league: "🏆 CHAMPIONS LEAGUE", home: "Liverpool", away: "Atlético Madrid", date: "Sep 10 - 04:00", link: "https://www.flashscore.ph/football/europe/champions-league/" },
+            { league: "🏆 CHAMPIONS LEAGUE", home: "Liverpool", away: "Atlético Madrid", date: "Sep 12 - 22:00", link: "https://www.flashscore.ph/football/europe/champions-league/" },
             { league: "🇪🇸 LALIGA", home: "Real Madrid", away: "Rayo Vallecano", date: "Sep 13 - 04:00", link: "https://www.flashscore.ph/football/spain/laliga/" }
           ];
 
@@ -1616,7 +1844,7 @@
 
       const isLight = document.body.classList.contains("light-mode");
       const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || (isLight ? '#080c14' : '#ffffff');
-      const gridColor = 'rgba(255,255,255,0.18)';
+      const gridColor = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.18)';
 
       const ctx = document.getElementById("trendChart").getContext("2d");
       if (trendChartInstance) trendChartInstance.destroy();
@@ -1979,6 +2207,7 @@
     restoreBentoLayout(); 
     checkRememberedSession();
     restoreAppearanceSettings();
+    initWallpaperPicker();
     initWidgetManagerUI();
     initDataStore();
     initHandoverStore();
