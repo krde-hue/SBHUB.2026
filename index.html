@@ -66,14 +66,13 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* Auth Overlay & Realistic Lamp Styling */
+    /* Auth Overlay & Lamp Styling */
     #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 7, 14, 0.92); backdrop-filter: blur(30px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
     #authOverlay.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
     .lamp-login-container { position: relative; display: flex; align-items: center; gap: 20px; flex-direction: column; width: 90%; max-width: 420px; }
     
     .lamp-scene { position: relative; width: 220px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
     
-    /* Directional Ambient Light Beam Cone */
     .lamp-light-beam {
       position: absolute;
       top: 68px;
@@ -91,7 +90,6 @@
     }
     body.lamp-is-on .lamp-light-beam { opacity: 1; transform: scaleY(1); }
 
-    /* Realistic Lamp Shade */
     .lamp-shade { 
       width: 170px; 
       height: 90px; 
@@ -134,11 +132,9 @@
     }
     body.lamp-is-on .lamp-shade::before { opacity: 1; }
 
-    /* Metallic Brass Stand & Base */
     .lamp-stand-rod { width: 12px; height: 130px; background: linear-gradient(90deg, #78350f 0%, #d97706 30%, #fef08a 50%, #b45309 85%, #451a03 100%); border-radius: 3px; position: relative; z-index: 2; box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5); }
     .lamp-base { width: 124px; height: 18px; background: linear-gradient(180deg, #f59e0b 0%, #b45309 60%, #78350f 100%); border-radius: 12px 12px 3px 3px; z-index: 2; box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.5); position: relative; }
 
-    /* Realistic Interactive Pull Cord with Bounce Animation */
     .pull-cord-wrapper { 
       position: absolute; 
       bottom: 100px; 
@@ -176,7 +172,6 @@
     }
     .pull-cord-wrapper:hover .cord-handle { transform: scale(1.15); filter: brightness(1.2); }
 
-    /* Login Card Lighting Reaction */
     .login-popup-card { width: 100%; background: var(--glass-bg-card); border: 1.5px solid var(--glass-border); backdrop-filter: var(--card-blur); border-radius: 24px; padding: 24px; box-shadow: var(--glass-shadow); opacity: 0; visibility: hidden; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
     body.lamp-is-on .login-popup-card { opacity: 1; visibility: visible; border-color: rgba(245, 158, 11, 0.45); box-shadow: 0 25px 60px rgba(245, 158, 11, 0.2), var(--glass-shadow); }
     .login-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 18px; text-align: center; }
@@ -224,6 +219,8 @@
       -webkit-backdrop-filter: blur(12px);
       transition: opacity 0.25s ease, border-color 0.2s ease;
       flex-shrink: 0;
+      max-height: 280px;
+      overflow-y: auto;
     }
     .sidebar-customization-panel:hover { border-color: var(--accent-glow); }
     .custom-control-label { font-size: 9px; font-weight: 800; letter-spacing: 0.8px; color: var(--accent-glow); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
@@ -235,6 +232,31 @@
     .color-swatch { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 1.5px solid transparent; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; position: relative; }
     .color-swatch:hover { transform: scale(1.2); }
     .color-swatch.active { border-color: #ffffff; box-shadow: 0 0 10px var(--swatch-color); transform: scale(1.15); }
+
+    .widget-toggle-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-sub);
+      padding: 5px 8px;
+      background: rgba(15, 23, 42, 0.45);
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .widget-toggle-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+    .widget-toggle-item input[type="checkbox"] {
+      accent-color: var(--accent-glow);
+      cursor: pointer;
+      width: 13px;
+      height: 13px;
+    }
 
     .sidebar li.profile { position: absolute; height: 52px; width: calc(100% - 32px); left: 16px; bottom: 16px; padding: 10px 0; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); }
     .sidebar .profile-details { display: flex; align-items: center; }
@@ -261,12 +283,24 @@
       overflow: auto;
       min-width: 250px;
       min-height: 150px;
-      transition: background 0.15s ease, border-color 0.2s ease;
+      transition: background 0.15s ease, border-color 0.2s ease, opacity 0.25s ease;
     }
     .bento-card:hover { border-color: var(--accent-glow); }
     
     .card-header-title { font-size: 11px; font-weight: 800; color: var(--accent-glow); letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: grab; flex-shrink: 0; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
-    .drag-hint { font-size: 9px; color: var(--text-sub); font-weight: 600; display: flex; align-items: center; gap: 3px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+    .drag-hint { font-size: 9px; color: var(--text-sub); font-weight: 600; display: flex; align-items: center; gap: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+
+    .widget-close-btn {
+      cursor: pointer;
+      font-size: 16px;
+      margin-left: 6px;
+      color: var(--text-sub);
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+    .widget-close-btn:hover {
+      color: var(--accent-red);
+      transform: scale(1.2);
+    }
 
     .dock-pill-container { display: flex; gap: 8px; background: rgba(8, 12, 20, 0.55); padding: 6px; border-radius: 30px; border: 1px solid var(--glass-border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); margin-bottom: 10px; flex-shrink: 0; }
     .dock-pill-btn { flex: 1; border: none; outline: none; background: transparent; color: var(--text-sub); padding: 8px 12px; font-size: 11px; font-weight: 800; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
@@ -298,6 +332,53 @@
     .flashscore-links-grid { display: grid; grid-template-columns: 1fr; gap: 6px; overflow-y: auto; max-height: calc(100% - 40px); }
     .flashscore-link-item { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--glass-border); border-radius: 10px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 700; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
+    /* Handover List & TV News Breaking Strobe/Pulse Animation */
+    .handover-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1; padding-right: 2px; }
+    .handover-item { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; }
+    .handover-item.completed { opacity: 0.55; }
+    .handover-item.completed .handover-desc { text-decoration: line-through; color: var(--text-sub); }
+    .handover-item-top { display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 800; }
+    .handover-tag { padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-size: 9px; font-weight: 800; letter-spacing: 0.5px; }
+    .handover-tag.normal { background: rgba(56, 189, 248, 0.2); color: var(--accent-glow); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    /* TV News Breaking Alert - Smooth Non-eyesore Flashing Pulse */
+    @keyframes newsFlashPulse {
+      0%, 100% {
+        border-color: rgba(239, 68, 68, 0.4);
+        box-shadow: 0 0 0px rgba(239, 68, 68, 0);
+        background: rgba(15, 23, 42, 0.55);
+      }
+      50% {
+        border-color: rgba(248, 113, 113, 0.9);
+        box-shadow: inset 0 0 14px rgba(239, 68, 68, 0.28), 0 0 18px rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.14);
+      }
+    }
+
+    @keyframes urgentBadgeGlow {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+
+    .handover-item.urgent-item:not(.completed) {
+      border: 1px solid rgba(239, 68, 68, 0.6);
+      animation: newsFlashPulse 2s infinite ease-in-out;
+    }
+
+    .handover-tag.urgent {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.4) 0%, rgba(185, 28, 28, 0.5) 100%);
+      color: #fca5a5;
+      border: 1px solid rgba(248, 113, 113, 0.7);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+      animation: urgentBadgeGlow 2s infinite ease-in-out;
+    }
+
+    .handover-desc { font-size: 11px; font-weight: 600; color: var(--text-main); word-break: break-word; line-height: 1.35; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+    .handover-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 6px; margin-top: 2px; font-size: 9px; }
+    .handover-btn { background: transparent; border: none; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; transition: color 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+    .handover-btn:hover { color: var(--accent-glow); }
+    .handover-btn.delete:hover { color: var(--accent-red); }
+
     .trend-stats { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 700; align-items: center; }
     .stat-badge { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
     .stat-badge.up { background: rgba(16, 185, 129, 0.25); color: #10b981; }
@@ -305,7 +386,6 @@
     
     .chart-container { position: relative; flex-grow: 1; width: 100%; min-height: 100px; }
     
-    /* Perfect Fit Input & Grid Layout for Modal Log */
     .logger-input { 
       background: rgba(8, 12, 20, 0.65); 
       border: 1px solid var(--glass-border); 
@@ -372,7 +452,7 @@
     .mobile-nav-bar { display: none; }
     #mobileBackdropOverlay { display: none; }
 
-    /* Desktop Absolute Layout */
+    /* Desktop Layout */
     @media (min-width: 1025px) {
       body:not(.mobile-view-active) .sidebar:hover { width: var(--sidebar-expanded-width); }
       body:not(.mobile-view-active) .sidebar:hover .logo-details .logo_name, 
@@ -392,6 +472,7 @@
       #trendCard     { top: 290px; left: calc(var(--sidebar-width) + 395px); width: 700px; height: 435px; min-width: 450px; min-height: 250px; }
       #quickDockCard { top: 500px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 225px; min-width: 320px; min-height: 180px; }
       #dailyTaskCard { top: 735px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 210px; min-width: 320px; min-height: 180px; }
+      #handoverCard  { top: 735px; left: calc(var(--sidebar-width) + 395px); width: 350px; height: 210px; min-width: 300px; min-height: 180px; }
     }
 
     /* Mobile / Tablet Styles */
@@ -404,7 +485,7 @@
       .sidebar .logo-details .logo_name, .sidebar .search-box input, .sidebar .nav-item-title, .sidebar .nav-arrow, .sidebar .name_job, .sidebar .sidebar-customization-panel { display: flex !important; opacity: 1 !important; pointer-events: auto !important; }
       .main-workspace { position: relative; top: 0; left: 0; width: 100vw; height: auto; padding: 15px 15px 105px 15px; display: flex; flex-direction: column; gap: 12px; }
       .bento-card { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; min-height: unset; resize: none; border-radius: 26px; padding: 16px 18px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%); }
-      #weatherCard { order: 1; } #quickDockCard { order: 2; } #dailyTaskCard { order: 3; } #timezonesCard { order: 4; } #topGamesCard { order: 5; } #flashscoreCard { order: 6; } #trendCard { order: 7; min-height: 320px; }
+      #weatherCard { order: 1; } #quickDockCard { order: 2; } #dailyTaskCard { order: 3; } #handoverCard { order: 4; } #timezonesCard { order: 5; } #topGamesCard { order: 6; } #flashscoreCard { order: 7; } #trendCard { order: 8; min-height: 320px; }
       .drag-hint { display: none; }
       .mobile-nav-bar { display: flex; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 380px; height: 64px; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(30px); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 36px; z-index: 700; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); align-items: center; justify-content: space-evenly; padding: 0 8px; }
       .mobile-nav-item { position: relative; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.6); font-size: 22px; width: 48px; height: 48px; border-radius: 24px; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); text-decoration: none; }
@@ -484,6 +565,16 @@
           <div class="color-swatch" style="background-color: #f43f5e; --swatch-color: #f43f5e;" onclick="setAccentColor('#f43f5e', this)" title="Crimson Red"></div>
         </div>
       </div>
+
+      <!-- MANAGE WIDGETS CONTROL PANEL -->
+      <div style="margin-top: 4px; border-top: 1px solid var(--glass-border); padding-top: 8px;">
+        <div class="custom-control-label" style="margin-bottom: 6px;">
+          <span>⚙️ Manage Widgets</span>
+        </div>
+        <div id="widgetManagerContainer" style="display: flex; flex-direction: column; gap: 4px;">
+          <!-- Dynamically Generated Widget Toggles -->
+        </div>
+      </div>
     </div>
 
     <li class="profile">
@@ -502,7 +593,13 @@
   <div class="main-workspace" id="workspace">
     
     <div class="bento-card" id="timezonesCard">
-      <div class="card-header-title"><span>WORD CLOCK (3 ZONES) <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
+      <div class="card-header-title">
+        <span>WORLD CLOCK (3 ZONES)</span>
+        <span class="drag-hint">
+          <i class='bx bx-move'></i> Drag
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('timezonesCard', false)" title="Hide Widget"></i>
+        </span>
+      </div>
       <div class="tz-grid" id="timezoneGrid"></div>
     </div>
 
@@ -510,8 +607,9 @@
       <div class="card-header-title">
         <span>PHILIPPINES WEATHER</span>
         <span class="drag-hint">
-          <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:4px;" onclick="fetchRealtimeWeather()" title="Refresh Weather"></i>
+          <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:2px;" onclick="fetchRealtimeWeather()" title="Refresh Weather"></i>
           <i class='bx bx-move'></i> Drag
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('weatherCard', false)" title="Hide Widget"></i>
         </span>
       </div>
       <div class="weather-container">
@@ -529,15 +627,22 @@
       <div class="card-header-title">
         <span>⚽ TOP WEEK GAMES</span> 
         <span class="drag-hint">
-          <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:4px;" onclick="fetchLiveGames()" title="Refresh Live Feeds"></i>
+          <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:2px;" onclick="fetchLiveGames()" title="Refresh Live Feeds"></i>
           <i class='bx bx-move'></i> Drag
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('topGamesCard', false)" title="Hide Widget"></i>
         </span>
       </div>
       <div class="games-list" id="topGamesList"></div>
     </div>
 
     <div class="bento-card" id="flashscoreCard">
-      <div class="card-header-title"><span>⚡ FLASHSCORE LIVE HUB <span class="drag-hint"><i class='bx bx-move'></i> Drag</span></span></div>
+      <div class="card-header-title">
+        <span>⚡ FLASHSCORE LIVE HUB</span>
+        <span class="drag-hint">
+          <i class='bx bx-move'></i> Drag
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('flashscoreCard', false)" title="Hide Widget"></i>
+        </span>
+      </div>
       <div class="flashscore-links-grid">
         <a href="https://www.flashscore.ph/football/england/premier-league/" target="_blank" class="flashscore-link-item"><span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</span> <i class='bx bx-link-external'></i></a>
         <a href="https://www.flashscore.ph/football/spain/laliga/" target="_blank" class="flashscore-link-item"><span>🇪🇸 LaLiga EA Sports</span> <i class='bx bx-link-external'></i></a>
@@ -547,10 +652,13 @@
       </div>
     </div>
 
-    <!-- Multi-Brand Combo Chart Bento Card -->
     <div class="bento-card" id="trendCard">
       <div class="card-header-title">
-        <span>📊 DAILY MONITORING TREND <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+        <span>📊 DAILY MONITORING TREND</span>
+        <span class="drag-hint">
+          <i class='bx bx-move'></i> Drag/Resize
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('trendCard', false)" title="Hide Widget"></i>
+        </span>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; gap: 8px;">
         <select id="trackerSelector" class="logger-input" style="padding: 4px 8px; font-size: 10px; max-width: 170px;" onchange="initTrendChart()">
@@ -580,7 +688,11 @@
 
     <div class="bento-card" id="quickDockCard">
       <div class="card-header-title">
-        <span>🚀 BRAND DIRECTORY DOCK <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+        <span>🚀 BRAND DIRECTORY DOCK</span>
+        <span class="drag-hint">
+          <i class='bx bx-move'></i> Drag/Resize
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('quickDockCard', false)" title="Hide Widget"></i>
+        </span>
       </div>
       <div class="dock-pill-container">
         <button class="dock-pill-btn active" onclick="switchDockTab('ibet', this)">
@@ -625,10 +737,13 @@
       </div>
     </div>
 
-    <!-- Floating Daily Task Dock Widget -->
     <div class="bento-card" id="dailyTaskCard">
       <div class="card-header-title">
-        <span>📋 DAILY TASK DOCK <span class="drag-hint"><i class='bx bx-move'></i> Drag/Resize</span></span>
+        <span>📋 DAILY TASK DOCK</span>
+        <span class="drag-hint">
+          <i class='bx bx-move'></i> Drag/Resize
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('dailyTaskCard', false)" title="Hide Widget"></i>
+        </span>
       </div>
       <div class="dock-content-panel active">
         <a href="boostschedule.html" target="_blank" class="dock-link-item">
@@ -640,6 +755,20 @@
         <a href="https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114" target="_blank" class="dock-link-item">
           <span>IBET BOOST EXCEL</span> <i class='bx bx-link-external'></i>
         </a>
+      </div>
+    </div>
+
+    <div class="bento-card" id="handoverCard">
+      <div class="card-header-title">
+        <span>🤝 HANDOVER & PENDING TASKS</span>
+        <span class="drag-hint">
+          <i class='bx bx-plus-circle' style="cursor:pointer; font-size:17px; margin-right:4px; color:var(--accent-glow);" onclick="openAddHandoverModal()" title="Add Issue / Endorsement"></i>
+          <i class='bx bx-move'></i> Drag
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('handoverCard', false)" title="Hide Widget"></i>
+        </span>
+      </div>
+      <div class="handover-list" id="handoverList">
+        <!-- Rendered via JS -->
       </div>
     </div>
 
@@ -661,7 +790,48 @@
     </div>
   </div>
 
-  <!-- Settings Modal with Easy Date Navigation Controls (< >) -->
+  <!-- Add Handover Item Dedicated Glass Modal -->
+  <div class="modal" id="handoverModal">
+    <div class="modal-content" style="width: 420px;">
+      <div class="card-header-title">
+        <span>➕ ADD HANDOVER / ENDORSEMENT</span>
+        <i class='bx bx-x' style="cursor:pointer; font-size: 22px;" onclick="closeAddHandoverModal()"></i>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+        <div style="display: flex; gap: 8px;">
+          <div style="flex: 1;">
+            <label class="input-label">BRAND / CATEGORY</label>
+            <select id="handoverBrand" class="logger-input" style="padding: 8px; text-align: left;">
+              <option value="EDGE">EDGE</option>
+              <option value="IBET">IBET</option>
+              <option value="7A">7A</option>
+              <option value="PUBS">PUBS</option>
+              <option value="GENERAL">GENERAL</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label class="input-label">PRIORITY STATUS</label>
+            <select id="handoverPriority" class="logger-input" style="padding: 8px; text-align: left;">
+              <option value="normal">NORMAL</option>
+              <option value="urgent">🚨 URGENT</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="input-label">SITUATION / ENDORSEMENT DETAILS</label>
+          <textarea id="handoverText" class="logger-input" style="height: 90px; text-align: left; padding: 8px; resize: none;" placeholder="Describe pending tasks, issues, or instructions for next shift..."></textarea>
+        </div>
+
+        <button class="action-btn" onclick="createHandoverItem()" style="margin-top: 5px;">
+          <i class='bx bx-check-circle'></i> SUBMIT TO HANDOVER DOCK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
   <div class="modal" id="settingsModal">
     <div class="modal-content">
       <div class="card-header-title">
@@ -672,7 +842,6 @@
       <div style="margin-top: 15px; padding-top: 5px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 15px;">
         <span style="font-size: 11px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; margin-bottom: 10px; display: block;">📝 DAILY RECORD LOG</span>
         
-        <!-- Easy Date Navigation Bar (< >) -->
         <div style="margin-bottom: 10px; display: flex; gap: 6px; align-items: center;">
           <button class="nav-arrow-btn" onclick="navigateLogDate(-1)" title="Previous Day">&lt;</button>
           <input type="date" id="logDate" class="logger-input" style="flex-grow: 1; text-align: center; padding: 6px 10px;" onchange="loadDataForDate(this.value)">
@@ -728,6 +897,28 @@
   </div>
 
   <script>
+    const widgetRegistry = {
+      timezonesCard: "World Clock",
+      weatherCard: "Weather PH",
+      topGamesCard: "Top Games",
+      flashscoreCard: "Flashscore Hub",
+      trendCard: "Monitoring Trend",
+      quickDockCard: "Directory Dock",
+      dailyTaskCard: "Daily Task Dock",
+      handoverCard: "Handover Tasks"
+    };
+
+    let widgetVisibilityState = {
+      timezonesCard: true,
+      weatherCard: true,
+      topGamesCard: true,
+      flashscoreCard: true,
+      trendCard: true,
+      quickDockCard: true,
+      dailyTaskCard: true,
+      handoverCard: true
+    };
+
     const menuData = [
       {
         category: "INTERNAL",
@@ -845,6 +1036,64 @@
     let trendChartInstance = null;
     let inactivityTimer = null;
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
+    let handoverItems = [];
+
+    /* Manage Widgets Engine */
+    function initWidgetManagerUI() {
+      const savedVisibility = localStorage.getItem('sbhub_widget_visibility');
+      if (savedVisibility) {
+        try {
+          const parsed = JSON.parse(savedVisibility);
+          widgetVisibilityState = { ...widgetVisibilityState, ...parsed };
+        } catch(e){}
+      }
+
+      const container = document.getElementById('widgetManagerContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      Object.keys(widgetRegistry).forEach(cardId => {
+        const isVisible = widgetVisibilityState[cardId] !== false;
+        const name = widgetRegistry[cardId];
+
+        const item = document.createElement('label');
+        item.className = 'widget-toggle-item';
+        item.innerHTML = `
+          <span>${name}</span>
+          <input type="checkbox" ${isVisible ? 'checked' : ''} onchange="setWidgetVisible('${cardId}', this.checked)">
+        `;
+        container.appendChild(item);
+
+        const cardEl = document.getElementById(cardId);
+        if (cardEl) {
+          cardEl.style.display = isVisible ? 'flex' : 'none';
+        }
+      });
+    }
+
+    function setWidgetVisible(cardId, isVisible) {
+      widgetVisibilityState[cardId] = isVisible;
+      localStorage.setItem('sbhub_widget_visibility', JSON.stringify(widgetVisibilityState));
+
+      const cardEl = document.getElementById(cardId);
+      if (cardEl) {
+        cardEl.style.display = isVisible ? 'flex' : 'none';
+      }
+
+      const container = document.getElementById('widgetManagerContainer');
+      if (container) {
+        const inputs = container.querySelectorAll('input[type="checkbox"]');
+        const keys = Object.keys(widgetRegistry);
+        const idx = keys.indexOf(cardId);
+        if (idx !== -1 && inputs[idx]) {
+          inputs[idx].checked = isVisible;
+        }
+      }
+
+      if (cardId === 'trendCard' && isVisible && trendChartInstance) {
+        setTimeout(() => trendChartInstance.resize(), 150);
+      }
+    }
 
     /* Transparency & Accent Palette Handlers */
     function updateGlassOpacity(val) {
@@ -1072,6 +1321,117 @@
       } catch (e) {
         container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:var(--accent-red);">Failed to fetch live data. Please try again.</div>`;
       }
+    }
+
+    /* Handover Logic Engine */
+    function initHandoverStore() {
+      const stored = localStorage.getItem('sbhub_handover_items');
+      if (stored) {
+        try { handoverItems = JSON.parse(stored); } catch(e) { handoverItems = []; }
+      } else {
+        handoverItems = [
+          { id: Date.now().toString(), brand: 'EDGE', priority: 'urgent', text: 'Escalated risk limits for Live Derby match. Pending operator review.', timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), done: false }
+        ];
+        saveHandoverToStorage();
+      }
+      renderHandoverItems();
+    }
+
+    function saveHandoverToStorage() {
+      localStorage.setItem('sbhub_handover_items', JSON.stringify(handoverItems));
+    }
+
+    function renderHandoverItems() {
+      const listEl = document.getElementById('handoverList');
+      if (!listEl) return;
+      if (handoverItems.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:25px 10px; font-size:11px; color:var(--text-sub);">No pending handover tasks. Click <strong style="color:var(--accent-glow);">+</strong> to add issues/endorsements.</div>`;
+        return;
+      }
+
+      let html = '';
+      handoverItems.forEach(item => {
+        const isDone = item.done ? 'completed' : '';
+        const priorityClass = item.priority === 'urgent' ? 'urgent' : 'normal';
+        const priorityLabel = item.priority === 'urgent' ? '🚨 URGENT' : 'NORMAL';
+        const urgentPulseClass = (item.priority === 'urgent' && !item.done) ? 'urgent-item' : '';
+
+        html += `
+          <div class="handover-item ${isDone} ${urgentPulseClass}">
+            <div class="handover-item-top">
+              <div style="display:flex; gap:6px; align-items:center;">
+                <span class="handover-tag ${priorityClass}">${priorityLabel}</span>
+                <span style="font-weight:800; color:var(--accent-glow);">${item.brand}</span>
+              </div>
+              <span style="color:var(--text-sub); opacity:0.8;">🕒 ${item.timestamp}</span>
+            </div>
+            <div class="handover-desc">${escapeHtml(item.text)}</div>
+            <div class="handover-actions">
+              <button class="handover-btn" onclick="toggleHandoverDone('${item.id}')">
+                <i class='bx ${item.done ? 'bx-undo' : 'bx-check-circle'}'></i> ${item.done ? 'Reopen' : 'Mark Done'}
+              </button>
+              <button class="handover-btn delete" onclick="deleteHandoverItem('${item.id}')">
+                <i class='bx bx-trash'></i> Delete
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    function openAddHandoverModal() {
+      document.getElementById('handoverModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('handoverText').focus(), 100);
+    }
+
+    function closeAddHandoverModal() {
+      document.getElementById('handoverModal').style.display = 'none';
+      document.getElementById('handoverText').value = '';
+    }
+
+    function createHandoverItem() {
+      const brand = document.getElementById('handoverBrand').value;
+      const priority = document.getElementById('handoverPriority').value;
+      const text = document.getElementById('handoverText').value.trim();
+
+      if (!text) {
+        alert('Please enter issue/endorsement description.');
+        return;
+      }
+
+      const newItem = {
+        id: Date.now().toString(),
+        brand: brand,
+        priority: priority,
+        text: text,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        done: false
+      };
+
+      handoverItems.unshift(newItem);
+      saveHandoverToStorage();
+      renderHandoverItems();
+      closeAddHandoverModal();
+    }
+
+    function toggleHandoverDone(id) {
+      const item = handoverItems.find(i => i.id === id);
+      if (item) {
+        item.done = !item.done;
+        saveHandoverToStorage();
+        renderHandoverItems();
+      }
+    }
+
+    function deleteHandoverItem(id) {
+      handoverItems = handoverItems.filter(i => i.id !== id);
+      saveHandoverToStorage();
+      renderHandoverItems();
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     function loadDataForDate(dateStr) {
@@ -1409,9 +1769,8 @@
       playClickSound();
       const cordEl = document.getElementById("pullCord");
       
-      // Trigger smooth spring-bounce pull animation
       cordEl.classList.remove("bouncing");
-      void cordEl.offsetWidth; // Trigger DOM reflow to re-start animation
+      void cordEl.offsetWidth; 
       cordEl.classList.add("bouncing");
 
       document.body.classList.toggle("lamp-is-on");
@@ -1609,7 +1968,9 @@
     restoreBentoLayout(); 
     checkRememberedSession();
     restoreAppearanceSettings();
+    initWidgetManagerUI();
     initDataStore();
+    initHandoverStore();
     renderSidebar();
     fetchLiveGames(); 
     fetchRealtimeWeather();
