@@ -167,6 +167,13 @@
             align-items: center;
             gap: 6px;
             backdrop-filter: blur(10px);
+            transition: color 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .viewer-badge.reliance-detected {
+            color: #ef4444 !important;
+            border-color: rgba(239, 68, 68, 0.5) !important;
         }
 
         .view-only-banner {
@@ -336,14 +343,12 @@
         .shift-bg-vl          { background: linear-gradient(135deg, #ca8a04, #a16207) !important; color: #ffffff !important; border: 1px solid #facc15; font-weight: 800; }
         .shift-bg-sl          { background: linear-gradient(135deg, #7e22ce, #6b21a8) !important; color: #ffffff !important; border: 1px solid #c084fc; font-weight: 800; }
 
-        /* Swapped Fill Colors for 6:00 - 15:00 and 7:00 - 16:00 */
         .shift-bg-6-15        { background-color: #475569 !important; color: #ffffff !important; border: 1px solid #64748b; font-weight: 700; }
         .shift-bg-7-16        { background-color: #f97316 !important; color: #0f172a !important; border: 1px solid #fb923c; font-weight: 800; }
         .shift-bg-9-18        { background-color: #059669 !important; color: #ffffff !important; border: 1px solid #10b981; font-weight: 800; }
         .shift-bg-12-21       { background-color: #db2777 !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
         .shift-bg-15-0        { background-color: #e11d48 !important; color: #ffffff !important; border: 1px solid #fda4af; font-weight: 800; }
 
-        /* Swapped Fill Colors for 6:00 - 15:00 (WFH) and 7:00 - 16:00 (WFH) */
         .shift-bg-6-15-wfh    { background-color: #1e293b !important; color: #38bdf8 !important; border: 1.5px solid #38bdf8; font-weight: 800; }
         .shift-bg-7-16-wfh    { background-color: #c2410c !important; color: #ffffff !important; border: 1px solid #fdba74; font-weight: 800; }
         .shift-bg-9-18-wfh    { background-color: #047857 !important; color: #ffffff !important; border: 1px solid #6ee7b7; font-weight: 800; }
@@ -467,14 +472,14 @@
         </div>
 
         <div class="header-top-controls">
-            <span class="viewer-badge" title="Active Viewers">
+            <span id="viewerBadge" class="viewer-badge" title="Active Viewers">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
             <a id="btnLeaveReq" href="leave-req.html" class="btn btn-leave-req">📝 Leave Application</a>
             <button id="mobileViewToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View</button>
             <button id="adminAuthBtn" class="btn btn-admin" onclick="handleAdminAuth()">🔑 Admin Login</button>
-            <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-            <button class="btn btn-warning" onclick="copyViewOnlyLink()" title="Generate View-Only Link">🔗 Share</button>
+            <button id="btnDarkMode" class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
+            <button id="btnShare" class="btn btn-warning" onclick="copyViewOnlyLink()" title="Generate View-Only Link">🔗 Share</button>
             <a id="btnBackToDashboard" href="index.html" class="btn btn-back">🏠 Dashboard</a>
         </div>
     </div>
@@ -625,7 +630,6 @@
             11: [{ date: "Dec 8", name: "Feast of Immaculate Conception" }, { date: "Dec 25", name: "Christmas Day" }, { date: "Dec 30", name: "Rizal Day" }, { date: "Dec 31", name: "Last Day of the Year" }]
         };
 
-        /* Updated shift list removing: 10:00-19:00, 14:00-23:00, 16:00-1:00, and 7:00-10:00 (WFH) */
         const shiftList = [
             { text: "", bgClass: "", itemClass: "", start: null, end: null },
             { text: "RD", bgClass: "shift-bg-rd", itemClass: "shift-bg-rd", start: null, end: null },
@@ -706,21 +710,29 @@
             const authBtn = document.getElementById('adminAuthBtn');
             const btnBackToDashboard = document.getElementById('btnBackToDashboard');
             const btnLeaveReq = document.getElementById('btnLeaveReq');
+            const mobileBtn = document.getElementById('mobileViewToggleBtn');
+            const memberDropdown = document.querySelector('.team-manager-dropdown');
             const bulkSelects = document.querySelectorAll('.bulk-select');
 
             if (isViewOnlyMode) {
                 banner.style.display = 'block';
                 if (btnBackToDashboard) btnBackToDashboard.style.display = 'none';
+                if (authBtn) authBtn.style.display = 'none';
+                if (mobileBtn) mobileBtn.style.display = 'none';
+                if (memberDropdown) memberDropdown.style.display = 'none';
                 if (btnLeaveReq) btnLeaveReq.href = 'leave-req.html?viewonly=true';
-                authBtn.innerText = '🔑 Admin Login';
-                authBtn.className = 'btn btn-admin';
                 bulkSelects.forEach(el => el.disabled = true);
             } else {
                 banner.style.display = 'none';
                 if (btnBackToDashboard) btnBackToDashboard.style.display = 'inline-flex';
+                if (authBtn) {
+                    authBtn.style.display = 'inline-flex';
+                    authBtn.innerText = '🔒 Lock';
+                    authBtn.className = 'btn btn-warning';
+                }
+                if (mobileBtn) mobileBtn.style.display = 'inline-flex';
+                if (memberDropdown) memberDropdown.style.display = 'inline-block';
                 if (btnLeaveReq) btnLeaveReq.href = 'leave-req.html';
-                authBtn.innerText = '🔒 Lock';
-                authBtn.className = 'btn btn-warning';
                 bulkSelects.forEach(el => el.disabled = false);
             }
         }
@@ -760,19 +772,67 @@
             renderCalendar();
         }
 
+        function getValidatedViewerName() {
+            let storedName = sessionStorage.getItem("viewer_name");
+            while (!storedName || storedName.trim() === "" || storedName.trim().toLowerCase() === "guest") {
+                let inputName = prompt("Please enter your name to view the rota ('Guest' is not allowed):");
+                if (inputName !== null && inputName.trim() !== "" && inputName.trim().toLowerCase() !== "guest") {
+                    storedName = inputName.trim();
+                    sessionStorage.setItem("viewer_name", storedName);
+                } else if (inputName !== null) {
+                    alert("The name 'Guest' or empty entries are not allowed. Please enter your real name.");
+                }
+            }
+            return storedName;
+        }
+
         function setupPresenceSystem() {
+            const userName = getValidatedViewerName();
             const presenceRef = db.ref('rota_active_sessions');
+
             db.ref('.info/connected').on('value', (snap) => {
                 if (snap.val() === true) {
                     const userSessionRef = presenceRef.push();
                     userSessionRef.onDisconnect().remove();
-                    userSessionRef.set({ online: true, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+                    userSessionRef.set({ 
+                        name: userName, 
+                        online: true, 
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP 
+                    });
                 }
             });
+
             presenceRef.on('value', (snap) => {
-                const count = snap.numChildren();
+                const sessions = snap.val() || {};
+                const viewerNames = [];
+                let hasRelianceUser = false;
+
+                Object.values(sessions).forEach(session => {
+                    if (session.name) {
+                        viewerNames.push(session.name);
+                        if (session.name.toLowerCase().includes('reliance')) {
+                            hasRelianceUser = true;
+                        }
+                    }
+                });
+
                 const countElem = document.getElementById('activeViewersCount');
-                if (countElem) countElem.innerText = count > 0 ? count : 1;
+                const badgeElem = document.getElementById('viewerBadge');
+
+                if (countElem) {
+                    countElem.innerText = viewerNames.length > 0 ? viewerNames.length : 1;
+                }
+
+                if (badgeElem) {
+                    const activeListText = viewerNames.length > 0 ? viewerNames.join(', ') : userName;
+                    badgeElem.title = `Active Viewers: ${activeListText}`;
+
+                    if (hasRelianceUser) {
+                        badgeElem.classList.add('reliance-detected');
+                    } else {
+                        badgeElem.classList.remove('reliance-detected');
+                    }
+                }
             });
         }
 
