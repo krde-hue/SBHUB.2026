@@ -181,7 +181,7 @@
             box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
         }
 
-        /* CONTROLS BAR GLASS WIDGET */
+        /* CONTROLS BAR GLASS WIDGET WITH ELEVATED STACKING CONTEXT */
         .controls {
             margin-bottom: 22px;
             background: var(--glass-bg);
@@ -190,11 +190,13 @@
             padding: 16px;
             border-radius: 16px;
             display: flex;
-            gap: 14px;
+            gap: 12px;
             align-items: center;
             flex-wrap: wrap;
             border: 1px solid var(--glass-border);
             box-shadow: var(--card-shadow);
+            position: relative;
+            z-index: 100;
         }
 
         label { font-weight: 700; font-size: 13px; }
@@ -208,9 +210,9 @@
             outline: none;
         }
 
-        .team-manager-dropdown { position: relative; }
+        .team-manager-dropdown { position: relative; z-index: 110; }
 
-        .main-layout { display: flex; flex-direction: column; gap: 28px; width: 100%; }
+        .main-layout { display: flex; flex-direction: column; gap: 28px; width: 100%; position: relative; z-index: 1; }
 
         /* GLASS TABLE CONTAINERS */
         .table-container { 
@@ -300,17 +302,19 @@
         }
         .custom-dropdown-btn:hover { filter: brightness(1.15); transform: scale(1.02); }
 
+        /* UN-CLIPPED DROPDOWN MENU */
         .custom-dropdown-menu {
             display: none;
             position: absolute;
             top: 100%;
             left: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(16px);
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            z-index: 1000;
+            border-radius: 12px;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.85);
+            z-index: 9999;
             max-height: 260px;
             min-width: 135px;
             overflow-y: auto;
@@ -482,8 +486,9 @@
         </div>
     </div>
     
+    <!-- CONTROLS BAR WITH CLOSELY GROUPED MONTH NAVIGATOR -->
     <div class="controls">
-        <button class="btn btn-secondary" onclick="changeMonth(-1)">◀ Prev</button>
+        <button class="btn btn-secondary" onclick="changeMonth(-1)">◄ Prev</button>
         <div>
             <label for="month-select">Month: </label>
             <select id="month-select">
@@ -495,18 +500,38 @@
                 <option value="10">November</option><option value="11">December</option>
             </select>
         </div>
+        <button class="btn btn-secondary" onclick="changeMonth(1)">Next ►</button>
+
         <div>
             <label for="year-input">Year: </label>
             <input type="number" id="year-input" value="2026" min="2020" max="2040" style="width: 85px;">
         </div>
+
+        <!-- EXPANDED COMPREHENSIVE GLOBAL TIMEZONE SELECTOR -->
         <div>
             <label for="timezone-select">🌐 Timezone: </label>
             <select id="timezone-select" onchange="changeTimezoneGlobal(this.value)">
+                <option value="-10">HST - Hawaii (-10)</option>
+                <option value="-9">AKST - Alaska (-9)</option>
                 <option value="-8">PST / PDT (-8)</option>
+                <option value="-7">MST / MDT (-7)</option>
+                <option value="-6">CST / CDT (-6)</option>
+                <option value="-5">EST / EDT (-5)</option>
+                <option value="-4">AST - Atlantic (-4)</option>
+                <option value="-3">BRT - Brasilia (-3)</option>
                 <option value="0">UTC / GMT (+0)</option>
+                <option value="1">CET - Europe/London (+1)</option>
+                <option value="2">EET - Cairo/Athens (+2)</option>
+                <option value="3">MSK - Moscow (+3)</option>
+                <option value="4">GST - Dubai (+4)</option>
+                <option value="5">PKT - Pakistan (+5)</option>
+                <option value="6">BST - Bangladesh (+6)</option>
                 <option value="7">WIB - Jakarta (+7)</option>
-                <option value="8" selected>SGT / PHT (+8)</option>
+                <option value="8" selected>SGT / PHT / HKT (+8)</option>
                 <option value="9">JST / KST (+9)</option>
+                <option value="10">AEST - Sydney (+10)</option>
+                <option value="11">SBT - Solomon Is. (+11)</option>
+                <option value="12">NZST - Auckland (+12)</option>
             </select>
         </div>
 
@@ -525,8 +550,6 @@
                 </div>
             </div>
         </div>
-
-        <button class="btn btn-secondary" onclick="changeMonth(1)">Next ▶</button>
     </div>
 
     <div class="main-layout">
@@ -975,7 +998,7 @@
                 const container = document.getElementById('standardTableContainer');
                 const mondayHeader = document.getElementById('current-week-monday-col');
                 if (container && mondayHeader) {
-                    const personColWidth = 145; // Sticky Person column width
+                    const personColWidth = 145;
                     const scrollTarget = mondayHeader.offsetLeft - personColWidth - 5;
                     container.scrollLeft = Math.max(0, scrollTarget);
                 }
@@ -1008,7 +1031,7 @@
                 if (currentMondayDate.getMonth() === selectedMonth) {
                     mondayTargetDay = currentMondayDate.getDate();
                 } else {
-                    mondayTargetDay = 1; // If Monday was in previous month, align to day 1
+                    mondayTargetDay = 1;
                 }
             }
 
@@ -1122,7 +1145,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Automatically scroll to align Monday of current week after sticky Person column
             if (isCurrentMonthAndYear) {
                 scrollToCurrentWeek();
             }
