@@ -19,35 +19,41 @@
 
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0b132b 0%, #1c2541 50%, #0b132b 100%);
-            --glass-bg: rgba(26, 38, 66, 0.55);
-            --glass-card: rgba(30, 42, 74, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --glass-input: rgba(11, 19, 43, 0.6);
+            --bg-gradient: radial-gradient(circle at 50% 0%, #1a2c4e 0%, #0b132b 75%, #050914 100%);
+            --glass-bg: rgba(22, 33, 62, 0.55);
+            --glass-card: linear-gradient(145deg, rgba(27, 40, 71, 0.75) 0%, rgba(15, 23, 42, 0.88) 100%);
+            --glass-modal: linear-gradient(160deg, rgba(24, 37, 66, 0.92) 0%, rgba(11, 18, 36, 0.96) 100%);
+            --glass-border: rgba(255, 255, 255, 0.14);
+            --glass-border-bright: rgba(255, 255, 255, 0.22);
+            --glass-input: rgba(10, 16, 32, 0.65);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent-cyan: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.25);
-            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            --accent-cyan-dark: #0284c7;
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --card-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
             --month-bg: linear-gradient(135deg, #f59e0b, #d97706);
             --month-text: #000000;
-            --box-bg: rgba(15, 23, 42, 0.6);
+            --box-bg: rgba(12, 19, 38, 0.7);
         }
 
         [data-theme="light"] {
-            --bg-gradient: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 50%, #cbd5e1 100%);
+            --bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f5f9 60%, #cbd5e1 100%);
             --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-card: rgba(255, 255, 255, 0.88);
-            --glass-border: rgba(0, 0, 0, 0.1);
-            --glass-input: rgba(255, 255, 255, 0.9);
+            --glass-card: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(241, 245, 249, 0.95) 100%);
+            --glass-modal: linear-gradient(160deg, rgba(255, 255, 255, 0.97) 0%, rgba(241, 245, 249, 0.98) 100%);
+            --glass-border: rgba(0, 0, 0, 0.12);
+            --glass-border-bright: rgba(0, 0, 0, 0.2);
+            --glass-input: rgba(255, 255, 255, 0.95);
             --text-main: #0f172a;
             --text-muted: #64748b;
             --accent-cyan: #0284c7;
-            --accent-glow: rgba(2, 132, 199, 0.15);
-            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --accent-cyan-dark: #0369a1;
+            --accent-glow: rgba(2, 132, 199, 0.2);
+            --card-shadow: 0 10px 32px rgba(0, 0, 0, 0.08);
             --month-bg: linear-gradient(135deg, #facc15, #eab308);
             --month-text: #0f172a;
-            --box-bg: rgba(241, 245, 249, 0.85);
+            --box-bg: rgba(241, 245, 249, 0.9);
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
@@ -61,6 +67,35 @@
             transition: background 0.3s, color 0.3s;
         }
 
+        /* HIGH-VISIBILITY VIBRANT YELLOW CALENDAR PICKER ICON */
+        [data-theme="dark"] input[type="date"] {
+            color-scheme: dark;
+        }
+
+        [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(83%) sepia(67%) saturate(1200%) hue-rotate(350deg) brightness(105%) contrast(105%);
+            cursor: pointer;
+            opacity: 1;
+            padding: 4px;
+            border-radius: 4px;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            filter: invert(95%) sepia(100%) saturate(2000%) hue-rotate(350deg) brightness(115%) contrast(105%);
+            transform: scale(1.2);
+        }
+
+        [data-theme="light"] input[type="date"] {
+            color-scheme: light;
+        }
+
+        [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0);
+            cursor: pointer;
+            opacity: 0.85;
+        }
+
         /* GLASS HEADER WIDGET */
         .header-container {
             display: flex;
@@ -68,10 +103,10 @@
             align-items: center;
             margin-bottom: 22px;
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 16px 24px;
-            border-radius: 16px;
+            border-radius: 18px;
             border: 1px solid var(--glass-border);
             box-shadow: var(--card-shadow);
             flex-wrap: wrap;
@@ -107,7 +142,7 @@
         .btn-primary {
             background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
             color: #ffffff;
-            box-shadow: 0 4px 14px var(--accent-glow);
+            box-shadow: 0 4px 16px var(--accent-glow);
         }
 
         .btn-secondary {
@@ -127,10 +162,10 @@
         /* GLASS FILTER WIDGET */
         .filter-bar {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 14px 20px;
-            border-radius: 16px;
+            border-radius: 18px;
             border: 1px solid var(--glass-border);
             box-shadow: var(--card-shadow);
             margin-bottom: 24px;
@@ -140,7 +175,7 @@
             flex-wrap: wrap;
         }
 
-        .filter-bar input, .filter-bar select, .form-control {
+        .filter-bar input, .filter-bar select, .form-control-glass {
             padding: 10px 14px;
             border-radius: 10px;
             border: 1px solid var(--glass-border);
@@ -152,7 +187,7 @@
             transition: all 0.2s ease;
         }
 
-        .filter-bar input:focus, .filter-bar select:focus, .form-control:focus {
+        .filter-bar input:focus, .filter-bar select:focus, .form-control-glass:focus {
             border-color: var(--accent-cyan);
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
@@ -210,11 +245,11 @@
         /* GLASS CARD WIDGET */
         .leave-card {
             background: var(--glass-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 16px 18px;
+            border-radius: 18px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -224,34 +259,66 @@
 
         .leave-card:hover {
             transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.22);
-            box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45);
+            border-color: var(--glass-border-bright);
+            box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.5);
         }
 
         .leave-card-top {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .leave-target-header {
-            font-size: 13px;
-            font-weight: 800;
-            display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--accent-cyan);
-            background: rgba(56, 189, 248, 0.1);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(56, 189, 248, 0.2);
+            flex-wrap: wrap;
+        }
+
+        .leave-target-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 4px;
+        }
+
+        /* TARGET DATE PILLS DISPLAY */
+        .target-pills-container {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .date-pill {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 10px;
+            border: 1.5px solid #38bdf8;
+            box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .date-pill .remove-pill-btn {
+            cursor: pointer;
+            opacity: 0.85;
+            font-size: 11px;
+            transition: opacity 0.15s, color 0.15s;
+        }
+
+        .date-pill .remove-pill-btn:hover {
+            opacity: 1;
+            color: #f87171;
         }
 
         .leave-message-box {
             background: var(--box-bg);
             border-left: 3.5px solid var(--accent-cyan);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 12px 14px;
             display: flex;
             flex-direction: column;
@@ -289,11 +356,11 @@
         .card-image-preview {
             width: 100%;
             max-height: 260px;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
             object-fit: contain;
             cursor: pointer;
-            background: rgba(0, 0, 0, 0.25);
+            background: rgba(0, 0, 0, 0.3);
             transition: opacity 0.2s;
         }
 
@@ -308,14 +375,14 @@
             border-top: 1px dashed var(--glass-border);
         }
 
-        /* GLASS MODAL WIDGETS */
+        /* PREMIUM GLASS MODAL WIDGET */
         .modal-backdrop {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(4, 8, 20, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -325,50 +392,85 @@
         .modal-backdrop.show { display: flex; }
 
         .modal-box {
-            background: var(--glass-card);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 24px;
+            background: var(--glass-modal);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border-bright);
+            border-radius: 22px;
+            padding: 26px;
             width: 100%;
             max-width: 620px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.2);
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 800;
             border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 12px;
+            padding-bottom: 14px;
+            letter-spacing: -0.3px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            letter-spacing: 0.2px;
+        }
+
+        .form-control-glass {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-input);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-control-glass:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: rgba(14, 23, 46, 0.85);
         }
 
         .paste-drop-zone {
-            border: 2px dashed var(--glass-border);
-            padding: 20px;
+            border: 2px dashed var(--glass-border-bright);
+            padding: 22px;
             text-align: center;
-            border-radius: 12px;
+            border-radius: 14px;
             background: var(--glass-input);
             cursor: pointer;
             transition: all 0.2s ease;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15);
         }
 
-        .paste-drop-zone:hover { border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.05); }
+        .paste-drop-zone:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.08);
+            transform: scale(1.01);
+        }
 
         .image-preview {
             max-width: 100%;
             max-height: 180px;
-            border-radius: 8px;
+            border-radius: 10px;
             display: none;
-            margin-top: 10px;
+            margin-top: 12px;
             border: 1px solid var(--glass-border);
         }
 
@@ -376,8 +478,8 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.94);
+            backdrop-filter: blur(14px);
             z-index: 3000;
             align-items: center;
             justify-content: center;
@@ -385,7 +487,7 @@
         }
 
         .lightbox-backdrop.show { display: flex; }
-        .lightbox-backdrop img { max-width: 92%; max-height: 92%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); }
+        .lightbox-backdrop img { max-width: 92%; max-height: 92%; border-radius: 14px; box-shadow: 0 12px 50px rgba(0, 0, 0, 0.9); }
 
         @media (max-width: 600px) {
             body { padding: 12px; }
@@ -441,19 +543,19 @@
         <div class="modal-box">
             <div class="modal-header">
                 <span id="modalTitle">Submit Leave Application</span>
-                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeModal()"></i>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; opacity: 0.8;" onclick="closeModal()"></i>
             </div>
             
             <input type="hidden" id="editLeaveId">
 
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 180px;">
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Date Submitted *</label>
-                    <input type="date" id="dateSubmitted" class="form-control" style="width: 100%;">
+                    <label class="form-label">Date Submitted *</label>
+                    <input type="date" id="dateSubmitted" class="form-control-glass">
                 </div>
                 <div style="flex: 1; min-width: 180px;">
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Category *</label>
-                    <select id="leaveCategory" class="form-control" style="width: 100%;">
+                    <label class="form-label">Category *</label>
+                    <select id="leaveCategory" class="form-control-glass">
                         <option value="VL">Vacation Leave (VL)</option>
                         <option value="SL">Sick Leave (SL)</option>
                         <option value="EMERGENCY">Emergency Leave</option>
@@ -464,36 +566,44 @@
 
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 180px;">
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Employee Name *</label>
-                    <select id="leaveEmployee" class="form-control" style="width: 100%;">
+                    <label class="form-label">Employee Name *</label>
+                    <select id="leaveEmployee" class="form-control-glass">
+                        <option value="" disabled selected>-- Select Employee --</option>
                         <option value="ANN">ANN</option>
                         <option value="DAVE">DAVE</option>
                         <option value="KENNETH">KENNETH</option>
                         <option value="KRIZTEL">KRIZTEL</option>
                     </select>
                 </div>
-                <div style="flex: 1; min-width: 180px;">
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Target VL/Leave Date(s) *</label>
-                    <input type="text" id="targetLeaveDates" class="form-control" style="width: 100%;" placeholder="e.g. Oct 12 or Oct 12, Oct 14-15">
+            </div>
+
+            <!-- MULTI-DATE CALENDAR PICKER FIELD -->
+            <div>
+                <label class="form-label">Select Target Leave Date(s) *</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <input type="date" id="targetDatePicker" class="form-control-glass" style="flex: 1;">
+                    <button type="button" class="btn btn-secondary" onclick="addSelectedDate()"><i class="fa-solid fa-calendar-plus"></i> Add Date</button>
                 </div>
+                <!-- Interactive Pills Wrapper inside Modal -->
+                <div id="targetDatesPillsModal" class="target-pills-container" style="min-height: 32px; padding: 4px 0;"></div>
             </div>
 
             <div>
-                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Message / Leave Context *</label>
-                <textarea id="leaveContext" class="form-control" style="width: 100%; height: 95px; resize: vertical;" placeholder="Enter leave details, coverage plan, or context..."></textarea>
+                <label class="form-label">Message / Leave Context *</label>
+                <textarea id="leaveContext" class="form-control-glass" style="height: 95px; resize: vertical;" placeholder="Enter leave details, coverage plan, or context..."></textarea>
             </div>
 
             <div>
-                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Approval / Medical Cert Screenshot</label>
+                <label class="form-label">Approval / Medical Cert Screenshot</label>
                 <div class="paste-drop-zone" onclick="document.getElementById('fileInput').click()">
-                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 24px; margin-bottom: 6px; color: var(--accent-cyan);"></i>
-                    <p style="font-size: 12px; font-weight: 600;">Click to Upload OR Press <strong>Ctrl+V / Cmd+V</strong> to Paste Screenshot</p>
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 26px; margin-bottom: 6px; color: var(--accent-cyan);"></i>
+                    <p style="font-size: 12px; font-weight: 700;">Click to Upload OR Press <strong>Ctrl+V / Cmd+V</strong> to Paste Screenshot</p>
                     <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
                 </div>
                 <img id="imagePreview" class="image-preview" alt="Attachment Preview">
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveLeave()">Save Application</button>
             </div>
@@ -521,14 +631,62 @@
 
         let leaveApplications = {};
         let currentImageData = "";
+        let selectedTargetDates = [];
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthShortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         function listenToDatabase() {
             db.ref('leave_applications').on('value', (snapshot) => {
                 leaveApplications = snapshot.val() || {};
                 renderLeaves();
             });
+        }
+
+        function formatDateToPill(isoDateStr) {
+            if (!isoDateStr) return '';
+            const parts = isoDateStr.split('-');
+            if (parts.length === 3) {
+                const dayNum = parseInt(parts[2], 10);
+                const monthIdx = parseInt(parts[1], 10) - 1;
+                if (monthIdx >= 0 && monthIdx < 12) {
+                    return `${dayNum}-${monthShortNames[monthIdx]}`;
+                }
+            }
+            return isoDateStr;
+        }
+
+        function addSelectedDate() {
+            const picker = document.getElementById('targetDatePicker');
+            const val = picker.value;
+            if (!val) return;
+
+            if (!selectedTargetDates.includes(val)) {
+                selectedTargetDates.push(val);
+                selectedTargetDates.sort();
+                renderModalDatePills();
+            }
+            picker.value = '';
+        }
+
+        function removeSelectedDate(isoDateStr) {
+            selectedTargetDates = selectedTargetDates.filter(d => d !== isoDateStr);
+            renderModalDatePills();
+        }
+
+        function renderModalDatePills() {
+            const container = document.getElementById('targetDatesPillsModal');
+            if (selectedTargetDates.length === 0) {
+                container.innerHTML = `<span style="font-size: 11px; opacity: 0.6; font-style: italic;">No dates selected yet. Pick a date above and click "Add Date".</span>`;
+                return;
+            }
+
+            container.innerHTML = selectedTargetDates.map(isoStr => `
+                <span class="date-pill">
+                    ${formatDateToPill(isoStr)}
+                    <i class="fa-solid fa-xmark remove-pill-btn" onclick="removeSelectedDate('${isoStr}')"></i>
+                </span>
+            `).join('');
         }
 
         function renderLeaves() {
@@ -542,9 +700,13 @@
             const logsArray = Object.keys(leaveApplications).map(id => ({ id, ...leaveApplications[id] }));
 
             const filteredLogs = logsArray.filter(log => {
+                let targetText = Array.isArray(log.targetDates) 
+                    ? log.targetDates.map(d => formatDateToPill(d)).join(' ') 
+                    : (log.targetDates || '');
+
                 const matchesSearch = (log.context && log.context.toLowerCase().includes(searchText)) ||
                                       (log.employee && log.employee.toLowerCase().includes(searchText)) ||
-                                      (log.targetDates && log.targetDates.toLowerCase().includes(searchText));
+                                      targetText.toLowerCase().includes(searchText);
                 const matchesEmp = (filterEmp === 'ALL' || log.employee === filterEmp);
                 const matchesCat = (filterCat === 'ALL' || log.category === filterCat);
                 return matchesSearch && matchesEmp && matchesCat;
@@ -601,11 +763,20 @@
 
                         const userInitial = (log.employee || 'E').substring(0, 1).toUpperCase();
 
+                        let targetPillsHtml = '';
+                        if (Array.isArray(log.targetDates) && log.targetDates.length > 0) {
+                            targetPillsHtml = log.targetDates.map(isoStr => `<span class="date-pill">${formatDateToPill(isoStr)}</span>`).join(' ');
+                        } else if (typeof log.targetDates === 'string' && log.targetDates.trim() !== '') {
+                            targetPillsHtml = `<span class="date-pill">${escapeHtml(log.targetDates)}</span>`;
+                        } else {
+                            targetPillsHtml = `<span style="font-size: 12px; opacity: 0.6;">N/A</span>`;
+                        }
+
                         card.innerHTML = `
                             <div class="leave-card-top">
-                                <div class="leave-target-header">
-                                    <i class="fa-regular fa-calendar-check"></i>
-                                    <span>Target Dates: ${escapeHtml(log.targetDates || 'N/A')}</span>
+                                <span class="leave-target-label"><i class="fa-regular fa-calendar-check" style="color: var(--accent-cyan);"></i> Target:</span>
+                                <div class="target-pills-container">
+                                    ${targetPillsHtml}
                                 </div>
                             </div>
 
@@ -648,11 +819,14 @@
         function openNewLeaveModal() {
             document.getElementById('editLeaveId').value = '';
             document.getElementById('dateSubmitted').value = new Date().toISOString().split('T')[0];
-            document.getElementById('targetLeaveDates').value = '';
-            document.getElementById('leaveEmployee').value = 'ANN';
+            document.getElementById('targetDatePicker').value = '';
+            document.getElementById('leaveEmployee').value = '';
             document.getElementById('leaveCategory').value = 'VL';
             document.getElementById('leaveContext').value = '';
             
+            selectedTargetDates = [];
+            renderModalDatePills();
+
             currentImageData = '';
             document.getElementById('imagePreview').style.display = 'none';
             document.getElementById('modalTitle').innerText = 'Submit Leave Application';
@@ -698,19 +872,26 @@
 
         async function saveLeave() {
             const dateSubmitted = document.getElementById('dateSubmitted').value;
-            const targetDates = document.getElementById('targetLeaveDates').value.trim();
             const employee = document.getElementById('leaveEmployee').value;
             const category = document.getElementById('leaveCategory').value;
             const context = document.getElementById('leaveContext').value.trim();
             const editId = document.getElementById('editLeaveId').value;
 
-            if (!dateSubmitted || !targetDates || !context) {
-                return alert("Please enter the Submission Date, Target Leave Date(s), and Message Context.");
+            if (!employee) {
+                return alert("Please select an Employee Name before saving.");
+            }
+
+            if (selectedTargetDates.length === 0) {
+                return alert("Please pick and add at least one Target Leave Date using the calendar picker.");
+            }
+
+            if (!dateSubmitted || !context) {
+                return alert("Please enter both the Submission Date and Message Context.");
             }
 
             const leaveData = {
                 dateSubmitted,
-                targetDates,
+                targetDates: selectedTargetDates,
                 employee,
                 category,
                 context,
@@ -724,13 +905,12 @@
                 await db.ref('leave_applications').push(leaveData);
             }
 
-            // Interactive confirmation pop-up to import/plot into ROTA Calendar
             const promptPlot = confirm(
                 "📅 Plot Leave to ROTA Calendar?\n\nWould you like to automatically sync and plot these target leave date(s) onto the Team ROTA Schedule?"
             );
 
             if (promptPlot) {
-                await autoSyncToRota(employee, category, targetDates, dateSubmitted, 'ADD');
+                await autoSyncToRota(employee, category, selectedTargetDates, 'ADD');
             }
 
             closeModal();
@@ -742,11 +922,17 @@
 
             document.getElementById('editLeaveId').value = id;
             document.getElementById('dateSubmitted').value = log.dateSubmitted || new Date().toISOString().split('T')[0];
-            document.getElementById('targetLeaveDates').value = log.targetDates || '';
-            document.getElementById('leaveEmployee').value = log.employee || 'ANN';
+            document.getElementById('leaveEmployee').value = log.employee || '';
             document.getElementById('leaveCategory').value = log.category || 'VL';
             document.getElementById('leaveContext').value = log.context || '';
             currentImageData = log.image || '';
+
+            if (Array.isArray(log.targetDates)) {
+                selectedTargetDates = [...log.targetDates];
+            } else {
+                selectedTargetDates = [];
+            }
+            renderModalDatePills();
 
             const preview = document.getElementById('imagePreview');
             if (currentImageData) {
@@ -768,69 +954,38 @@
                 return;
             }
 
-            // Interactive confirmation pop-up to remove leave from ROTA Calendar
             const promptRemoveRota = confirm(
                 "🗓️ Remove Leave from ROTA Calendar?\n\nWould you like to also clear these leave date(s) from the Team ROTA Schedule?"
             );
 
             if (promptRemoveRota && log.employee && log.targetDates) {
-                await autoSyncToRota(log.employee, log.category, log.targetDates, log.dateSubmitted, 'REMOVE');
+                const datesArr = Array.isArray(log.targetDates) ? log.targetDates : [];
+                await autoSyncToRota(log.employee, log.category, datesArr, 'REMOVE');
             }
 
             await db.ref(`leave_applications/${id}`).remove();
         }
 
-        /**
-         * Parses target dates (e.g. "Oct 12", "Oct 12-14", "12 Oct") 
-         * and writes or clears VL/SL directly in the Rota Firebase path.
-         */
-        async function autoSyncToRota(employeeName, category, targetDatesString, submissionDate, action = 'ADD') {
+        async function autoSyncToRota(employeeName, category, datesArray, action = 'ADD') {
             const leaveTag = (action === 'REMOVE') ? '' : ((category === 'SL') ? 'SL' : 'VL');
 
-            // 1. Fetch current team members to locate the employee's row index
             const teamSnap = await db.ref('team_members').once('value');
             const team = teamSnap.val() || ["Ann", "Dave", "Kenneth", "Kriztel", "Miguel"];
             const memberIndex = team.findIndex(m => m.toLowerCase() === employeeName.toLowerCase());
 
-            if (memberIndex === -1) return;
+            if (memberIndex === -1 || !Array.isArray(datesArray)) return;
 
-            // 2. Determine year from submission date
-            const subYear = submissionDate ? new Date(submissionDate).getFullYear() : new Date().getFullYear();
+            for (const isoStr of datesArray) {
+                const parts = isoStr.split('-');
+                if (parts.length === 3) {
+                    const year = parts[0];
+                    const monthNum = parseInt(parts[1], 10);
+                    const day = parseInt(parts[2], 10);
+                    const monthKey = `${year}_${monthNum}`;
 
-            // 3. Month Name mapping helper
-            const monthsMap = {
-                jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-                jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12
-            };
-
-            const monthMatch = targetDatesString.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i);
-            if (!monthMatch) return;
-
-            const monthNum = monthsMap[monthMatch[0].toLowerCase()];
-            const monthKey = `${subYear}_${monthNum}`;
-
-            // Extract numbers (days)
-            const dayMatches = targetDatesString.match(/\d+/g);
-            if (!dayMatches) return;
-
-            let daysToUpdate = [];
-
-            // Check if input contains a range like "12-15"
-            const rangeMatch = targetDatesString.match(/(\d+)\s*-\s*(\d+)/);
-            if (rangeMatch) {
-                const startDay = parseInt(rangeMatch[1]);
-                const endDay = parseInt(rangeMatch[2]);
-                for (let d = startDay; d <= endDay; d++) {
-                    daysToUpdate.push(d);
-                }
-            } else {
-                daysToUpdate = dayMatches.map(d => parseInt(d));
-            }
-
-            // 4. Update Firebase Rota Data for each target day
-            for (const day of daysToUpdate) {
-                if (day >= 1 && day <= 31) {
-                    await db.ref(`rota_data/${monthKey}/${day}/${memberIndex}`).set(leaveTag);
+                    if (day >= 1 && day <= 31) {
+                        await db.ref(`rota_data/${monthKey}/${day}/${memberIndex}`).set(leaveTag);
+                    }
                 }
             }
         }
