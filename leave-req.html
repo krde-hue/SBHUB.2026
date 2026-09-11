@@ -67,18 +67,11 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* HIGH-VISIBILITY VIBRANT YELLOW CALENDAR PICKER ICON */
-        [data-theme="dark"] input[type="date"] {
-            color-scheme: dark;
-        }
+        [data-theme="dark"] input[type="date"] { color-scheme: dark; }
 
         [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(83%) sepia(67%) saturate(1200%) hue-rotate(350deg) brightness(105%) contrast(105%);
-            cursor: pointer;
-            opacity: 1;
-            padding: 4px;
-            border-radius: 4px;
-            transition: transform 0.2s ease, filter 0.2s ease;
+            cursor: pointer; opacity: 1; padding: 4px; border-radius: 4px; transition: transform 0.2s ease, filter 0.2s ease;
         }
 
         [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator:hover {
@@ -86,14 +79,20 @@
             transform: scale(1.2);
         }
 
-        [data-theme="light"] input[type="date"] {
-            color-scheme: light;
-        }
+        [data-theme="light"] input[type="date"] { color-scheme: light; }
+        [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); cursor: pointer; opacity: 0.85; }
 
-        [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(0);
-            cursor: pointer;
-            opacity: 0.85;
+        /* VIEW ONLY BANNER */
+        .view-only-banner {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            font-weight: 800;
+            text-align: center;
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            display: none;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
         }
 
         /* GLASS HEADER WIDGET */
@@ -500,6 +499,11 @@
 </head>
 <body>
 
+    <!-- VIEW ONLY BANNER -->
+    <div id="viewOnlyBanner" class="view-only-banner">
+        🔒 View-Only Mode Active: Submitting, editing, and deleting leave entries are disabled.
+    </div>
+
     <!-- MAIN HEADER GLASS WIDGET -->
     <div class="header-container">
         <div class="title-group">
@@ -507,9 +511,9 @@
             <span class="title-credit">kdv_2026 model</span>
         </div>
         <div class="btn-controls">
-            <button class="btn btn-primary" onclick="openNewLeaveModal()"><i class="fa-solid fa-plus"></i> Submit Leave</button>
+            <button id="btnSubmitLeave" class="btn btn-primary" onclick="openNewLeaveModal()"><i class="fa-solid fa-plus"></i> Submit Leave</button>
             <button class="btn btn-secondary" onclick="toggleDarkMode()"><i class="fa-solid fa-circle-half-stroke"></i> Mode</button>
-            <a href="rota.html" class="btn btn-dashboard"><i class="fa-regular fa-calendar-days"></i> Back to Rota</a>
+            <a id="btnBackToRota" href="rota.html" class="btn btn-dashboard"><i class="fa-regular fa-calendar-days"></i> Back to Rota</a>
         </div>
     </div>
 
@@ -632,9 +636,36 @@
         let leaveApplications = {};
         let currentImageData = "";
         let selectedTargetDates = [];
+        let isViewOnlyMode = false;
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const monthShortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        function checkViewOnlyMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('viewonly') === 'true' || sessionStorage.getItem("admin_authenticated") !== "true") {
+                isViewOnlyMode = true;
+            } else {
+                isViewOnlyMode = false;
+            }
+            updateViewOnlyUI();
+        }
+
+        function updateViewOnlyUI() {
+            const banner = document.getElementById('viewOnlyBanner');
+            const btnSubmit = document.getElementById('btnSubmitLeave');
+            const btnBackToRota = document.getElementById('btnBackToRota');
+
+            if (isViewOnlyMode) {
+                banner.style.display = 'block';
+                if (btnSubmit) btnSubmit.style.display = 'none'; // Hide Submit Leave button in View-Only
+                if (btnBackToRota) btnBackToRota.href = 'rota.html?viewonly=true';
+            } else {
+                banner.style.display = 'none';
+                if (btnSubmit) btnSubmit.style.display = 'inline-flex';
+                if (btnBackToRota) btnBackToRota.href = 'rota.html';
+            }
+        }
 
         function listenToDatabase() {
             db.ref('leave_applications').on('value', (snapshot) => {
@@ -772,6 +803,14 @@
                             targetPillsHtml = `<span style="font-size: 12px; opacity: 0.6;">N/A</span>`;
                         }
 
+                        // Hide Edit / Delete buttons if in View-Only Mode
+                        const cardActionsHtml = !isViewOnlyMode ? `
+                            <div>
+                                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="editLeave('${log.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px; color: #f87171;" onclick="deleteLeave('${log.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+                            </div>
+                        ` : '';
+
                         card.innerHTML = `
                             <div class="leave-card-top">
                                 <span class="leave-target-label"><i class="fa-regular fa-calendar-check" style="color: var(--accent-cyan);"></i> Target:</span>
@@ -795,10 +834,7 @@
 
                             <div class="card-footer-actions">
                                 <span style="font-size: 11px; opacity: 0.75; font-weight: 700;">📋 Submitted: ${log.dateSubmitted || 'N/A'}</span>
-                                <div>
-                                    <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="editLeave('${log.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
-                                    <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px; color: #f87171;" onclick="deleteLeave('${log.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
-                                </div>
+                                ${cardActionsHtml}
                             </div>
                         `;
                         grid.appendChild(card);
@@ -812,11 +848,12 @@
             });
 
             if (container.children.length === 0) {
-                container.innerHTML = `<div style="text-align: center; opacity: 0.6; padding: 60px; font-weight: 600;">No leave applications found. Click <strong>"➕ Submit Leave"</strong> to log one.</div>`;
+                container.innerHTML = `<div style="text-align: center; opacity: 0.6; padding: 60px; font-weight: 600;">No leave applications found.</div>`;
             }
         }
 
         function openNewLeaveModal() {
+            if (isViewOnlyMode) return;
             document.getElementById('editLeaveId').value = '';
             document.getElementById('dateSubmitted').value = new Date().toISOString().split('T')[0];
             document.getElementById('targetDatePicker').value = '';
@@ -871,6 +908,8 @@
         });
 
         async function saveLeave() {
+            if (isViewOnlyMode) return;
+
             const dateSubmitted = document.getElementById('dateSubmitted').value;
             const employee = document.getElementById('leaveEmployee').value;
             const category = document.getElementById('leaveCategory').value;
@@ -917,6 +956,7 @@
         }
 
         function editLeave(id) {
+            if (isViewOnlyMode) return;
             const log = leaveApplications[id];
             if (!log) return;
 
@@ -947,6 +987,7 @@
         }
 
         async function deleteLeave(id) {
+            if (isViewOnlyMode) return;
             const log = leaveApplications[id];
             if (!log) return;
 
@@ -967,6 +1008,7 @@
         }
 
         async function autoSyncToRota(employeeName, category, datesArray, action = 'ADD') {
+            if (isViewOnlyMode) return;
             const leaveTag = (action === 'REMOVE') ? '' : ((category === 'SL') ? 'SL' : 'VL');
 
             const teamSnap = await db.ref('team_members').once('value');
@@ -1011,6 +1053,7 @@
         }
 
         window.onload = function() {
+            checkViewOnlyMode();
             if (localStorage.getItem('sb_theme') === 'light') {
                 document.documentElement.setAttribute('data-theme', 'light');
             }
