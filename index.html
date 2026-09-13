@@ -1052,25 +1052,43 @@
   </div>
 
   <script>
-    /* Wallpaper Presets - Merry Little Christmas is Default #1 */
+    /* Wallpaper Presets - green.jpg as Default #1, minimalist.jpg and Santa.jpg included */
     const wallpaperPresets = [
       {
-        id: "merry_christmas_default",
-        name: "Merry Little Christmas (Default)",
+        id: "green_default",
+        name: "Merry Christmas Green (Default)",
         type: "dark",
-        url: "Gemini_Generated_Image_ofl5hfofl5hfofl5.jpg"
+        url: "green.jpg"
+      },
+      {
+        id: "minimalist_bg",
+        name: "Winter Minimalist",
+        type: "light",
+        url: "minimalist.jpg"
+      },
+      {
+        id: "santa_bg",
+        name: "Festive Santa",
+        type: "dark",
+        url: "santa.jpg"
+      },
+      {
+        id: "merry_christmas_default",
+        name: "Christmas Tree Scene",
+        type: "dark",
+        url: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?q=80&w=1600&auto=format&fit=crop"
       },
       {
         id: "winter_wonderland_default",
         name: "Winter Wonderland",
         type: "light",
-        url: "Gemini_Generated_Image_rjm6uqrjm6uqrjm6.jpg"
+        url: "https://images.unsplash.com/photo-1513297887119-d46091b24bfa?q=80&w=1600&auto=format&fit=crop"
       },
       {
         id: "festive_default",
         name: "Sportsbook Hub Festive",
         type: "dark",
-        url: "Gemini_Generated_Image_v0vwj4v0vwj4v0vw.jpg"
+        url: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?q=80&w=1600&auto=format&fit=crop"
       },
       {
         id: "orig",
@@ -1306,7 +1324,7 @@
       if (!container) return;
       container.innerHTML = '';
 
-      const activeWpId = localStorage.getItem('sbhub_selected_wallpaper') || 'merry_christmas_default';
+      const activeWpId = localStorage.getItem('sbhub_selected_wallpaper') || 'green_default';
 
       wallpaperPresets.forEach(wp => {
         const thumb = document.createElement('div');
@@ -1360,7 +1378,7 @@
           document.body.style.backgroundRepeat = 'no-repeat';
           document.body.style.backgroundAttachment = 'fixed';
         } else {
-          applyWallpaper('merry_christmas_default');
+          applyWallpaper('green_default');
         }
         return;
       }
