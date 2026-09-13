@@ -257,6 +257,8 @@
         .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
         .btn-secondary { background: rgba(255, 255, 255, 0.08); color: var(--text-color); border-color: var(--card-border); }
         .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
+        .btn-archive { background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(79, 70, 229, 0.8) 100%); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); border-color: rgba(255,255,255,0.2); }
+        .btn-archive:hover { filter: brightness(1.15); transform: translateY(-1px); }
         .btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-danger:hover { background: rgba(239, 68, 68, 0.35); }
         .btn-success { background: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.8) 100%); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); border-color: rgba(255,255,255,0.2); }
@@ -485,8 +487,10 @@
             overflow-y: auto;
             flex: 1;
             padding-top: 2px;
+            min-height: 30px;
         }
 
+        /* Drag and Drop Task Styling */
         .task-item-row {
             display: flex;
             align-items: center;
@@ -496,6 +500,21 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.06);
             transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .task-item-row:active {
+            cursor: grabbing;
+        }
+
+        .task-item-row.dragging {
+            opacity: 0.4;
+            border: 1px dashed var(--header-text);
+        }
+
+        .task-item-row.drag-over {
+            border-top: 2px solid var(--header-text) !important;
+            transform: translateY(-2px);
         }
 
         .task-item-row:hover {
@@ -554,7 +573,7 @@
             box-shadow: var(--card-shadow);
         }
 
-        /* Password Glass Modal */
+        /* Password & Archive Glass Modals */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -573,10 +592,12 @@
             padding: 22px;
             border-radius: 14px;
             box-shadow: var(--card-shadow);
-            width: 330px;
+            width: 360px;
+            max-width: 90vw;
             display: flex;
             flex-direction: column;
             gap: 12px;
+            max-height: 85vh;
         }
         .modal-card h3 { font-size: 15px; font-weight: 800; color: var(--header-text); }
         .modal-input {
@@ -591,6 +612,27 @@
         }
         .modal-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
+        .archive-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            max-height: 50vh;
+            padding-right: 4px;
+        }
+        .archive-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .archive-item-info { display: flex; flex-direction: column; gap: 2px; }
+        .archive-item-date { font-weight: 700; font-size: 12px; color: var(--header-text); }
+        .archive-item-meta { font-size: 10px; color: var(--text-muted); }
+
         @media print {
             body { background: white !important; display: block !important; height: auto !important; overflow: visible !important; color: black !important; }
             .sidebar, .top-navbar, .no-print, .task-dropdown-container, .shift-end-banner, .remove-task-btn { display: none !important; }
@@ -601,21 +643,21 @@
             td, th { border: 1px solid #000 !important; background: white !important; color: black !important; position: static !important; height: auto !important; }
             .team-member-cell { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             tr.row-rest-day td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .task-item-row { border: none !important; background: transparent !important; padding: 0 !important; }
+            .task-item-row { border: none !important; background: transparent !important; padding: 0 !important; cursor: default !important; }
             .task-item-checkbox { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar no-print" id="sidebarContainer">
+    <aside class="sidebar no-print collapsed" id="sidebarContainer">
         <div class="sidebar-top">
             <div class="brand-box">
                 <div class="brand-text-container">
                     <h2>⚡ SB DUTIES</h2>
                     <span class="brand-subtitle">Operational Roster</span>
                 </div>
-                <button class="collapse-toggle-btn" id="collapseToggleBtn" type="button" onclick="toggleSidebarCollapse()" title="Toggle Sidebar">◀</button>
+                <button class="collapse-toggle-btn" id="collapseToggleBtn" type="button" onclick="toggleSidebarCollapse()" title="Toggle Sidebar">▶</button>
             </div>
 
             <div class="font-size-control-container">
@@ -637,9 +679,8 @@
             <button class="btn btn-success action-protected" type="button" onclick="autoDistributeTasks()" style="width: 100%; justify-content: center;" title="Auto-Distribute Tasks">🎲 <span>Auto-Distribute Tasks</span></button>
             <button class="btn btn-warning action-protected" type="button" onclick="shuffleTasks()" style="width: 100%; justify-content: center;" title="SHUFFLE Tasks">𔤁 <span>SHUFFLE Tasks</span></button>
             <button class="btn btn-primary action-protected" type="button" onclick="addNewDay()" style="width: 100%; justify-content: center;" title="Add Next Day">➕ <span>Add Next Day</span></button>
-            <button class="btn btn-secondary" type="button" onclick="window.print()" style="width: 100%; justify-content: center;" title="Print Active Day">𖤂 <span>Print Active Day</span></button>
-            <button class="btn btn-secondary" type="button" onclick="toggleDarkMode()" style="width: 100%; justify-content: center;" title="Theme">🌓 <span id="themeBtnText">Theme</span></button>
-            <button class="btn btn-danger action-protected" type="button" onclick="clearAllData()" style="width: 100%; justify-content: center;" title="Clear All Data">🗑️ <span>Clear All Data</span></button>
+            <button class="btn btn-archive action-protected" type="button" onclick="archiveActiveDay()" style="width: 100%; justify-content: center;" title="Archive Active Day">📦 <span>Archive Active Day</span></button>
+            <button class="btn btn-secondary" type="button" onclick="openArchivesModal()" style="width: 100%; justify-content: center;" title="View Archived Days">📁 <span>View Archives (<span id="sidebarArchiveCount">0</span>)</span></button>
         </div>
     </aside>
 
@@ -648,12 +689,18 @@
             <div class="workspace-title">
                 <span id="activeWorkspaceTitle">📅 Active Schedule View</span>
             </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <button class="btn btn-secondary" type="button" onclick="toggleMaximizeCalendar()" id="maximizeCalendarBtn" title="Maximize/Minimize Calendar View">
                     𗁤 <span id="maximizeBtnText">Maximize</span>
                 </button>
                 <button id="lockUnlockBtn" class="btn btn-lock" type="button" onclick="handleLockToggle()" title="Lock / Unlock Roster Editing">
                     🔒 <span id="lockBtnText">Locked (View Only)</span>
+                </button>
+                <button class="btn btn-secondary" type="button" onclick="toggleDarkMode()" title="Toggle Theme">
+                    🌓 <span id="themeBtnText">Theme</span>
+                </button>
+                <button class="btn btn-danger action-protected" type="button" onclick="clearAllData()" title="Clear All Data">
+                    🗑️ <span>Clear All Data</span>
                 </button>
                 <span id="activeViewersBadge" class="btn btn-secondary" style="cursor: default; pointer-events: none; font-size: var(--ui-font-size);">
                     👁️ <span id="activeViewersCount">1</span> online
@@ -673,6 +720,7 @@
     </main>
 
     <div id="passwordModalContainer" style="display: none;"></div>
+    <div id="archivesModalContainer" style="display: none;"></div>
 
     <script>
         const firebaseConfig = {
@@ -810,6 +858,7 @@
         let isCalendarMaximized = false;
         let fontSliderRafId = null;
         let isLocked = true;
+        let dragSource = null;
 
         function createDefaultDatabase() {
             let defaultDb = {
@@ -817,7 +866,8 @@
                     isoDate: new Date().toISOString().split('T')[0],
                     reminder: "",
                     grid: {}
-                }
+                },
+                "archives": {}
             };
             members.forEach(m => {
                 defaultDb["day_1"].grid[m.id] = { shift: m.defaultShift, slots: {} };
@@ -831,6 +881,90 @@
                 if (typeof item === 'string') return { text: item, done: false };
                 return { text: item.text || '', done: !!item.done };
             });
+        }
+
+        /* Drag and Drop Handlers for Duty Tasks */
+        function handleTaskDragStart(event, memberId, slotId, taskIdx) {
+            if (isLocked) { event.preventDefault(); return; }
+            dragSource = { memberId, slotId, taskIdx };
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', JSON.stringify(dragSource));
+            event.currentTarget.classList.add('dragging');
+        }
+
+        function handleTaskDragOver(event) {
+            if (isLocked) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            const row = event.currentTarget.closest('.task-item-row');
+            if (row) row.classList.add('drag-over');
+        }
+
+        function handleTaskDragLeave(event) {
+            const row = event.currentTarget.closest('.task-item-row');
+            if (row) row.classList.remove('drag-over');
+        }
+
+        function handleTaskDrop(event, targetMemberId, targetSlotId, targetTaskIdx) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.querySelectorAll('.task-item-row').forEach(el => el.classList.remove('drag-over', 'dragging'));
+
+            if (isLocked || !dragSource) return;
+
+            const { memberId: srcMemberId, slotId: srcSlotId, taskIdx: srcTaskIdx } = dragSource;
+
+            if (srcMemberId === targetMemberId && srcSlotId === targetSlotId) {
+                let dayGrid = database[selectedDayKey].grid[srcMemberId];
+                let normalized = getNormalizedSlotTasks(dayGrid.slots[srcSlotId]);
+                const [movedItem] = normalized.splice(srcTaskIdx, 1);
+                normalized.splice(targetTaskIdx, 0, movedItem);
+                dayGrid.slots[srcSlotId] = normalized;
+            } else {
+                let srcGrid = database[selectedDayKey].grid[srcMemberId];
+                let tgtGrid = database[selectedDayKey].grid[targetMemberId];
+                let srcTasks = getNormalizedSlotTasks(srcGrid.slots[srcSlotId]);
+                let tgtTasks = getNormalizedSlotTasks(tgtGrid.slots[targetSlotId]);
+
+                const [movedItem] = srcTasks.splice(srcTaskIdx, 1);
+                tgtTasks.splice(targetTaskIdx, 0, movedItem);
+
+                srcGrid.slots[srcSlotId] = srcTasks;
+                tgtGrid.slots[targetSlotId] = tgtTasks;
+            }
+
+            dragSource = null;
+            saveToDatabase();
+            renderActiveDayPanel();
+        }
+
+        function handleContainerDrop(event, targetMemberId, targetSlotId) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.querySelectorAll('.task-item-row').forEach(el => el.classList.remove('drag-over', 'dragging'));
+
+            if (isLocked || !dragSource) return;
+
+            const { memberId: srcMemberId, slotId: srcSlotId, taskIdx: srcTaskIdx } = dragSource;
+            let srcGrid = database[selectedDayKey].grid[srcMemberId];
+            let tgtGrid = database[selectedDayKey].grid[targetMemberId];
+            let srcTasks = getNormalizedSlotTasks(srcGrid.slots[srcSlotId]);
+            let tgtTasks = getNormalizedSlotTasks(tgtGrid.slots[targetSlotId]);
+
+            const [movedItem] = srcTasks.splice(srcTaskIdx, 1);
+            tgtTasks.push(movedItem);
+
+            srcGrid.slots[srcSlotId] = srcTasks;
+            tgtGrid.slots[targetSlotId] = tgtTasks;
+
+            dragSource = null;
+            saveToDatabase();
+            renderActiveDayPanel();
+        }
+
+        function handleTaskDragEnd() {
+            document.querySelectorAll('.task-item-row').forEach(el => el.classList.remove('drag-over', 'dragging'));
+            dragSource = null;
         }
 
         function handleLockToggle() {
@@ -902,6 +1036,120 @@
             }
         }
 
+        /* Archive System Functions */
+        function archiveActiveDay() {
+            if (isLocked) { alert("Roster is locked! Unlock with password to modify."); return; }
+            let activeKeys = Object.keys(database || {}).filter(k => k !== 'archives');
+            
+            if (confirm(`Archive day sheet (${database[selectedDayKey]?.isoDate || selectedDayKey})? You can restore it anytime from Archives.`)) {
+                if (!database.archives) database.archives = {};
+                
+                database.archives[selectedDayKey] = JSON.parse(JSON.stringify(database[selectedDayKey]));
+                database.archives[selectedDayKey].archivedAt = new Date().toISOString();
+                
+                delete database[selectedDayKey];
+
+                activeKeys = activeKeys.filter(k => k !== selectedDayKey);
+                if (activeKeys.length > 0) {
+                    selectedDayKey = activeKeys[0];
+                } else {
+                    let newDayId = "day_1";
+                    database[newDayId] = { isoDate: new Date().toISOString().split('T')[0], reminder: "", grid: {} };
+                    members.forEach(m => {
+                        database[newDayId].grid[m.id] = { shift: m.defaultShift, slots: {} };
+                    });
+                    selectedDayKey = newDayId;
+                }
+
+                saveToDatabase();
+                renderApp();
+            }
+        }
+
+        function openArchivesModal() {
+            const container = document.getElementById('archivesModalContainer');
+            container.style.display = 'block';
+            renderArchivesModalContent();
+        }
+
+        function closeArchivesModal() {
+            document.getElementById('archivesModalContainer').style.display = 'none';
+        }
+
+        function renderArchivesModalContent() {
+            const container = document.getElementById('archivesModalContainer');
+            const archives = database.archives || {};
+            const keys = Object.keys(archives);
+
+            let archiveItemsHtml = '';
+            if (keys.length === 0) {
+                archiveItemsHtml = `<p style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 20px;">No archived days found.</p>`;
+            } else {
+                archiveItemsHtml = keys.map(key => {
+                    let item = archives[key];
+                    let displayDate = item.isoDate || key;
+                    let archivedDate = item.archivedAt ? new Date(item.archivedAt).toLocaleDateString() : '';
+                    return `
+                        <div class="archive-item">
+                            <div class="archive-item-info">
+                                <span class="archive-item-date">📅 ${displayDate}</span>
+                                <span class="archive-item-meta">${item.reminder ? '📌 ' + item.reminder : 'No notes'} ${archivedDate ? ' • Archived: ' + archivedDate : ''}</span>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn btn-success" type="button" style="padding:4px 8px; font-size:10px;" onclick="restoreArchivedDay('${key}')">↩️ Restore</button>
+                                ${!isLocked ? `<button class="btn btn-danger" type="button" style="padding:4px 8px; font-size:10px;" onclick="permanentlyDeleteArchive('${key}')">🗑️ Delete</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            container.innerHTML = `
+                <div class="modal-overlay" onclick="closeArchivesModal()">
+                    <div class="modal-card" onclick="event.stopPropagation();">
+                        <h3>📁 Archived Day Sheets</h3>
+                        <p style="font-size: 11px; color: var(--text-muted);">Stored backups of past operational rosters.</p>
+                        <div class="archive-list">
+                            ${archiveItemsHtml}
+                        </div>
+                        <div class="modal-buttons">
+                            <button class="btn btn-secondary" type="button" onclick="closeArchivesModal()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function restoreArchivedDay(archiveKey) {
+            if (isLocked) { alert("Roster is locked! Unlock with password to modify."); return; }
+            if (!database.archives || !database.archives[archiveKey]) return;
+
+            database[archiveKey] = JSON.parse(JSON.stringify(database.archives[archiveKey]));
+            delete database[archiveKey].archivedAt;
+            delete database.archives[archiveKey];
+
+            selectedDayKey = archiveKey;
+            saveToDatabase();
+            closeArchivesModal();
+            renderApp();
+        }
+
+        function permanentlyDeleteArchive(archiveKey) {
+            if (isLocked) { alert("Roster is locked! Unlock with password to modify."); return; }
+            if (confirm("Permanently delete this archived sheet? This cannot be undone.")) {
+                delete database.archives[archiveKey];
+                saveToDatabase();
+                renderArchivesModalContent();
+                updateArchiveCountUI();
+            }
+        }
+
+        function updateArchiveCountUI() {
+            const archiveBadge = document.getElementById('sidebarArchiveCount');
+            const count = Object.keys(database.archives || {}).length;
+            if (archiveBadge) archiveBadge.innerText = count;
+        }
+
         function toggleSidebarCollapse() {
             const sidebar = document.getElementById('sidebarContainer');
             const toggleBtn = document.getElementById('collapseToggleBtn');
@@ -909,6 +1157,27 @@
             const isCollapsed = sidebar.classList.contains('collapsed');
             toggleBtn.innerText = isCollapsed ? '▶' : '◀';
             localStorage.setItem('sb_sidebar_collapsed', isCollapsed);
+        }
+
+        function setupSidebarHoverEvents() {
+            const sidebar = document.getElementById('sidebarContainer');
+            const toggleBtn = document.getElementById('collapseToggleBtn');
+
+            sidebar.addEventListener('mouseenter', () => {
+                if (sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.remove('collapsed');
+                    sidebar.dataset.autoExpanded = "true";
+                    toggleBtn.innerText = '◀';
+                }
+            });
+
+            sidebar.addEventListener('mouseleave', () => {
+                if (sidebar.dataset.autoExpanded === "true") {
+                    sidebar.classList.add('collapsed');
+                    delete sidebar.dataset.autoExpanded;
+                    toggleBtn.innerText = '▶';
+                }
+            });
         }
 
         function toggleMaximizeCalendar() {
@@ -1003,8 +1272,9 @@
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
                     database = liveData;
-                    if (!database[selectedDayKey]) {
-                        selectedDayKey = Object.keys(database)[0];
+                    if (!database.archives) database.archives = {};
+                    if (!database[selectedDayKey] && Object.keys(database).filter(k => k !== 'archives').length > 0) {
+                        selectedDayKey = Object.keys(database).filter(k => k !== 'archives')[0];
                     }
                 } else {
                     database = createDefaultDatabase();
@@ -1052,6 +1322,7 @@
             if (!masterRotaCalendar || Object.keys(masterRotaCalendar).length === 0) return;
             let updated = false;
             Object.keys(database || {}).forEach(dayKey => {
+                if (dayKey === 'archives') return;
                 let dayData = database[dayKey];
                 if (dayData && dayData.isoDate) {
                     let dateParts = dayData.isoDate.split('-');
@@ -1315,6 +1586,7 @@
         function renderApp() {
             renderSidebarNav();
             renderActiveDayPanel();
+            updateArchiveCountUI();
         }
 
         function renderSidebarNav() {
@@ -1322,15 +1594,39 @@
             if (!navList) return;
             navList.innerHTML = '';
 
-            Object.keys(database || {}).forEach((dayKey, index) => {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let dayKeys = Object.keys(database || {}).filter(k => k !== 'archives');
+
+            // Automatic date sorting: Today at very top, future dates next, past dates pushed to the bottom
+            dayKeys.sort((a, b) => {
+                let dateA = database[a]?.isoDate || '';
+                let dateB = database[b]?.isoDate || '';
+
+                let isTodayA = (dateA === todayStr);
+                let isTodayB = (dateB === todayStr);
+
+                if (isTodayA && !isTodayB) return -1;
+                if (!isTodayA && isTodayB) return 1;
+
+                let isPastA = dateA < todayStr;
+                let isPastB = dateB < todayStr;
+
+                if (!isPastA && isPastB) return -1;
+                if (isPastA && !isPastB) return 1;
+
+                return dateA.localeCompare(dateB);
+            });
+
+            dayKeys.forEach((dayKey, index) => {
                 let dayData = database[dayKey];
+                let isToday = dayData.isoDate === todayStr;
                 let displayDate = dayData.isoDate ? dayData.isoDate.split('-').slice(1).join('/') : `Day ${index + 1}`;
                 let isActive = dayKey === selectedDayKey;
 
                 let btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = `day-nav-btn ${isActive ? 'active' : ''}`;
-                btn.innerHTML = `<span>📅 ${displayDate}</span> <span style="font-size:10px; opacity:0.8;">#${index + 1}</span>`;
+                btn.innerHTML = `<span>📅 ${displayDate} ${isToday ? '⭐️' : ''}</span> <span style="font-size:10px; opacity:0.8;">#${index + 1}</span>`;
                 btn.onclick = () => {
                     selectedDayKey = dayKey;
                     renderApp();
@@ -1345,8 +1641,14 @@
             if (!container) return;
             container.innerHTML = '';
 
+            let dayKeys = Object.keys(database || {}).filter(k => k !== 'archives');
+
             if (!database[selectedDayKey]) {
-                selectedDayKey = Object.keys(database)[0];
+                if (dayKeys.length > 0) {
+                    selectedDayKey = dayKeys[0];
+                } else {
+                    return;
+                }
             }
             let dayData = database[selectedDayKey];
             document.getElementById('activeWorkspaceTitle').innerText = `📅 Schedule Roster — ${dayData.isoDate || selectedDayKey}`;
@@ -1366,6 +1668,7 @@
                         </div>
                     </div>
                     <div class="no-print" style="display:flex; gap:6px; ${isLocked ? 'display:none;' : ''}">
+                        <button class="btn btn-archive" type="button" onclick="archiveActiveDay()">📦 Archive Sheet</button>
                         <button class="btn btn-secondary" type="button" onclick="clearDayDuties()">🧹 Clear Tasks</button>
                         <button class="btn btn-danger" type="button" onclick="deleteActiveDay()">🗑️ Delete Day</button>
                     </div>
@@ -1472,7 +1775,13 @@
                         `;
 
                         let taskItemsHtml = normalizedTasks.map((tObj, tIdx) => `
-                            <div class="task-item-row ${tObj.done ? 'completed' : ''}">
+                            <div class="task-item-row ${tObj.done ? 'completed' : ''}"
+                                 draggable="${!isLocked}"
+                                 ondragstart="handleTaskDragStart(event, '${m.id}', '${slot.id}', ${tIdx})"
+                                 ondragover="handleTaskDragOver(event)"
+                                 ondragleave="handleTaskDragLeave(event)"
+                                 ondrop="handleTaskDrop(event, '${m.id}', '${slot.id}', ${tIdx})"
+                                 ondragend="handleTaskDragEnd()">
                                 <input type="checkbox" class="task-item-checkbox" ${tObj.done ? 'checked' : ''} ${isLocked ? 'disabled' : ''} onchange="toggleTaskDone('${m.id}', '${slot.id}', ${tIdx}, this.checked, event)">
                                 <span class="task-item-text">${tObj.text}</span>
                                 ${!isLocked ? `<button type="button" class="remove-task-btn no-print" onclick="removeTask('${m.id}', '${slot.id}', ${tIdx}, event)" title="Remove task">×</button>` : ''}
@@ -1491,7 +1800,9 @@
                                         ${customInputSection}
                                     </div>
                                 </div>
-                                <div class="task-items-container">
+                                <div class="task-items-container"
+                                     ondragover="handleTaskDragOver(event)"
+                                     ondrop="handleContainerDrop(event, '${m.id}', '${slot.id}')">
                                     ${taskItemsHtml}
                                 </div>
                             </div>
@@ -1678,8 +1989,9 @@
 
         function clearAllData() {
             if (isLocked) return;
-            if (confirm("Clear ALL duties across all days?")) {
+            if (confirm("Clear ALL duties across all active days?")) {
                 Object.keys(database || {}).forEach(dayKey => {
+                    if (dayKey === 'archives') return;
                     members.forEach(m => {
                         if (database[dayKey] && database[dayKey].grid[m.id]) database[dayKey].grid[m.id].slots = {};
                     });
@@ -1691,19 +2003,25 @@
 
         function deleteActiveDay() {
             if (isLocked) return;
-            let dayKeys = Object.keys(database || {});
-            if (dayKeys.length <= 1) return alert("You must keep at least one day sheet.");
-            if (confirm("Delete this active day sheet?")) {
-                delete database[selectedDayKey];
-                selectedDayKey = Object.keys(database)[0];
-                saveToDatabase();
-                renderApp();
+            let dayKeys = Object.keys(database || {}).filter(k => k !== 'archives');
+            
+            let choice = confirm("Do you want to Archive this day sheet to keep a copy?\n\nPress OK to Archive, or Cancel to Delete Permanently.");
+            if (choice) {
+                archiveActiveDay();
+            } else {
+                if (dayKeys.length <= 1) return alert("You must keep at least one active day sheet.");
+                if (confirm("Permanently delete this day sheet?")) {
+                    delete database[selectedDayKey];
+                    selectedDayKey = Object.keys(database).filter(k => k !== 'archives')[0];
+                    saveToDatabase();
+                    renderApp();
+                }
             }
         }
 
         function addNewDay() {
             if (isLocked) { alert("Roster is locked! Unlock with password to modify."); return; }
-            let dayKeys = Object.keys(database || {});
+            let dayKeys = Object.keys(database || {}).filter(k => k !== 'archives');
             let lastKey = dayKeys[dayKeys.length - 1] || "day_1";
             let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : new Date().toISOString().split('T')[0];
             
@@ -1733,13 +2051,7 @@
             const savedFontLevel = localStorage.getItem('sb_font_size_level') || '1';
             changeFontSizeLevel(savedFontLevel);
 
-            const savedCollapsed = localStorage.getItem('sb_sidebar_collapsed') === 'true';
-            if (savedCollapsed) {
-                const sidebar = document.getElementById('sidebarContainer');
-                const toggleBtn = document.getElementById('collapseToggleBtn');
-                sidebar.classList.add('collapsed');
-                toggleBtn.innerText = '▶';
-            }
+            setupSidebarHoverEvents();
 
             listenToLiveDatabase();
             setupPresenceSystem();
