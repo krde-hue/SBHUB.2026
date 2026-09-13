@@ -181,8 +181,10 @@
     .error-msg { color: var(--accent-red); font-size: 11px; font-weight: 700; text-align: center; margin-top: 8px; }
 
     /* Desktop Sidebar */
-    .sidebar { position: fixed; top: 15px; left: 15px; height: calc(100vh - 30px); width: var(--sidebar-width); background: var(--glass-bg); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; transition: width 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 600; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); }
-    .sidebar .logo-details { height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 4px; flex-shrink: 0; }
+    .sidebar { position: fixed; top: 15px; left: 15px; height: calc(100vh - 30px); width: var(--sidebar-width); background: var(--glass-bg); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; transition: width 0.35s ease, border-color 0.3s ease; z-index: 600; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); user-select: none; }
+    .sidebar.sidebar-locked { border-color: rgba(56, 189, 248, 0.4); }
+    .sidebar .logo-details { height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 4px; flex-shrink: 0; cursor: grab; }
+    .sidebar .logo-details:active { cursor: grabbing; }
     .sidebar .logo-details .logo_name { color: var(--text-main); font-size: 13px; font-weight: 800; letter-spacing: 1.8px; white-space: nowrap; display: none; opacity: 0; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
     .sidebar #btn { font-size: 22px; cursor: pointer; color: var(--text-main); }
     .sidebar .search-box { position: relative; height: 42px; width: 100%; margin-top: 12px; background: rgba(8, 12, 20, 0.45); border-radius: 12px; display: flex; align-items: center; border: 1px solid var(--glass-border); flex-shrink: 0; }
@@ -362,6 +364,37 @@
     .dock-link-item { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 800; letter-spacing: 0.5px; transition: all 0.2s ease; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
     .dock-link-item:hover { border-color: var(--accent-glow); background: rgba(15, 23, 42, 0.75); }
 
+    /* FLASHSCORE LIVE HUB STYLING RESTORATION */
+    .flashscore-links-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+      flex-grow: 1;
+      padding-right: 2px;
+    }
+    .flashscore-link-item {
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: var(--text-main);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    }
+    .flashscore-link-item:hover {
+      border-color: var(--accent-glow);
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--accent-glow);
+    }
+
     .tz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .tz-item { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
     .tz-select { background: rgba(8, 12, 20, 0.65); color: var(--accent-glow); border: 1px solid var(--glass-border); border-radius: 6px; font-size: 9px; font-weight: 800; padding: 3px 4px; outline: none; text-transform: uppercase; cursor: pointer; width: 100%; margin-bottom: 4px; text-align: center; }
@@ -496,6 +529,35 @@
     input:checked + .slider { background-color: var(--accent-glow); }
     input:checked + .slider:before { transform: translateX(22px); }
 
+    /* Toast Notification for Sidebar Lock/Unlock */
+    #toastNotification {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--accent-glow);
+      color: var(--text-main);
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      backdrop-filter: blur(15px);
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(15px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #toastNotification.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
     .mobile-nav-bar { display: none; }
     #mobileBackdropOverlay { display: none; }
 
@@ -542,6 +604,9 @@
 </head>
 <body onmousemove="resetInactivityTimer()" onkeypress="resetInactivityTimer()">
 
+  <!-- Toast Notification -->
+  <div id="toastNotification"><i class='bx bx-info-circle' style="font-size: 16px; color: var(--accent-glow);"></i> <span id="toastMsg">Notification</span></div>
+
   <!-- Authentication Overlay -->
   <div id="authOverlay">
     <div class="lamp-login-container">
@@ -578,8 +643,8 @@
   <div id="mobileBackdropOverlay" onclick="closeMobileSidebar()"></div>
 
   <!-- Sidebar -->
-  <div class="sidebar" id="mainSidebar">
-    <div class="logo-details">
+  <div class="sidebar" id="mainSidebar" title="Right-click to Lock / Unlock Position">
+    <div class="logo-details" id="sidebarDragHandle" title="Drag Sidebar Here">
       <div class="logo_name">SPORTSBOOK HUB</div>
       <i class='bx bx-x' id="closeSidebarBtn" style="font-size:24px; cursor:pointer;" onclick="closeMobileSidebar()"></i>
     </div>
@@ -1177,6 +1242,17 @@
     let inactivityTimer = null;
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
     let handoverItems = [];
+    let isSidebarLocked = localStorage.getItem('sbhub_sidebar_locked') === 'true';
+
+    /* Toast Notification Helper */
+    function showToastNotification(msg) {
+      const toast = document.getElementById('toastNotification');
+      const msgEl = document.getElementById('toastMsg');
+      if (!toast || !msgEl) return;
+      msgEl.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
 
     /* Accordion Toggle Engine for All Sections */
     function toggleAccordion(containerId, chevronId) {
@@ -1399,6 +1475,88 @@
       if (action) action();
     }
 
+    /* Draggable Sidebar Engine & Right-Click Lock */
+    function initDraggableSidebar() {
+      const sidebar = document.getElementById('mainSidebar');
+      if (!sidebar || isMobileOrTablet()) return;
+
+      const savedPos = localStorage.getItem('sbhub_sidebar_pos');
+      if (savedPos) {
+        try {
+          const pos = JSON.parse(savedPos);
+          if (pos.top) sidebar.style.top = pos.top;
+          if (pos.left) sidebar.style.left = pos.left;
+        } catch(e){}
+      }
+
+      updateSidebarLockVisuals();
+
+      const dragHandle = document.getElementById('sidebarDragHandle');
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+      if (dragHandle) {
+        dragHandle.onmousedown = function(e) {
+          if (isSidebarLocked) return;
+          if (e.target.id === 'closeSidebarBtn') return;
+          e.preventDefault();
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          document.onmouseup = closeDragSidebar;
+          document.onmousemove = elementDragSidebar;
+        };
+      }
+
+      function elementDragSidebar(e) {
+        if (isSidebarLocked) return;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        let newTop = sidebar.offsetTop - pos2;
+        let newLeft = sidebar.offsetLeft - pos1;
+
+        sidebar.style.top = newTop + "px";
+        sidebar.style.left = newLeft + "px";
+      }
+
+      function closeDragSidebar() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+        localStorage.setItem('sbhub_sidebar_pos', JSON.stringify({
+          top: sidebar.style.top,
+          left: sidebar.style.left
+        }));
+      }
+
+      sidebar.oncontextmenu = function(e) {
+        e.preventDefault();
+        toggleSidebarLock();
+      };
+    }
+
+    function toggleSidebarLock() {
+      isSidebarLocked = !isSidebarLocked;
+      localStorage.setItem('sbhub_sidebar_locked', isSidebarLocked);
+      updateSidebarLockVisuals();
+      showToastNotification(isSidebarLocked ? "🔒 Sidebar Position Locked" : "🔓 Sidebar Position Unlocked (Draggable)");
+    }
+
+    function updateSidebarLockVisuals() {
+      const sidebar = document.getElementById('mainSidebar');
+      const dragHandle = document.getElementById('sidebarDragHandle');
+      if (!sidebar) return;
+
+      if (isSidebarLocked) {
+        sidebar.classList.add('sidebar-locked');
+        if (dragHandle) dragHandle.title = "Sidebar Position Locked (Right-click to Unlock)";
+      } else {
+        sidebar.classList.remove('sidebar-locked');
+        if (dragHandle) dragHandle.title = "Drag Sidebar Here (Right-click to Lock)";
+      }
+    }
+
     async function fetchRealtimeWeather() {
       const tempEl = document.getElementById("phTemp");
       const descEl = document.getElementById("phDesc");
@@ -1437,12 +1595,16 @@
       }
     }
 
+    /* Fixed switchDockTab Scope to prevent Daily Task Dock disappearing */
     function switchDockTab(tabKey, btnEl) {
-      document.querySelectorAll('.dock-pill-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.dock-content-panel').forEach(panel => panel.classList.remove('active'));
+      const card = btnEl.closest('.bento-card');
+      if (!card) return;
+
+      card.querySelectorAll('.dock-pill-btn').forEach(btn => btn.classList.remove('active'));
+      card.querySelectorAll('.dock-content-panel').forEach(panel => panel.classList.remove('active'));
       
       btnEl.classList.add('active');
-      const targetPanel = document.getElementById(`dock-${tabKey}`);
+      const targetPanel = card.querySelector(`#dock-${tabKey}`);
       if (targetPanel) targetPanel.classList.add('active');
     }
 
@@ -2212,6 +2374,7 @@
     initDataStore();
     initHandoverStore();
     renderSidebar();
+    initDraggableSidebar();
     fetchLiveGames(); 
     fetchRealtimeWeather();
     renderClocks();
