@@ -1814,22 +1814,17 @@
       return map[shiftId] || shiftId.replace('shift-', '');
     }
 
-    /* Handover Logic Engine */
+    /* Handover Logic Engine - Firebase Realtime DB Synced */
     function initHandoverStore() {
-      const stored = localStorage.getItem('sbhub_handover_items');
-      if (stored) {
-        try { handoverItems = JSON.parse(stored); } catch(e) { handoverItems = []; }
-      } else {
-        handoverItems = [
-          { id: Date.now().toString(), brand: 'EDGE', priority: 'urgent', text: 'Escalated risk limits for Live Derby match. Pending operator review.', timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), done: false }
-        ];
-        saveHandoverToStorage();
-      }
-      renderHandoverItems();
-    }
-
-    function saveHandoverToStorage() {
-      localStorage.setItem('sbhub_handover_items', JSON.stringify(handoverItems));
+      rosterDb.ref('handover_items').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          handoverItems = Object.values(data).sort((a, b) => Number(b.id) - Number(a.id));
+        } else {
+          handoverItems = [];
+        }
+        renderHandoverItems();
+      });
     }
 
     function renderHandoverItems() {
@@ -1891,8 +1886,9 @@
         return;
       }
 
+      const itemId = Date.now().toString();
       const newItem = {
-        id: Date.now().toString(),
+        id: itemId,
         brand: brand,
         priority: priority,
         text: text,
@@ -1900,25 +1896,19 @@
         done: false
       };
 
-      handoverItems.unshift(newItem);
-      saveHandoverToStorage();
-      renderHandoverItems();
+      rosterDb.ref('handover_items/' + itemId).set(newItem);
       closeAddHandoverModal();
     }
 
     function toggleHandoverDone(id) {
       const item = handoverItems.find(i => i.id === id);
       if (item) {
-        item.done = !item.done;
-        saveHandoverToStorage();
-        renderHandoverItems();
+        rosterDb.ref('handover_items/' + id + '/done').set(!item.done);
       }
     }
 
     function deleteHandoverItem(id) {
-      handoverItems = handoverItems.filter(i => i.id !== id);
-      saveHandoverToStorage();
-      renderHandoverItems();
+      rosterDb.ref('handover_items/' + id).remove();
     }
 
     function escapeHtml(str) {
