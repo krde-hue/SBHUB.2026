@@ -11,6 +11,10 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Firebase SDK Compatibility Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
     
@@ -572,6 +576,94 @@
       transform: translateY(0);
     }
 
+    /* Live Duty Widget Specific Styles */
+    .live-duty-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      flex-grow: 1;
+      padding-right: 2px;
+    }
+
+    .duty-member-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .duty-member-card {
+      background: var(--item-bg);
+      border: 1px solid var(--item-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .duty-member-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .duty-member-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-main);
+      text-shadow: var(--text-shadow);
+    }
+
+    .duty-shift-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--accent-glow);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      text-transform: uppercase;
+    }
+
+    .duty-task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 2px;
+    }
+
+    .duty-task-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 3px 6px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .duty-task-item.done {
+      opacity: 0.55;
+      text-decoration: line-through;
+    }
+
+    .duty-rest-text {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-sub);
+      font-style: italic;
+      padding: 4px 0;
+    }
+
+    .duty-empty-text {
+      font-size: 9.5px;
+      color: var(--text-sub);
+      opacity: 0.7;
+    }
+
     .mobile-nav-bar { display: none; }
     #mobileBackdropOverlay { display: none; }
 
@@ -596,6 +688,7 @@
       #quickDockCard { top: 500px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 225px; min-width: 320px; min-height: 180px; }
       #dailyTaskCard { top: 735px; left: calc(var(--sidebar-width) + 35px); width: 350px; height: 210px; min-width: 320px; min-height: 180px; }
       #handoverCard  { top: 735px; left: calc(var(--sidebar-width) + 395px); width: 350px; height: 210px; min-width: 300px; min-height: 180px; }
+      #currentDutyCard{ top: 735px; left: calc(var(--sidebar-width) + 755px); width: 340px; height: 210px; min-width: 300px; min-height: 180px; }
     }
 
     /* Mobile / Tablet Styles */
@@ -608,7 +701,7 @@
       .sidebar .logo-details .logo_name, .sidebar .search-box input, .sidebar .nav-item-title, .sidebar .nav-arrow, .sidebar .name_job, .sidebar .sidebar-customization-panel { display: flex !important; opacity: 1 !important; pointer-events: auto !important; }
       .main-workspace { position: relative; top: 0; left: 0; width: 100vw; height: auto; padding: 15px 15px 105px 15px; display: flex; flex-direction: column; gap: 12px; }
       .bento-card { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; min-height: unset; resize: none; border-radius: 26px; padding: 16px 18px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%); }
-      #weatherCard { order: 1; } #quickDockCard { order: 2; } #dailyTaskCard { order: 3; } #handoverCard { order: 4; } #timezonesCard { order: 5; } #topGamesCard { order: 6; } #flashscoreCard { order: 7; } #trendCard { order: 8; min-height: 320px; }
+      #weatherCard { order: 1; } #quickDockCard { order: 2; } #dailyTaskCard { order: 3; } #handoverCard { order: 4; } #currentDutyCard { order: 5; } #timezonesCard { order: 6; } #topGamesCard { order: 7; } #flashscoreCard { order: 8; } #trendCard { order: 9; min-height: 320px; }
       .drag-hint { display: none; }
       .mobile-nav-bar { display: flex; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 380px; height: 64px; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(30px); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 36px; z-index: 700; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); align-items: center; justify-content: space-evenly; padding: 0 8px; }
       .mobile-nav-item { position: relative; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.6); font-size: 22px; width: 48px; height: 48px; border-radius: 24px; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); text-decoration: none; }
@@ -927,6 +1020,21 @@
       </div>
     </div>
 
+    <!-- Live Time-Slot Duties Widget -->
+    <div class="bento-card" id="currentDutyCard">
+      <div class="card-header-title">
+        <span>⚡ LIVE TIME-SLOT DUTIES</span>
+        <span class="drag-hint">
+          <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:2px;" onclick="fetchLiveRosterDuties()" title="Refresh Roster"></i>
+          <i class='bx bx-move'></i> Drag
+          <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('currentDutyCard', false)" title="Hide Widget"></i>
+        </span>
+      </div>
+      <div class="live-duty-container" id="liveDutyContent">
+        <div style="text-align:center; padding:15px;"><i class='bx bx-loader-alt bx-spin' style="font-size:20px; color:var(--accent-glow);"></i></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Mobile Floating Navigation Dock -->
@@ -1052,104 +1160,24 @@
   </div>
 
   <script>
-    /* Wallpaper Presets - green.jpg as Default #1, minimalist.jpg and Santa.jpg included */
+    /* Wallpaper Presets */
     const wallpaperPresets = [
-      {
-        id: "green_default",
-        name: "Merry Christmas Green (Default)",
-        type: "dark",
-        url: "green.jpg"
-      },
-      {
-        id: "minimalist_bg",
-        name: "Winter Minimalist",
-        type: "light",
-        url: "minimalist.jpg"
-      },
-      {
-        id: "santa_bg",
-        name: "Festive Santa",
-        type: "dark",
-        url: "santa.jpg"
-      },
-      {
-        id: "merry_christmas_default",
-        name: "Christmas Tree Scene",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "winter_wonderland_default",
-        name: "Winter Wonderland",
-        type: "light",
-        url: "https://images.unsplash.com/photo-1513297887119-d46091b24bfa?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "festive_default",
-        name: "Sportsbook Hub Festive",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "orig",
-        name: "Sportsbook Hub (Original)",
-        type: "dark",
-        url: "https://raw.githubusercontent.com/krde-hue/SBHUB.2026/main/SB%20background.jpg"
-      },
-      {
-        id: "nature1",
-        name: "Nature Forest 4K",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "nature2",
-        name: "Mountain Lake 4K",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "sports1",
-        name: "Stadium Arena HD",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "sports2",
-        name: "Football Pitch HD",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "plain_white",
-        name: "Pearl White (Plain)",
-        type: "light",
-        url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "plain_black",
-        name: "Slate Carbon (Plain)",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "clear1",
-        name: "Clear Blue Sky",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1534088568595-a066f410bcda?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "clear2",
-        name: "Clear Ocean View",
-        type: "light",
-        url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop"
-      },
-      {
-        id: "clear3",
-        name: "Cyber Minimal Gradient",
-        type: "dark",
-        url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"
-      }
+      { id: "green_default", name: "Merry Christmas Green (Default)", type: "dark", url: "green.jpg" },
+      { id: "minimalist_bg", name: "Winter Minimalist", type: "light", url: "minimalist.jpg" },
+      { id: "santa_bg", name: "Festive Santa", type: "dark", url: "santa.jpg" },
+      { id: "merry_christmas_default", name: "Christmas Tree Scene", type: "dark", url: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?q=80&w=1600&auto=format&fit=crop" },
+      { id: "winter_wonderland_default", name: "Winter Wonderland", type: "light", url: "https://images.unsplash.com/photo-1513297887119-d46091b24bfa?q=80&w=1600&auto=format&fit=crop" },
+      { id: "festive_default", name: "Sportsbook Hub Festive", type: "dark", url: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?q=80&w=1600&auto=format&fit=crop" },
+      { id: "orig", name: "Sportsbook Hub (Original)", type: "dark", url: "https://raw.githubusercontent.com/krde-hue/SBHUB.2026/main/SB%20background.jpg" },
+      { id: "nature1", name: "Nature Forest 4K", type: "dark", url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1600&auto=format&fit=crop" },
+      { id: "nature2", name: "Mountain Lake 4K", type: "dark", url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1600&auto=format&fit=crop" },
+      { id: "sports1", name: "Stadium Arena HD", type: "dark", url: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop" },
+      { id: "sports2", name: "Football Pitch HD", type: "dark", url: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1600&auto=format&fit=crop" },
+      { id: "plain_white", name: "Pearl White (Plain)", type: "light", url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop" },
+      { id: "plain_black", name: "Slate Carbon (Plain)", type: "dark", url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1600&auto=format&fit=crop" },
+      { id: "clear1", name: "Clear Blue Sky", type: "dark", url: "https://images.unsplash.com/photo-1534088568595-a066f410bcda?q=80&w=1600&auto=format&fit=crop" },
+      { id: "clear2", name: "Clear Ocean View", type: "light", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop" },
+      { id: "clear3", name: "Cyber Minimal Gradient", type: "dark", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop" }
     ];
 
     const widgetRegistry = {
@@ -1160,7 +1188,8 @@
       trendCard: "Monitoring Trend",
       quickDockCard: "Directory Dock",
       dailyTaskCard: "Daily Task Dock",
-      handoverCard: "Handover Tasks"
+      handoverCard: "Handover Tasks",
+      currentDutyCard: "Live Time-Slot Duties"
     };
 
     let widgetVisibilityState = {
@@ -1171,108 +1200,20 @@
       trendCard: true,
       quickDockCard: true,
       dailyTaskCard: true,
-      handoverCard: true
+      handoverCard: true,
+      currentDutyCard: true
     };
 
     const menuData = [
-      {
-        category: "INTERNAL",
-        icon: "bx-home-alt",
-        subs: [
-          { name: "DAILY DUTY", url: "duties.html" },
-          { name: "ROTA", url: "rota.html" },
-          { name: "HANDOVER", url: "handover.html" }
-        ]
-      },
-      {
-        category: "DAILY TASK",
-        icon: "bx-task",
-        subs: [
-          { name: "TOP PICKS", url: "boostschedule.html" },
-          { name: "EDGE BOOST EXCEL", url: "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890" },
-          { name: "IBET BOOST EXCEL", url: "https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114" },
-          { name: "EDGE BOOST SYS", url: "edge_boosts.html" },
-          { name: "IBET BOOST SYS", url: "ibet_boosts.html" }
-        ]
-      },
-      {
-        category: "DAILY MONITORING",
-        icon: "bx-line-chart",
-        subs: [
-          { name: "GREEN TRACKER", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410" },
-          { name: "RED TRACKER", url: "https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468" },
-          { name: "ORANGE TRACKER", url: "https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695" },
-          { name: "7A TRACKER", url: "#" },
-          { name: "GREEN CRM", url: "https://docs.google.com/spreadsheets/d/11STKO4Xsj0a8iTuUXSCXC-XEE4-7qmF9/edit?pli=1&gid=1701374259#gid=1701374259" },
-          { name: "RED CRM", url: "https://docs.google.com/spreadsheets/d/1gPks2FdHyOOTiILvn553miz32WeEtOpx/edit?gid=1701374259#gid=1701374259" }
-        ]
-      },
-      {
-        category: "BACK OFFICE",
-        icon: "bx-briefcase-alt-2",
-        subs: [
-          { name: "QBET/55/30", url: "https://betbook.center/qbet/bets" },
-          { name: "IBET", url: "https://mga-betbook.center/ibet/bets" },
-          { name: "PUBS", url: "https://eu-b7k.center/pubs8/bets" }
-        ]
-      },
-      {
-        category: "MULTI MONITOR",
-        icon: "bx-desktop",
-        subs: [
-          { name: "EDGE PREDICTION TICKER", url: "https://betbook.center/monitor?providerIds=prediction_markets" },
-          { name: "PUBS PREDICTION TICKER", url: "https://eu-b7k.center/monitor?providerIds=prediction_markets" },
-          { name: "QBET/55/30 REJECTED", url: "https://betbook.center/monitor" },
-          { name: "PUBS REJECTED", url: "https://eu-b7k.center/monitor" }
-        ]
-      },
-      {
-        category: "BETRADAR",
-        icon: "bx-radar",
-        subs: [
-          { name: "MTS", url: "https://mtsc-its.betradar.com/" },
-          { name: "CTRL PORTAL", url: "https://portal.betradar.com/" }
-        ]
-      },
-      {
-        category: "OWN BRANDS",
-        icon: "bx-layer",
-        subs: [
-          { name: "7A", url: "https://www.7abet.com/en-UN" },
-          { name: "QBET", url: "https://www.qbet.com/en-UN" },
-          { name: "55BET", url: "https://www.55bet.com/en-UN" },
-          { name: "30BET", url: "https://www.30bet.com/en-UN" },
-          { name: "GQBET", url: "https://www.gqbet.vip/en-UN/" },
-          { name: "BVBET", url: "https://www.bvbet.com/en-UN" },
-          { name: "IBET", url: "https://www.ibet.com/en-UN/sportsbook/price-boost/football" }
-        ]
-      },
-      {
-        category: "PRICE REFERENCES",
-        icon: "bx-data",
-        subs: [
-          { name: "FLASHSCORE", url: "https://www.flashscore.com/" },
-          { name: "BETSAPI", url: "https://betsapi.com/" },
-          { name: "ODDSPORTAL", url: "https://www.oddsportal.com/football/" },
-          { name: "ODDSCHECKER", url: "https://www.oddschecker.com/" },
-          { name: "BETFAIR", url: "https://www.betfair.com/exchange/plus/" },
-          { name: "BET365", url: "https://www.bet365.com/" },
-          { name: "PINNACLE", url: "https://www.pinnacle.com/" },
-          { name: "GGBET", url: "https://gg.bet/" },
-          { name: "UNIBET", url: "https://www.unibet.com.au/" },
-          { name: "SOFASCORE", url: "https://www.sofascore.com/" },
-          { name: "MARATHONBET", url: "https://www.marathonbet.com/" },
-          { name: "FONBET", url: "https://fonbet.com/" }
-        ]
-      },
-      {
-        category: "PROCEDURES",
-        icon: "bx-file",
-        subs: [
-          { name: "CONFLUENCE", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" },
-          { name: "WORKSPACE", url: "workspace.html" }
-        ]
-      }
+      { category: "INTERNAL", icon: "bx-home-alt", subs: [{ name: "DAILY DUTY", url: "duties.html" }, { name: "ROTA", url: "rota.html" }, { name: "HANDOVER", url: "handover.html" }] },
+      { category: "DAILY TASK", icon: "bx-task", subs: [{ name: "TOP PICKS", url: "boostschedule.html" }, { name: "EDGE BOOST EXCEL", url: "https://docs.google.com/spreadsheets/d/1E-34VRXSaQG0oFrNPjfxLZe8L05oNYWXcoX-rDhdVCE/edit?gid=477417890#gid=477417890" }, { name: "IBET BOOST EXCEL", url: "https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114" }, { name: "EDGE BOOST SYS", url: "edge_boosts.html" }, { name: "IBET BOOST SYS", url: "ibet_boosts.html" }] },
+      { category: "DAILY MONITORING", icon: "bx-line-chart", subs: [{ name: "GREEN TRACKER", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0uDgnYSqFhccXKnMkqJ8z/edit?gid=1305147410#gid=1305147410" }, { name: "RED TRACKER", url: "https://docs.google.com/spreadsheets/d/1OcaMz_AOUeRsWIVplbnk2XAna62m3IKa/edit?gid=457800468#gid=457800468" }, { name: "ORANGE TRACKER", url: "https://docs.google.com/spreadsheets/d/1U-Dmc628kHQabzJGoBeEgRus5PiRhgSd/edit?pli=1&gid=1983372695#gid=1983372695" }, { name: "7A TRACKER", url: "#" }, { name: "GREEN CRM", url: "https://docs.google.com/spreadsheets/d/11STKO4Xsj0a8iTuUXSCXC-XEE4-7qmF9/edit?pli=1&gid=1701374259#gid=1701374259" }, { name: "RED CRM", url: "https://docs.google.com/spreadsheets/d/1gPks2FdHyOOTiILvn553miz32WeEtOpx/edit?gid=1701374259#gid=1701374259" }] },
+      { category: "BACK OFFICE", icon: "bx-briefcase-alt-2", subs: [{ name: "QBET/55/30", url: "https://betbook.center/qbet/bets" }, { name: "IBET", url: "https://mga-betbook.center/ibet/bets" }, { name: "PUBS", url: "https://eu-b7k.center/pubs8/bets" }] },
+      { category: "MULTI MONITOR", icon: "bx-desktop", subs: [{ name: "EDGE PREDICTION TICKER", url: "https://betbook.center/monitor?providerIds=prediction_markets" }, { name: "PUBS PREDICTION TICKER", url: "https://eu-b7k.center/monitor?providerIds=prediction_markets" }, { name: "QBET/55/30 REJECTED", url: "https://betbook.center/monitor" }, { name: "PUBS REJECTED", url: "https://eu-b7k.center/monitor" }] },
+      { category: "BETRADAR", icon: "bx-radar", subs: [{ name: "MTS", url: "https://mtsc-its.betradar.com/" }, { name: "CTRL PORTAL", url: "https://portal.betradar.com/" }] },
+      { category: "OWN BRANDS", icon: "bx-layer", subs: [{ name: "7A", url: "https://www.7abet.com/en-UN" }, { name: "QBET", url: "https://www.qbet.com/en-UN" }, { name: "55BET", url: "https://www.55bet.com/en-UN" }, { name: "30BET", url: "https://www.30bet.com/en-UN" }, { name: "GQBET", url: "https://www.gqbet.vip/en-UN/" }, { name: "BVBET", url: "https://www.bvbet.com/en-UN" }, { name: "IBET", url: "https://www.ibet.com/en-UN/sportsbook/price-boost/football" }] },
+      { category: "PRICE REFERENCES", icon: "bx-data", subs: [{ name: "FLASHSCORE", url: "https://www.flashscore.com/" }, { name: "BETSAPI", url: "https://betsapi.com/" }, { name: "ODDSPORTAL", url: "https://www.oddsportal.com/football/" }, { name: "ODDSCHECKER", url: "https://www.oddschecker.com/" }, { name: "BETFAIR", url: "https://www.betfair.com/exchange/plus/" }, { name: "BET365", url: "https://www.bet365.com/" }, { name: "PINNACLE", url: "https://www.pinnacle.com/" }, { name: "GGBET", url: "https://gg.bet/" }, { name: "UNIBET", url: "https://www.unibet.com.au/" }, { name: "SOFASCORE", url: "https://www.sofascore.com/" }, { name: "MARATHONBET", url: "https://www.marathonbet.com/" }, { name: "FONBET", url: "https://fonbet.com/" }] },
+      { category: "PROCEDURES", icon: "bx-file", subs: [{ name: "CONFLUENCE", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" }, { name: "WORKSPACE", url: "workspace.html" }] }
     ];
 
     const availableTimezones = [
@@ -1294,7 +1235,22 @@
     let handoverItems = [];
     let isSidebarLocked = localStorage.getItem('sbhub_sidebar_locked') === 'true';
 
-    /* Toast Notification Helper */
+    /* Firebase Initialization for Duty Roster Sync */
+    const rosterFirebaseConfig = {
+      apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+      authDomain: "test-daily-task--sb.firebaseapp.com",
+      databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+      projectId: "test-daily-task--sb",
+      storageBucket: "test-daily-task--sb.firebasestorage.app",
+      messagingSenderId: "928476661919",
+      appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(rosterFirebaseConfig);
+    }
+    const rosterDb = firebase.database();
+
     function showToastNotification(msg) {
       const toast = document.getElementById('toastNotification');
       const msgEl = document.getElementById('toastMsg');
@@ -1304,7 +1260,6 @@
       setTimeout(() => toast.classList.remove('show'), 2800);
     }
 
-    /* Accordion Toggle Engine for All Sections */
     function toggleAccordion(containerId, chevronId) {
       const container = document.getElementById(containerId);
       const chevron = document.getElementById(chevronId);
@@ -1312,18 +1267,13 @@
       
       const isHidden = container.style.display === 'none' || container.style.display === '';
       container.style.display = isHidden ? 'flex' : 'none';
-      
-      if (chevron) {
-        chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-      }
+      if (chevron) chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
     }
 
-    /* Wallpaper Gallery & Custom Upload Engine */
     function initWallpaperPicker() {
       const container = document.getElementById('wallpaperPickerContainer');
       if (!container) return;
       container.innerHTML = '';
-
       const activeWpId = localStorage.getItem('sbhub_selected_wallpaper') || 'green_default';
 
       wallpaperPresets.forEach(wp => {
@@ -1334,25 +1284,21 @@
         thumb.onclick = () => selectWallpaper(wp.id);
         container.appendChild(thumb);
       });
-
       applyWallpaper(activeWpId);
     }
 
     function selectWallpaper(id) {
       localStorage.setItem('sbhub_selected_wallpaper', id);
-      
       document.querySelectorAll('.wallpaper-thumb').forEach((thumb, idx) => {
         if (wallpaperPresets[idx] && wallpaperPresets[idx].id === id) thumb.classList.add('active');
         else thumb.classList.remove('active');
       });
-
       applyWallpaper(id);
     }
 
     function handleCustomBgUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(evt) {
         const dataUrl = evt.target.result;
@@ -1384,7 +1330,6 @@
       }
 
       const wp = wallpaperPresets.find(w => w.id === id) || wallpaperPresets[0];
-      
       document.body.style.backgroundImage = `linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('${wp.url}')`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center center';
@@ -1420,7 +1365,6 @@
       Object.keys(widgetRegistry).forEach(cardId => {
         const isVisible = widgetVisibilityState[cardId] !== false;
         const name = widgetRegistry[cardId];
-
         const item = document.createElement('label');
         item.className = 'widget-toggle-item';
         item.innerHTML = `
@@ -1441,18 +1385,14 @@
       localStorage.setItem('sbhub_widget_visibility', JSON.stringify(widgetVisibilityState));
 
       const cardEl = document.getElementById(cardId);
-      if (cardEl) {
-        cardEl.style.display = isVisible ? 'flex' : 'none';
-      }
+      if (cardEl) cardEl.style.display = isVisible ? 'flex' : 'none';
 
       const container = document.getElementById('widgetManagerContainer');
       if (container) {
         const inputs = container.querySelectorAll('input[type="checkbox"]');
         const keys = Object.keys(widgetRegistry);
         const idx = keys.indexOf(cardId);
-        if (idx !== -1 && inputs[idx]) {
-          inputs[idx].checked = isVisible;
-        }
+        if (idx !== -1 && inputs[idx]) inputs[idx].checked = isVisible;
       }
 
       if (cardId === 'trendCard' && isVisible && trendChartInstance) {
@@ -1460,7 +1400,6 @@
       }
     }
 
-    /* Transparency & Accent Palette Handlers */
     function updateGlassOpacity(val) {
       const alpha = (val / 100).toFixed(2);
       document.documentElement.style.setProperty('--glass-alpha', alpha);
@@ -1508,9 +1447,8 @@
       const backdrop = document.getElementById("mobileBackdropOverlay");
       const isOpen = sidebar.classList.contains("mobile-open");
       
-      if (isOpen) {
-        closeMobileSidebar();
-      } else {
+      if (isOpen) closeMobileSidebar();
+      else {
         sidebar.classList.add("mobile-open");
         if (backdrop) backdrop.classList.add("active");
       }
@@ -1525,7 +1463,6 @@
       if (action) action();
     }
 
-    /* Draggable Sidebar Engine & Right-Click Lock */
     function initDraggableSidebar() {
       const sidebar = document.getElementById('mainSidebar');
       if (!sidebar || isMobileOrTablet()) return;
@@ -1540,14 +1477,12 @@
       }
 
       updateSidebarLockVisuals();
-
       const dragHandle = document.getElementById('sidebarDragHandle');
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
       if (dragHandle) {
         dragHandle.onmousedown = function(e) {
-          if (isSidebarLocked) return;
-          if (e.target.id === 'closeSidebarBtn') return;
+          if (isSidebarLocked || e.target.id === 'closeSidebarBtn') return;
           e.preventDefault();
           pos3 = e.clientX;
           pos4 = e.clientY;
@@ -1564,20 +1499,14 @@
         pos3 = e.clientX;
         pos4 = e.clientY;
 
-        let newTop = sidebar.offsetTop - pos2;
-        let newLeft = sidebar.offsetLeft - pos1;
-
-        sidebar.style.top = newTop + "px";
-        sidebar.style.left = newLeft + "px";
+        sidebar.style.top = (sidebar.offsetTop - pos2) + "px";
+        sidebar.style.left = (sidebar.offsetLeft - pos1) + "px";
       }
 
       function closeDragSidebar() {
         document.onmouseup = null;
         document.onmousemove = null;
-        localStorage.setItem('sbhub_sidebar_pos', JSON.stringify({
-          top: sidebar.style.top,
-          left: sidebar.style.left
-        }));
+        localStorage.setItem('sbhub_sidebar_pos', JSON.stringify({ top: sidebar.style.top, left: sidebar.style.left }));
       }
 
       sidebar.oncontextmenu = function(e) {
@@ -1616,7 +1545,6 @@
       try {
         const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=14.5995&longitude=120.9842&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia%2FManila");
         const data = await response.json();
-        
         if (!data.current) return;
 
         const temp = Math.round(data.current.temperature_2m);
@@ -1639,7 +1567,6 @@
         descEl.innerText = desc;
         iconEl.className = `bx ${iconClass} weather-icon`;
         detailsEl.innerHTML = `<span>📍 Metro Manila, PH</span><span>Humidity: ${humidity}%</span><span>Wind: ${wind} km/h</span>`;
-
       } catch (e) {
         descEl.innerText = "Unavailable";
       }
@@ -1767,10 +1694,124 @@
         }
 
         container.innerHTML = gamesHtml;
-
       } catch (e) {
         container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:var(--accent-red);">Failed to fetch live data. Please try again.</div>`;
       }
+    }
+
+    /* Live Duty Roster Timeframe Filter Logic */
+    function getCurrentSlotInfo() {
+      const now = new Date();
+      const hours = now.getHours();
+
+      if (hours >= 6 && hours < 9)   return { slotId: "slot_6_9", label: "7:00 - 9:00" };
+      if (hours >= 9 && hours < 12)  return { slotId: "slot_9_12", label: "9:00 - 12:00" };
+      if (hours >= 12 && hours < 15) return { slotId: "slot_12_15", label: "12:00 - 15:00" };
+      if (hours >= 15 && hours < 18) return { slotId: "slot_15_18", label: "15:00 - 18:00" };
+      if (hours >= 18 && hours < 21) return { slotId: "slot_18_21", label: "18:00 - 21:00" };
+      return { slotId: "slot_21_0", label: "21:00 - 00:00" };
+    }
+
+    function listenToLiveDutyRoster() {
+      rosterDb.ref('roster_data').on('value', (snapshot) => {
+        renderLiveDutyWidget(snapshot.val());
+      });
+    }
+
+    function fetchLiveRosterDuties() {
+      rosterDb.ref('roster_data').once('value').then((snapshot) => {
+        renderLiveDutyWidget(snapshot.val());
+      });
+    }
+
+    function renderLiveDutyWidget(rosterData) {
+      const container = document.getElementById("liveDutyContent");
+      if (!container) return;
+
+      if (!rosterData) {
+        container.innerHTML = `<div style="text-align:center; padding:15px; font-size:10px; color:var(--text-sub);">No roster data available.</div>`;
+        return;
+      }
+
+      const todayIso = new Date().toISOString().split('T')[0];
+      const { slotId, label: slotLabel } = getCurrentSlotInfo();
+
+      let activeDayKey = Object.keys(rosterData).find(key => key !== 'archives' && rosterData[key]?.isoDate === todayIso);
+      if (!activeDayKey) {
+        const activeKeys = Object.keys(rosterData).filter(k => k !== 'archives');
+        activeDayKey = activeKeys[0];
+      }
+
+      if (!activeDayKey || !rosterData[activeDayKey]) {
+        container.innerHTML = `<div style="text-align:center; padding:15px; font-size:10px; color:var(--text-sub);">No active schedule found.</div>`;
+        return;
+      }
+
+      const dayData = rosterData[activeDayKey];
+      const teamMembers = [
+        { id: 'ann', name: 'ANN' },
+        { id: 'dave', name: 'DAVE' },
+        { id: 'ken', name: 'KEN' },
+        { id: 'kriztel', name: 'KRIZTEL' }
+      ];
+
+      let html = `
+        <div style="font-size:9.5px; font-weight:800; color:var(--accent-glow); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+          <span>📅 ${dayData.isoDate || 'Today'}</span>
+          <span style="background:rgba(56,189,248,0.2); padding:2px 6px; border-radius:4px; border:1px solid rgba(56,189,248,0.3);">⏱️ ${slotLabel}</span>
+        </div>
+        <div class="duty-member-grid">
+      `;
+
+      teamMembers.forEach(m => {
+        const mGrid = dayData.grid ? dayData.grid[m.id] : null;
+        const shiftId = mGrid?.shift || 'shift-7-16';
+        const isRest = (shiftId === 'shift-rd' || shiftId === 'shift-vl' || shiftId === 'shift-sl');
+        const restLabel = shiftId === 'shift-vl' ? 'VACATION LEAVE' : (shiftId === 'shift-sl' ? 'SICK LEAVE' : 'REST DAY');
+
+        let rawTasks = (mGrid && mGrid.slots) ? mGrid.slots[slotId] || [] : [];
+        if (!Array.isArray(rawTasks)) rawTasks = [];
+        const tasks = rawTasks.map(item => (typeof item === 'string' ? { text: item, done: false } : { text: item.text || '', done: !!item.done }));
+
+        html += `
+          <div class="duty-member-card">
+            <div class="duty-member-header">
+              <span class="duty-member-name">${m.name}</span>
+              <span class="duty-shift-badge">${isRest ? restLabel : formatShiftBadge(shiftId)}</span>
+            </div>
+        `;
+
+        if (isRest) {
+          html += `<div class="duty-rest-text">😴 ${restLabel}</div>`;
+        } else if (tasks.length === 0) {
+          html += `<div class="duty-empty-text">No assigned tasks in this slot.</div>`;
+        } else {
+          html += `<div class="duty-task-list">`;
+          tasks.forEach(t => {
+            html += `
+              <div class="duty-task-item ${t.done ? 'done' : ''}">
+                <i class='bx ${t.done ? 'bx-check-circle' : 'bx-time-five'}' style="color:${t.done ? 'var(--accent-green)' : 'var(--accent-glow)'}"></i>
+                <span>${escapeHtml(t.text)}</span>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+
+        html += `</div>`;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    function formatShiftBadge(shiftId) {
+      const map = {
+        'shift-6-15': '6-15', 'shift-7-16': '7-16', 'shift-9-18': '9-18',
+        'shift-10-19': '10-19', 'shift-12-21': '12-21', 'shift-14-23': '14-23',
+        'shift-15-0': '15-00', 'shift-16-1': '16-01'
+      };
+      return map[shiftId] || shiftId.replace('shift-', '');
     }
 
     /* Handover Logic Engine */
@@ -1993,7 +2034,6 @@
       setTimeout(() => btn.innerHTML = originalText, 1500);
     }
 
-    /* Custom Plugin to Draw Vertical Text Labels Inside Bars */
     const verticalBarLabelPlugin = {
       id: 'verticalBarLabelPlugin',
       afterDatasetsDraw(chart) {
@@ -2021,7 +2061,6 @@
                   ctx.textBaseline = 'middle';
 
                   const barText = dataset.customBarLabel ? dataset.customBarLabel : dataset.label;
-                  
                   if (barHeight > 18) {
                     ctx.fillText(barText, 0, 0);
                   }
@@ -2034,7 +2073,6 @@
       }
     };
 
-    /* Combo Chart Engine */
     function initTrendChart() {
       const viewMode = document.getElementById("trackerSelector").value;
       const timeframe = document.getElementById("timeframeSelector").value;
@@ -2428,9 +2466,11 @@
     fetchRealtimeWeather();
     renderClocks();
     initTrendChart();
+    listenToLiveDutyRoster();
     
     setInterval(updateClocksTick, 1000);
     setInterval(fetchRealtimeWeather, 15 * 60 * 1000);
+    setInterval(listenToLiveDutyRoster, 60 * 1000);
   </script>
 </body>
 </html>
