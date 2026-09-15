@@ -752,21 +752,60 @@
             { id: 'slot_21_0', label: '21:00 - 00:00', startHour: 21 }
         ];
 
-        /* Categorized Task List */
+        /* Updated Categorized Task List */
         const taskCategories = [
+            
             {
-                category: "Early Checks",
+                category: "Morning Shifts",
                 tasks: [
                     "Overnight Bets",
                     "Overnight Escalations",
                     "Big Winners Check",
-                    "Published Boost Check",
-                    "Softswiss Limit File Check",
-                    "@Sportsbook Escalation Check"
+                    "Bet Tickers Monitoring",
+                    "Customers Limit File Check",
+                    "Telegram Channel Monitoring",
+                    "Brands Checking (Web/Mobile)",
+                    "Sports Events Booking Client (Portal MTS)",
+                    "KT Sports Offer Check",
+                    "@Sportsbook Escalation Check",
+                    "Handover Report AM"
                 ]
             },
             {
-                category: "Realtime Checks",
+                category: "Mid Shifts",
+                tasks: [
+                    "Bet Tickers Monitoring",
+                    "Published Boost Check",
+                    "KT Boosts / Banner Creation",
+                    "Ibet Boosts",
+                    "Customers Limit File Check",
+                    "Sports Events Booking Client (Portal MTS)",
+                    "Brands Checking (Web/Mobile)",
+                    "Prediction Markets Check (Browse through Polymarket & if we can add anything to the offer)",
+                    "Telegram Channel Monitoring",
+                    "KT Sports Offer Check",
+                    "@Sportsbook Escalation Check",
+                    "Handover ongoing/pending incidents"
+                ]
+            },
+            {
+                category: "Late Shifts",
+                tasks: [
+                    "Bet Tickers Monitoring",
+                    "Published Boost Check",
+                    "SB Files Checking (Update if needed)",
+                    "Schedule Next Days Boosts (No need to activate)",
+                    "Customers Limit File Check",
+                    "Sports Events Booking Client (Portal MTS)",
+                    "Brands Checking (Web/Mobile)",
+                    "Prediction Markets Check (Browse through Polymarket & if we can add anything to the offer)",
+                    "Telegram Channel Monitoring",
+                    "@Sportsbook Escalation Check",
+                    "Handover Report PM"
+                ]
+            },
+            {
+                category: "Real Time Checks",
                 tasks: [
                     "ALL Tickers",
                     "Qbet tickers",
@@ -780,25 +819,6 @@
                     "Rejected Bets Monitoring",
                     "Telegram Channel Monitoring",
                     "@Sportsbook Escalation check"
-                ]
-            },
-            {
-                category: "Afternoon Checks",
-                tasks: [
-                    "KT Boosts / Banner Creation",
-                    "Ibet Boosts",
-                    "Softswiss Files",
-                    "Site Checking (Web/Mobile)"
-                ]
-            },
-            {
-                category: "Others",
-                tasks: [
-                    "Sports Events Booking Check (BR Portal)",
-                    "SB Files Checking (Update if needed)",
-                    "Handover Report AM",
-                    "Handover Report PM",
-                    "Others (As instructed)"
                 ]
             }
         ];
@@ -1427,10 +1447,10 @@
                 "Edge Prediction Market Ticker",
                 "Pubs Prediction Market Ticker",
                 "@Sportsbook Escalation Check",
-                "Site Checking (Web/Mobile)"
+                "Brands Checking (Web/Mobile)"
             ];
 
-            const generalPool = availableTasks.filter(t => !continuousCoreTasks.includes(t) && t !== "Handover Report AM" && t !== "Handover Report PM");
+            const generalPool = availableTasks.filter(t => !continuousCoreTasks.includes(t) && !t.startsWith("Handover"));
 
             members.forEach(m => {
                 if (grid[m.id]) grid[m.id].slots = {};
@@ -1514,10 +1534,10 @@
                 "Edge Prediction Market Ticker",
                 "Pubs Prediction Market Ticker",
                 "@Sportsbook Escalation Check",
-                "Site Checking (Web/Mobile)"
+                "Brands Checking (Web/Mobile)"
             ];
 
-            const generalPool = availableTasks.filter(t => !continuousCoreTasks.includes(t) && t !== "Handover Report AM" && t !== "Handover Report PM");
+            const generalPool = availableTasks.filter(t => !continuousCoreTasks.includes(t) && !t.startsWith("Handover"));
 
             members.forEach(m => {
                 if (grid[m.id]) grid[m.id].slots = {};
