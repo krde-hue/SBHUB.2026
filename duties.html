@@ -754,7 +754,6 @@
 
         /* Updated Categorized Task List */
         const taskCategories = [
-            
             {
                 category: "Morning Shifts",
                 tasks: [
@@ -870,6 +869,14 @@
             'shift-adjusted': []
         };
 
+        // Helper function for local date string formatting (YYYY-MM-DD)
+        function getLocalDateString(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         let database = createDefaultDatabase();
         let masterRotaCalendar = {};
         let activeOpenDropdownId = null;
@@ -882,7 +889,7 @@
         function createDefaultDatabase() {
             let defaultDb = {
                 "day_1": {
-                    isoDate: new Date().toISOString().split('T')[0],
+                    isoDate: getLocalDateString(),
                     reminder: "",
                     grid: {}
                 },
@@ -1073,7 +1080,7 @@
                     selectedDayKey = activeKeys[0];
                 } else {
                     let newDayId = "day_1";
-                    database[newDayId] = { isoDate: new Date().toISOString().split('T')[0], reminder: "", grid: {} };
+                    database[newDayId] = { isoDate: getLocalDateString(), reminder: "", grid: {} };
                     members.forEach(m => {
                         database[newDayId].grid[m.id] = { shift: m.defaultShift, slots: {} };
                     });
@@ -1613,7 +1620,7 @@
             if (!navList) return;
             navList.innerHTML = '';
 
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getLocalDateString();
             let dayKeys = Object.keys(database || {}).filter(k => k !== 'archives');
 
             // Automatic date sorting: Today at very top, future dates next, past dates pushed to the bottom
@@ -2042,13 +2049,18 @@
             if (isLocked) { alert("Roster is locked! Unlock with password to modify."); return; }
             let dayKeys = Object.keys(database || {}).filter(k => k !== 'archives');
             let lastKey = dayKeys[dayKeys.length - 1] || "day_1";
-            let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : new Date().toISOString().split('T')[0];
+            let lastIsoStr = (database[lastKey] && database[lastKey].isoDate) ? database[lastKey].isoDate : getLocalDateString();
             
-            let lastDate = new Date(lastIsoStr);
-            if (isNaN(lastDate.getTime())) lastDate = new Date();
+            let dateParts = lastIsoStr.split('-');
+            let lastDate;
+            if (dateParts.length === 3) {
+                lastDate = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10));
+            } else {
+                lastDate = new Date();
+            }
             lastDate.setDate(lastDate.getDate() + 1);
             
-            let newIsoDate = lastDate.toISOString().split('T')[0];
+            let newIsoDate = getLocalDateString(lastDate);
             let newDayNum = parseInt(lastKey.split('_')[1] || '1') + 1;
             let newDayId = "day_" + newDayNum;
             
