@@ -1165,6 +1165,14 @@
   </div>
 
   <script>
+    // Helper function for local date string formatting (YYYY-MM-DD)
+    function getLocalDateString(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
     /* Wallpaper Presets */
     const wallpaperPresets = [
       { id: "green_default", name: "Merry Christmas Green (Default)", type: "dark", url: "green.jpg" },
@@ -1753,12 +1761,13 @@
         return;
       }
 
-      const todayIso = new Date().toISOString().split('T')[0];
+      const todayIso = getLocalDateString();
       const { slotId, label: slotLabel } = getCurrentSlotInfo();
 
       let activeDayKey = Object.keys(rosterData).find(key => key !== 'archives' && rosterData[key]?.isoDate === todayIso);
       if (!activeDayKey) {
         const activeKeys = Object.keys(rosterData).filter(k => k !== 'archives');
+        activeKeys.sort((a, b) => (rosterData[b]?.isoDate || '').localeCompare(rosterData[a]?.isoDate || ''));
         activeDayKey = activeKeys[0];
       }
 
@@ -1968,17 +1977,13 @@
     function navigateLogDate(days) {
       const input = document.getElementById('logDate');
       if (!input.value) {
-        input.value = new Date().toISOString().split('T')[0];
+        input.value = getLocalDateString();
       }
       const parts = input.value.split('-');
       const d = new Date(parts[0], parts[1] - 1, parts[2]);
       d.setDate(d.getDate() + days);
       
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      
-      const newDateStr = `${year}-${month}-${day}`;
+      const newDateStr = getLocalDateString(d);
       input.value = newDateStr;
       loadDataForDate(newDateStr);
     }
@@ -1990,7 +1995,7 @@
         for (let i = 6; i >= 0; i--) {
           const d = new Date();
           d.setDate(d.getDate() - i);
-          const dateStr = d.toISOString().split('T')[0]; 
+          const dateStr = getLocalDateString(d); 
           baseData[dateStr] = {
             ibet: { inc: Math.floor(Math.random() * 8) + 8, red: Math.floor(Math.random() * 4) + 1, lim: Math.floor(Math.random() * 3) + 1 },
             edge: { inc: Math.floor(Math.random() * 10) + 10, red: Math.floor(Math.random() * 5) + 2, lim: Math.floor(Math.random() * 4) + 1 },
@@ -2001,7 +2006,7 @@
         localStorage.setItem('sbhub_chart_data', JSON.stringify(baseData));
       }
       
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLocalDateString();
       document.getElementById('logDate').value = today;
       loadDataForDate(today);
     }
