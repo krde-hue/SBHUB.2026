@@ -873,12 +873,17 @@
 
     <div class="bento-card" id="topGamesCard">
       <div class="card-header-title">
-        <span>⚽ NEXT DAY TOP GAMES</span> 
+        <span>⚽ TOP GAMES</span> 
         <span class="drag-hint">
           <i class='bx bx-refresh' style="cursor:pointer; font-size:15px; margin-right:2px;" onclick="fetchLiveGames()" title="Refresh Live Feeds"></i>
           <i class='bx bx-move'></i> Drag
           <i class='bx bx-x widget-close-btn' onclick="event.stopPropagation(); setWidgetVisible('topGamesCard', false)" title="Hide Widget"></i>
         </span>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; gap: 6px;">
+        <button class="nav-arrow-btn" onclick="changeGameDayOffset(-1)" title="Previous Day">&lt;</button>
+        <div id="gameDateNavLabel" style="font-size: 10px; font-weight: 800; color: var(--accent-glow); text-transform: uppercase; text-align: center;">📅 NEXT DAY</div>
+        <button class="nav-arrow-btn" onclick="changeGameDayOffset(1)" title="Next Day">&gt;</button>
       </div>
       <div class="games-list" id="topGamesList"></div>
     </div>
@@ -1234,6 +1239,17 @@
     const INACTIVITY_LIMIT = 30 * 60 * 1000;
     let handoverItems = [];
     let isSidebarLocked = localStorage.getItem('sbhub_sidebar_locked') === 'true';
+
+    /* Global Navigation State for Top Games Widget (Default 1 = Next Day, range 0..7) */
+    let selectedGameDayOffset = 1;
+
+    function changeGameDayOffset(delta) {
+      const newOffset = selectedGameDayOffset + delta;
+      if (newOffset >= 0 && newOffset <= 7) {
+        selectedGameDayOffset = newOffset;
+        fetchLiveGames();
+      }
+    }
 
     /* Firebase Initialization for Duty Roster Sync */
     const rosterFirebaseConfig = {
@@ -1598,49 +1614,74 @@
       container.innerHTML = `<div style="text-align:center; padding:15px;"><i class='bx bx-loader-alt bx-spin' style="font-size:20px; color:var(--accent-glow);"></i></div>`;
       
       try {
-        const datesParam = `${getFormattedDateQuery(0)}-${getFormattedDateQuery(14)}`;
-        const [uclRes, eplRes, espRes] = await Promise.all([
-          fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${datesParam}`).catch(() => null),
-          fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${datesParam}`).catch(() => null),
-          fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=${datesParam}`).catch(() => null)
-        ]);
+        const targetDateQuery = getFormattedDateQuery(selectedGameDayOffset);
         
-        const uclData = uclRes ? await uclRes.json().catch(() => ({})) : {};
-        const eplData = eplRes ? await eplRes.json().catch(() => ({})) : {};
-        const espData = espRes ? await espRes.json().catch(() => ({})) : {};
+        // Update header label with active date and tag
+        const targetDateObj = new Date();
+        targetDateObj.setDate(targetDateObj.getDate() + selectedGameDayOffset);
+        const dateLabelStr = targetDateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }).toUpperCase();
         
-        const filterUpcoming = (events) => {
-          if (!events) return [];
-          return events.filter(e => {
-            const state = e.status?.type?.state;
-            const completed = e.status?.type?.completed;
-            return state !== 'post' && completed !== true;
-          });
-        };
+        let dayTag = `NEXT DAY`;
+        if (selectedGameDayOffset === 0) dayTag = `TODAY`;
+        else if (selectedGameDayOffset > 1) dayTag = `DAY +${selectedGameDayOffset}`;
 
-        let allUpcoming = [
-          ...filterUpcoming(uclData.events).map(e => ({ event: e, league: "🏆 CHAMPIONS LEAGUE", link: "https://www.flashscore.ph/football/europe/champions-league/" })),
-          ...filterUpcoming(eplData.events).map(e => ({ event: e, league: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE", link: "https://www.flashscore.ph/football/england/premier-league/" })),
-          ...filterUpcoming(espData.events).map(e => ({ event: e, league: "🇪🇸 LALIGA", link: "https://www.flashscore.ph/football/spain/laliga/" }))
+        const labelEl = document.getElementById("gameDateNavLabel");
+        if (labelEl) {
+          labelEl.innerHTML = `📅 ${dayTag} (${dateLabelStr})`;
+        }
+
+        // Comprehensive list of required European competitions
+        const targetLeagues = [
+          { name: "🏆 EURO CHAMPS", code: "uefa.euro", link: "https://www.flashscore.com/football/europe/euro/" },
+          { name: "🏆 CHAMPIONS LEAGUE", code: "uefa.champions", link: "https://www.flashscore.com/football/europe/champions-league/" },
+          { name: "🏆 EUROPA LEAGUE", code: "uefa.europa", link: "https://www.flashscore.com/football/europe/europa-league/" },
+          { name: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE", code: "eng.1", link: "https://www.flashscore.ph/football/england/premier-league/" },
+          { name: "🇪🇸 LALIGA", code: "esp.1", link: "https://www.flashscore.ph/football/spain/laliga/" },
+          { name: "🇩🇪 BUNDESLIGA", code: "ger.1", link: "https://www.flashscore.ph/football/germany/bundesliga/" },
+          { name: "🇮🇹 SERIE A", code: "ita.1", link: "https://www.flashscore.ph/football/italy/serie-a/" },
+          { name: "🇫🇷 LIGUE 1", code: "fra.1", link: "https://www.flashscore.ph/football/france/ligue-1/" },
+          { name: "🇵🇹 LIGA PORTUGAL", code: "por.1", link: "https://www.flashscore.ph/football/portugal/liga-portugal/" },
+          { name: "🇳🇱 EREDIVISIE", code: "ned.1", link: "https://www.flashscore.ph/football/netherlands/eredivisie/" }
         ];
 
-        let gamesHtml = "";
-        let renderedCount = 0;
+        // Fetch all target competitions concurrently
+        const fetchPromises = targetLeagues.map(league =>
+          fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${targetDateQuery}`)
+            .then(res => res.json())
+            .then(data => ({ league, events: data.events || [] }))
+            .catch(() => ({ league, events: [] }))
+        );
 
+        const results = await Promise.all(fetchPromises);
+        let allMatches = [];
+
+        results.forEach(result => {
+          if (result.events && result.events.length > 0) {
+            result.events.forEach(e => {
+              allMatches.push({ event: e, league: result.league.name, link: result.league.link });
+            });
+          }
+        });
+
+        // Sort all games chronologically
+        allMatches.sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
+
+        // HTML Generator for individual game cards
         const extractGame = (event, leagueName, link) => {
           if (!event || !event.competitions || !event.competitions[0]) return "";
           const match = event.competitions[0];
           
-          const home = match.competitors.find(c => c.homeAway === 'home')?.team?.shortDisplayName || "Home";
-          const away = match.competitors.find(c => c.homeAway === 'away')?.team?.shortDisplayName || "Away";
+          const home = match.competitors?.find(c => c.homeAway === 'home')?.team?.shortDisplayName || match.competitors?.[0]?.team?.shortDisplayName || "Home";
+          const away = match.competitors?.find(c => c.homeAway === 'away')?.team?.shortDisplayName || match.competitors?.[1]?.team?.shortDisplayName || "Away";
           
           const dateObj = new Date(event.date);
-          const dateStr = dateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }) + " - " + 
-                        dateObj.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false });
+          const timeStr = dateObj.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false });
+          const dateStr = dateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
           
-          let status = "Upcoming";
+          let status = "UPCOMING";
           let statusColor = "var(--accent-green)";
           if (event.status?.type?.state === 'in') { status = "LIVE"; statusColor = "#f87171"; }
+          else if (event.status?.type?.completed === true || event.status?.type?.state === 'post') { status = "FINAL"; statusColor = "var(--text-sub)"; }
 
           return `
             <a href="${link}" target="_blank" class="game-card-item">
@@ -1654,46 +1695,25 @@
                 <span>${away}</span>
               </div>
               <div class="game-time-row">
-                <span>📅 ${dateStr} (Local)</span>
+                <span>📅 ${dateStr} - ${timeStr} (Local)</span>
                 <span style="color: var(--accent-glow);">Flashscore →</span>
               </div>
             </a>`;
         };
 
-        allUpcoming.slice(0, 4).forEach(item => {
+        let gamesHtml = "";
+
+        // Complete iteration across ALL returned games for the target date
+        allMatches.forEach(item => {
           gamesHtml += extractGame(item.event, item.league, item.link);
-          renderedCount++;
         });
 
-        if (renderedCount < 3) {
-          const topFallbacks = [
-            { league: "🏆 CHAMPIONS LEAGUE", home: "Liverpool", away: "Atlético Madrid", date: "Sep 12 - 22:00", link: "https://www.flashscore.ph/football/europe/champions-league/" },
-            { league: "🇪🇸 LALIGA", home: "Real Madrid", away: "Rayo Vallecano", date: "Sep 13 - 04:00", link: "https://www.flashscore.ph/football/spain/laliga/" }
-          ];
-
-          topFallbacks.forEach(fb => {
-            if (renderedCount >= 4) return;
-            gamesHtml += `
-              <a href="${fb.link}" target="_blank" class="game-card-item">
-                <div class="game-league-tag">
-                  <span>${fb.league}</span>
-                  <span style="color: var(--accent-green);">● Upcoming</span>
-                </div>
-                <div class="game-teams-row">
-                  <span>${fb.home}</span>
-                  <span style="opacity: 0.7; font-weight: 500;">vs</span>
-                  <span>${fb.away}</span>
-                </div>
-                <div class="game-time-row">
-                  <span>📅 ${fb.date} (Local)</span>
-                  <span style="color: var(--accent-glow);">Flashscore →</span>
-                </div>
-              </a>`;
-            renderedCount++;
-          });
+        if (!gamesHtml) {
+          gamesHtml = `<div style="text-align:center; padding:20px; font-size:11px; color:var(--text-sub);">No games scheduled for ${dateLabelStr} in the selected leagues.</div>`;
         }
 
         container.innerHTML = gamesHtml;
+
       } catch (e) {
         container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:var(--accent-red);">Failed to fetch live data. Please try again.</div>`;
       }
