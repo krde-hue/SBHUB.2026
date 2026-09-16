@@ -1367,6 +1367,51 @@ function toggleModal() { const modal = document.getElementById("settingsModal");
 function toggleTheme() { const isLight = document.getElementById("modeToggle").checked; if (isLight) document.body.classList.add("light-mode"); else document.body.classList.remove("light-mode"); initTrendChart(); }
 function toggleMobileView() { const mobileToggle = document.getElementById("mobileViewToggle"); if (mobileToggle && mobileToggle.checked) document.body.classList.add("mobile-view-active"); else document.body.classList.remove("mobile-view-active"); setTimeout(() => { if(trendChartInstance) trendChartInstance.resize(); }, 300); }
 
+/* Live Snow Overlay Effect */
+function initSnowEffect() {
+  const canvas = document.getElementById('snowCanvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  let width = (canvas.width = window.innerWidth);
+  let height = (canvas.height = window.innerHeight);
+
+  const numFlakes = 60;
+  const flakes = Array.from({ length: numFlakes }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    r: Math.random() * 3 + 1,
+    d: Math.random() * 1 + 0.5,
+    opacity: Math.random() * 0.7 + 0.3
+  }));
+
+  function drawFlakes() {
+    ctx.clearRect(0, 0, width, height);
+    flakes.forEach((f) => {
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255, 255, 255, ${f.opacity})`;
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      f.y += f.d;
+      f.x += Math.sin(f.y / 30) * 0.5;
+
+      if (f.y > height) {
+        f.y = -10;
+        f.x = Math.random() * width;
+      }
+    });
+    requestAnimationFrame(drawFlakes);
+  }
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  drawFlakes();
+}
+
 restoreBentoLayout(); 
 checkRememberedSession();
 restoreAppearanceSettings();
@@ -1381,6 +1426,7 @@ fetchRealtimeWeather();
 renderClocks();
 initTrendChart();
 listenToLiveDutyRoster();
+initSnowEffect();
 
 setInterval(updateClocksTick, 1000);
 setInterval(fetchRealtimeWeather, 15 * 60 * 1000);
