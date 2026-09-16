@@ -649,6 +649,17 @@ input:checked + .slider:before { transform: translateX(22px); }
 .mobile-nav-bar { display: none; }
 #mobileBackdropOverlay { display: none; }
 
+/* Snow Overlay Styles */
+#snowCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2;
+}
+
 /* Desktop Layout */
 @media (min-width: 1025px) {
   body:not(.mobile-view-active) .sidebar:hover { width: var(--sidebar-expanded-width); }
