@@ -68,7 +68,7 @@ body {
 #authOverlay.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
 .lamp-login-container { position: relative; display: flex; align-items: center; gap: 20px; flex-direction: column; width: 90%; max-width: 420px; }
 
-.lamp-scene { position: relative; width: 220px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; cursor: pointer; }
+.lamp-scene { position: relative; width: 220px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
 
 .lamp-light-beam {
   position: absolute;
@@ -132,10 +132,11 @@ body.lamp-is-on .lamp-shade::before { opacity: 1; }
 .lamp-stand-rod { width: 12px; height: 130px; background: linear-gradient(90deg, #78350f 0%, #d97706 30%, #fef08a 50%, #b45309 85%, #451a03 100%); border-radius: 3px; position: relative; z-index: 2; box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5); }
 .lamp-base { width: 124px; height: 18px; background: linear-gradient(180deg, #f59e0b 0%, #b45309 60%, #78350f 100%); border-radius: 12px 12px 3px 3px; z-index: 2; box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.5); position: relative; }
 
+/* Pull Cord Styling & Precise Layering */
 .pull-cord-wrapper { 
   position: absolute; 
-  bottom: 100px; 
-  right: 30px; 
+  top: 102px; /* Positioned precisely at the bottom rim of the shade */
+  right: 42px; 
   cursor: pointer; 
   z-index: 10; 
   transform-origin: top center;
@@ -143,31 +144,45 @@ body.lamp-is-on .lamp-shade::before { opacity: 1; }
   flex-direction: column;
   align-items: center;
   user-select: none;
+  padding: 0;
 }
+
 .pull-cord-wrapper.bouncing {
-  animation: cordSpringBounce 0.65s cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
+  animation: cordSpringBounce 0.55s ease-in-out;
 }
 
 @keyframes cordSpringBounce {
-  0% { transform: translateY(0) scaleY(1); }
-  28% { transform: translateY(26px) scaleY(1.18); }
-  48% { transform: translateY(-8px) scaleY(0.92); }
-  68% { transform: translateY(5px) scaleY(1.04); }
-  84% { transform: translateY(-2px) scaleY(0.98); }
+  0%   { transform: translateY(0) scaleY(1); }
+  30%  { transform: translateY(22px) scaleY(1.22); }
+  50%  { transform: translateY(-6px) scaleY(0.92); }
+  70%  { transform: translateY(4px) scaleY(1.04); }
+  85%  { transform: translateY(-2px) scaleY(0.98); }
   100% { transform: translateY(0) scaleY(1); }
 }
 
-.cord-string { width: 2.5px; height: 58px; background: linear-gradient(180deg, #94a3b8, #cbd5e1, #64748b); box-shadow: 1px 1px 3px rgba(0,0,0,0.4); }
+.cord-string { 
+  width: 2.5px; 
+  height: 26px; 
+  background: linear-gradient(180deg, #94a3b8, #cbd5e1, #64748b); 
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4); 
+  pointer-events: none;
+}
+
 .cord-handle { 
   width: 18px; 
   height: 22px; 
   background: radial-gradient(circle at 35% 35%, #fef08a 0%, #f59e0b 55%, #78350f 100%); 
   border-radius: 50% 50% 45% 45%; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset -1px -2px 4px rgba(0,0,0,0.4), inset 1px 2px 3px rgba(255,255,255,0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset -1px -2px 4px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(251, 191, 36, 0.7);
+  pointer-events: none;
   transition: transform 0.15s ease, filter 0.15s ease;
 }
-.pull-cord-wrapper:hover .cord-handle { transform: scale(1.15); filter: brightness(1.2); }
+
+.pull-cord-wrapper:hover .cord-handle { 
+  transform: scale(1.15); 
+  filter: brightness(1.2); 
+}
 
 .login-popup-card { width: 100%; background: var(--glass-bg-card); border: 1.5px solid var(--glass-border); backdrop-filter: var(--card-blur); border-radius: 24px; padding: 24px; box-shadow: var(--glass-shadow); opacity: 0; visibility: hidden; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
 body.lamp-is-on .login-popup-card { opacity: 1; visibility: visible; border-color: rgba(245, 158, 11, 0.45); box-shadow: 0 25px 60px rgba(245, 158, 11, 0.2), var(--glass-shadow); }
@@ -233,7 +248,7 @@ input[type=range].styled-slider::-webkit-slider-thumb:hover { transform: scale(1
 .color-swatch:hover { transform: scale(1.2); }
 .color-swatch.active { border-color: var(--text-main); box-shadow: 0 0 10px var(--swatch-color); transform: scale(1.15); }
 
-/* WALLPAPER THUMBNAIL PICKER STYLING */
+/* Wallpaper Thumbnail Picker Styling */
 .wallpaper-thumbnail-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -364,7 +379,7 @@ input[type=range].styled-slider::-webkit-slider-thumb:hover { transform: scale(1
 .dock-link-item { background: var(--item-bg); border: 1px solid var(--item-border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-main); font-size: 10px; font-weight: 800; letter-spacing: 0.5px; transition: all 0.2s ease; text-shadow: var(--text-shadow); }
 .dock-link-item:hover { border-color: var(--accent-glow); background: var(--item-bg-hover); }
 
-/* FLASHSCORE LIVE HUB STYLING RESTORATION */
+/* Flashscore Live Hub Styling */
 .flashscore-links-grid {
   display: flex;
   flex-direction: column;
@@ -649,7 +664,7 @@ input:checked + .slider:before { transform: translateX(22px); }
 .mobile-nav-bar { display: none; }
 #mobileBackdropOverlay { display: none; }
 
-/* Snow Overlay Styles */
+/* Elevated Snow Canvas so cat and snowman render over bento elements */
 #snowCanvas {
   position: fixed;
   top: 0;
@@ -657,7 +672,7 @@ input:checked + .slider:before { transform: translateX(22px); }
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 2;
+  z-index: 50;
 }
 
 /* Desktop Layout */
