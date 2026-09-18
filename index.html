@@ -18,18 +18,24 @@
 <body>
 
   <!-- Toast Notification -->
-  <div id="toastNotification"><i class='bx bx-info-circle' style="font-size: 16px; color: var(--accent-glow);"></i> <span id="toastMsg">Notification</span></div>
+  <div id="toastNotification">
+    <i class='bx bx-info-circle' style="font-size: 16px; color: var(--accent-glow);"></i> 
+    <span id="toastMsg">Notification</span>
+  </div>
 
   <!-- Authentication Overlay -->
   <div id="authOverlay">
     <div class="lamp-login-container">
-      <div class="lamp-scene" onclick="toggleLamp()">
+      <div class="lamp-scene">
         <div class="lamp-light-beam"></div>
         <div class="lamp-shade"></div>
-        <div class="pull-cord-wrapper" id="pullCord">
+        
+        <!-- Clean Pull Cord Target -->
+        <div class="pull-cord-wrapper" id="pullCord" onclick="toggleLamp(event)" title="Pull Lamp Cord">
           <div class="cord-string"></div>
-          <div class="cord-handle" title="Toggle Lamp Switch"></div>
+          <div class="cord-handle"></div>
         </div>
+        
         <div class="lamp-stand-rod"></div>
         <div class="lamp-base"></div>
       </div>
@@ -303,6 +309,9 @@
       <div class="dock-content-panel active">
         <a href="https://docs.google.com/spreadsheets/d/1-sft6uXe-D4GlDng96bMfWcOC4492WA3lkuO8gaUqQ4/edit?usp=sharing" target="_blank" class="dock-link-item">
           <span>SPORTS OFFER CHECK</span> <i class='bx bx-link-external'></i>
+        </a>
+        <a href="https://polymarket.com/breaking" target="_blank" class="dock-link-item">
+          <span>PREDICTION OFFER CHECK</span> <i class='bx bx-link-external'></i>
         </a>
         <a href="boostschedule.html" target="_blank" class="dock-link-item">
           <span>TOP PICKS</span> <i class='bx bx-link-external'></i>
