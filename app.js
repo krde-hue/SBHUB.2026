@@ -7,7 +7,9 @@ const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
 window.playClickSound = function() {
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const audioCtx = new AudioCtx();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sine'; 
@@ -993,7 +995,7 @@ function initTrendChart() {
   const trackerEl = document.getElementById("trackerSelector");
   const tfEl = document.getElementById("timeframeSelector");
   const chartCanvas = document.getElementById("trendChart");
-  if (!trackerEl || !tfEl || !chartCanvas) return;
+  if (!trackerEl || !tfEl || !chartCanvas || typeof Chart === 'undefined') return;
 
   const viewMode = trackerEl.value;
   const timeframe = tfEl.value;
@@ -1140,13 +1142,15 @@ window.changeTimezone = function(index, newZone) {
 function getBentoLayoutObj() {
   const layout = {};
   document.querySelectorAll(".bento-card").forEach(card => { 
-    layout[card.id] = { 
-      top: card.style.top, 
-      left: card.style.left, 
-      width: card.style.width, 
-      height: card.style.height,
-      display: card.style.display 
-    }; 
+    if (card.id) {
+      layout[card.id] = { 
+        top: card.style.top, 
+        left: card.style.left, 
+        width: card.style.width, 
+        height: card.style.height,
+        display: card.style.display 
+      }; 
+    }
   });
   layout["selected_timezones"] = selectedTimezones; 
   layout["mobile_view"] = document.body.classList.contains("mobile-view-active");
@@ -1277,16 +1281,6 @@ function makeElementDraggable(element) {
   function closeDragElement() { document.onmouseup = null; document.onmousemove = null; saveBentoLayout(); }
 }
 
-document.querySelectorAll(".bento-card").forEach(makeElementDraggable);
-
-if (window.ResizeObserver) { 
-  const resizeObserver = new ResizeObserver(() => { 
-    if (trendChartInstance) trendChartInstance.resize(); 
-    saveBentoLayout(); 
-  }); 
-  document.querySelectorAll(".bento-card").forEach(card => resizeObserver.observe(card)); 
-}
-
 window.toggleModal = function() { 
   const modal = document.getElementById("settingsModal"); 
   if (modal) modal.style.display = (modal.style.display === "flex") ? "none" : "flex"; 
@@ -1323,7 +1317,6 @@ function initSnowEffect() {
   let numCols = Math.ceil(width / colWidth);
   let groundHeights = new Float32Array(numCols).fill(0);
 
-  // 4 Snowmen Array
   const maxVolumePerSnowman = 350;
   const snowmen = [
     { xRatio: 0.32, volume: 0, decorated: false },
@@ -1335,7 +1328,6 @@ function initSnowEffect() {
 
   let dogs = [];
   let dogsActive = false;
-
   let pawprints = [];
 
   function addPawprint(x, y) {
@@ -1390,7 +1382,6 @@ function initSnowEffect() {
 
   let waveCooldown = 0;
 
-  // Persistent Snow State Functions
   function loadSnowState() {
     const saved = localStorage.getItem('sbhub_snow_data');
     if (saved) {
@@ -1428,7 +1419,6 @@ function initSnowEffect() {
 
   loadSnowState();
 
-  // Rate-limited mouse move listener with cooldown
   window.addEventListener('mousemove', () => {
     if (waveCooldown <= 0 && cat.state !== 'WAVING' && cat.state !== 'CRYING' && cat.state !== 'DOGS_ATTACK') {
       cat.prevState = (cat.state === 'WAVING') ? 'ROLL_SNOW' : cat.state;
@@ -1439,7 +1429,6 @@ function initSnowEffect() {
     }
   });
 
-  // Direct Click Listener
   window.addEventListener('click', (e) => {
     const clickY = e.clientY;
     const clickX = e.clientX;
@@ -2047,4 +2036,16 @@ document.addEventListener("DOMContentLoaded", () => {
   try { initTrendChart(); } catch(e){}
   try { listenToLiveDutyRoster(); } catch(e){}
   try { initSnowEffect(); } catch(e) { console.error("Snow Canvas Error:", e); }
+
+  // Safe init for draggable bento cards and resize observers after DOM tree is constructed
+  try {
+    document.querySelectorAll(".bento-card").forEach(makeElementDraggable);
+    if (window.ResizeObserver) { 
+      const resizeObserver = new ResizeObserver(() => { 
+        if (trendChartInstance) trendChartInstance.resize(); 
+        saveBentoLayout(); 
+      }); 
+      document.querySelectorAll(".bento-card").forEach(card => resizeObserver.observe(card)); 
+    }
+  } catch(e) { console.error("Draggable UI Setup Error:", e); }
 });
