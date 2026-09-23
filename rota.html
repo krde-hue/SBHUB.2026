@@ -573,7 +573,7 @@
             </div>
 
             <div>
-                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Jan - Dec)</div>
+                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Jan – Dec)</div>
                 <table class="leave-table">
                     <thead>
                         <tr id="leave-header-row">
@@ -675,6 +675,41 @@
         let isMobileViewActive = false;
         let isViewOnlyMode = true;
         const ADMIN_PASSWORD = "sb2026";
+
+        /**
+         * Helper to sort array of date strings ("D-Mon") in descending order (e.g. Dec at top down to Jan)
+         */
+        function sortLeaveDatesDescending(arr) {
+            const monthOrder = {
+                'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+
+            function parseDateStr(str) {
+                if (!str || typeof str !== 'string' || !str.includes('-')) return null;
+                const parts = str.split('-');
+                if (parts.length !== 2) return null;
+                const day = parseInt(parts[0].trim());
+                const monthStr = parts[1].trim().substring(0, 3);
+                const month = monthOrder[monthStr];
+                if (isNaN(day) || month === undefined) return null;
+                return { day, month };
+            }
+
+            return arr.slice().sort((a, b) => {
+                const parsedA = parseDateStr(a);
+                const parsedB = parseDateStr(b);
+
+                if (!parsedA && !parsedB) return 0;
+                if (!parsedA) return 1;
+                if (!parsedB) return -1;
+
+                if (parsedB.month !== parsedA.month) {
+                    return parsedB.month - parsedA.month; // Dec (11) on top, Jan (0) at bottom
+                }
+                return parsedB.day - parsedA.day; // Latest day on top
+            });
+        }
 
         function checkViewOnlyMode() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1380,6 +1415,10 @@
             });
 
             team.forEach(m => {
+                // Sort leave dates descending so December is on top
+                tempMatrix[m].vl = sortLeaveDatesDescending(tempMatrix[m].vl);
+                tempMatrix[m].sl = sortLeaveDatesDescending(tempMatrix[m].sl);
+
                 while (tempMatrix[m].vl.length < 10) tempMatrix[m].vl.push('');
                 while (tempMatrix[m].sl.length < 5) tempMatrix[m].sl.push('');
                 tempMatrix[m].vl = tempMatrix[m].vl.slice(0, 10);
@@ -1395,6 +1434,24 @@
         function buildLeaveTables() {
             leaveDatesBody.innerHTML = '';
             const leaveTeam = team.filter(m => m !== "Miguel");
+
+            // Sort existing leaveMatrixData descending before rendering
+            leaveTeam.forEach((member) => {
+                if (leaveMatrixData[member]) {
+                    if (leaveMatrixData[member].vl) {
+                        let validVls = leaveMatrixData[member].vl.filter(v => v && v.trim() !== "");
+                        let sortedVls = sortLeaveDatesDescending(validVls);
+                        while (sortedVls.length < 10) sortedVls.push('');
+                        leaveMatrixData[member].vl = sortedVls.slice(0, 10);
+                    }
+                    if (leaveMatrixData[member].sl) {
+                        let validSls = leaveMatrixData[member].sl.filter(s => s && s.trim() !== "");
+                        let sortedSls = sortLeaveDatesDescending(validSls);
+                        while (sortedSls.length < 5) sortedSls.push('');
+                        leaveMatrixData[member].sl = sortedSls.slice(0, 5);
+                    }
+                }
+            });
 
             for (let rowIdx = 0; rowIdx < 15; rowIdx++) {
                 let tr = document.createElement('tr');
