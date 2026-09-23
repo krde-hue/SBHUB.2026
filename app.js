@@ -561,6 +561,9 @@ function getFormattedDateQuery(daysAhead) {
   return `${year}${month}${day}`;
 }
 
+/**
+ * Fetch Top Games (Primary Top Tier with automatic fallback to secondary leagues if empty)
+ */
 async function fetchLiveGames() {
   const container = document.getElementById("topGamesList");
   if (!container) return;
@@ -579,7 +582,8 @@ async function fetchLiveGames() {
     const labelEl = document.getElementById("gameDateNavLabel");
     if (labelEl) labelEl.innerHTML = `📅 ${dayTag} (${dateLabelStr})`;
 
-    const targetLeagues = [
+    // Primary Top Tier Leagues
+    const primaryLeagues = [
       { name: "🏆 EURO CHAMPS", code: "uefa.euro", link: "https://www.flashscore.com/football/europe/euro/" },
       { name: "🏆 CHAMPIONS LEAGUE", code: "uefa.champions", link: "https://www.flashscore.com/football/europe/champions-league/" },
       { name: "🏆 EUROPA LEAGUE", code: "uefa.europa", link: "https://www.flashscore.com/football/europe/europa-league/" },
@@ -592,23 +596,51 @@ async function fetchLiveGames() {
       { name: "🇳🇱 EREDIVISIE", code: "ned.1", link: "https://www.flashscore.ph/football/netherlands/eredivisie/" }
     ];
 
-    const fetchPromises = targetLeagues.map(league =>
-      fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${targetDateQuery}`)
-        .then(res => res.json())
-        .then(data => ({ league, events: data.events || [] }))
-        .catch(() => ({ league, events: [] }))
-    );
+    // Extended Backup Leagues (Queried IF Primary Top Tier returns 0 games)
+    const backupLeagues = [
+      { name: "🇳🇴 NORWAY ELITESERIEN", code: "nor.1", link: "https://www.flashscore.ph/football/norway/eliteserien/" },
+      { name: "🇫🇮 FINLAND VEIKKAUSLIIGA", code: "fin.1", link: "https://www.flashscore.ph/football/finland/veikkausliiga/" },
+      { name: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 FA CUP QUALIFICATION", code: "eng.fa", link: "https://www.flashscore.ph/football/england/fa-cup/" },
+      { name: "🌍 AFCON QUALIFIERS", code: "caf.nations_qual", link: "https://www.flashscore.ph/football/africa/africa-cup-of-nations/" },
+      { name: "🌏 ARABIAN GULF CUP", code: "uae.presidents.cup", link: "https://www.flashscore.ph/football/united-arab-emirates/presidents-cup/" },
+      { name: "🇺🇸 USA MLS", code: "usa.1", link: "https://www.flashscore.ph/football/usa/mls/" },
+      { name: "🇺🇸 USL CHAMPIONSHIP", code: "usa.usl.1", link: "https://www.flashscore.ph/football/usa/usl-championship/" },
+      { name: "🌏 FIFA ASEAN CUP - DIV 1", code: "aff.championship", link: "https://www.flashscore.ph/football/asia/aff-championship/" },
+      { name: "🌏 ASIAN GAMES - PLAY OFFS", code: "asian.games", link: "https://www.flashscore.ph/football/asia/asian-games/" },
+      { name: "🇪🇺 UEFA NATIONS LEAGUE A", code: "uefa.nations.a", link: "https://www.flashscore.ph/football/europe/uefa-nations-league/" },
+      { name: "🇪🇺 UEFA NATIONS LEAGUE B", code: "uefa.nations.b", link: "https://www.flashscore.ph/football/europe/uefa-nations-league/" },
+      { name: "🇪🇺 UEFA NATIONS LEAGUE D", code: "uefa.nations.d", link: "https://www.flashscore.ph/football/europe/uefa-nations-league/" }
+    ];
 
-    const results = await Promise.all(fetchPromises);
-    let allMatches = [];
+    // Helper fetcher
+    const fetchLeagueData = async (leagues) => {
+      const promises = leagues.map(league =>
+        fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${targetDateQuery}`)
+          .then(res => res.json())
+          .then(data => ({ league, events: data.events || [] }))
+          .catch(() => ({ league, events: [] }))
+      );
+      const results = await Promise.all(promises);
+      let matches = [];
+      results.forEach(result => {
+        if (result.events && result.events.length > 0) {
+          result.events.forEach(e => {
+            matches.push({ event: e, league: result.league.name, link: result.league.link });
+          });
+        }
+      });
+      return matches;
+    };
 
-    results.forEach(result => {
-      if (result.events && result.events.length > 0) {
-        result.events.forEach(e => {
-          allMatches.push({ event: e, league: result.league.name, link: result.league.link });
-        });
-      }
-    });
+    // First attempt: Primary Top-Tier Leagues
+    let allMatches = await fetchLeagueData(primaryLeagues);
+    let isBackupUsed = false;
+
+    // Fallback: If 0 primary matches found, fetch Backup Leagues
+    if (allMatches.length === 0) {
+      isBackupUsed = true;
+      allMatches = await fetchLeagueData(backupLeagues);
+    }
 
     allMatches.sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
 
@@ -646,6 +678,13 @@ async function fetchLiveGames() {
     };
 
     let gamesHtml = "";
+    if (isBackupUsed && allMatches.length > 0) {
+      gamesHtml += `
+        <div style="font-size: 8.5px; font-weight: 800; color: var(--accent-glow); background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 6px; border-radius: 4px; margin-bottom: 8px; text-align: center;">
+          🌐 ALTERNATIVE LEAGUES (Top Tier Inactive)
+        </div>`;
+    }
+
     allMatches.forEach(item => { gamesHtml += extractGame(item.event, item.league, item.link); });
 
     if (!gamesHtml) {
