@@ -406,7 +406,7 @@ function handleLogout() {
   if (robotStage) robotStage.classList.remove('covering-eyes', 'peeking');
 }
 
-/* --- UI TOGGLES & WIDGET MANAGEMENT --- */
+/* --- UI TOGGLES & WIDGET MANAGEMENT (WITH LOCALSTORAGE PERSISTENCE) --- */
 function toggleMenu(menuId, btnElement) {
   const targetMenu = document.getElementById(menuId);
   if (!targetMenu) return;
@@ -427,15 +427,39 @@ function toggleDropdown(menuId) {
   if (menu) menu.classList.toggle('show');
 }
 
+// TOGGLE WIDGET & SAVE PREFERENCE TO LOCALSTORAGE
 function toggleWidget(widgetId, show) {
   const el = document.getElementById(widgetId);
   if (el) el.style.display = show ? 'flex' : 'none';
+
+  // Sync checkbox state in the dropdown menu
+  const checkbox = document.querySelector(`input[onchange*="${widgetId}"]`);
+  if (checkbox) checkbox.checked = show;
+
+  // Save preference locally
+  try {
+    const savedWidgets = JSON.parse(localStorage.getItem('sbhub_widgets') || '{}');
+    savedWidgets[widgetId] = show;
+    localStorage.setItem('sbhub_widgets', JSON.stringify(savedWidgets));
+  } catch(e) {
+    console.warn("Could not save widget preference:", e);
+  }
 }
 
 function hideWidgetDirect(widgetId) {
   toggleWidget(widgetId, false);
-  const checkbox = document.querySelector(`input[onchange*="${widgetId}"]`);
-  if (checkbox) checkbox.checked = false;
+}
+
+// RESTORE SAVED WIDGET SETUP ON PAGE LOAD
+function restoreSavedWidgets() {
+  try {
+    const savedWidgets = JSON.parse(localStorage.getItem('sbhub_widgets') || '{}');
+    Object.keys(savedWidgets).forEach(widgetId => {
+      toggleWidget(widgetId, savedWidgets[widgetId]);
+    });
+  } catch(e) {
+    console.warn("Could not load widget preferences:", e);
+  }
 }
 
 /* --- THEME CUSTOMIZER --- */
@@ -775,9 +799,11 @@ function initDashboardApp() {
   }
 
   switchBrandTab('ibet');
+
+  // RESTORE CUSTOM WIDGET LAYOUT FROM LOCALSTORAGE
+  restoreSavedWidgets();
+
   fetchTopPicksAndBoosts();
-  
-  // AUTO-REFRESH TOP PICKS / BOOSTS EVERY 2 MINUTES
   setInterval(fetchTopPicksAndBoosts, 2 * 60 * 1000);
 
   listenToLiveDutyRoster();
