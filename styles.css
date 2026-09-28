@@ -1,3 +1,12 @@
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-card-bg: rgba(15, 23, 42, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.28);
+  --glass-highlight: inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+  --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  --card-blur: blur(30px) saturate(150%);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -20,15 +29,6 @@ body {
   overflow-x: hidden;
   transition: background 0.5s ease;
   position: relative;
-}
-
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.12);
-  --glass-card-bg: rgba(15, 23, 42, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.28);
-  --glass-highlight: inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.2);
-  --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-  --card-blur: blur(30px) saturate(150%);
 }
 
 #bgCanvas {
@@ -691,7 +691,6 @@ body {
   gap: 4px;
 }
 
-/* TOP GAMES CARD (MATCHING REFERENCE IMAGE 3d62da.png) */
 .top-game-card {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.15);
