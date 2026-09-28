@@ -9,11 +9,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@700&amp;display=swap" rel="stylesheet">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Stylesheet with Cache Busting -->
+  <link rel="stylesheet" href="./styles.css?v=1.0.1">
 
+  <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <!-- App JS -->
+  <script src="./app.js?v=1.0.1" defer></script>
 </head>
 <body id="pageBody">
 
@@ -51,7 +57,7 @@
           <!-- USERNAME INPUT FIELD -->
           <div class="field-wrapper">
             <label class="login-label" for="usernameInput">Username or email</label>
-            <input type="text" id="usernameInput" class="login-input" value="sportsbook2026" required="required" autocomplete="username">
+            <input type="text" id="usernameInput" class="login-input" value="sportsbook2026" required autocomplete="username">
           </div>
 
           <!-- PASSWORD INPUT FIELD -->
@@ -61,7 +67,7 @@
               <a href="#forgot" class="forgot-link">Forgot key?</a>
             </div>
             <div class="password-field-wrap">
-              <input type="password" id="passwordInput" class="login-input" value="" placeholder="Enter password" required="required" autocomplete="current-password">
+              <input type="password" id="passwordInput" class="login-input" value="" placeholder="Enter password" required autocomplete="current-password">
               <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()">
                 <i class="bx bx-show" id="togglePassIcon"></i>
               </button>
@@ -70,7 +76,7 @@
 
           <!-- REMEMBER ME CHECKBOX -->
           <div class="remember-row">
-            <input type="checkbox" id="rememberMe" checked="checked">
+            <input type="checkbox" id="rememberMe" checked>
             <label for="rememberMe">Maintain active session</label>
           </div>
 
@@ -345,23 +351,23 @@
               <div class="dropdown-menu" id="widgetMenu">
                 <label class="menu-option">
                   <span>Top Picks / Boosts</span>
-                  <input type="checkbox" class="widget-checkbox" checked="checked" onchange="toggleWidget('widget-top-picks', this.checked)">
+                  <input type="checkbox" class="widget-checkbox" checked onchange="toggleWidget('widget-top-picks', this.checked)">
                 </label>
                 <label class="menu-option">
                   <span>Brand Directory</span>
-                  <input type="checkbox" class="widget-checkbox" checked="checked" onchange="toggleWidget('widget-brand-dock', this.checked)">
+                  <input type="checkbox" class="widget-checkbox" checked onchange="toggleWidget('widget-brand-dock', this.checked)">
                 </label>
                 <label class="menu-option">
                   <span>Daily Task Dock</span>
-                  <input type="checkbox" class="widget-checkbox" checked="checked" onchange="toggleWidget('widget-task-dock', this.checked)">
+                  <input type="checkbox" class="widget-checkbox" checked onchange="toggleWidget('widget-task-dock', this.checked)">
                 </label>
                 <label class="menu-option">
                   <span>Time-Slot Duties</span>
-                  <input type="checkbox" class="widget-checkbox" checked="checked" onchange="toggleWidget('widget-duties-dock', this.checked)">
+                  <input type="checkbox" class="widget-checkbox" checked onchange="toggleWidget('widget-duties-dock', this.checked)">
                 </label>
                 <label class="menu-option">
                   <span>Top Games Ticker</span>
-                  <input type="checkbox" class="widget-checkbox" checked="checked" onchange="toggleWidget('widget-games-dock', this.checked)">
+                  <input type="checkbox" class="widget-checkbox" checked onchange="toggleWidget('widget-games-dock', this.checked)">
                 </label>
               </div>
             </div>
@@ -403,11 +409,11 @@
 
       </div>
 
-      <!-- NEWLY ADDED WIDGET: TOP PICKS / HOT BOOSTS -->
+      <!-- WIDGET: TOP PICKS / HOT BOOSTS -->
       <div class="glass-card" id="widget-top-picks">
         <div class="card-header">
           <span style="color: #ff4d4d; display: flex; align-items: center; gap: 8px;">
-            <i class='bx bxs-flame' style="font-size: 18px;"></i> TOP PICKS / HOT BOOSTS
+            <i class="bx bxs-flame" style="font-size: 18px;"></i> TOP PICKS / HOT BOOSTS
           </span>
           <div class="actions">
             <a href="boostschedule.html" target="_blank" rel="noreferrer" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 11px;">View All &rarr;</a>
@@ -415,11 +421,11 @@
           </div>
         </div>
         <div id="topPicksContainer" class="top-picks-scroll-row">
-          <div style="text-align:center; padding:15px; width:100%;"><i class='bx bx-loader-alt bx-spin' style="font-size:20px; color:#38bdf8;"></i></div>
+          <div style="text-align:center; padding:15px; width:100%;"><i class="bx bx-loader-alt bx-spin" style="font-size:20px; color:#38bdf8;"></i></div>
         </div>
       </div>
 
-      <!-- ORIGINAL 3-COLUMN DASHBOARD GRID -->
+      <!-- 3-COLUMN DASHBOARD GRID -->
       <div class="dashboard-grid">
 
         <!-- COLUMN 1: BRAND DIRECTORY & DAILY TASKS -->
@@ -466,7 +472,7 @@
           </div>
         </div>
 
-        <!-- COLUMN 3: TOP GAMES (FLASHSCORE GMT+8 SYNC) -->
+        <!-- COLUMN 3: TOP GAMES -->
         <div class="glass-card" id="widget-games-dock">
           <div class="card-header">
             <span style="color: #38bdf8;"><i class="bx bx-play-circle"></i> TOP GAMES (7-DAY FIXTURES)</span>
@@ -487,6 +493,5 @@
     </main>
   </div>
 
-  <script src="app.js"></script>
 </body>
 </html>
