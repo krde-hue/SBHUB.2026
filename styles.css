@@ -1065,7 +1065,7 @@ body {
   position: fixed;
   bottom: 94px;
   right: 24px;
-  z-index: 999989;
+  z-index: 999995;
   width: 420px;
   max-width: calc(100vw - 32px);
   height: 600px;
