@@ -274,20 +274,29 @@ body {
   visibility: visible;
 }
 
-/* SIDEBAR LAYOUT (DOCKED FOOTER AT BOTTOM) */
+/* SIDEBAR LAYOUT (ADMIN DOCKED AT VERY BOTTOM) */
 .sidebar {
   width: 270px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
   flex-shrink: 0;
   height: calc(100vh - 48px);
   max-height: calc(100vh - 48px);
-  overflow-y: auto;
   background: transparent;
   border: none;
   padding: 0;
   position: relative;
+}
+
+.sidebar-menu-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+  scrollbar-width: thin;
 }
 
 .sidebar-header {
@@ -394,15 +403,11 @@ body {
 }
 
 .sidebar-admin-footer {
-  margin-top: auto;
-  padding-top: 10px;
-  position: sticky;
-  bottom: 0;
+  margin-top: 12px;
+  padding-top: 6px;
+  flex-shrink: 0;
+  width: 100%;
   z-index: 20;
-  background: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 999px;
 }
 
 .sidebar-admin-footer .admin-top-pill {
