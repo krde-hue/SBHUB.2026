@@ -354,7 +354,7 @@ function parseWMOWeatherCode(code) {
   return { label: 'CLOUDY', icon: 'bx-cloud', color: '#38bdf8' };
 }
 
-/* --- AUTHENTICATION --- */
+/* --- AUTHENTICATION & PERSISTENT SESSION ENGINE --- */
 function togglePasswordVisibility() {
   const passInput = document.getElementById('passwordInput');
   const icon = document.getElementById('togglePassIcon');
@@ -373,14 +373,22 @@ function handleLogin(event) {
   event.preventDefault();
   const userInput = document.getElementById('usernameInput');
   const passInput = document.getElementById('passwordInput');
+  const rememberCheckbox = document.getElementById('rememberMe');
+
   const userVal = userInput ? userInput.value.trim() : '';
   const passVal = passInput ? passInput.value : '';
+  const isRemember = rememberCheckbox ? rememberCheckbox.checked : false;
+
   const errorMsg = document.getElementById('loginErrorMsg');
   const card = document.getElementById('loginCard');
   const robotStage = document.getElementById('sittingRobotStage');
 
   if ((userVal === DEFAULT_USER || userVal === "sportsbookhub") && passVal === DEFAULT_PASS) {
-    sessionStorage.setItem('sbhub_auth', 'true');
+    if (isRemember) {
+      localStorage.setItem('sbhub_auth', 'true');
+    } else {
+      sessionStorage.setItem('sbhub_auth', 'true');
+    }
     unlockDashboard();
   } else {
     if (errorMsg) errorMsg.textContent = "ACCESS DENIED: Invalid Security Key";
@@ -407,7 +415,9 @@ function unlockDashboard() {
 }
 
 function handleLogout() {
+  localStorage.removeItem('sbhub_auth');
   sessionStorage.removeItem('sbhub_auth');
+
   const passInput = document.getElementById('passwordInput');
   if (passInput) passInput.value = '';
   const errorMsg = document.getElementById('loginErrorMsg');
@@ -441,16 +451,13 @@ function toggleDropdown(menuId) {
   if (menu) menu.classList.toggle('show');
 }
 
-// TOGGLE WIDGET & SAVE PREFERENCE TO LOCALSTORAGE
 function toggleWidget(widgetId, show) {
   const el = document.getElementById(widgetId);
   if (el) el.style.display = show ? 'flex' : 'none';
 
-  // Sync checkbox state in the dropdown menu
   const checkbox = document.querySelector(`input[onchange*="${widgetId}"]`);
   if (checkbox) checkbox.checked = show;
 
-  // Save preference locally
   try {
     const savedWidgets = JSON.parse(localStorage.getItem('sbhub_widgets') || '{}');
     savedWidgets[widgetId] = show;
@@ -464,7 +471,6 @@ function hideWidgetDirect(widgetId) {
   toggleWidget(widgetId, false);
 }
 
-// RESTORE SAVED WIDGET SETUP ON PAGE LOAD
 function restoreSavedWidgets() {
   try {
     const savedWidgets = JSON.parse(localStorage.getItem('sbhub_widgets') || '{}');
@@ -615,7 +621,7 @@ function renderLiveDutyWidget(rosterData) {
   calculateActiveTraders();
 }
 
-/* --- TOP GAMES DYNAMIC MATCHDAY ENGINE (STRICT MATCHDAY + SECONDARY LEAGUE FALLBACK) --- */
+/* --- TOP GAMES DYNAMIC MATCHDAY ENGINE --- */
 function getGMT8DateObj(offsetDays = 0) {
   const now = new Date();
   const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
@@ -648,7 +654,6 @@ async function fetchLiveGames() {
     const labelEl = document.getElementById("matchDayDisplay");
     if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
 
-    // PRIMARY TIER LEAGUES
     const primaryLeagues = [
       { name: "UEFA Champions League", code: "uefa.champions" },
       { name: "Premier League", code: "eng.1" },
@@ -660,7 +665,6 @@ async function fetchLiveGames() {
       { name: "UEFA Nations League", code: "uefa.nations" }
     ];
 
-    // SECONDARY TIER LEAGUES (FALLBACK IF TOP TIER IS OFF)
     const secondaryLeagues = [
       { name: "UEFA Europa League", code: "uefa.europa" },
       { name: "UEFA Conference League", code: "uefa.europa.conf" },
@@ -678,7 +682,6 @@ async function fetchLiveGames() {
 
     let matches = await fetchLeagueList(primaryLeagues, targetDateQuery);
 
-    // If Primary Tier has no games on this date, dynamically fetch Secondary Tier
     if (matches.length === 0) {
       matches = await fetchLeagueList(secondaryLeagues, targetDateQuery);
     }
@@ -713,7 +716,6 @@ async function fetchLiveGames() {
   }
 }
 
-// HELPER: PARALLEL FAST FETCH LEAGUE MATCHES FOR TARGET DATE
 async function fetchLeagueList(leagueList, dateQuery) {
   const fetchPromises = leagueList.map(league =>
     fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateQuery}`)
@@ -807,13 +809,12 @@ function initDashboardApp() {
     setGradient('silk-lavender');
   }
 
-  if (sessionStorage.getItem('sbhub_auth') === 'true') {
+  // CHECK PERSISTENT SESSION (LOCALSTORAGE OR SESSIONSTORAGE)
+  if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
     unlockDashboard();
   }
 
   switchBrandTab('ibet');
-
-  // RESTORE CUSTOM WIDGET LAYOUT FROM LOCALSTORAGE
   restoreSavedWidgets();
 
   fetchTopPicksAndBoosts();
