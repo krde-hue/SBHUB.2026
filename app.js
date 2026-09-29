@@ -482,47 +482,50 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- VIVID PURE CSS THEME CUSTOMIZER (IMMUNE TO BLOCKED IMAGES) --- */
+/* --- HIGH-DEFINITION ABSTRACT WALLPAPER THEMES (MATCHING REFERENCE GRAPHICS) --- */
 function setGradient(theme) {
   const body = document.getElementById('pageBody');
   if (!body) return;
   let backgroundStyle = '';
 
   switch(theme) {
+    /* PLAIN DARK BASE THEMES */
     case 'plain-slate':
-      backgroundStyle = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+      backgroundStyle = 'linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)), #0f172a';
       break;
     case 'plain-navy':
-      backgroundStyle = 'linear-gradient(135deg, #020c1b 0%, #0a192f 50%, #112240 100%)';
+      backgroundStyle = 'linear-gradient(rgba(11, 19, 41, 0.95), rgba(11, 19, 41, 0.95)), #0b1329';
       break;
     case 'plain-onyx':
-      backgroundStyle = 'linear-gradient(135deg, #000000 0%, #111827 100%)';
+      backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
       break;
 
+    /* SILK & SATIN NEON WAVE GRAPHICS (MATCHING image_38b868.jpg) */
     case 'silk-lavender':
-      backgroundStyle = 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 70%, #831843 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop")';
       break;
     case 'silk-coral':
-      backgroundStyle = 'linear-gradient(135deg, #4c0519 0%, #881337 40%, #9f1239 70%, #7c2d12 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=2560&auto=format&fit=crop")';
       break;
     case 'silk-pastel':
-      backgroundStyle = 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #312e81 70%, #065f46 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.40), rgba(8, 12, 24, 0.40)), url("https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop")';
       break;
     case 'silk-mint':
-      backgroundStyle = 'linear-gradient(135deg, #022c22 0%, #064e3b 40%, #047857 70%, #0f766e 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop")';
       break;
     case 'silk-iridescent':
-      backgroundStyle = 'linear-gradient(135deg, #2e1065 0%, #6b21a8 40%, #0369a1 70%, #0f172a 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.40), rgba(8, 12, 24, 0.40)), url("https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2560&auto=format&fit=crop")';
       break;
 
+    /* 3D RIBBON FOLDS & FLUID SWIRLS (MATCHING image_38b849.jpg & image_38b502.jpg) */
     case 'abstract-bubbles':
-      backgroundStyle = 'radial-gradient(circle at 20% 20%, #831843 0%, #0f172a 50%, #0284c7 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.40), rgba(8, 12, 24, 0.40)), url("https://images.unsplash.com/photo-1550684848-bac1c5b4e853?q=80&w=2560&auto=format&fit=crop")';
       break;
     case 'abstract-lava':
-      backgroundStyle = 'radial-gradient(circle at 80% 30%, #7c2d12 0%, #1e1b4b 50%, #4c0519 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1520690214124-2405c50470c6?q=80&w=2560&auto=format&fit=crop")';
       break;
     default:
-      backgroundStyle = 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 70%, #831843 100%)';
+      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop")';
   }
 
   body.style.background = backgroundStyle;
