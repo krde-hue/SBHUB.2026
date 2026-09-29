@@ -482,7 +482,22 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- HIGH-DEFINITION ABSTRACT WALLPAPER THEMES (MATCHING REFERENCE GRAPHICS) --- */
+/* --- HIGH-DEFINITION VECTOR ABSTRACT WALLPAPER DATA URIs --- */
+const lavenderSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23090d16'/><stop offset='50%' stop-color='%23130d24'/><stop offset='100%' stop-color='%23050811'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%23a855f7'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><linearGradient id='w2' x1='0%' y1='100%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='50%' stop-color='%23818cf8'/><stop offset='100%' stop-color='%23f43f5e'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='40'/></filter><filter id='b2'><feGaussianBlur stdDeviation='15'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 700 Q 400 200 900 650 T 1900 300 T 2100 800' stroke='url(%23w1)' stroke-width='140' fill='none' opacity='0.75' filter='url(%23b1)'/><path d='M-100 700 Q 400 200 900 650 T 1900 300 T 2100 800' stroke='url(%23w1)' stroke-width='40' fill='none' opacity='0.9' filter='url(%23b2)'/><path d='M-100 350 Q 500 850 1100 250 T 2100 600' stroke='url(%23w2)' stroke-width='100' fill='none' opacity='0.65' filter='url(%23b1)'/><path d='M-100 350 Q 500 850 1100 250 T 2100 600' stroke='url(%23w2)' stroke-width='25' fill='none' opacity='0.85' filter='url(%23b2)'/></svg>";
+
+const coralSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231a050d'/><stop offset='50%' stop-color='%232d0617'/><stop offset='100%' stop-color='%23080206'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23fb923c'/><stop offset='50%' stop-color='%23f43f5e'/><stop offset='100%' stop-color='%23a855f7'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='45'/></filter><filter id='b2'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 400 Q 450 900 1000 300 T 2100 700' stroke='url(%23w1)' stroke-width='160' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 400 Q 450 900 1000 300 T 2100 700' stroke='url(%23w1)' stroke-width='45' fill='none' opacity='0.95' filter='url(%23b2)'/><path d='M-100 800 Q 600 200 1200 800 T 2100 200' stroke='%23fbbf24' stroke-width='90' fill='none' opacity='0.6' filter='url(%23b1)'/></svg>";
+
+const pastelSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23030712'/><stop offset='50%' stop-color='%230f172a'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='33%' stop-color='%23818cf8'/><stop offset='66%' stop-color='%23f43f5e'/><stop offset='100%' stop-color='%23fbbf24'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='50'/></filter><filter id='b2'><feGaussianBlur stdDeviation='20'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 200 C 500 800, 800 -200, 1400 700 C 1800 1200, 2000 100, 2100 400' stroke='url(%23w1)' stroke-width='180' fill='none' opacity='0.75' filter='url(%23b1)'/><path d='M-100 200 C 500 800, 800 -200, 1400 700 C 1800 1200, 2000 100, 2100 400' stroke='url(%23w1)' stroke-width='50' fill='none' opacity='0.9' filter='url(%23b2)'/></svg>";
+
+const mintSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23022c22'/><stop offset='50%' stop-color='%23064e3b'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2334d399'/><stop offset='50%' stop-color='%232dd4bf'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='40'/></filter><filter id='b2'><feGaussianBlur stdDeviation='15'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 650 Q 500 150 1100 600 T 2100 250' stroke='url(%23w1)' stroke-width='150' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 650 Q 500 150 1100 600 T 2100 250' stroke='url(%23w1)' stroke-width='40' fill='none' opacity='0.95' filter='url(%23b2)'/></svg>";
+
+const iridescentSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231e1b4b'/><stop offset='50%' stop-color='%232e1065'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='25%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%23f59e0b'/><stop offset='75%' stop-color='%2310b981'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='45'/></filter><filter id='b2'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 300 C 400 900, 900 100, 1400 800 C 1800 1300, 2000 200, 2100 500' stroke='url(%23w1)' stroke-width='160' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 300 C 400 900, 900 100, 1400 800 C 1800 1300, 2000 200, 2100 500' stroke='url(%23w1)' stroke-width='45' fill='none' opacity='0.95' filter='url(%23b2)'/></svg>";
+
+const bubblesSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23020617'/><stop offset='50%' stop-color='%230f172a'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><radialGradient id='o1' cx='30%' cy='30%' r='50%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%238b5cf6'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o2' cx='70%' cy='70%' r='60%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='50%' stop-color='%230284c7'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o3' cx='50%' cy='40%' r='45%'><stop offset='0%' stop-color='%23f59e0b'/><stop offset='60%' stop-color='%23ef4444'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='60'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='400' cy='350' r='450' fill='url(%23o1)' opacity='0.75' filter='url(%23b)'/><circle cx='1400' cy='700' r='550' fill='url(%23o2)' opacity='0.8' filter='url(%23b)'/><circle cx='960' cy='500' r='380' fill='url(%23o3)' opacity='0.65' filter='url(%23b)'/></svg>";
+
+const lavaSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2318020c'/><stop offset='50%' stop-color='%232e0818'/><stop offset='100%' stop-color='%23090207'/></linearGradient><radialGradient id='l1' cx='20%' cy='80%' r='65%'><stop offset='0%' stop-color='%23f97316'/><stop offset='40%' stop-color='%23dc2626'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='l2' cx='80%' cy='20%' r='60%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='50%' stop-color='%23ec4899'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='65'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='300' cy='800' r='550' fill='url(%23l1)' opacity='0.85' filter='url(%23b)'/><circle cx='1600' cy='250' r='500' fill='url(%23l2)' opacity='0.8' filter='url(%23b)'/></svg>";
+
+/* --- THEME SWITCHER ENGINE --- */
 function setGradient(theme) {
   const body = document.getElementById('pageBody');
   if (!body) return;
@@ -500,32 +515,32 @@ function setGradient(theme) {
       backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
       break;
 
-    /* SILK & SATIN NEON WAVE GRAPHICS (MATCHING image_38b868.jpg) */
+    /* SILK & SATIN NEON WAVE GRAPHICS */
     case 'silk-lavender':
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${lavenderSvg}")`;
       break;
     case 'silk-coral':
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${coralSvg}")`;
       break;
     case 'silk-pastel':
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.40), rgba(8, 12, 24, 0.40)), url("https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${pastelSvg}")`;
       break;
     case 'silk-mint':
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${mintSvg}")`;
       break;
     case 'silk-iridescent':
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.40), rgba(8, 12, 24, 0.40)), url("https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${iridescentSvg}")`;
       break;
 
-    /* 3D RIBBON FOLDS & FLUID SWIRLS (MATCHING image_38b849.jpg & image_38b502.jpg) */
+    /* 3D RIBBON FOLDS & FLUID SWIRLS */
     case 'abstract-bubbles':
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.40), rgba(8, 12, 24, 0.40)), url("https://images.unsplash.com/photo-1550684848-bac1c5b4e853?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${bubblesSvg}")`;
       break;
     case 'abstract-lava':
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1520690214124-2405c50470c6?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${lavaSvg}")`;
       break;
     default:
-      backgroundStyle = 'linear-gradient(rgba(8, 12, 24, 0.45), rgba(8, 12, 24, 0.45)), url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop")';
+      backgroundStyle = `url("${lavenderSvg}")`;
   }
 
   body.style.background = backgroundStyle;
