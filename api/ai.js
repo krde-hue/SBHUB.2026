@@ -1,38 +1,43 @@
-module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+export const config = {
+  runtime: 'edge',
+};
 
+export default async function handler(req) {
+  // CORS Preflight & Headers
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
   }
 
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ 
-        error: 'GEMINI_API_KEY is not configured in Vercel Environment Variables.' 
+      return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured in Vercel Environment Variables.' }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       });
     }
 
-    let body = req.body || {};
-    if (typeof body === 'string') {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        body = {};
-      }
-    }
-
+    const body = await req.json().catch(() => ({}));
     const messages = body.messages || [];
     const hubContext = body.hubContext;
     const hubData = body.hubData;
@@ -50,7 +55,6 @@ CORE OPERATING DIRECTIVES:
       systemInstructions += `\n\n[LIVE SPORTSBOOK HUB TELEMETRY DATA]:\n${JSON.stringify(hubData, null, 2)}`;
     }
 
-    // Format conversation history for Gemini API
     let contents = [];
     if (Array.isArray(messages) && messages.length > 0) {
       contents = messages.map(msg => ({
@@ -65,7 +69,13 @@ CORE OPERATING DIRECTIVES:
     }
 
     if (contents.length === 0) {
-      return res.status(400).json({ error: 'No prompt or messages provided.' });
+      return new Response(JSON.stringify({ error: 'No prompt or messages provided.' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
     }
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
@@ -86,15 +96,31 @@ CORE OPERATING DIRECTIVES:
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({ 
-        error: data.error?.message || 'Gemini API call failed.' 
+      return new Response(JSON.stringify({ error: data.error?.message || 'Gemini API call failed.' }), {
+        status: response.status,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       });
     }
 
     const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
-    return res.status(200).json({ content: replyText });
+    return new Response(JSON.stringify({ content: replyText }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
 
   } catch (err) {
-    return res.status(500).json({ error: `Server error: ${err.message}` });
+    return new Response(JSON.stringify({ error: `Server error: ${err.message}` }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
   }
-};
+}
