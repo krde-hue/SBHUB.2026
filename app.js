@@ -355,6 +355,20 @@ function parseWMOWeatherCode(code) {
 }
 
 /* --- AUTHENTICATION --- */
+function togglePasswordVisibility() {
+  const passInput = document.getElementById('passwordInput');
+  const icon = document.getElementById('togglePassIcon');
+  if (!passInput || !icon) return;
+  
+  if (passInput.type === 'password') {
+    passInput.type = 'text';
+    icon.className = 'bx bx-hide';
+  } else {
+    passInput.type = 'password';
+    icon.className = 'bx bx-show';
+  }
+}
+
 function handleLogin(event) {
   event.preventDefault();
   const userInput = document.getElementById('usernameInput');
@@ -699,60 +713,59 @@ async function fetchLiveGames() {
   }
 }
 
-// HELPER: FETCH LEAGUE MATCHES FOR TARGET DATE
+// HELPER: PARALLEL FAST FETCH LEAGUE MATCHES FOR TARGET DATE
 async function fetchLeagueList(leagueList, dateQuery) {
-  let results = [];
-  for (const league of leagueList) {
-    if (results.length >= 7) break;
-    try {
-      const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateQuery}`);
-      if (!res.ok) continue;
-      const data = await res.json();
+  const fetchPromises = leagueList.map(league =>
+    fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateQuery}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => data ? { league, data } : null)
+      .catch(() => null)
+  );
 
-      if (data && data.events && data.events.length > 0) {
-        for (let i = 0; i < data.events.length; i++) {
-          if (results.length >= 7) break;
-          const evt = data.events[i];
-          const comp = evt.competitions?.[0];
-          if (!comp) continue;
+  const results = await Promise.all(fetchPromises);
+  let matches = [];
 
-          const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
-          const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+  for (const item of results) {
+    if (!item || !item.data || !item.data.events) continue;
+    for (const evt of item.data.events) {
+      if (matches.length >= 7) break;
+      const comp = evt.competitions?.[0];
+      if (!comp) continue;
 
-          if (homeTeam && awayTeam) {
-            const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
-            const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
+      const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
 
-            const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
-            const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+      if (homeTeam && awayTeam) {
+        const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
+        const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
 
-            let kickOffTime = "";
-            if (evt.date || comp.date) {
-              const dObj = new Date(evt.date || comp.date);
-              kickOffTime = new Intl.DateTimeFormat('en-GB', {
-                timeZone: 'Asia/Manila',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-              }).format(dObj);
-            }
+        const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+        const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
 
-            results.push({
-              homeName,
-              awayName,
-              homeLogo,
-              awayLogo,
-              leagueName: league.name,
-              kickOffTime
-            });
-          }
+        let kickOffTime = "";
+        if (evt.date || comp.date) {
+          const dObj = new Date(evt.date || comp.date);
+          kickOffTime = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Manila',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }).format(dObj);
         }
+
+        matches.push({
+          homeName,
+          awayName,
+          homeLogo,
+          awayLogo,
+          leagueName: item.league.name,
+          kickOffTime
+        });
       }
-    } catch (err) {
-      console.warn(`Error fetching ${league.code}:`, err);
     }
   }
-  return results;
+
+  return matches;
 }
 
 function navigateMatchDay(dir) {
