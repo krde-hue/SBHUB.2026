@@ -1007,13 +1007,22 @@ const KriztelAI = {
           })
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || `Server responded with status ${response.status}`);
+        // 🛑 SAFE RESPONSE CONTENT-TYPE CHECKING
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || `Server responded with status ${response.status}`);
+          }
+          replyText = data.content || data.reply || "No response received.";
+        } else {
+          // Received HTML error page from Vercel (e.g. 404 Route Not Found or 500 Crash)
+          if (response.status === 404) {
+            throw new Error("Vercel route '/api/ai' was not found (404). Please ensure 'api/ai.js' exists in your repository root.");
+          } else {
+            throw new Error(`Server returned HTML instead of JSON (${response.status}). Ensure GEMINI_API_KEY is configured in Vercel settings.`);
+          }
         }
-
-        replyText = data.content || data.reply || "I'm having trouble retrieving a response.";
       }
 
       bubble.innerHTML = formatMarkdown(replyText);
@@ -1033,7 +1042,7 @@ const KriztelAI = {
         const hubInfo = this.getHubDataSnapshot();
         fallbackReply = `📊 **Sportsbook Hub Status Overview**:\n\n* **Active Traders Working**: ${hubInfo.activeTraders}\n* **Manila Weather**: ${hubInfo.weather}\n* **Live Duty Shift Status**:\n${hubInfo.currentSlotDuties.length > 0 ? hubInfo.currentSlotDuties.map(d => `• ${d}`).join('\n') : 'Loaded live from Firebase Roster.'}`;
       } else {
-        fallbackReply = `I'm having trouble connecting to the AI endpoint.\n\n* **Error Details**: ${escapeHtml(err.message || "Failed to fetch response")}\n* **Fix for Vercel Deployment**: Ensure \`GEMINI_API_KEY\` is added to your Vercel Project Environment Variables.\n* **Fix for Local Testing**: Paste your key into \`LOCAL_GEMINI_KEY\` at line 5 of \`app.js\`.`;
+        fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Guide:**\n1. Make sure you created the backend handler file at **\`api/ai.js\`** in your GitHub repository root.\n2. In Vercel, navigate to **Settings > Environment Variables** and add **\`GEMINI_API_KEY\`**.\n3. Redeploy your Vercel project.\n\n*(For immediate local browser testing, paste your Gemini API key into \`LOCAL_GEMINI_KEY\` at line 5 of \`app.js\`)*`;
       }
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
@@ -1050,7 +1059,8 @@ const KriztelAI = {
 window.KriztelAI = KriztelAI;
 
 function escapeHtml(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function formatMarkdown(str) {
