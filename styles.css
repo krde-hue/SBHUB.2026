@@ -274,7 +274,7 @@ body {
   visibility: visible;
 }
 
-/* SIDEBAR LAYOUT (ADMIN FOOTER DOCKED AT VERY BOTTOM) */
+/* SIDEBAR LAYOUT */
 .sidebar {
   width: 270px;
   display: flex;
@@ -402,19 +402,74 @@ body {
   -webkit-backdrop-filter: var(--card-blur);
 }
 
+/* HIGH-FIDELITY STRICTLY STYLED ADMIN FOOTER PILL (REFERENCE MATCH) */
 .sidebar-admin-footer {
-  margin-top: 12px;
-  padding-top: 6px;
-  flex-shrink: 0;
-  width: 100%;
+  margin-top: auto;
+  padding-top: 10px;
+  position: sticky;
+  bottom: 0;
   z-index: 20;
+  width: 100%;
 }
 
 .sidebar-admin-footer .admin-top-pill {
-  width: 100%;
-  justify-content: space-between;
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 8px 14px !important;
+  background: #090e17 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 999px !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-admin-footer .avatar-circle {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: #d1d5db !important;
+  color: #111827 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  flex-shrink: 0 !important;
+}
+
+.sidebar-admin-footer .user-title {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-align: center !important;
+  flex: 1 !important;
+  margin: 0 8px !important;
+}
+
+.sidebar-admin-footer .logout-action-btn {
+  background: rgba(127, 29, 29, 0.6) !important;
+  border: 1px solid #991b1b !important;
+  color: #fca5a5 !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.sidebar-admin-footer .logout-action-btn:hover {
+  background: rgba(185, 28, 28, 0.8) !important;
+  color: #ffffff !important;
 }
 
 .main-workspace {
@@ -460,7 +515,7 @@ body {
   opacity: 0.6;
 }
 
-/* HIGH-FIDELITY UNSTRETCHED OVERVIEW BANNER CARD */
+/* HIGH-FIDELITY OVERVIEW BANNER CARD */
 .top-banner-card {
   display: flex;
   flex-direction: column;
@@ -468,7 +523,7 @@ body {
   gap: 16px;
   padding: 22px 26px;
   width: 100%;
-  min-height: 210px; /* ADEQUATE HEIGHT KEEPS NATURAL ASPECT RATIO ON 1080P/2K/4K SCREENS */
+  min-height: 210px;
   box-sizing: border-box;
   overflow: hidden;
   position: sticky;
@@ -479,7 +534,6 @@ body {
 
   background-color: #080c1a !important;
 
-  /* LIGHT OVERLAY STACK PRESERVING ORIGINAL PROPORTIONS & HIGH RESOLUTION */
   background-image: 
     linear-gradient(
       180deg, 
@@ -489,7 +543,6 @@ body {
     url('./sports-banner.jpg'), 
     url('./american-football-player-neon-style_23-2151827356.avif') !important;
 
-  /* COVER SCALE PRESERVES TRUE ASPECT RATIO WITHOUT HORIZONTAL DISTORTION */
   background-size: cover, cover, cover !important;
   background-position: center 25%, center 25%, center 25% !important;
   background-repeat: no-repeat, no-repeat, no-repeat !important;
