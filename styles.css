@@ -274,7 +274,7 @@ body {
   visibility: visible;
 }
 
-/* SIDEBAR LAYOUT */
+/* SIDEBAR NAVIGATION */
 .sidebar {
   width: 270px;
   display: flex;
@@ -515,7 +515,7 @@ body {
   opacity: 0.6;
 }
 
-/* HIGH-FIDELITY OVERVIEW BANNER CARD (OVERFLOW VISIBLE FOR DROPDOWNS) */
+/* OVERVIEW BANNER CARD WITH UNCLIPPED DROPDOWNS */
 .top-banner-card {
   display: flex;
   flex-direction: column;
@@ -525,7 +525,7 @@ body {
   width: 100%;
   min-height: 210px;
   box-sizing: border-box;
-  overflow: visible !important; /* PREVENTS DROPDOWNS FROM BEING CROPPED */
+  overflow: visible !important;
   position: sticky;
   top: 0;
   z-index: 1000;
