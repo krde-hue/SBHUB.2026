@@ -935,7 +935,7 @@ const KriztelAI = {
       contextAddition = `\n\n[CURRENT AUTHORIZED HUB CONTEXT DATA]:\n${JSON.stringify(this.getHubDataSnapshot(), null, 2)}`;
     }
 
-    const systemInstructions = `You are Kriztel AI, an authentic AI Copilot inside Sportsbook Hub. Answer general questions, search topics, write code, and analyze queries with precision.${contextAddition}`;
+    const systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant. You think outside the box, reason through complex ideas, answer coding or creative queries, and possess unlimited domain knowledge.${contextAddition}`;
     const fullPrompt = `${systemInstructions}\n\nUser Question: ${promptText}`;
 
     const response = await fetch(url, {
@@ -987,7 +987,7 @@ const KriztelAI = {
     const bubble = assistantMsgDiv.querySelector('.msg-bubble');
 
     this.isGenerating = true;
-    this.setStatus(true, this.webSearchEnabled ? '🔎 Searching...' : (this.hubContextEnabled ? '📊 Reading HUB data...' : '✨ Thinking...'));
+    this.setStatus(true, this.webSearchEnabled ? '🔎 Thinking & Searching...' : '✨ Thinking outside the box...');
 
     try {
       let replyText = "";
@@ -1007,20 +1007,19 @@ const KriztelAI = {
           })
         });
 
-        // 🛑 SAFE RESPONSE CONTENT-TYPE CHECKING
+        // 🛑 SAFE RESPONSE CONTENT-TYPE CHECKING TO PREVENT HTML-JSON PARSE ERRORS
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const data = await response.json();
           if (!response.ok) {
-            throw new Error(data.error || `Server responded with status ${response.status}`);
+            throw new Error(data.error || `Server status ${response.status}`);
           }
           replyText = data.content || data.reply || "No response received.";
         } else {
-          // Received HTML error page from Vercel (e.g. 404 Route Not Found or 500 Crash)
           if (response.status === 404) {
-            throw new Error("Vercel route '/api/ai' was not found (404). Please ensure 'api/ai.js' exists in your repository root.");
+            throw new Error("Vercel route '/api/ai' not found (404). Check that 'api/ai.js' exists in your repo.");
           } else {
-            throw new Error(`Server returned HTML instead of JSON (${response.status}). Ensure GEMINI_API_KEY is configured in Vercel settings.`);
+            throw new Error(`Server returned HTML error (${response.status}). Verify GEMINI_API_KEY in Vercel.`);
           }
         }
       }
@@ -1030,20 +1029,7 @@ const KriztelAI = {
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = "";
-      
-      const isHubQuery = text.toLowerCase().includes('duty') || 
-                         text.toLowerCase().includes('task') || 
-                         text.toLowerCase().includes('who') || 
-                         text.toLowerCase().includes('working') ||
-                         text.toLowerCase().includes('roster');
-
-      if (this.hubContextEnabled && isHubQuery) {
-        const hubInfo = this.getHubDataSnapshot();
-        fallbackReply = `📊 **Sportsbook Hub Status Overview**:\n\n* **Active Traders Working**: ${hubInfo.activeTraders}\n* **Manila Weather**: ${hubInfo.weather}\n* **Live Duty Shift Status**:\n${hubInfo.currentSlotDuties.length > 0 ? hubInfo.currentSlotDuties.map(d => `• ${d}`).join('\n') : 'Loaded live from Firebase Roster.'}`;
-      } else {
-        fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Guide:**\n1. Make sure you created the backend handler file at **\`api/ai.js\`** in your GitHub repository root.\n2. In Vercel, navigate to **Settings > Environment Variables** and add **\`GEMINI_API_KEY\`**.\n3. Redeploy your Vercel project.\n\n*(For immediate local browser testing, paste your Gemini API key into \`LOCAL_GEMINI_KEY\` at line 5 of \`app.js\`)*`;
-      }
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Checklist to Enable Full AI Intelligence:**\n1. Confirm \`api/ai.js\` is uploaded in your repository root.\n2. Ensure \`GEMINI_API_KEY\` is configured under Vercel Settings > Environment Variables.\n3. Re-deploy your Vercel project.\n\n*(For immediate local browser testing without Vercel, paste your key into \`LOCAL_GEMINI_KEY\` at line 5 of \`app.js\`)*`;
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
