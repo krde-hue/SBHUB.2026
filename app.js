@@ -1,8 +1,8 @@
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
-// ⚠️ TEMPORARY LOCAL TESTING ONLY — REMOVE BEFORE COMMITTING TO PUBLIC GITHUB
-const LOCAL_GEMINI_KEY = ""; // Paste your key between the quotes to test locally
+// ⚠️ Optional: For direct local browser testing without Vercel backend environment variables
+const LOCAL_GEMINI_KEY = ""; 
 
 /* --- FIREBASE ROSTER INITIALIZATION --- */
 let rosterDb = null;
@@ -1025,11 +1025,9 @@ const KriztelAI = {
     try {
       let replyText = "";
 
-      // 1. Check if a local direct Gemini testing key is present
       if (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY.trim().length > 0) {
         replyText = await this.callGeminiDirect(text);
       } else {
-        // 2. Fall back to secure backend server endpoint (/api/ai)
         const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
         const response = await fetch('/api/ai', {
           method: 'POST',
