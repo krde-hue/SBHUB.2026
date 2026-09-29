@@ -78,8 +78,6 @@ CORE OPERATING DIRECTIVES:
       });
     }
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
     const payload = {
       systemInstruction: {
         parts: [{ text: systemInstructions }]
@@ -87,17 +85,43 @@ CORE OPERATING DIRECTIVES:
       contents: contents
     };
 
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    // Sequential fallback list to guarantee a supported model ID is found
+    const candidateModels = [
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro'
+    ];
 
-    const data = await response.json();
+    let lastError = null;
+    let replyText = null;
 
-    if (!response.ok) {
-      return new Response(JSON.stringify({ error: data.error?.message || 'Gemini API call failed.' }), {
-        status: response.status,
+    for (const model of candidateModels) {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        replyText = data.candidates[0].content.parts[0].text;
+        break;
+      }
+
+      lastError = data.error?.message || `Model ${model} failed with status ${response.status}`;
+      
+      // If the error is not 404 (e.g. 401 invalid key), stop trying other models
+      if (response.status !== 404) {
+        break;
+      }
+    }
+
+    if (!replyText) {
+      return new Response(JSON.stringify({ error: lastError || 'All model endpoints failed.' }), {
+        status: 500,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
@@ -105,7 +129,6 @@ CORE OPERATING DIRECTIVES:
       });
     }
 
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
     return new Response(JSON.stringify({ content: replyText }), {
       status: 200,
       headers: {
