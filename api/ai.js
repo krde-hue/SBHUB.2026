@@ -85,20 +85,22 @@ CORE OPERATING DIRECTIVES:
       contents: contents
     };
 
-    // Sequential fallback list to guarantee a supported model ID is found
-    const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro'
+    // Sequential fallback list prioritizing production v1 endpoints
+    const endpoints = [
+      { version: 'v1', model: 'gemini-2.0-flash' },
+      { version: 'v1', model: 'gemini-1.5-flash' },
+      { version: 'v1', model: 'gemini-1.5-pro' },
+      { version: 'v1beta', model: 'gemini-2.0-flash' },
+      { version: 'v1beta', model: 'gemini-1.5-flash' }
     ];
 
     let lastError = null;
     let replyText = null;
 
-    for (const model of candidateModels) {
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const response = await fetch(geminiUrl, {
+    for (const ep of endpoints) {
+      const targetUrl = `https://generativelanguage.googleapis.com/${ep.version}/models/${ep.model}:generateContent?key=${apiKey}`;
+
+      const response = await fetch(targetUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -111,10 +113,10 @@ CORE OPERATING DIRECTIVES:
         break;
       }
 
-      lastError = data.error?.message || `Model ${model} failed with status ${response.status}`;
-      
-      // If the error is not 404 (e.g. 401 invalid key), stop trying other models
-      if (response.status !== 404) {
+      lastError = data.error?.message || `Endpoint ${ep.version}/${ep.model} failed with status ${response.status}`;
+
+      // Stop loop early if key or quota permissions fail
+      if (response.status === 401 || response.status === 403 || response.status === 429) {
         break;
       }
     }
