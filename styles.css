@@ -18,10 +18,10 @@
 body {
   min-height: 100vh;
   background: #090d16;
-  background-size: cover !important;
-  background-position: center !important;
-  background-attachment: fixed !important;
-  background-repeat: no-repeat !important;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: #ffffff;
   display: flex;
   padding: 24px;
@@ -402,7 +402,7 @@ body {
   -webkit-backdrop-filter: var(--card-blur);
 }
 
-/* HIGH-FIDELITY STRICTLY STYLED ADMIN FOOTER PILL (REFERENCE MATCH) */
+/* DOCKED ADMIN PROFILE FOOTER PILL */
 .sidebar-admin-footer {
   margin-top: auto;
   padding-top: 10px;
@@ -515,7 +515,7 @@ body {
   opacity: 0.6;
 }
 
-/* HIGH-FIDELITY OVERVIEW BANNER CARD */
+/* HIGH-FIDELITY OVERVIEW BANNER CARD (OVERFLOW VISIBLE FOR DROPDOWNS) */
 .top-banner-card {
   display: flex;
   flex-direction: column;
@@ -525,7 +525,7 @@ body {
   width: 100%;
   min-height: 210px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible !important; /* PREVENTS DROPDOWNS FROM BEING CROPPED */
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -685,20 +685,21 @@ body {
   gap: 6px;
 }
 
+/* UNCLIPPED HIGH-STACK DROPDOWN MENUS */
 .dropdown-menu {
   display: none;
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #0a0f1d !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
   border-radius: 16px;
-  padding: 10px;
-  z-index: 999999;
-  width: 230px;
+  padding: 12px;
+  z-index: 999999 !important;
+  width: 240px;
   max-height: 380px;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95) !important;
 }
 
 .dropdown-menu.show { display: flex; flex-direction: column; gap: 6px; }
