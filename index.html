@@ -8,7 +8,7 @@
   <!-- Preconnect & Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
   
   <!-- Boxicons CSS -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
@@ -518,7 +518,7 @@
   </div>
 
   <!-- FLOATING AI COPILOT BUTTON -->
-  <button id="aiFloatingBtn" onclick="window.KriztelAI && KriztelAI.togglePanel()" title="Ask Kriztel AI">
+  <button id="aiFloatingBtn" onclick="window.KriztelAI &amp;&amp; KriztelAI.togglePanel()" title="Ask Kriztel AI">
     <div class="ai-btn-inner">
       <i class="bx bx-bot"></i>
       <span class="ai-status-dot"></span>
@@ -537,11 +537,11 @@
         </div>
       </div>
       <div class="ai-header-actions">
-        <button class="ai-badge-btn" id="aiContextToggle" onclick="window.KriztelAI && KriztelAI.toggleHubContext()" title="Toggle HUB Context Permission">
+        <button class="ai-badge-btn" id="aiContextToggle" onclick="window.KriztelAI &amp;&amp; KriztelAI.toggleHubContext()" title="Toggle HUB Context Permission">
           <span id="contextStatusTag">● HUB Context ON</span>
         </button>
-        <button class="ai-action-icon" onclick="window.KriztelAI && KriztelAI.clearChat()" title="New Conversation"><i class="bx bx-plus"></i></button>
-        <button class="ai-action-icon" onclick="window.KriztelAI && KriztelAI.closePanel()" title="Close Panel"><i class="bx bx-x"></i></button>
+        <button class="ai-action-icon" onclick="window.KriztelAI &amp;&amp; KriztelAI.clearChat()" title="New Conversation"><i class="bx bx-plus"></i></button>
+        <button class="ai-action-icon" onclick="window.KriztelAI &amp;&amp; KriztelAI.closePanel()" title="Close Panel"><i class="bx bx-x"></i></button>
       </div>
     </div>
 
@@ -551,16 +551,16 @@
       <div class="ai-welcome-box" id="aiWelcomeBox">
         <div class="welcome-title">Ask anything or select a task...</div>
         <div class="quick-prompts-grid">
-          <button class="prompt-chip" onclick="window.KriztelAI && KriztelAI.usePrompt('What are my pending tasks and duties right now?')">
+          <button class="prompt-chip" onclick="window.KriztelAI &amp;&amp; KriztelAI.usePrompt('What are my pending tasks and duties right now?')">
             <i class="bx bx-task" style="color:#ef4444;"></i> What are my pending tasks?
           </button>
-          <button class="prompt-chip" onclick="window.KriztelAI && KriztelAI.usePrompt('Summarize today duties and match schedule.')">
+          <button class="prompt-chip" onclick="window.KriztelAI &amp;&amp; KriztelAI.usePrompt('Summarize today duties and match schedule.')">
             <i class="bx bx-file" style="color:#f59e0b;"></i> Summarize today's duties
           </button>
-          <button class="prompt-chip" onclick="window.KriztelAI && KriztelAI.usePrompt('Search the web for the latest football news and transfer updates.')">
+          <button class="prompt-chip" onclick="window.KriztelAI &amp;&amp; KriztelAI.usePrompt('Search the web for the latest football news and transfer updates.')">
             <i class="bx bx-globe" style="color:#38bdf8;"></i> Search latest sports news
           </button>
-          <button class="prompt-chip" onclick="window.KriztelAI && KriztelAI.usePrompt('Explain quantum computing in simple terms.')">
+          <button class="prompt-chip" onclick="window.KriztelAI &amp;&amp; KriztelAI.usePrompt('Explain quantum computing in simple terms.')">
             <i class="bx bx-brain" style="color:#ec4899;"></i> Explain a complex topic
           </button>
         </div>
@@ -576,22 +576,22 @@
     <!-- PANEL INPUT FOOTER -->
     <div class="ai-input-footer">
       <div class="ai-input-container">
-        <textarea id="aiPromptInput" placeholder="Ask anything or request a HUB task..." rows="1" onkeydown="window.KriztelAI && KriztelAI.handleKeyDown(event)" oninput="window.KriztelAI && KriztelAI.autoResize(this)"></textarea>
+        <textarea id="aiPromptInput" placeholder="Ask anything or request a HUB task..." rows="1" onkeydown="window.KriztelAI &amp;&amp; KriztelAI.handleKeyDown(event)" oninput="window.KriztelAI &amp;&amp; KriztelAI.autoResize(this)"></textarea>
         <div class="ai-input-controls">
           <div class="ai-control-left">
-            <button class="ai-tool-btn" id="btnWebSearch" onclick="window.KriztelAI && KriztelAI.toggleSearchMode()" title="Toggle Web Search Mode">
+            <button class="ai-tool-btn" id="btnWebSearch" onclick="window.KriztelAI &amp;&amp; KriztelAI.toggleSearchMode()" title="Toggle Web Search Mode">
               <i class="bx bx-globe"></i> Web
             </button>
             <label class="ai-tool-btn" title="Attach file or screenshot">
               <i class="bx bx-paperclip"></i>
-              <input type="file" id="aiFileInput" style="display:none;" onchange="window.KriztelAI && KriztelAI.handleFileAttach(event)">
+              <input type="file" id="aiFileInput" style="display:none;" onchange="window.KriztelAI &amp;&amp; KriztelAI.handleFileAttach(event)">
             </label>
             <span class="attached-file-badge" id="attachedFileBadge" style="display:none;">
               <span id="attachedFileName">file.png</span>
-              <i class="bx bx-x" onclick="window.KriztelAI && KriztelAI.removeAttachment()"></i>
+              <i class="bx bx-x" onclick="window.KriztelAI &amp;&amp; KriztelAI.removeAttachment()"></i>
             </span>
           </div>
-          <button class="ai-send-btn" id="aiSendBtn" onclick="window.KriztelAI && KriztelAI.sendMessage()" title="Send Message">
+          <button class="ai-send-btn" id="aiSendBtn" onclick="window.KriztelAI &amp;&amp; KriztelAI.sendMessage()" title="Send Message">
             <i class="bx bx-send"></i>
           </button>
         </div>
