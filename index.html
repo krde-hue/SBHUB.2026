@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sportsbook Hub - Secured Dashboard</title>
   
+  <!-- Preconnect & Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@700&amp;display=swap" rel="stylesheet">
+  
+  <!-- Boxicons CSS -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=1.0.5">
+  <link rel="stylesheet" href="./styles.css?v=1.0.6">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,7 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- App JS -->
-  <script src="./app.js?v=1.0.5" defer></script>
+  <script src="./app.js?v=1.0.6" defer></script>
 </head>
 <body id="pageBody">
 
@@ -68,7 +71,7 @@
             </div>
             <div class="password-field-wrap">
               <input type="password" id="passwordInput" class="login-input" value="" placeholder="Enter password" required autocomplete="current-password">
-              <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()">
+              <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()" aria-label="Toggle Password Visibility">
                 <i class="bx bx-show" id="togglePassIcon"></i>
               </button>
             </div>
