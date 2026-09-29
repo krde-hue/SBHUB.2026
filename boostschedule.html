@@ -317,7 +317,7 @@
         <div class="title">AUTOMATED BIG EVENTS & OUTRIGHTS SCHEDULE</div>
         <span class="badge-sync" id="syncBadge">LIVE UPCOMING SYNC ACTIVE</span>
       </div>
-      <div class="sub-title">kdv.2026 model • Realtime Upcoming Football & Tennis Engine</div>
+      <div class="sub-title">kdv.2026 model • Realtime Upcoming Football, Tennis, Basketball & Sports Engine</div>
     </div>
 
     <div class="header-right">
@@ -339,7 +339,7 @@
         <a href="https://docs.google.com/spreadsheets/d/1gjkUVpMM3AuABSsWRcq0oD-72_ttWNHTE7yagCWFPLE/edit?gid=807815114#gid=807815114" target="_blank" class="top-btn secondary">
           📊 Open iBET Google Sheet
         </a>
-        <a href="ibet-boosted.html" class="top-btn secondary">
+        <a href="index.html" class="top-btn secondary">
           🏠 DASHBOARD
         </a>
       </div>
@@ -437,6 +437,22 @@
       return new Date(isoStr);
     }
 
+    function getGMT8DateObj(offsetDays = 0) {
+      const now = new Date();
+      const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
+      const gmt8Date = new Date(gmt8String);
+      gmt8Date.setDate(gmt8Date.getDate() + offsetDays);
+      return gmt8Date;
+    }
+
+    function getFormattedDateQuery(daysAhead) {
+      const d = getGMT8DateObj(daysAhead);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}${month}${day}`;
+    }
+
     function formatGMT8Date(dateObj) {
       if (!dateObj || isNaN(dateObj.getTime())) {
         return new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Singapore', weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
@@ -483,24 +499,9 @@
       return item.category === 'OUTRIGHTS' || item.isOutright === true || fullMeta.includes('OUTRIGHT') || fullMeta.includes('WINNER') || fullMeta.includes('CHAMPIONSHIP');
     }
 
-    function getFormattedDateQuery(daysAhead) {
-      const d = new Date();
-      d.setDate(d.getDate() + daysAhead);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}${month}${day}`;
-    }
-
-    function getISOFormattedDate(daysAhead) {
-      const d = new Date();
-      d.setDate(d.getDate() + daysAhead);
-      return d.toISOString().split('T')[0];
-    }
-
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
       const controller = new AbortController();
-      const timer = setTimeout(() => clearTimeout(timer), timeoutMs);
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
         const response = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timer);
@@ -511,79 +512,169 @@
       }
     }
 
-    /* REAL-TIME UNIFIED TENNIS FETCH ENGINE */
-    async function fetchLiveTennisEvents() {
-      const tennisItems = [];
-      const now = new Date();
-
-      const espnTennisUrls = [
-        `https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard`,
-        `https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard`
-      ];
-
-      for (let i = 0; i <= 6; i++) {
-        const dStr = getFormattedDateQuery(i);
-        espnTennisUrls.push(`https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=${dStr}`);
-        espnTennisUrls.push(`https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=${dStr}`);
+    /* REAL-TIME ESPN MULTI-SPORT & OUTRIGHTS FETCH ENGINE */
+    async function fetchLiveESPNFeed() {
+      const icon = document.getElementById("syncIcon");
+      const badge = document.getElementById("syncBadge");
+      if (icon) {
+        icon.style.transform = "rotate(360deg)";
+        icon.style.transition = "transform 0.5s ease";
+      }
+      if (badge) {
+        badge.textContent = "PARSING ESPN FIXTURES...";
+        badge.style.borderColor = "#eab308";
+        badge.style.color = "#eab308";
       }
 
-      try {
-        const fetched = await Promise.all(
-          espnTennisUrls.map(url => 
-            fetchWithTimeout(url, {}, 5000)
-              .then(res => res ? res.json() : null)
-              .then(data => data ? ({ data, gender: url.includes('/wta') ? 'WTA' : 'ATP' }) : null)
-              .catch(() => null)
-          )
-        );
+      const eventMap = new Map();
+      const daysToFetch = [0, 1, 2, 3, 4, 5, 6]; // Fetch upcoming 7 days
 
-        fetched.forEach(res => {
+      // 1. Football / Soccer Leagues
+      const soccerLeagues = [
+        { code: "uefa.champions", name: "UEFA Champions League", tier: 1 },
+        { code: "eng.1", name: "Premier League", tier: 1 },
+        { code: "esp.1", name: "La Liga", tier: 1 },
+        { code: "ger.1", name: "Bundesliga", tier: 1 },
+        { code: "ita.1", name: "Serie A", tier: 1 },
+        { code: "fra.1", name: "Ligue 1", tier: 2 },
+        { code: "uefa.europa", name: "UEFA Europa League", tier: 2 },
+        { code: "uefa.europa.conf", name: "UEFA Conference League", tier: 2 },
+        { code: "por.1", name: "Primeira Liga", tier: 2 },
+        { code: "ned.1", name: "Eredivisie", tier: 2 },
+        { code: "eng.2", name: "EFL Championship", tier: 2 },
+        { code: "usa.1", name: "Major League Soccer", tier: 3 },
+        { code: "conmebol.libertadores", name: "Copa Libertadores", tier: 2 },
+        { code: "bra.1", name: "Brasileirão Série A", tier: 3 },
+        { code: "sau.1", name: "Saudi Pro League", tier: 3 }
+      ];
+
+      // 2. Other Sports
+      const otherSports = [
+        { path: "basketball/nba", cat: "OTHER", league: "NBA Basketball", tier: 1 },
+        { path: "basketball/wnba", cat: "OTHER", league: "WNBA Basketball", tier: 1 },
+        { path: "basketball/mens-college-basketball", cat: "OTHER", league: "NCAA Basketball", tier: 2 },
+        { path: "football/nfl", cat: "OTHER", league: "NFL Football", tier: 1 },
+        { path: "baseball/mlb", cat: "OTHER", league: "MLB Baseball", tier: 1 },
+        { path: "hockey/nhl", cat: "OTHER", league: "NHL Ice Hockey", tier: 2 },
+        { path: "mma/mma", cat: "OTHER", league: "UFC / MMA", tier: 1 }
+      ];
+
+      // 3. Tennis Tours
+      const tennisTours = [
+        { path: "tennis/atp", gender: "ATP" },
+        { path: "tennis/wta", gender: "WTA" }
+      ];
+
+      const fetchPromises = [];
+
+      daysToFetch.forEach(dayOffset => {
+        const dQuery = getFormattedDateQuery(dayOffset);
+
+        // Fetch Soccer
+        soccerLeagues.forEach(s => {
+          fetchPromises.push(
+            fetchWithTimeout(`https://site.api.espn.com/apis/site/v2/sports/soccer/${s.code}/scoreboard?dates=${dQuery}`, {}, 7000)
+              .then(res => res ? res.json() : null)
+              .then(data => data ? { type: 'SOCCER', data, meta: s } : null)
+              .catch(() => null)
+          );
+        });
+
+        // Fetch Other Sports
+        otherSports.forEach(os => {
+          fetchPromises.push(
+            fetchWithTimeout(`https://site.api.espn.com/apis/site/v2/sports/${os.path}/scoreboard?dates=${dQuery}`, {}, 7000)
+              .then(res => res ? res.json() : null)
+              .then(data => data ? { type: 'OTHER', data, meta: os } : null)
+              .catch(() => null)
+          );
+        });
+
+        // Fetch Tennis
+        tennisTours.forEach(tt => {
+          fetchPromises.push(
+            fetchWithTimeout(`https://site.api.espn.com/apis/site/v2/sports/${tt.path}/scoreboard?dates=${dQuery}`, {}, 7000)
+              .then(res => res ? res.json() : null)
+              .then(data => data ? { type: 'TENNIS', data, meta: tt } : null)
+              .catch(() => null)
+          );
+        });
+      });
+
+      try {
+        const results = await Promise.all(fetchPromises);
+
+        results.forEach(res => {
           if (!res || !res.data || !res.data.events) return;
 
           res.data.events.forEach(event => {
             const state = (event.status?.type?.state || "").toLowerCase();
             const completed = event.status?.type?.completed;
-            const eventDate = new Date(event.date);
 
-            // Exclude live, finished, or past matches
-            if (state === 'in' || state === 'post' || completed === true || eventDate <= now) {
-              return;
-            }
+            // Strictly preserve pre-game matches ('pre')
+            if (completed === true || state === 'post' || state === 'in') return;
+
+            const eventId = String(event.id || Math.random().toString(36).substring(2, 8));
+            if (eventMap.has(eventId)) return;
 
             let p1 = "", p2 = "";
             if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
               const comps = event.competitions[0].competitors;
-              p1 = comps[0].athlete?.displayName || comps[0].athlete?.shortName || comps[0].team?.displayName || "";
-              p2 = comps[1].athlete?.displayName || comps[1].athlete?.shortName || comps[1].team?.displayName || "";
+              const homeComp = comps.find(c => c.homeAway === 'home') || comps[0];
+              const awayComp = comps.find(c => c.homeAway === 'away') || comps[1];
+
+              p1 = homeComp.team?.displayName || homeComp.athlete?.displayName || homeComp.team?.shortDisplayName || "";
+              p2 = awayComp.team?.displayName || awayComp.athlete?.displayName || awayComp.team?.shortDisplayName || "";
             }
 
             if (!p1 || !p2) {
               const parts = (event.name || "").split(/ vs | v | at /i);
-              p1 = parts[0] ? parts[0].trim() : "";
-              p2 = parts[1] ? parts[1].trim() : "";
+              p1 = parts[0] ? parts[0].trim() : "Home";
+              p2 = parts[1] ? parts[1].trim() : "Away";
             }
 
             const titleUpper = `${p1} ${p2} ${event.name || ''}`.toUpperCase();
-            if (titleUpper.includes('/') || titleUpper.includes('DOUBLES') || !p1 || !p2) return;
 
-            let tournamentName = event.league?.name || event.season?.slug || res.gender;
-            if (event.competitions && event.competitions[0] && event.competitions[0].notes && event.competitions[0].notes[0]) {
-              tournamentName = event.competitions[0].notes[0].headline || tournamentName;
-            }
+            if (res.type === 'SOCCER') {
+              const isTopTeamMatch = TOP_TEAMS.some(team => titleUpper.includes(team));
+              const isHotMatch = isTopTeamMatch || res.meta.tier === 1;
 
-            const isWTA = res.gender === 'WTA' || titleUpper.includes('WTA') || titleUpper.includes('WOMEN');
-            const leagueTitle = `${isWTA ? 'WTA' : 'ATP'} - SINGLES: ${tournamentName.toUpperCase().replace('SINGLES', '').trim()}`;
+              let soccerMarkets = [
+                `${p1} to Win + Over 2.5 Goals`,
+                `${p1} vs ${p2} - Both Teams to Score`,
+                `${p1} to Win + Over 1.5 Goals`,
+                `${p2} to Win or Draw + Over 1.5 Goals`
+              ];
 
-            const p1Fs = formatFlashscoreName(p1);
-            const p2Fs = formatFlashscoreName(p2);
-            const isPopular = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
+              eventMap.set(eventId, {
+                id: eventId,
+                category: "FOOTBALL",
+                sportCategory: res.meta.name,
+                league: res.meta.name,
+                title: `${p1} vs ${p2}`,
+                isoTime: event.date,
+                isTopTier: res.meta.tier === 1 || isTopTeamMatch,
+                isHot: isHotMatch,
+                isOutright: false,
+                suggestedMarkets: soccerMarkets
+              });
+            } else if (res.type === 'TENNIS') {
+              if (titleUpper.includes('/') || titleUpper.includes('DOUBLES') || !p1 || !p2) return;
 
-            const matchId = 'tn-' + (event.id || Math.random().toString(36).substring(2, 7));
-            const exists = tennisItems.some(t => t.id === matchId || t.title.toLowerCase() === `${p1} vs ${p2}`.toLowerCase());
+              let tournamentName = event.league?.name || res.meta.gender;
+              if (event.competitions && event.competitions[0] && event.competitions[0].notes && event.competitions[0].notes[0]) {
+                tournamentName = event.competitions[0].notes[0].headline || tournamentName;
+              }
 
-            if (!exists) {
-              tennisItems.push({
-                id: matchId,
+              const isWTA = res.meta.gender === 'WTA' || titleUpper.includes('WTA') || titleUpper.includes('WOMEN');
+              const leagueTitle = `${isWTA ? 'WTA' : 'ATP'} - SINGLES: ${tournamentName.toUpperCase().replace('SINGLES', '').trim()}`;
+
+              const p1Fs = formatFlashscoreName(p1);
+              const p2Fs = formatFlashscoreName(p2);
+              const isPopular = POPULAR_TENNIS_PLAYERS.some(player => titleUpper.includes(player));
+
+              eventMap.set(eventId, {
+                id: eventId,
                 category: "TENNIS",
                 sportCategory: leagueTitle,
                 league: leagueTitle,
@@ -596,177 +687,69 @@
                 isTopTier: isPopular,
                 isHot: isPopular,
                 isOutright: false,
-                suggestedMarkets: [`${p1Fs} to Win 2-0`, "Match Winner", "First Set Winner", `${p2Fs} +1.5 Sets`]
+                suggestedMarkets: [`${p1Fs} to Win 2-0 Sets`, `Match Winner: ${p1Fs}`, "First Set Winner", `${p2Fs} +1.5 Sets`]
+              });
+            } else if (res.type === 'OTHER') {
+              let otherMarkets = ["Moneyline Winner", "Point Spread", "Total Points Over/Under"];
+              const leagueUpper = res.meta.league.toUpperCase();
+
+              if (leagueUpper.includes("NBA") || leagueUpper.includes("BASKETBALL")) {
+                otherMarkets = [`${p1} to Win + Over Total Points`, `${p1} -4.5 Point Spread`, "Player 25+ Points & 5+ Rebounds", "Moneyline Winner"];
+              } else if (leagueUpper.includes("NFL")) {
+                otherMarkets = ["Moneyline Winner", "Point Spread Handicap", "Anytime Touchdown Scorer", "Total Points Over/Under"];
+              } else if (leagueUpper.includes("MLB")) {
+                otherMarkets = ["Moneyline Winner", "To Hit A Home Run", "Starting Pitcher 6+ Strikeouts", "Run Line (-1.5)"];
+              } else if (leagueUpper.includes("UFC") || leagueUpper.includes("MMA")) {
+                otherMarkets = ["Fight Winner", "To Win By KO / TKO / Submission", "Total Rounds Over 1.5"];
+              }
+
+              eventMap.set(eventId, {
+                id: eventId,
+                category: "OTHER",
+                sportCategory: res.meta.league,
+                league: res.meta.league,
+                title: `${p1} vs ${p2}`,
+                isoTime: event.date,
+                isTopTier: res.meta.tier === 1,
+                isHot: res.meta.tier === 1,
+                isOutright: false,
+                suggestedMarkets: otherMarkets
               });
             }
           });
         });
-      } catch (err) {
-        console.error("ESPN Tennis fetch error:", err);
-      }
 
-      return tennisItems;
-    }
-
-    /* ESPN FOOTBALL & OTHER SPORTS FETCHING */
-    async function fetchESPNFootballAndOther(datesParam) {
-      const eventsList = [];
-      const now = new Date();
-
-      const espnEndpoints = [
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "UEFA Champions League", tier: 1 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "England Premier League", tier: 1 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Spain La Liga", tier: 1 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Germany Bundesliga", tier: 1 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Italy Serie A", tier: 1 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "France Ligue 1", tier: 2 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/por.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Portugal Liga Portugal", tier: 2 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ned.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Netherlands Eredivisie", tier: 2 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "USA Major League Soccer", tier: 3 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/nor.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Norway Eliteserien", tier: 3 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fin.1/scoreboard?dates=${datesParam}`, cat: "FOOTBALL", league: "Finland Veikkausliiga", tier: 3 },
-
-        { url: `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "NBA Basketball", tier: 1 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "NFL Football", tier: 1 },
-        { url: `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${datesParam}`, cat: "OTHER", league: "MLB Baseball", tier: 1 }
-      ];
-
-      const responses = await Promise.all(
-        espnEndpoints.map(ep => 
-          fetchWithTimeout(ep.url, {}, 8000)
-            .then(res => res ? res.json() : null)
-            .then(data => data ? ({ data, meta: ep }) : null)
-            .catch(() => null)
-        )
-      );
-
-      responses.forEach(res => {
-        if (!res || !res.data || !res.data.events) return;
-
-        res.data.events.forEach(event => {
-          const state = event.status?.type?.state;
-          const completed = event.status?.type?.completed;
-          const eventDate = new Date(event.date);
-
-          if (state !== 'pre' || completed === true || eventDate <= now) {
-            return; 
-          }
-
-          const titleUpper = event.name.toUpperCase();
-          let p1 = "", p2 = "";
-
-          if (event.competitions && event.competitions[0] && event.competitions[0].competitors && event.competitions[0].competitors.length >= 2) {
-            const comps = event.competitions[0].competitors;
-            p1 = comps[0].team?.displayName || comps[0].athlete?.displayName || "";
-            p2 = comps[1].team?.displayName || comps[1].athlete?.displayName || "";
-          }
-
-          if (!p1 || !p2) {
-            const players = event.name.split(/ vs | v | at /i);
-            p1 = players[0] ? players[0].trim() : "";
-            p2 = players[1] ? players[1].trim() : "";
-          }
-
-          if (res.meta.cat === "FOOTBALL") {
-            const isTopTeamMatch = TOP_TEAMS.some(team => titleUpper.includes(team));
-            const isHotMatch = isTopTeamMatch || res.meta.tier === 1;
-
-            let soccerMarkets = ["Match Winner (1X2)", "Both Teams To Score", "Over 2.5 Goals"];
-            if (isTopTeamMatch) {
-              soccerMarkets.unshift(`Anytime Goalscorer: ${p1 || 'Key Attacker'}`);
-              soccerMarkets.push(`Goalscorer: ${p2 || 'Forward'}`);
-            }
-
-            eventsList.push({
-              id: event.id,
-              category: "FOOTBALL",
-              sportCategory: res.meta.league,
-              league: res.meta.league,
-              title: event.name,
-              isoTime: event.date,
-              isTopTier: res.meta.tier === 1 || isTopTeamMatch,
-              isHot: isHotMatch,
-              isOutright: false,
-              suggestedMarkets: soccerMarkets
-            });
-            return;
-          }
-
-          let otherMarkets = ["Moneyline Winner", "Point Spread", "Total Points"];
-          const leagueUpper = res.meta.league.toUpperCase();
-
-          if (leagueUpper.includes("NBA")) {
-            otherMarkets = [`${p1 || 'Home'} Top Scorer (20+ Pts)`, "Point Spread", "Player Double-Double"];
-          } else if (leagueUpper.includes("NFL")) {
-            otherMarkets = ["Anytime Touchdown Scorer", "Passing Yards O/U", "Moneyline Winner"];
-          } else if (leagueUpper.includes("MLB")) {
-            otherMarkets = ["To Hit A Home Run", "Pitcher Strikeouts O/U", "Moneyline Winner"];
-          }
-
-          eventsList.push({
-            id: event.id,
-            category: res.meta.cat,
-            sportCategory: res.meta.league,
-            league: res.meta.league,
-            title: event.name,
-            isoTime: event.date,
-            isTopTier: res.meta.tier === 1,
-            isHot: res.meta.tier === 1,
-            isOutright: false,
-            suggestedMarkets: otherMarkets
-          });
-        });
-      });
-
-      return eventsList;
-    }
-
-    async function fetchLiveESPNFeed() {
-      const icon = document.getElementById("syncIcon");
-      const badge = document.getElementById("syncBadge");
-      if (icon) {
-        icon.style.transform = "rotate(360deg)";
-        icon.style.transition = "transform 0.5s ease";
-      }
-      if (badge) {
-        badge.textContent = "PARSING UPCOMING FIXTURES...";
-        badge.style.borderColor = "#eab308";
-        badge.style.color = "#eab308";
-      }
-
-      const datesParam = `${getFormattedDateQuery(0)}-${getFormattedDateQuery(7)}`;
-      const now = new Date();
-
-      try {
-        const footballAndOther = await fetchESPNFootballAndOther(datesParam);
-
-        let tennisEvents = [];
-        try {
-          tennisEvents = await fetchLiveTennisEvents();
-        } catch (tErr) {
-          console.error("Tennis fetch failed silently, keeping football/other sports intact:", tErr);
-        }
-
-        let newDatabase = [...footballAndOther, ...tennisEvents];
-
+        // 4. Outrights & Tournament Champions
+        const now = new Date();
         const getExactTime = (dayOffset, hour, min) => {
           const d = new Date(now.getTime()); d.setDate(d.getDate() + dayOffset); d.setHours(hour, min, 0, 0); return d.toISOString();
         };
 
-        newDatabase.push({ id: 'out-epl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Premier League Outright Champion 2026/27', isoTime: getExactTime(5, 18, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["League Winner", "Top 4 Finish", "Relegation Candidates"] });
-        newDatabase.push({ id: 'out-ucl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'UEFA Champions League', title: 'Champions League Winner 2026/27', isoTime: getExactTime(6, 20, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["To Lift The Trophy", "To Reach The Final"] });
+        const outrightsList = [
+          { id: 'out-epl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'England Premier League', title: 'Premier League Outright Champion 2026/27', isoTime: getExactTime(1, 18, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["League Champion Winner", "Top 4 Finish", "To Be Relegated"] },
+          { id: 'out-ucl-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'UEFA Champions League', title: 'UEFA Champions League Winner 2026/27', isoTime: getExactTime(2, 20, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["To Lift The Trophy", "To Reach The Final", "Group Winner"] },
+          { id: 'out-nba-winner', category: 'OUTRIGHTS', sportCategory: 'BASKETBALL', league: 'NBA Basketball', title: 'NBA Championship Winner 2026/27', isoTime: getExactTime(3, 10, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["NBA Champion", "Eastern Conference Champion", "Western Conference Champion"] },
+          { id: 'out-nfl-winner', category: 'OUTRIGHTS', sportCategory: 'NFL', league: 'NFL Football', title: 'Super Bowl LX1 Champion 2027', isoTime: getExactTime(4, 12, 0), isTopTier: true, isHot: true, isOutright: true, suggestedMarkets: ["Super Bowl Winner", "AFC Champion", "NFC Champion"] },
+          { id: 'out-laliga-winner', category: 'OUTRIGHTS', sportCategory: 'FOOTBALL', league: 'Spain La Liga', title: 'La Liga Outright Champion 2026/27', isoTime: getExactTime(5, 19, 0), isTopTier: true, isHot: false, isOutright: true, suggestedMarkets: ["La Liga Champion", "Top 4 Finish"] }
+        ];
 
-        scheduleDatabase = newDatabase;
+        outrightsList.forEach(outItem => {
+          if (!eventMap.has(outItem.id)) {
+            eventMap.set(outItem.id, outItem);
+          }
+        });
+
+        scheduleDatabase = Array.from(eventMap.values());
 
         if (badge) {
-          badge.textContent = "UPCOMING GAMES SYNC ACTIVE";
+          badge.textContent = `LIVE SYNC ACTIVE (${scheduleDatabase.length} MATCHES)`;
           badge.style.borderColor = "#059669";
           badge.style.color = "#34d399";
         }
       } catch (err) {
         console.error("Live fetch failed:", err);
         if (badge) {
-          badge.textContent = "PARSING FAILED - CHECK CONNECTION";
+          badge.textContent = "SYNC FAILED - CHECK CONNECTION";
           badge.style.borderColor = "#ef4444";
           badge.style.color = "#ef4444";
         }
@@ -777,7 +760,6 @@
     }
 
     function getDisplayedItemsForDay(dateStr) {
-      const now = new Date();
       const searchQuery = document.getElementById("searchInput").value.toLowerCase();
       const priorityFilter = document.getElementById("priorityFilter").value;
 
@@ -806,11 +788,7 @@
         if (priorityFilter === 'TIER1' && !item.isTopTier) return false;
         if (priorityFilter === 'HOT' && !item.isHot) return false;
 
-        const matchDate = parseIsoDate(item.isoTime);
-        const isNotExpired = matchDate > now;
-        const isWithin7Days = matchDate <= new Date(now.getTime() + (7 * 24 * 3600 * 1000));
-
-        return isNotExpired && isWithin7Days;
+        return true;
       });
 
       const dayItems = filtered.filter(item => {
@@ -820,11 +798,6 @@
 
       if (dayItems.length === 0) return [];
 
-      const sampleDate = parseIsoDate(dayItems[0].isoTime);
-      const dayOfWeek = sampleDate.getDay();
-      const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-      const maxLimit = isWeekend ? 10 : 5;
-
       dayItems.sort((a, b) => {
         const scoreA = (a.isHot ? 100 : 0) + (a.isTopTier ? 50 : 0);
         const scoreB = (b.isHot ? 100 : 0) + (b.isTopTier ? 50 : 0);
@@ -832,16 +805,13 @@
         return parseIsoDate(a.isoTime) - parseIsoDate(b.isoTime);
       });
 
-      const sliced = dayItems.slice(0, maxLimit);
-      sliced.sort((a, b) => parseIsoDate(a.isoTime) - parseIsoDate(b.isoTime));
-      return sliced;
+      return dayItems;
     }
 
     function renderSchedule() {
       const container = document.getElementById("contentArea");
       container.innerHTML = "";
       
-      const now = new Date();
       const searchQuery = document.getElementById("searchInput").value.toLowerCase();
       const priorityFilter = document.getElementById("priorityFilter").value;
 
@@ -875,11 +845,7 @@
         if (priorityFilter === 'TIER1' && !item.isTopTier) return false;
         if (priorityFilter === 'HOT' && !item.isHot) return false;
 
-        const matchDate = parseIsoDate(item.isoTime);
-        const isNotExpired = matchDate > now;
-        const isWithin7Days = matchDate <= new Date(now.getTime() + (7 * 24 * 3600 * 1000));
-
-        return isNotExpired && isWithin7Days;
+        return true;
       });
 
       if (filtered.length === 0) {
@@ -907,15 +873,10 @@
 
         const dateKeySanitized = dateStr.replace(/[^a-zA-Z0-9]/g, '');
 
-        const sampleDate = parseIsoDate(dayItems[0].isoTime);
-        const dayOfWeek = sampleDate.getDay();
-        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-        const maxLimit = isWeekend ? 10 : 5;
-
         const banner = document.createElement("div");
         banner.className = "date-banner";
         banner.innerHTML = `
-          <div class="date-title">📅 ${dateStr} <span style="font-size:0.7rem; color:var(--text-muted); margin-left:6px;">(${dayItems.length}/${maxLimit} Max Limit)</span></div>
+          <div class="date-title">📅 ${dateStr} <span style="font-size:0.7rem; color:var(--text-muted); margin-left:6px;">(${dayItems.length} Fixtures)</span></div>
           <div class="date-actions">
             <button class="date-btn" onclick="bulkSelectDay('${dateStr}', true)">☑ Select Day</button>
             <button class="date-btn" onclick="bulkSelectDay('${dateStr}', false)">☐ Deselect Day</button>
@@ -1072,7 +1033,6 @@
       renderSchedule();
     }
 
-    /* BRAND-AWARE PREPARE IMPORT PAYLOAD FUNCTION WITH DROPDOWN-COMPATIBLE SPORTS */
     function prepareImportPayload(item, brandTarget) {
       const dateObj = parseIsoDate(item.isoTime || item.date || item.eventDate);
       const cat = (item.category || currentTab || 'FOOTBALL').toUpperCase();
@@ -1091,7 +1051,6 @@
       const eventTitle = item.title || item.event || item.name || 'Match Event';
       const leagueName = item.league || item.sportCategory || 'General League';
 
-      // Map sport categories to Google Sheet Data Validation dropdown options
       let sportName = item.sportCategory || item.league || 'Other Sports';
       const upperSport = sportName.toUpperCase();
       if (upperSport.includes('NFL') || upperSport.includes('FOOTBALL')) sportName = 'American Football';
@@ -1124,7 +1083,6 @@
       localStorage.setItem(storageKey, JSON.stringify(existing));
     }
 
-    /* DIRECT FETCH POST REQUEST TO APPS SCRIPT */
     async function sendToGoogleSheet(webAppUrl, payloads) {
       try {
         await fetch(webAppUrl, {
@@ -1140,7 +1098,6 @@
       }
     }
 
-    /* OPTIMIZED BATCH IMPORT EXECUTOR (INSTANT RESPONSE + REUSED WINDOW TABS) */
     async function executeBatchImport(destination, dateStr) {
       const visibleDayItems = getDisplayedItemsForDay(dateStr);
       let targetItems = visibleDayItems.filter(item => selectedItemIds.has(item.id));
@@ -1156,7 +1113,6 @@
 
       const activeCat = currentTab || 'FOOTBALL';
 
-      // 1. Prepare Payloads
       const edgePayloads = (destination === 'EDGE' || destination === 'BOTH') 
         ? targetItems.map(item => prepareImportPayload(item, 'EDGE')) 
         : [];
@@ -1164,8 +1120,6 @@
         ? targetItems.map(item => prepareImportPayload(item, 'IBET')) 
         : [];
 
-      // 2. OPEN / REUSE SPECIFIC TAB HANDLES IMMEDIATELY
-      // Fixed window targets ('EdgeSheetTab' & 'IBetSheetTab') keep dashboard active & prevent tab flooding
       if (destination === 'EDGE' || destination === 'BOTH') {
         window.open(getTargetSheetUrl('EDGE', activeCat), 'EdgeSheetTab');
       }
@@ -1173,7 +1127,6 @@
         window.open(getTargetSheetUrl('IBET', activeCat), 'IBetSheetTab');
       }
 
-      // 3. FIRE BACKGROUND DATA TRANSMISSION (Non-blocking)
       if (edgePayloads.length > 0) {
         sendToGoogleSheet(EDGE_APPS_SCRIPT_URL, edgePayloads);
       }
