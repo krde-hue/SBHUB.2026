@@ -433,7 +433,7 @@ function handleLogout() {
   if (robotStage) robotStage.classList.remove('covering-eyes', 'peeking');
 }
 
-/* --- UI TOGGLES & WIDGET MANAGEMENT (WITH LOCALSTORAGE PERSISTENCE) --- */
+/* --- UI TOGGLES & WIDGET MANAGEMENT --- */
 function toggleMenu(menuId, btnElement) {
   const targetMenu = document.getElementById(menuId);
   if (!targetMenu) return;
@@ -485,19 +485,13 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- HIGH-DEFINITION VECTOR ABSTRACT WALLPAPER DATA URIs --- */
+/* --- ABSTRACT WALLPAPER DATA URIs --- */
 const lavenderSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23090d16'/><stop offset='50%' stop-color='%23130d24'/><stop offset='100%' stop-color='%23050811'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%23a855f7'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><linearGradient id='w2' x1='0%' y1='100%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='50%' stop-color='%23818cf8'/><stop offset='100%' stop-color='%23f43f5e'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='40'/></filter><filter id='b2'><feGaussianBlur stdDeviation='15'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 700 Q 400 200 900 650 T 1900 300 T 2100 800' stroke='url(%23w1)' stroke-width='140' fill='none' opacity='0.75' filter='url(%23b1)'/><path d='M-100 700 Q 400 200 900 650 T 1900 300 T 2100 800' stroke='url(%23w1)' stroke-width='40' fill='none' opacity='0.9' filter='url(%23b2)'/><path d='M-100 350 Q 500 850 1100 250 T 2100 600' stroke='url(%23w2)' stroke-width='100' fill='none' opacity='0.65' filter='url(%23b1)'/><path d='M-100 350 Q 500 850 1100 250 T 2100 600' stroke='url(%23w2)' stroke-width='25' fill='none' opacity='0.85' filter='url(%23b2)'/></svg>";
-
 const coralSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231a050d'/><stop offset='50%' stop-color='%232d0617'/><stop offset='100%' stop-color='%23080206'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23fb923c'/><stop offset='50%' stop-color='%23f43f5e'/><stop offset='100%' stop-color='%23a855f7'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='45'/></filter><filter id='b2'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 400 Q 450 900 1000 300 T 2100 700' stroke='url(%23w1)' stroke-width='160' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 400 Q 450 900 1000 300 T 2100 700' stroke='url(%23w1)' stroke-width='45' fill='none' opacity='0.95' filter='url(%23b2)'/><path d='M-100 800 Q 600 200 1200 800 T 2100 200' stroke='%23fbbf24' stroke-width='90' fill='none' opacity='0.6' filter='url(%23b1)'/></svg>";
-
 const pastelSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23030712'/><stop offset='50%' stop-color='%230f172a'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='33%' stop-color='%23818cf8'/><stop offset='66%' stop-color='%23f43f5e'/><stop offset='100%' stop-color='%23fbbf24'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='50'/></filter><filter id='b2'><feGaussianBlur stdDeviation='20'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 200 C 500 800, 800 -200, 1400 700 C 1800 1200, 2000 100, 2100 400' stroke='url(%23w1)' stroke-width='180' fill='none' opacity='0.75' filter='url(%23b1)'/><path d='M-100 200 C 500 800, 800 -200, 1400 700 C 1800 1200, 2000 100, 2100 400' stroke='url(%23w1)' stroke-width='50' fill='none' opacity='0.9' filter='url(%23b2)'/></svg>";
-
 const mintSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23022c22'/><stop offset='50%' stop-color='%23064e3b'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2334d399'/><stop offset='50%' stop-color='%232dd4bf'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='40'/></filter><filter id='b2'><feGaussianBlur stdDeviation='15'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 650 Q 500 150 1100 600 T 2100 250' stroke='url(%23w1)' stroke-width='150' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 650 Q 500 150 1100 600 T 2100 250' stroke='url(%23w1)' stroke-width='40' fill='none' opacity='0.95' filter='url(%23b2)'/></svg>";
-
 const iridescentSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231e1b4b'/><stop offset='50%' stop-color='%232e1065'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='25%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%23f59e0b'/><stop offset='75%' stop-color='%2310b981'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='45'/></filter><filter id='b2'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 300 C 400 900, 900 100, 1400 800 C 1800 1300, 2000 200, 2100 500' stroke='url(%23w1)' stroke-width='160' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 300 C 400 900, 900 100, 1400 800 C 1800 1300, 2000 200, 2100 500' stroke='url(%23w1)' stroke-width='45' fill='none' opacity='0.95' filter='url(%23b2)'/></svg>";
-
 const bubblesSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23020617'/><stop offset='50%' stop-color='%230f172a'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><radialGradient id='o1' cx='30%' cy='30%' r='50%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%238b5cf6'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o2' cx='70%' cy='70%' r='60%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='50%' stop-color='%230284c7'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o3' cx='50%' cy='40%' r='45%'><stop offset='0%' stop-color='%23f59e0b'/><stop offset='60%' stop-color='%23ef4444'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='60'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='400' cy='350' r='450' fill='url(%23o1)' opacity='0.75' filter='url(%23b)'/><circle cx='1400' cy='700' r='550' fill='url(%23o2)' opacity='0.8' filter='url(%23b)'/><circle cx='960' cy='500' r='380' fill='url(%23o3)' opacity='0.65' filter='url(%23b)'/></svg>";
-
 const lavaSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2318020c'/><stop offset='50%' stop-color='%232e0818'/><stop offset='100%' stop-color='%23090207'/></linearGradient><radialGradient id='l1' cx='20%' cy='80%' r='65%'><stop offset='0%' stop-color='%23f97316'/><stop offset='40%' stop-color='%23dc2626'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='l2' cx='80%' cy='20%' r='60%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='50%' stop-color='%23ec4899'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='65'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='300' cy='800' r='550' fill='url(%23l1)' opacity='0.85' filter='url(%23b)'/><circle cx='1600' cy='250' r='500' fill='url(%23l2)' opacity='0.8' filter='url(%23b)'/></svg>";
 
 /* --- THEME SWITCHER ENGINE --- */
@@ -507,7 +501,6 @@ function setGradient(theme) {
   let backgroundStyle = '';
 
   switch(theme) {
-    /* PLAIN DARK BASE THEMES */
     case 'plain-slate':
       backgroundStyle = 'linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)), #0f172a';
       break;
@@ -517,8 +510,6 @@ function setGradient(theme) {
     case 'plain-onyx':
       backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
       break;
-
-    /* SILK & SATIN NEON WAVE GRAPHICS */
     case 'silk-lavender':
       backgroundStyle = `url("${lavenderSvg}")`;
       break;
@@ -534,8 +525,6 @@ function setGradient(theme) {
     case 'silk-iridescent':
       backgroundStyle = `url("${iridescentSvg}")`;
       break;
-
-    /* 3D RIBBON FOLDS & FLUID SWIRLS */
     case 'abstract-bubbles':
       backgroundStyle = `url("${bubblesSvg}")`;
       break;
@@ -557,7 +546,7 @@ function setGradient(theme) {
   localStorage.setItem('sbhub_theme', backgroundStyle);
 }
 
-/* --- REAL-TIME LIVE DUTY ROSTER (FIREBASE) --- */
+/* --- REAL-TIME LIVE DUTY ROSTER --- */
 function getCurrentSlotInfo() {
   const now = new Date();
   const hours = now.getHours();
@@ -650,7 +639,7 @@ function renderLiveDutyWidget(rosterData) {
   calculateActiveTraders();
 }
 
-/* --- TOP GAMES DYNAMIC MATCHDAY ENGINE --- */
+/* --- TOP GAMES ENGINE --- */
 function getGMT8DateObj(offsetDays = 0) {
   const now = new Date();
   const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
@@ -689,31 +678,10 @@ async function fetchLiveGames() {
       { name: "La Liga", code: "esp.1" },
       { name: "Bundesliga", code: "ger.1" },
       { name: "Serie A", code: "ita.1" },
-      { name: "Ligue 1", code: "fra.1" },
-      { name: "UEFA European Championship", code: "uefa.euro" },
-      { name: "UEFA Nations League", code: "uefa.nations" }
-    ];
-
-    const secondaryLeagues = [
-      { name: "UEFA Europa League", code: "uefa.europa" },
-      { name: "UEFA Conference League", code: "uefa.europa.conf" },
-      { name: "EFL Championship", code: "eng.2" },
-      { name: "Eredivisie", code: "ned.1" },
-      { name: "Primeira Liga", code: "por.1" },
-      { name: "Copa Libertadores", code: "conmebol.libertadores" },
-      { name: "MLS", code: "usa.1" },
-      { name: "Brasileirão Série A", code: "bra.1" },
-      { name: "J1 League", code: "jpn.1" },
-      { name: "Scottish Premiership", code: "sco.1" },
-      { name: "Süper Lig", code: "tur.1" },
-      { name: "Argentine Primera", code: "arg.1" }
+      { name: "Ligue 1", code: "fra.1" }
     ];
 
     let matches = await fetchLeagueList(primaryLeagues, targetDateQuery);
-
-    if (matches.length === 0) {
-      matches = await fetchLeagueList(secondaryLeagues, targetDateQuery);
-    }
 
     if (matches.length === 0) {
       container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
@@ -967,8 +935,7 @@ const KriztelAI = {
       contextAddition = `\n\n[CURRENT AUTHORIZED HUB CONTEXT DATA]:\n${JSON.stringify(this.getHubDataSnapshot(), null, 2)}`;
     }
 
-    const systemInstructions = `You are Kriztel AI (KD AI), an authentic, highly adaptive, and intelligent AI Copilot living inside Sportsbook Hub. You are GENERAL AI FIRST and HUB ASSISTANT SECOND. Answer general questions, write code, explain concepts, summarize, perform math, and analyze files with precision. Never say "This question is outside the scope of HUB."${contextAddition}`;
-
+    const systemInstructions = `You are Kriztel AI, an authentic AI Copilot inside Sportsbook Hub. Answer general questions, write code, and analyze files with precision.${contextAddition}`;
     const fullPrompt = `${systemInstructions}\n\nUser Question: ${promptText}`;
 
     const response = await fetch(url, {
@@ -1020,7 +987,7 @@ const KriztelAI = {
     const bubble = assistantMsgDiv.querySelector('.msg-bubble');
 
     this.isGenerating = true;
-    this.setStatus(true, this.webSearchEnabled ? '🔎 Searching the web...' : (this.hubContextEnabled ? '📊 Reading HUB data...' : '✨ Thinking...'));
+    this.setStatus(true, this.webSearchEnabled ? '🔎 Searching...' : (this.hubContextEnabled ? '📊 Reading HUB data...' : '✨ Thinking...'));
 
     try {
       let replyText = "";
@@ -1042,7 +1009,7 @@ const KriztelAI = {
 
         if (!response.ok) throw new Error('API request failed');
         const data = await response.json();
-        replyText = data.content || "I'm having trouble retrieving a response.";
+        replyText = data.content || data.reply || "I'm having trouble retrieving a response.";
       }
 
       bubble.innerHTML = formatMarkdown(replyText);
@@ -1051,11 +1018,11 @@ const KriztelAI = {
     } catch (err) {
       console.warn("AI call failed:", err);
       let fallbackReply = "";
-      if (this.hubContextEnabled && (text.toLowerCase().includes('duty') || text.toLowerCase().includes('task') || text.toLowerCase().includes('who') || text.toLowerCase().includes('working'))) {
+      if (this.hubContextEnabled) {
         const hubInfo = this.getHubDataSnapshot();
-        fallbackReply = `📊 **Sportsbook Hub Status Overview**:\n\n* **Active Traders Working**: ${hubInfo.activeTraders}\n* **Manila Weather**: ${hubInfo.weather}\n* **Live Duty Shift Status**:\n${hubInfo.currentSlotDuties.length > 0 ? hubInfo.currentSlotDuties.map(d => `• ${d}`).join('\n') : 'Loaded live from Firebase Roster.'}\n\n*Note: Configure \`GEMINI_API_KEY\` in Vercel settings or set \`LOCAL_GEMINI_KEY\` at the top of app.js for direct browser testing.*`;
+        fallbackReply = `📊 **Sportsbook Hub Status Overview**:\n\n* **Active Traders Working**: ${hubInfo.activeTraders}\n* **Manila Weather**: ${hubInfo.weather}\n* **Live Duty Shift Status**:\n${hubInfo.currentSlotDuties.length > 0 ? hubInfo.currentSlotDuties.map(d => `• ${d}`).join('\n') : 'Loaded live from Firebase Roster.'}`;
       } else {
-        fallbackReply = `I'm having trouble connecting to the AI endpoint. If testing locally, paste your Gemini API key into \`LOCAL_GEMINI_KEY\` at the top of \`app.js\`. For production, add \`GEMINI_API_KEY\` in your Vercel Environment Variables.`;
+        fallbackReply = `I'm having trouble connecting to the AI endpoint. Ensure \`GEMINI_API_KEY\` is configured in Vercel Environment Variables.`;
       }
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
@@ -1067,6 +1034,9 @@ const KriztelAI = {
     }
   }
 };
+
+// 🔑 EXPLICITLY BIND KriztelAI TO THE GLOBAL WINDOW OBJECT
+window.KriztelAI = KriztelAI;
 
 function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -1096,7 +1066,6 @@ function initDashboardApp() {
     setGradient('silk-lavender');
   }
 
-  // CHECK PERSISTENT SESSION (LOCALSTORAGE OR SESSIONSTORAGE)
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
     unlockDashboard();
   }
