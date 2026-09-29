@@ -1007,7 +1007,6 @@ const KriztelAI = {
           })
         });
 
-        // 🛑 SAFE RESPONSE CONTENT-TYPE CHECKING TO PREVENT HTML-JSON PARSE ERRORS
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const data = await response.json();
@@ -1019,7 +1018,7 @@ const KriztelAI = {
           if (response.status === 404) {
             throw new Error("Vercel route '/api/ai' not found (404). Check that 'api/ai.js' exists in your repo.");
           } else {
-            throw new Error(`Server returned HTML error (${response.status}). Verify GEMINI_API_KEY in Vercel.`);
+            throw new Error(`Server returned status ${response.status}. Update api/ai.js with CommonJS syntax and redeploy.`);
           }
         }
       }
@@ -1029,7 +1028,7 @@ const KriztelAI = {
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Checklist to Enable Full AI Intelligence:**\n1. Confirm \`api/ai.js\` is uploaded in your repository root.\n2. Ensure \`GEMINI_API_KEY\` is configured under Vercel Settings > Environment Variables.\n3. Re-deploy your Vercel project.\n\n*(For immediate local browser testing without Vercel, paste your key into \`LOCAL_GEMINI_KEY\` at line 5 of \`app.js\`)*`;
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Steps:**\n1. Update \`api/ai.js\` with the new CommonJS code.\n2. Commit and push the changes to GitHub.\n3. Redeploy your project in Vercel.`;
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
