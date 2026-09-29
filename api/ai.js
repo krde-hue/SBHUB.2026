@@ -85,19 +85,19 @@ CORE OPERATING DIRECTIVES:
       contents: contents
     };
 
-    // Sequential fallback list prioritizing production v1 endpoints
-    const endpoints = [
-      { version: 'v1', model: 'gemini-2.0-flash' },
-      { version: 'v1', model: 'gemini-1.5-flash' },
-      { version: 'v1', model: 'gemini-1.5-pro' },
+    // Sequential fallback targeting supported Gemini 2.5 and 2.0 endpoints
+    const candidateEndpoints = [
+      { version: 'v1beta', model: 'gemini-2.5-flash' },
       { version: 'v1beta', model: 'gemini-2.0-flash' },
-      { version: 'v1beta', model: 'gemini-1.5-flash' }
+      { version: 'v1beta', model: 'gemini-flash-latest' },
+      { version: 'v1', model: 'gemini-2.5-flash' },
+      { version: 'v1', model: 'gemini-2.0-flash' }
     ];
 
     let lastError = null;
     let replyText = null;
 
-    for (const ep of endpoints) {
+    for (const ep of candidateEndpoints) {
       const targetUrl = `https://generativelanguage.googleapis.com/${ep.version}/models/${ep.model}:generateContent?key=${apiKey}`;
 
       const response = await fetch(targetUrl, {
@@ -115,7 +115,6 @@ CORE OPERATING DIRECTIVES:
 
       lastError = data.error?.message || `Endpoint ${ep.version}/${ep.model} failed with status ${response.status}`;
 
-      // Stop loop early if key or quota permissions fail
       if (response.status === 401 || response.status === 403 || response.status === 429) {
         break;
       }
