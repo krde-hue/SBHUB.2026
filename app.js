@@ -1,7 +1,7 @@
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
-// ⚠️ Optional: For direct local browser testing without Vercel backend environment variables
+// ⚠️ Optional: For direct browser testing without Vercel backend environment variables
 const LOCAL_GEMINI_KEY = ""; 
 
 /* --- FIREBASE ROSTER INITIALIZATION --- */
@@ -935,7 +935,7 @@ const KriztelAI = {
       contextAddition = `\n\n[CURRENT AUTHORIZED HUB CONTEXT DATA]:\n${JSON.stringify(this.getHubDataSnapshot(), null, 2)}`;
     }
 
-    const systemInstructions = `You are Kriztel AI, an authentic AI Copilot inside Sportsbook Hub. Answer general questions, write code, and analyze files with precision.${contextAddition}`;
+    const systemInstructions = `You are Kriztel AI, an authentic AI Copilot inside Sportsbook Hub. Answer general questions, search topics, write code, and analyze queries with precision.${contextAddition}`;
     const fullPrompt = `${systemInstructions}\n\nUser Question: ${promptText}`;
 
     const response = await fetch(url, {
@@ -1007,8 +1007,12 @@ const KriztelAI = {
           })
         });
 
-        if (!response.ok) throw new Error('API request failed');
         const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `Server responded with status ${response.status}`);
+        }
+
         replyText = data.content || data.reply || "I'm having trouble retrieving a response.";
       }
 
@@ -1018,11 +1022,18 @@ const KriztelAI = {
     } catch (err) {
       console.warn("AI call failed:", err);
       let fallbackReply = "";
-      if (this.hubContextEnabled) {
+      
+      const isHubQuery = text.toLowerCase().includes('duty') || 
+                         text.toLowerCase().includes('task') || 
+                         text.toLowerCase().includes('who') || 
+                         text.toLowerCase().includes('working') ||
+                         text.toLowerCase().includes('roster');
+
+      if (this.hubContextEnabled && isHubQuery) {
         const hubInfo = this.getHubDataSnapshot();
         fallbackReply = `📊 **Sportsbook Hub Status Overview**:\n\n* **Active Traders Working**: ${hubInfo.activeTraders}\n* **Manila Weather**: ${hubInfo.weather}\n* **Live Duty Shift Status**:\n${hubInfo.currentSlotDuties.length > 0 ? hubInfo.currentSlotDuties.map(d => `• ${d}`).join('\n') : 'Loaded live from Firebase Roster.'}`;
       } else {
-        fallbackReply = `I'm having trouble connecting to the AI endpoint. Ensure \`GEMINI_API_KEY\` is configured in Vercel Environment Variables.`;
+        fallbackReply = `I'm having trouble connecting to the AI endpoint.\n\n* **Error Details**: ${escapeHtml(err.message || "Failed to fetch response")}\n* **Fix for Vercel Deployment**: Ensure \`GEMINI_API_KEY\` is added to your Vercel Project Environment Variables.\n* **Fix for Local Testing**: Paste your key into \`LOCAL_GEMINI_KEY\` at line 5 of \`app.js\`.`;
       }
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
@@ -1035,7 +1046,7 @@ const KriztelAI = {
   }
 };
 
-// 🔑 EXPLICITLY BIND KriztelAI TO THE GLOBAL WINDOW OBJECT
+// 🔑 EXPLICITLY BIND KriztelAI TO GLOBAL WINDOW OBJECT
 window.KriztelAI = KriztelAI;
 
 function escapeHtml(str) {
