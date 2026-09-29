@@ -8,13 +8,13 @@
   <!-- Preconnect & Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
   
   <!-- Boxicons CSS -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=2.3.0">
+  <link rel="stylesheet" href="./styles.css?v=3.0.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,7 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- App JS -->
-  <script src="./app.js?v=2.3.0" defer></script>
+  <script src="./app.js?v=3.0.0" defer></script>
 </head>
 <body id="pageBody">
 
@@ -273,6 +273,28 @@
             <a class="nav-sub-btn" href="workspace.html" target="_blank" rel="noreferrer"><span>WORKSPACE</span><i class="bx bx-right-arrow-alt"></i></a>
           </div>
         </div>
+
+        <!-- QUICK LAUNCH DOCK -->
+        <div class="sidebar-quick-dock">
+          <div class="quick-dock-title"><i class="bx bx-rocket"></i> QUICK LAUNCH</div>
+          <div class="quick-dock-buttons">
+            <a href="https://claude.ai" target="_blank" rel="noreferrer" class="quick-launch-btn">
+              <div class="btn-left">
+                <div class="icon-badge icon-claude"><i class="bx bx-bot"></i></div>
+                <span>Claude AI</span>
+              </div>
+              <i class="bx bx-export" style="font-size: 13px; opacity: 0.7;"></i>
+            </a>
+            <a href="file:///C:/Users/KriztelJoyDeVilla/Downloads/Edge_Gaming_Client_Risk_Segmentation_Tool_July_2026_Dashboard.html" target="_blank" rel="noreferrer" class="quick-launch-btn">
+              <div class="btn-left">
+                <div class="icon-badge icon-risk"><i class="bx bx-shield-quarter"></i></div>
+                <span>Risk Seg. Tool</span>
+              </div>
+              <i class="bx bx-export" style="font-size: 13px; opacity: 0.7;"></i>
+            </a>
+          </div>
+        </div>
+
       </div>
 
       <!-- ORIGINAL DOCKED ADMIN PROFILE PILL FOOTER -->
@@ -493,6 +515,88 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- FLOATING AI COPILOT BUTTON -->
+  <button id="aiFloatingBtn" onclick="KriztelAI.togglePanel()" title="Ask Kriztel AI">
+    <div class="ai-btn-inner">
+      <i class="bx bx-bot"></i>
+      <span class="ai-status-dot"></span>
+    </div>
+  </button>
+
+  <!-- FLOATING AI COPILOT CHAT PANEL -->
+  <div id="aiChatPanel">
+    <!-- PANEL HEADER -->
+    <div class="ai-panel-header">
+      <div class="ai-header-title">
+        <i class="bx bx-bot ai-bot-icon"></i>
+        <div>
+          <div class="ai-name">KRIZTEL AI</div>
+          <div class="ai-status">● Online</div>
+        </div>
+      </div>
+      <div class="ai-header-actions">
+        <button class="ai-badge-btn" id="aiContextToggle" onclick="KriztelAI.toggleHubContext()" title="Toggle HUB Context Permission">
+          <span id="contextStatusTag">● HUB Context ON</span>
+        </button>
+        <button class="ai-action-icon" onclick="KriztelAI.clearChat()" title="New Conversation"><i class="bx bx-plus"></i></button>
+        <button class="ai-action-icon" onclick="KriztelAI.closePanel()" title="Close Panel"><i class="bx bx-x"></i></button>
+      </div>
+    </div>
+
+    <!-- PANEL MESSAGES CONTAINER -->
+    <div class="ai-messages-wrap" id="aiMessagesWrap">
+      <!-- QUICK STARTER PROMPTS -->
+      <div class="ai-welcome-box" id="aiWelcomeBox">
+        <div class="welcome-title">Ask anything or select a task...</div>
+        <div class="quick-prompts-grid">
+          <button class="prompt-chip" onclick="KriztelAI.usePrompt('What are my pending tasks and duties right now?')">
+            <i class="bx bx-task" style="color:#ef4444;"></i> What are my pending tasks?
+          </button>
+          <button class="prompt-chip" onclick="KriztelAI.usePrompt('Summarize today\'s live duties and match schedule.')">
+            <i class="bx bx-file" style="color:#f59e0b;"></i> Summarize today's duties
+          </button>
+          <button class="prompt-chip" onclick="KriztelAI.usePrompt('Search the web for the latest football news and transfer updates.')">
+            <i class="bx bx-globe" style="color:#38bdf8;"></i> Search latest sports news
+          </button>
+          <button class="prompt-chip" onclick="KriztelAI.usePrompt('Explain quantum computing in simple terms.')">
+            <i class="bx bx-brain" style="color:#ec4899;"></i> Explain a complex topic
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI TOOL EXECUTION STATUS BAR -->
+    <div class="ai-tool-status" id="aiToolStatus">
+      <i class="bx bx-loader-alt bx-spin"></i>
+      <span id="aiToolStatusText">✨ Thinking...</span>
+    </div>
+
+    <!-- PANEL INPUT FOOTER -->
+    <div class="ai-input-footer">
+      <div class="ai-input-container">
+        <textarea id="aiPromptInput" placeholder="Ask anything or request a HUB task..." rows="1" onkeydown="KriztelAI.handleKeyDown(event)" oninput="KriztelAI.autoResize(this)"></textarea>
+        <div class="ai-input-controls">
+          <div class="ai-control-left">
+            <button class="ai-tool-btn" id="btnWebSearch" onclick="KriztelAI.toggleSearchMode()" title="Toggle Web Search Mode">
+              <i class="bx bx-globe"></i> Web
+            </button>
+            <label class="ai-tool-btn" title="Attach file or screenshot">
+              <i class="bx bx-paperclip"></i>
+              <input type="file" id="aiFileInput" style="display:none;" onchange="KriztelAI.handleFileAttach(event)">
+            </label>
+            <span class="attached-file-badge" id="attachedFileBadge" style="display:none;">
+              <span id="attachedFileName">file.png</span>
+              <i class="bx bx-x" onclick="KriztelAI.removeAttachment()"></i>
+            </span>
+          </div>
+          <button class="ai-send-btn" id="aiSendBtn" onclick="KriztelAI.sendMessage()" title="Send Message">
+            <i class="bx bx-send"></i>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
 </body>
