@@ -274,7 +274,7 @@ body {
   visibility: visible;
 }
 
-/* SIDEBAR NAVIGATION */
+/* SIDEBAR LAYOUT */
 .sidebar {
   width: 270px;
   display: flex;
