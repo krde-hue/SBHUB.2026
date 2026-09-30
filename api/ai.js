@@ -45,7 +45,7 @@ module.exports = async function handler(req, res) {
     const apiKey = (process.env.GEMINI_API_KEY || '').trim();
     if (!apiKey) {
       return res.status(200).json({ 
-        content: "⚠️ **Configuration Notice**: `GEMINI_API_KEY` is not set in Vercel.\n\n👉 **Fix**: Go to **Vercel Dashboard → Settings → Environment Variables**, add `GEMINI_API_KEY` with your Google AI Studio key (`AIzaSy...`), then click **Redeploy**." 
+        content: "⚠️ **Configuration Notice**: `GEMINI_API_KEY` was not detected by the server function.\n\n👉 **Fix**: Go to **Vercel Dashboard → Deployments → click `...` → Redeploy** to apply your environment variable." 
       });
     }
 
@@ -80,13 +80,23 @@ module.exports = async function handler(req, res) {
       const model = String(rawModel).trim();
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-      const payload = {
+      // Attempt 1: With Google Search Grounding
+      const payloadWithTools = {
         systemInstruction: { parts: [{ text: systemInstructions }] },
         contents: contents,
         tools: [{ googleSearch: {} }]
       };
 
-      const result = await postJSON(url, payload);
+      let result = await postJSON(url, payloadWithTools);
+
+      // Attempt 2: Fallback to standard request if Search Grounding is rejected by API key
+      if (result.status !== 200) {
+        const payloadPlain = {
+          systemInstruction: { parts: [{ text: systemInstructions }] },
+          contents: contents
+        };
+        result = await postJSON(url, payloadPlain);
+      }
 
       if (result.status === 200 && result.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
         return res.status(200).json({ content: result.data.candidates[0].content.parts[0].text });
