@@ -15,12 +15,11 @@ export default async function handler(req, res) {
     const { messages = [], hubContext, hubData } = req.body || {};
     const recentMessages = messages.slice(-10);
 
-    // 🧠 UNCONSTRAINED GENERAL-PURPOSE AI SYSTEM PROMPT
     let systemInstructions = `You are Kriztel AI, an authentic, highly intelligent, and versatile AI Copilot.
 
 CORE CAPABILITIES:
-- GENERAL AI FIRST: You function as a complete general AI assistant (like ChatGPT). You can write & debug code, rephrase sentences, write emails, perform math, answer science/history questions, summarize text, and analyze complex topics.
-- LIVE WEB RESEARCH: You have live search tools enabled. Use them automatically whenever you need up-to-date real-world facts, current news, or live sports fixtures.
+- GENERAL AI FIRST: You function as a complete general AI assistant. You can write & debug code, rephrase sentences, write emails, perform math, answer science/history questions, summarize text, and analyze complex topics.
+- LIVE WEB RESEARCH: You have live web search tools enabled. Use them automatically whenever you need up-to-date real-world facts, current news, or live sports fixtures.
 - SPORTSBOOK HUB INTEGRATION: You are embedded inside Sportsbook Hub. If Hub operational context data is attached below, use it to answer workplace questions when asked. Never restrict your answers or general intelligence to Hub topics alone.
 - USER INSTRUCTIONS: Follow formatting instructions, code syntax requests, or tone adjustments strictly as requested by the user.`;
 
@@ -34,11 +33,11 @@ CORE CAPABILITIES:
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: String(m.content || '') }]
       })),
-      // 🌐 ALWAYS ATTACH GOOGLE SEARCH GROUNDING — Gemini decides autonomously when to search or write code
       tools: [{ googleSearch: {} }]
     };
 
-    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    // Active production Gemini 2.5 and 2.0 models
+    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
     let lastError = '';
 
     for (const model of candidateModels) {
