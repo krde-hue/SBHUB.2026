@@ -63,6 +63,7 @@ body {
   max-width: 420px;
   position: relative;
   z-index: 10;
+  margin-top: 50px;
 }
 
 .login-card {
@@ -82,6 +83,124 @@ body {
   position: relative;
   z-index: 5;
 }
+
+/* RESTORED SITTING ROBOT STAGE */
+.sitting-robot-stage {
+  position: absolute;
+  top: -72px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 95px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.robot-body-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.1s ease-out;
+}
+
+.robot-head {
+  width: 84px;
+  height: 58px;
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 2px solid #38bdf8;
+  border-radius: 20px;
+  position: absolute;
+  top: 0;
+  left: 18px;
+  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.robot-antenna {
+  width: 4px;
+  height: 12px;
+  background: #38bdf8;
+  position: absolute;
+  top: -12px;
+  left: 40px;
+  border-radius: 2px;
+}
+
+.robot-antenna::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  width: 12px;
+  height: 12px;
+  background: #00f2fe;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00f2fe;
+}
+
+.robot-visor {
+  width: 68px;
+  height: 36px;
+  background: #040814;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.robot-eye {
+  width: 12px;
+  height: 12px;
+  background: #00f2fe;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 10px #00f2fe;
+}
+
+.robot-torso {
+  width: 54px;
+  height: 32px;
+  background: #1e293b;
+  border: 1.5px solid #38bdf8;
+  border-radius: 10px 10px 14px 14px;
+  position: absolute;
+  top: 54px;
+  left: 33px;
+  z-index: 1;
+}
+
+.robot-leg {
+  width: 10px;
+  height: 22px;
+  background: #0f172a;
+  border: 1.5px solid #38bdf8;
+  border-radius: 4px;
+  position: absolute;
+  bottom: -14px;
+}
+.robot-leg.left { left: 8px; }
+.robot-leg.right { right: 8px; }
+
+.robot-hand {
+  width: 22px;
+  height: 26px;
+  background: #334155;
+  border: 1.5px solid #38bdf8;
+  border-radius: 8px;
+  position: absolute;
+  top: 20px;
+  transition: all 0.35s ease;
+  z-index: 20;
+}
+.robot-hand.left { left: 10px; }
+.robot-hand.right { right: 10px; }
 
 .login-title { 
   font-size: 26px; 
