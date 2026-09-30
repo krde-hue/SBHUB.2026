@@ -928,14 +928,14 @@ const KriztelAI = {
     const key = (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY) ? LOCAL_GEMINI_KEY : '';
     if (!key) throw new Error("No client-side Gemini key set.");
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
     
     let contextAddition = "";
     if (this.hubContextEnabled) {
       contextAddition = `\n\n[CURRENT AUTHORIZED HUB CONTEXT DATA]:\n${JSON.stringify(this.getHubDataSnapshot(), null, 2)}`;
     }
 
-    const systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant. You think outside the box, reason through complex ideas, answer coding or creative queries, and possess unlimited domain knowledge.${contextAddition}`;
+    const systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant. You think outside the box, gather web resources when asked, and reason through complex ideas.${contextAddition}`;
     const fullPrompt = `${systemInstructions}\n\nUser Question: ${promptText}`;
 
     const response = await fetch(url, {
@@ -987,7 +987,7 @@ const KriztelAI = {
     const bubble = assistantMsgDiv.querySelector('.msg-bubble');
 
     this.isGenerating = true;
-    this.setStatus(true, '⚡ Thinking...');
+    this.setStatus(true, '🌐 Gathering resources & searching...');
 
     try {
       let replyText = "";
@@ -1003,7 +1003,7 @@ const KriztelAI = {
           body: JSON.stringify({
             messages: this.chatHistory,
             hubContext: this.hubContextEnabled,
-            searchWeb: this.webSearchEnabled,
+            searchWeb: true, // Always allow web search grounding for queries
             hubData: hubData
           })
         });
@@ -1016,20 +1016,6 @@ const KriztelAI = {
           }
           replyText = data.content || data.reply || "No response received.";
           bubble.innerHTML = formatMarkdown(replyText);
-        } else if (response.ok) {
-          // Live Real-Time SSE Stream Reader
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          bubble.innerHTML = "";
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value, { stream: true });
-            replyText += chunk;
-            bubble.innerHTML = formatMarkdown(replyText);
-            wrap.scrollTop = wrap.scrollHeight;
-          }
         } else {
           throw new Error(`Server returned status ${response.status}`);
         }
@@ -1039,7 +1025,7 @@ const KriztelAI = {
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Steps:**\n1. Update \`api/ai.js\` with the streaming Edge function code.\n2. Commit and push to GitHub.\n3. Redeploy your project on Vercel.`;
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix:** Update \`api/ai.js\` with the updated code, commit to GitHub, and redeploy on Vercel.`;
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
