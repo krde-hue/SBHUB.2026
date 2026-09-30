@@ -3,7 +3,7 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // CORS Preflight
+  // CORS Preflight Headers
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
@@ -49,7 +49,7 @@ export default async function handler(req) {
 
 CORE OPERATING DIRECTIVES:
 1. THINK OUTSIDE THE BOX: Use deep lateral thinking, creative reasoning, and comprehensive problem-solving for any question asked.
-2. LIVE RESOURCE GATHERING & SEARCH: Use live web resources to fetch up-to-date fixtures, current news, sports schedules, and exact matches. Format output strictly as requested by the user.
+2. LIVE RESOURCE GATHERING & SEARCH: Use live web search resources to fetch up-to-date fixtures, news, sports schedules, and exact match results. Format output strictly as requested by the user.
 3. UNRESTRICTED SCOPE: Never state that a topic is outside your scope.
 4. HUB TELEMETRY: If Hub context telemetry is provided below, use it for operational questions, but remain a general intelligence first.`;
 
@@ -84,15 +84,15 @@ CORE OPERATING DIRECTIVES:
       contents: contents
     };
 
-    // Enable Google Search Grounding for live web info when Web mode is active or web queries are made
+    // Enable REST-standard Google Search Grounding
     if (searchWeb || userPrompt.toLowerCase().includes('search') || userPrompt.toLowerCase().includes('news') || userPrompt.toLowerCase().includes('match') || userPrompt.toLowerCase().includes('game') || userPrompt.toLowerCase().includes('2026')) {
-      payload.tools = [{ google_search: {} }];
+      payload.tools = [{ googleSearch: {} }];
     }
 
-    // Reliable active model fallback chain
+    // Standard ASCII model identifiers
     const candidateModels = [
       'gemini-1.5-flash',
-      'gemini-2.5-flash',
+      'gemini-2.0-flash-exp',
       'gemini-1.5-pro'
     ];
 
@@ -116,7 +116,7 @@ CORE OPERATING DIRECTIVES:
       }
 
       lastError = data.error?.message || `Model ${model} returned status ${res.status}`;
-      if (res.status === 401 || res.status === 403) break; // Invalid Key
+      if (res.status === 401 || res.status === 403) break;
     }
 
     if (!replyText) {
