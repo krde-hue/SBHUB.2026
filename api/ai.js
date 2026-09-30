@@ -1,152 +1,65 @@
-export const config = {
-  runtime: 'edge',
-};
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-export default async function handler(req) {
-  // CORS Preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
-  }
-
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured in Vercel Environment Variables.' }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
+      return res.status(500).json({ error: 'GEMINI_API_KEY is missing in Vercel Environment Variables.' });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const rawMessages = body.messages || [];
-    const messages = rawMessages.slice(-10);
-    const hubContext = body.hubContext;
-    const hubData = body.hubData;
-    const searchWeb = body.searchWeb;
-    const userPrompt = messages.length > 0 ? messages[messages.length - 1]?.content : (body.prompt || "");
+    const { messages = [], hubContext, hubData } = req.body || {};
+    const recentMessages = messages.slice(-10);
 
-    let systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant.
+    // 🧠 UNCONSTRAINED GENERAL-PURPOSE AI SYSTEM PROMPT
+    let systemInstructions = `You are Kriztel AI, an authentic, highly intelligent, and versatile AI Copilot.
 
-CORE OPERATING DIRECTIVES:
-1. THINK OUTSIDE THE BOX: Use deep lateral thinking, creative reasoning, and comprehensive problem-solving for any question asked.
-2. LIVE RESOURCE GATHERING & SEARCH: Use live web search resources to fetch up-to-date fixtures, news, sports schedules, and exact match results. Format output strictly as requested by the user.
-3. UNRESTRICTED SCOPE: Never state that a topic is outside your scope.
-4. HUB TELEMETRY: If Hub context telemetry is provided below, use it for operational questions, but remain a general intelligence first.`;
+CORE CAPABILITIES:
+- GENERAL AI FIRST: You function as a complete general AI assistant (like ChatGPT). You can write & debug code, rephrase sentences, write emails, perform math, answer science/history questions, summarize text, and analyze complex topics.
+- LIVE WEB RESEARCH: You have live search tools enabled. Use them automatically whenever you need up-to-date real-world facts, current news, or live sports fixtures.
+- SPORTSBOOK HUB INTEGRATION: You are embedded inside Sportsbook Hub. If Hub operational context data is attached below, use it to answer workplace questions when asked. Never restrict your answers or general intelligence to Hub topics alone.
+- USER INSTRUCTIONS: Follow formatting instructions, code syntax requests, or tone adjustments strictly as requested by the user.`;
 
     if (hubContext && hubData) {
-      systemInstructions += `\n\n[LIVE HUB CONTEXT DATA]:\n${JSON.stringify(hubData, null, 2)}`;
-    }
-
-    let contents = [];
-    if (Array.isArray(messages) && messages.length > 0) {
-      contents = messages.map(msg => ({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: String(msg.content || '') }]
-      }));
-    } else if (userPrompt) {
-      contents = [{ role: 'user', parts: [{ text: String(userPrompt) }] }];
-    }
-
-    if (contents.length === 0) {
-      return new Response(JSON.stringify({ error: 'No prompt or messages provided.' }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
+      systemInstructions += `\n\n[SPORTSBOOK HUB TELEMETRY DATA]:\n${JSON.stringify(hubData, null, 2)}`;
     }
 
     const payload = {
-      systemInstruction: {
-        parts: [{ text: systemInstructions }]
-      },
-      contents: contents
+      systemInstruction: { parts: [{ text: systemInstructions }] },
+      contents: recentMessages.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: String(m.content || '') }]
+      })),
+      // 🌐 ALWAYS ATTACH GOOGLE SEARCH GROUNDING — Gemini decides autonomously when to search or write code
+      tools: [{ googleSearch: {} }]
     };
 
-    // Enable Google Search Grounding for live web queries
-    if (searchWeb || userPrompt.toLowerCase().includes('search') || userPrompt.toLowerCase().includes('news') || userPrompt.toLowerCase().includes('match') || userPrompt.toLowerCase().includes('game') || userPrompt.toLowerCase().includes('2026') || userPrompt.toLowerCase().includes('fixture')) {
-      payload.tools = [{ googleSearch: {} }];
-    }
+    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    let lastError = '';
 
-    // List of active models
-    const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro'
-    ];
-
-    let replyText = null;
-    let lastError = null;
-
-    for (let rawModel of candidateModels) {
-      // Force conversion of any en-dashes or em-dashes to standard ASCII hyphens
-      const model = rawModel.replace(/[\u2010-\u2015]/g, '-');
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-      const res = await fetch(geminiUrl, {
+    for (const model of candidateModels) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
-
-      if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        replyText = data.candidates[0].content.parts[0].text;
-        break;
+      const data = await response.json();
+      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return res.status(200).json({ content: data.candidates[0].content.parts[0].text });
       }
 
-      lastError = data.error?.message || `Model ${model} returned status ${res.status}`;
-      if (res.status === 401 || res.status === 403) break;
+      lastError = data.error?.message || `Status ${response.status}`;
+      if (response.status === 401 || response.status === 403) break;
     }
 
-    if (!replyText) {
-      return new Response(JSON.stringify({ error: `Gemini API Error: ${lastError}` }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
-    }
-
-    return new Response(JSON.stringify({ content: replyText }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-
+    return res.status(500).json({ error: `Gemini API Error: ${lastError}` });
   } catch (err) {
-    return new Response(JSON.stringify({ error: `Server error: ${err.message}` }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return res.status(500).json({ error: `Server error: ${err.message}` });
   }
 }
