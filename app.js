@@ -60,24 +60,33 @@ function switchBrandTab(tabName) {
   });
 }
 
+/* --- COMPREHENSIVE LEAGUES DIRECTORY (TOP TIER + SECONDARY LEAGUES) --- */
+const ALL_COMPETITION_LEAGUES = [
+  { name: "UEFA Champions League", code: "uefa.champions" },
+  { name: "UEFA Europa League", code: "uefa.europa" },
+  { name: "UEFA Conference League", code: "uefa.europa.conf" },
+  { name: "Premier League", code: "eng.1" },
+  { name: "La Liga", code: "esp.1" },
+  { name: "Bundesliga", code: "ger.1" },
+  { name: "Serie A", code: "ita.1" },
+  { name: "Ligue 1", code: "fra.1" },
+  { name: "Eredivisie", code: "ned.1" },
+  { name: "Primeira Liga", code: "por.1" },
+  { name: "Saudi Pro League", code: "sau.1" },
+  { name: "EFL Championship", code: "eng.2" },
+  { name: "Major League Soccer", code: "usa.1" },
+  { name: "Copa Libertadores", code: "conmebol.libertadores" }
+];
+
 /* --- REAL-TIME TOP PICKS / HOT BOOSTS ENGINE --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
 
   try {
-    const primaryLeagues = [
-      { code: "uefa.champions", name: "UEFA Champions League" },
-      { code: "eng.1", name: "Premier League" },
-      { code: "esp.1", name: "La Liga" },
-      { code: "ger.1", name: "Bundesliga" },
-      { code: "ita.1", name: "Serie A" },
-      { code: "fra.1", name: "Ligue 1" }
-    ];
-
     let allPicks = [];
 
-    for (const league of primaryLeagues) {
+    for (const league of ALL_COMPETITION_LEAGUES) {
       if (allPicks.length >= 7) break;
       try {
         const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard`);
@@ -237,6 +246,41 @@ function animateCanvas() {
   requestAnimationFrame(animateCanvas);
 }
 if (canvas) animateCanvas();
+
+/* --- RESTORED SITTING ROBOT EYE & HEAD TRACKING --- */
+document.addEventListener('mousemove', (e) => {
+  const robotStage = document.getElementById('sittingRobotStage');
+  const authOverlay = document.getElementById('authOverlay');
+  if (!robotStage || (authOverlay && authOverlay.classList.contains('unlocked'))) return;
+
+  const leftEye = document.getElementById('leftEye');
+  const rightEye = document.getElementById('rightEye');
+  const robotHead = document.getElementById('robotHead');
+  const robotBodyWrapper = document.getElementById('robotBodyWrapper');
+
+  const rect = robotStage.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  const deltaX = e.clientX - centerX;
+  const deltaY = e.clientY - centerY;
+  const angle = Math.atan2(deltaY, deltaX);
+
+  const eyeDist = Math.min(5, Math.hypot(deltaX, deltaY) / 35);
+  const eyeX = Math.cos(angle) * eyeDist;
+  const eyeY = Math.sin(angle) * eyeDist;
+
+  if (leftEye && rightEye) {
+    leftEye.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
+    rightEye.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
+  }
+
+  const rotateY = Math.max(-25, Math.min(25, deltaX / 20));
+  const rotateX = Math.max(-15, Math.min(15, -deltaY / 25));
+
+  if (robotHead) robotHead.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  if (robotBodyWrapper) robotBodyWrapper.style.transform = `rotateY(${rotateY * 0.3}deg)`;
+});
 
 /* --- WORLD CLOCKS SYSTEM --- */
 function updateWorldClocks() {
@@ -580,7 +624,7 @@ function renderLiveDutyWidget(rosterData) {
   calculateActiveTraders();
 }
 
-/* --- TOP GAMES ENGINE --- */
+/* --- TOP GAMES ENGINE (EXPANDED DYNAMIC MULTI-LEAGUE PARSER) --- */
 function getGMT8DateObj(offsetDays = 0) {
   const now = new Date();
   const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
@@ -613,23 +657,14 @@ async function fetchLiveGames() {
     const labelEl = document.getElementById("matchDayDisplay");
     if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
 
-    const primaryLeagues = [
-      { name: "UEFA Champions League", code: "uefa.champions" },
-      { name: "Premier League", code: "eng.1" },
-      { name: "La Liga", code: "esp.1" },
-      { name: "Bundesliga", code: "ger.1" },
-      { name: "Serie A", code: "ita.1" },
-      { name: "Ligue 1", code: "fra.1" }
-    ];
-
-    let matches = await fetchLeagueList(primaryLeagues, targetDateQuery);
+    let matches = await fetchLeagueList(ALL_COMPETITION_LEAGUES, targetDateQuery);
 
     if (matches.length === 0) {
       container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
       return;
     }
 
-    matches = matches.slice(0, 7);
+    matches = matches.slice(0, 10);
 
     let gamesHtml = "";
     matches.forEach(item => {
@@ -668,12 +703,12 @@ async function fetchLeagueList(leagueList, dateQuery) {
   for (const item of results) {
     if (!item || !item.data || !item.data.events) continue;
     for (const evt of item.data.events) {
-      if (matches.length >= 7) break;
+      if (matches.length >= 12) break;
       const comp = evt.competitions?.[0];
       if (!comp) continue;
 
       const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = comp.competitors?.find(c => c.awayAway === 'away');
+      const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
 
       if (homeTeam && awayTeam) {
         const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
