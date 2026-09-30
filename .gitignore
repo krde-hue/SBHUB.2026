@@ -1,6 +1,11 @@
-# Ignore Environment Files
+# Environment Variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
+*.env
+
+# Dependencies & Builds
+node_modules/
+.vercel
+dist/
+build/
