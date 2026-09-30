@@ -798,7 +798,6 @@ const KriztelAI = {
   chatHistory: [],
   isGenerating: false,
 
-  // Retrieve user key from localStorage or hardcoded LOCAL_GEMINI_KEY
   getEffectiveApiKey() {
     if (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY && LOCAL_GEMINI_KEY.trim().length > 0) {
       return LOCAL_GEMINI_KEY.trim();
@@ -942,7 +941,6 @@ const KriztelAI = {
     };
   },
 
-  // Direct Browser-to-Gemini Call Engine
   async callGeminiDirect(promptText) {
     const apiKey = this.getEffectiveApiKey();
     if (!apiKey) throw new Error("No API key available.");
@@ -966,13 +964,12 @@ const KriztelAI = {
       tools: [{ googleSearch: {} }]
     };
 
-    // Clean ASCII model identifiers (Gemini 2.5 and 2.0 Flash)
-    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
     let lastErr = "";
 
     for (let rawModel of candidateModels) {
-      // Force conversion of any en-dashes or em-dashes to standard ASCII hyphens
-      const model = rawModel.replace(/[\u2010-\u2015]/g, '-');
+      // Runtime sanitizer converts en-dashes / em-dashes to standard ASCII hyphens
+      const model = String(rawModel).replace(/[\u2010-\u201F\u2013\u2014]/g, '-').replace(/[^\x00-\x7F]/g, '-');
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
       const response = await fetch(url, {
@@ -991,6 +988,16 @@ const KriztelAI = {
     }
 
     throw new Error(lastErr || "Failed to generate AI response.");
+  },
+
+  copyCode(btn) {
+    const codeEl = btn.closest('.ai-code-block')?.querySelector('pre code');
+    if (codeEl) {
+      navigator.clipboard.writeText(codeEl.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
   },
 
   async sendMessage() {
@@ -1032,12 +1039,10 @@ const KriztelAI = {
       let replyText = "";
       const effectiveKey = this.getEffectiveApiKey();
 
-      // Priority 1: Direct Client Call if local key exists in browser or app.js
       if (effectiveKey && effectiveKey.length > 0) {
         replyText = await this.callGeminiDirect(text);
         bubble.innerHTML = formatMarkdown(replyText);
       } else {
-        // Priority 2: Fallback to Vercel Serverless Route /api/ai
         const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
         const response = await fetch('/api/ai', {
           method: 'POST',
@@ -1079,7 +1084,6 @@ const KriztelAI = {
   }
 };
 
-// 🔑 EXPLICITLY BIND KriztelAI TO GLOBAL WINDOW OBJECT
 window.KriztelAI = KriztelAI;
 
 function escapeHtml(str) {
@@ -1088,7 +1092,23 @@ function escapeHtml(str) {
 }
 
 function formatMarkdown(str) {
+  if (!str) return '';
   let html = escapeHtml(str);
+
+  // Fenced Code Block formatting with Copy Button
+  html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, function (match, lang, code) {
+    const language = lang || 'code';
+    return `
+      <div class="ai-code-block">
+        <div class="code-header">
+          <span>${language}</span>
+          <button class="code-copy-btn" onclick="KriztelAI.copyCode(this)">Copy</button>
+        </div>
+        <pre><code>${code.trim()}</code></pre>
+      </div>
+    `;
+  });
+
   html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/`(.*?)`/g, '<code>$1</code>');
   html = html.replace(/\n/g, '<br>');
