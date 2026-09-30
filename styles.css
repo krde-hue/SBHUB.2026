@@ -1065,7 +1065,7 @@ body {
   position: fixed;
   bottom: 94px;
   right: 24px;
-  z-index: 999995;
+  z-index: 999989;
   width: 420px;
   max-width: calc(100vw - 32px);
   height: 600px;
@@ -1279,6 +1279,11 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+.msg-bubble strong {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
 .msg-bubble code {
   font-family: 'JetBrains Mono', monospace;
   background: rgba(0, 0, 0, 0.4);
@@ -1288,20 +1293,55 @@ body {
   color: #38bdf8;
 }
 
-.msg-bubble pre {
+/* FENCED CODE BLOCKS & COPY BUTTON */
+.ai-code-block {
   background: #040814;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 10px;
-  border-radius: 10px;
-  overflow-x: auto;
-  margin-top: 6px;
-  margin-bottom: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  margin: 8px 0;
+  overflow: hidden;
 }
 
-.msg-bubble pre code {
+.code-header {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.code-copy-btn {
+  background: transparent;
+  border: none;
+  color: #38bdf8;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  transition: color 0.15s ease;
+}
+
+.code-copy-btn:hover {
+  color: #ffffff;
+}
+
+.ai-code-block pre {
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #34d399;
+  line-height: 1.4;
+}
+
+.ai-code-block pre code {
   background: transparent;
   padding: 0;
-  color: #34d399;
+  color: inherit;
 }
 
 /* TOOL EXECUTION STATUS BAR */
