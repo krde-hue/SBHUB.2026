@@ -38,23 +38,23 @@ export default async function handler(req) {
     }
 
     const body = await req.json().catch(() => ({}));
-    // Cap chat history to last 10 turns to maintain low latency
     const rawMessages = body.messages || [];
     const messages = rawMessages.slice(-10);
     const hubContext = body.hubContext;
     const hubData = body.hubData;
+    const searchWeb = body.searchWeb;
     const userPrompt = messages.length > 0 ? messages[messages.length - 1]?.content : (body.prompt || "");
 
-    let systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and versatile AI Copilot.
+    let systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant.
 
 CORE OPERATING DIRECTIVES:
 1. THINK OUTSIDE THE BOX: Use deep lateral thinking, creative reasoning, and comprehensive problem-solving for any question asked.
-2. UNRESTRICTED SCOPE: You have expertise across science, technology, programming, literature, math, philosophy, general knowledge, sports, business, and creative brainstorming. NEVER state that a topic is "outside your scope" or "not related to Sportsbook Hub."
-3. ADAPTIVE PERSONA: Deliver sharp, engaging, well-structured, and helpful answers tailored to the complexity of the prompt.
-4. HUB INTEGRATION: You are embedded inside Sportsbook Hub. If Hub operational context data is provided below, treat it as active real-time telemetry to answer workplace or operational questions when asked, but never let it restrict your general knowledge capabilities.`;
+2. LIVE RESOURCE GATHERING & SEARCH: Use live web resources to fetch up-to-date fixtures, current news, sports schedules, and exact matches. Format output strictly as requested by the user.
+3. UNRESTRICTED SCOPE: Never state that a topic is outside your scope.
+4. HUB TELEMETRY: If Hub context telemetry is provided below, use it for operational questions, but remain a general intelligence first.`;
 
     if (hubContext && hubData) {
-      systemInstructions += `\n\n[LIVE SPORTSBOOK HUB TELEMETRY DATA]:\n${JSON.stringify(hubData, null, 2)}`;
+      systemInstructions += `\n\n[LIVE HUB CONTEXT DATA]:\n${JSON.stringify(hubData, null, 2)}`;
     }
 
     let contents = [];
@@ -64,10 +64,7 @@ CORE OPERATING DIRECTIVES:
         parts: [{ text: String(msg.content || '') }]
       }));
     } else if (userPrompt) {
-      contents = [{
-        role: 'user',
-        parts: [{ text: String(userPrompt) }]
-      }];
+      contents = [{ role: 'user', parts: [{ text: String(userPrompt) }] }];
     }
 
     if (contents.length === 0) {
@@ -87,19 +84,44 @@ CORE OPERATING DIRECTIVES:
       contents: contents
     };
 
-    // Ultra-fast streaming API endpoint using Gemini 2.0 Flash
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+    // Enable Google Search Grounding for live web info when Web mode is active or web queries are made
+    if (searchWeb || userPrompt.toLowerCase().includes('search') || userPrompt.toLowerCase().includes('news') || userPrompt.toLowerCase().includes('match') || userPrompt.toLowerCase().includes('game') || userPrompt.toLowerCase().includes('2026')) {
+      payload.tools = [{ google_search: {} }];
+    }
 
-    const geminiRes = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    // Reliable active model fallback chain
+    const candidateModels = [
+      'gemini-1.5-flash',
+      'gemini-2.5-flash',
+      'gemini-1.5-pro'
+    ];
 
-    if (!geminiRes.ok) {
-      const errData = await geminiRes.text();
-      return new Response(JSON.stringify({ error: `Gemini API error: ${errData}` }), {
-        status: geminiRes.status,
+    let replyText = null;
+    let lastError = null;
+
+    for (const model of candidateModels) {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const res = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        replyText = data.candidates[0].content.parts[0].text;
+        break;
+      }
+
+      lastError = data.error?.message || `Model ${model} returned status ${res.status}`;
+      if (res.status === 401 || res.status === 403) break; // Invalid Key
+    }
+
+    if (!replyText) {
+      return new Response(JSON.stringify({ error: `Gemini API Error: ${lastError}` }), {
+        status: 500,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
@@ -107,52 +129,10 @@ CORE OPERATING DIRECTIVES:
       });
     }
 
-    // Stream SSE data to client in real-time
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = geminiRes.body.getReader();
-        let buffer = '';
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const jsonStr = line.replace('data: ', '').trim();
-                if (jsonStr === '[DONE]') continue;
-                try {
-                  const data = JSON.parse(jsonStr);
-                  const textChunk = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                  if (textChunk) {
-                    controller.enqueue(encoder.encode(textChunk));
-                  }
-                } catch (e) {
-                  // Ignore partial SSE JSON frames
-                }
-              }
-            }
-          }
-        } catch (err) {
-          controller.error(err);
-        } finally {
-          controller.close();
-        }
-      }
-    });
-
-    return new Response(stream, {
+    return new Response(JSON.stringify({ content: replyText }), {
+      status: 200,
       headers: {
-        'Content-Type': 'text/event-stream; charset=utf-8',
-        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
     });
