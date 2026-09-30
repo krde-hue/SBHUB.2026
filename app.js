@@ -983,7 +983,15 @@ const KriztelAI = {
         })
       });
 
-      const data = await response.json();
+      // Safely handle raw text to prevent "Unexpected token 'A' ... is not valid JSON" crashes
+      const rawText = await response.text();
+      let data = {};
+      try {
+        data = JSON.parse(rawText);
+      } catch (jsonErr) {
+        data = { content: `⚠️ **Server Response Error (${response.status})**: ${rawText.slice(0, 150)}` };
+      }
+
       const replyText = data.content || data.reply || data.error || "No response received.";
       bubble.innerHTML = formatMarkdown(replyText);
       this.chatHistory.push({ role: 'assistant', content: replyText });
