@@ -3,7 +3,7 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // CORS Preflight Headers
+  // CORS Preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
@@ -84,22 +84,25 @@ CORE OPERATING DIRECTIVES:
       contents: contents
     };
 
-    // Enable REST-standard Google Search Grounding
-    if (searchWeb || userPrompt.toLowerCase().includes('search') || userPrompt.toLowerCase().includes('news') || userPrompt.toLowerCase().includes('match') || userPrompt.toLowerCase().includes('game') || userPrompt.toLowerCase().includes('2026')) {
+    // Enable Google Search Grounding for live web queries
+    if (searchWeb || userPrompt.toLowerCase().includes('search') || userPrompt.toLowerCase().includes('news') || userPrompt.toLowerCase().includes('match') || userPrompt.toLowerCase().includes('game') || userPrompt.toLowerCase().includes('2026') || userPrompt.toLowerCase().includes('fixture')) {
       payload.tools = [{ googleSearch: {} }];
     }
 
-    // Standard ASCII model identifiers
+    // List of active models
     const candidateModels = [
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
       'gemini-1.5-flash',
-      'gemini-2.0-flash-exp',
       'gemini-1.5-pro'
     ];
 
     let replyText = null;
     let lastError = null;
 
-    for (const model of candidateModels) {
+    for (let rawModel of candidateModels) {
+      // Force conversion of any en-dashes or em-dashes to standard ASCII hyphens
+      const model = rawModel.replace(/[\u2010-\u2015]/g, '-');
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
       const res = await fetch(geminiUrl, {
