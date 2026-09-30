@@ -928,7 +928,7 @@ const KriztelAI = {
     const key = (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY) ? LOCAL_GEMINI_KEY : '';
     if (!key) throw new Error("No client-side Gemini key set.");
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
     
     let contextAddition = "";
     if (this.hubContextEnabled) {
@@ -987,13 +987,14 @@ const KriztelAI = {
     const bubble = assistantMsgDiv.querySelector('.msg-bubble');
 
     this.isGenerating = true;
-    this.setStatus(true, this.webSearchEnabled ? '🔎 Thinking & Searching...' : '✨ Thinking outside the box...');
+    this.setStatus(true, '⚡ Thinking...');
 
     try {
       let replyText = "";
 
       if (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY.trim().length > 0) {
         replyText = await this.callGeminiDirect(text);
+        bubble.innerHTML = formatMarkdown(replyText);
       } else {
         const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
         const response = await fetch('/api/ai', {
@@ -1014,21 +1015,31 @@ const KriztelAI = {
             throw new Error(data.error || `Server status ${response.status}`);
           }
           replyText = data.content || data.reply || "No response received.";
-        } else {
-          if (response.status === 404) {
-            throw new Error("Vercel route '/api/ai' not found (404). Check that 'api/ai.js' exists in your repo.");
-          } else {
-            throw new Error(`Server returned status ${response.status}. Please check Vercel logs.`);
+          bubble.innerHTML = formatMarkdown(replyText);
+        } else if (response.ok) {
+          // Live Real-Time SSE Stream Reader
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          bubble.innerHTML = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            replyText += chunk;
+            bubble.innerHTML = formatMarkdown(replyText);
+            wrap.scrollTop = wrap.scrollHeight;
           }
+        } else {
+          throw new Error(`Server returned status ${response.status}`);
         }
       }
 
-      bubble.innerHTML = formatMarkdown(replyText);
       this.chatHistory.push({ role: 'assistant', content: replyText });
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Checklist:**\n1. Update \`api/ai.js\` with the new model endpoints.\n2. Push to GitHub and deploy to Vercel.`;
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Steps:**\n1. Update \`api/ai.js\` with the streaming Edge function code.\n2. Commit and push to GitHub.\n3. Redeploy your project on Vercel.`;
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
