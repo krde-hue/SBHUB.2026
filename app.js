@@ -928,7 +928,8 @@ const KriztelAI = {
     const key = (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY) ? LOCAL_GEMINI_KEY : '';
     if (!key) throw new Error("No client-side Gemini key set.");
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+    // Direct endpoint using supported Gemini 2.5 Flash
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     
     let contextAddition = "";
     if (this.hubContextEnabled) {
@@ -1003,7 +1004,7 @@ const KriztelAI = {
           body: JSON.stringify({
             messages: this.chatHistory,
             hubContext: this.hubContextEnabled,
-            searchWeb: true, // Always allow web search grounding for queries
+            searchWeb: true,
             hubData: hubData
           })
         });
@@ -1025,7 +1026,7 @@ const KriztelAI = {
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix:** Update \`api/ai.js\` with the updated code, commit to GitHub, and redeploy on Vercel.`;
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}`;
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
