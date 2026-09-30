@@ -36,12 +36,13 @@ CORE CAPABILITIES:
       tools: [{ googleSearch: {} }]
     };
 
-    // Active production Gemini 2.5 and 2.0 models
     const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
     let lastError = '';
 
-    for (const model of candidateModels) {
+    for (const rawModel of candidateModels) {
+      const model = rawModel.replace(/[\u2010-\u2015]/g, '-');
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
