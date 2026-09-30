@@ -966,11 +966,12 @@ const KriztelAI = {
       tools: [{ googleSearch: {} }]
     };
 
-    // Sequential clean ASCII model fallbacks
-    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    // Clean ASCII model identifiers (Gemini 2.5 and 2.0 Flash)
+    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
     let lastErr = "";
 
     for (let rawModel of candidateModels) {
+      // Force conversion of any en-dashes or em-dashes to standard ASCII hyphens
       const model = rawModel.replace(/[\u2010-\u2015]/g, '-');
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
