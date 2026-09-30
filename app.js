@@ -787,7 +787,7 @@ function calculateActiveTraders() {
   if (el) el.textContent = activeCount + ' Working';
 }
 
-/* --- KRIZTEL AI COPILOT ENGINE (100% AUTOMATIC SERVERLESS PROXY) --- */
+/* --- KRIZTEL AI COPILOT ENGINE (DYNAMIC CACHE-BUSTING API ENGINE) --- */
 const KriztelAI = {
   hubContextEnabled: true,
   webSearchEnabled: false,
@@ -970,10 +970,14 @@ const KriztelAI = {
     try {
       const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
       
-      // Send directly to secure Vercel serverless proxy (/api/ai)
-      const response = await fetch('/api/ai', {
+      // Dynamic Timestamp parameter (?t=...) forces Vercel CDN to bypass response cache
+      const response = await fetch(`/api/ai?t=${Date.now()}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        },
+        cache: 'no-store',
         body: JSON.stringify({
           messages: this.chatHistory,
           hubContext: this.hubContextEnabled,
@@ -992,7 +996,7 @@ const KriztelAI = {
         bubble.innerHTML = formatMarkdown(replyText);
         this.chatHistory.push({ role: 'assistant', content: replyText });
       } else {
-        throw new Error(`Server returned non-JSON status ${response.status}`);
+        throw new Error(`Server returned status ${response.status}`);
       }
 
     } catch (err) {
@@ -1041,7 +1045,6 @@ function formatMarkdown(str) {
 
 /* --- INITIALIZATION --- */
 function initDashboardApp() {
-  // Purge any old local keys saved in browser memory
   try {
     localStorage.removeItem('sbhub_user_gemini_key');
   } catch (e) {}
