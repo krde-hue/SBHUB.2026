@@ -1,5 +1,5 @@
-export default async function handler(req, res) {
-  // Disable all Vercel Edge & CDN caching permanently
+module.exports = async function handler(req, res) {
+  // Prevent Vercel Edge & browser response caching
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
@@ -13,11 +13,14 @@ export default async function handler(req, res) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY is missing in Vercel Environment Variables. Please configure it in Vercel Settings.' });
+      return res.status(500).json({ 
+        error: 'GEMINI_API_KEY is missing in Vercel Environment Variables. Please set it in Vercel Project Settings.' 
+      });
     }
 
-    const { messages = [], hubContext, hubData } = req.body || {};
-    const recentMessages = messages.slice(-10);
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    const { messages = [], hubContext, hubData } = body;
+    const recentMessages = Array.isArray(messages) ? messages.slice(-10) : [];
 
     let systemInstructions = `You are Kriztel AI, an authentic, highly intelligent, and versatile AI Copilot.
 
@@ -36,15 +39,15 @@ CORE CAPABILITIES:
       parts: [{ text: String(m.content || '') }]
     }));
 
-    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+    if (contents.length === 0) {
+      return res.status(400).json({ error: 'No prompt or messages provided.' });
+    }
+
+    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
     let lastError = '';
 
-    for (let rawModel of candidateModels) {
-      // Force conversion of any non-ASCII dash or en-dash variants to strict ASCII '-'
-      const model = String(rawModel)
-        .replace(/[\u2010-\u201F\u2013\u2014]/g, '-')
-        .replace(/[^\x00-\x7F]/g, '-');
-
+    for (const rawModel of candidateModels) {
+      const model = String(rawModel).trim();
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
       const payload = {
@@ -74,4 +77,4 @@ CORE CAPABILITIES:
   } catch (err) {
     return res.status(500).json({ error: `Server error: ${err.message}` });
   }
-}
+};
