@@ -442,18 +442,15 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- HIGH-DEFINITION ORGANIC FLUID & 3D LIQUID ARTWORK URIs --- */
-const fluidSwirlSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2308051a'/><stop offset='50%' stop-color='%23120a2e'/><stop offset='100%' stop-color='%23050811'/></linearGradient><linearGradient id='f1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='35%' stop-color='%23a855f7'/><stop offset='70%' stop-color='%2300f2fe'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><linearGradient id='f2' x1='100%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='%2300f2fe'/><stop offset='50%' stop-color='%23818cf8'/><stop offset='100%' stop-color='%23f43f5e'/></linearGradient><filter id='turb'><feTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' result='noise'/><feDisplacementMap in='SourceGraphic' in2='noise' scale='90' xChannelSelector='R' yChannelSelector='G'/><feGaussianBlur stdDeviation='20'/></filter><filter id='glow'><feGaussianBlur stdDeviation='45'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><g filter='url(%23turb)'><path d='M-150 750 C 300 200, 700 950, 1200 350 C 1600 -100, 2000 650, 2150 200' stroke='url(%23f1)' stroke-width='280' fill='none' opacity='0.88'/><path d='M-100 250 C 450 1050, 950 50, 1450 850 C 1850 1350, 2050 300, 2100 550' stroke='url(%23f2)' stroke-width='220' fill='none' opacity='0.78'/></g><path d='M-100 400 Q 600 900 1300 300 T 2100 700' stroke='url(%23f1)' stroke-width='40' fill='none' opacity='0.9' filter='url(%23glow)'/></svg>";
-
-const chromaticSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231f030d'/><stop offset='50%' stop-color='%2333081c'/><stop offset='100%' stop-color='%23080208'/></linearGradient><linearGradient id='c1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23f43f5e'/><stop offset='25%' stop-color='%23fb923c'/><stop offset='50%' stop-color='%23fbbf24'/><stop offset='75%' stop-color='%23ec4899'/><stop offset='100%' stop-color='%23a855f7'/></linearGradient><filter id='fluid'><feTurbulence type='turbulence' baseFrequency='0.015' numOctaves='3' result='turb'/><feDisplacementMap in='SourceGraphic' in2='turb' scale='110' xChannelSelector='R' yChannelSelector='G'/><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><g filter='url(%23fluid)'><path d='M-100 450 Q 500 1050 1050 250 T 2150 750' stroke='url(%23c1)' stroke-width='260' fill='none' opacity='0.88'/><path d='M-100 850 Q 650 150 1250 850 T 2150 150' stroke='url(%23c1)' stroke-width='160' fill='none' opacity='0.75'/></g></svg>";
-
-const auroraSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23022c22'/><stop offset='50%' stop-color='%23064e3b'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='a1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2334d399'/><stop offset='33%' stop-color='%232dd4bf'/><stop offset='66%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%23818cf8'/></linearGradient><filter id='fluid'><feTurbulence type='fractalNoise' baseFrequency='0.008' numOctaves='4' result='turb'/><feDisplacementMap in='SourceGraphic' in2='turb' scale='130' xChannelSelector='R' yChannelSelector='G'/><feGaussianBlur stdDeviation='25'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><g filter='url(%23fluid)'><path d='M-100 700 Q 550 100 1150 650 T 2150 200' stroke='url(%23a1)' stroke-width='280' fill='none' opacity='0.88'/></g></svg>";
-
-const spectrumSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231e1b4b'/><stop offset='50%' stop-color='%232e1065'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><linearGradient id='s1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='20%' stop-color='%23ec4899'/><stop offset='40%' stop-color='%23f59e0b'/><stop offset='60%' stop-color='%2310b981'/><stop offset='80%' stop-color='%2306b6d4'/><stop offset='100%' stop-color='%233b82f6'/></linearGradient><filter id='fluid'><feTurbulence type='fractalNoise' baseFrequency='0.01' numOctaves='3' result='turb'/><feDisplacementMap in='SourceGraphic' in2='turb' scale='100' xChannelSelector='R' yChannelSelector='G'/><feGaussianBlur stdDeviation='22'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><g filter='url(%23fluid)'><path d='M-100 300 C 400 950, 900 50, 1450 850 C 1850 1350, 2050 150, 2150 450' stroke='url(%23s1)' stroke-width='250' fill='none' opacity='0.9'/></g></svg>";
-
-const bubblesSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23020617'/><stop offset='50%' stop-color='%230f172a'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><radialGradient id='o1' cx='35%' cy='35%' r='55%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='40%' stop-color='%23a855f7'/><stop offset='80%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o2' cx='65%' cy='65%' r='60%'><stop offset='0%' stop-color='%2300f2fe'/><stop offset='50%' stop-color='%230284c7'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o3' cx='50%' cy='50%' r='45%'><stop offset='0%' stop-color='%23f59e0b'/><stop offset='60%' stop-color='%23ef4444'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='65'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='400' cy='350' r='480' fill='url(%23o1)' opacity='0.85' filter='url(%23b)'/><circle cx='1450' cy='720' r='580' fill='url(%23o2)' opacity='0.85' filter='url(%23b)'/><circle cx='960' cy='500' r='400' fill='url(%23o3)' opacity='0.7' filter='url(%23b)'/></svg>";
-
-const lavaSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2318020c'/><stop offset='50%' stop-color='%232e0818'/><stop offset='100%' stop-color='%23090207'/></linearGradient><radialGradient id='l1' cx='25%' cy='75%' r='65%'><stop offset='0%' stop-color='%23f97316'/><stop offset='40%' stop-color='%23dc2626'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='l2' cx='75%' cy='25%' r='60%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='50%' stop-color='%23ec4899'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='70'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='320' cy='800' r='580' fill='url(%23l1)' opacity='0.88' filter='url(%23b)'/><circle cx='1600' cy='250' r='520' fill='url(%23l2)' opacity='0.85' filter='url(%23b)'/></svg>";
+/* --- HIGH-DEFINITION REAL 4K ABSTRACT WALLPAPER DIRECTORY --- */
+const ABSTRACT_WALLPAPERS = {
+  'abstract-fluid': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop',
+  'abstract-chromatic': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop',
+  'abstract-aurora': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2069&auto=format&fit=crop',
+  'abstract-spectrum': 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=2090&auto=format&fit=crop',
+  'abstract-bubbles': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop',
+  'abstract-lava': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2070&auto=format&fit=crop'
+};
 
 /* --- THEME SWITCHER ENGINE --- */
 function setGradient(theme) {
@@ -461,36 +458,22 @@ function setGradient(theme) {
   if (!body) return;
   let backgroundStyle = '';
 
-  switch(theme) {
-    case 'plain-slate':
-      backgroundStyle = 'linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)), #0f172a';
-      break;
-    case 'plain-navy':
-      backgroundStyle = 'linear-gradient(rgba(11, 19, 41, 0.95), rgba(11, 19, 41, 0.95)), #0b1329';
-      break;
-    case 'plain-onyx':
-      backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
-      break;
-    case 'abstract-fluid':
-      backgroundStyle = `url("${fluidSwirlSvg}")`;
-      break;
-    case 'abstract-chromatic':
-      backgroundStyle = `url("${chromaticSvg}")`;
-      break;
-    case 'abstract-aurora':
-      backgroundStyle = `url("${auroraSvg}")`;
-      break;
-    case 'abstract-spectrum':
-      backgroundStyle = `url("${spectrumSvg}")`;
-      break;
-    case 'abstract-bubbles':
-      backgroundStyle = `url("${bubblesSvg}")`;
-      break;
-    case 'abstract-lava':
-      backgroundStyle = `url("${lavaSvg}")`;
-      break;
-    default:
-      backgroundStyle = `url("${fluidSwirlSvg}")`;
+  if (ABSTRACT_WALLPAPERS[theme]) {
+    backgroundStyle = `url("${ABSTRACT_WALLPAPERS[theme]}")`;
+  } else {
+    switch(theme) {
+      case 'plain-slate':
+        backgroundStyle = 'linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)), #0f172a';
+        break;
+      case 'plain-navy':
+        backgroundStyle = 'linear-gradient(rgba(11, 19, 41, 0.95), rgba(11, 19, 41, 0.95)), #0b1329';
+        break;
+      case 'plain-onyx':
+        backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
+        break;
+      default:
+        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['abstract-fluid']}")`;
+    }
   }
 
   body.style.background = backgroundStyle;
@@ -690,7 +673,7 @@ async function fetchLeagueList(leagueList, dateQuery) {
       if (!comp) continue;
 
       const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+      const awayTeam = comp.competitors?.find(c => c.awayAway === 'away');
 
       if (homeTeam && awayTeam) {
         const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
