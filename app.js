@@ -238,41 +238,6 @@ function animateCanvas() {
 }
 if (canvas) animateCanvas();
 
-/* --- SITTING ROBOT EYE & HEAD TRACKING --- */
-document.addEventListener('mousemove', (e) => {
-  const robotStage = document.getElementById('sittingRobotStage');
-  const authOverlay = document.getElementById('authOverlay');
-  if (!robotStage || (authOverlay && authOverlay.classList.contains('unlocked'))) return;
-
-  const leftEye = document.getElementById('leftEye');
-  const rightEye = document.getElementById('rightEye');
-  const robotHead = document.getElementById('robotHead');
-  const robotBodyWrapper = document.getElementById('robotBodyWrapper');
-
-  const rect = robotStage.getBoundingClientRect();
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
-
-  const deltaX = e.clientX - centerX;
-  const deltaY = e.clientY - centerY;
-  const angle = Math.atan2(deltaY, deltaX);
-
-  const eyeDist = Math.min(5, Math.hypot(deltaX, deltaY) / 35);
-  const eyeX = Math.cos(angle) * eyeDist;
-  const eyeY = Math.sin(angle) * eyeDist;
-
-  if (leftEye && rightEye) {
-    leftEye.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
-    rightEye.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
-  }
-
-  const rotateY = Math.max(-25, Math.min(25, deltaX / 20));
-  const rotateX = Math.max(-15, Math.min(15, -deltaY / 25));
-
-  if (robotHead) robotHead.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-  if (robotBodyWrapper) robotBodyWrapper.style.transform = `rotateY(${rotateY * 0.3}deg)`;
-});
-
 /* --- WORLD CLOCKS SYSTEM --- */
 function updateWorldClocks() {
   const now = new Date();
@@ -381,7 +346,6 @@ function handleLogin(event) {
 
   const errorMsg = document.getElementById('loginErrorMsg');
   const card = document.getElementById('loginCard');
-  const robotStage = document.getElementById('sittingRobotStage');
 
   if ((userVal === DEFAULT_USER || userVal === "sportsbookhub") && passVal === DEFAULT_PASS) {
     if (isRemember) {
@@ -392,12 +356,10 @@ function handleLogin(event) {
     unlockDashboard();
   } else {
     if (errorMsg) errorMsg.textContent = "ACCESS DENIED: Invalid Security Key";
-    if (robotStage) robotStage.classList.add('error-state');
     if (card) {
       card.classList.add('shake');
       setTimeout(() => {
         card.classList.remove('shake');
-        if (robotStage) robotStage.classList.remove('error-state');
       }, 500);
     }
     if (passInput) {
@@ -424,10 +386,8 @@ function handleLogout() {
   if (errorMsg) errorMsg.textContent = '';
   const dashboardApp = document.getElementById('dashboardApp');
   const authOverlay = document.getElementById('authOverlay');
-  const robotStage = document.getElementById('sittingRobotStage');
   if (dashboardApp) dashboardApp.classList.remove('unlocked');
   if (authOverlay) authOverlay.classList.remove('unlocked');
-  if (robotStage) robotStage.classList.remove('covering-eyes', 'peeking');
 }
 
 /* --- UI TOGGLES & WIDGET MANAGEMENT --- */
@@ -482,13 +442,17 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- ABSTRACT WALLPAPER DATA URIs --- */
-const lavenderSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23090d16'/><stop offset='50%' stop-color='%23130d24'/><stop offset='100%' stop-color='%23050811'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%23a855f7'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><linearGradient id='w2' x1='0%' y1='100%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='50%' stop-color='%23818cf8'/><stop offset='100%' stop-color='%23f43f5e'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='40'/></filter><filter id='b2'><feGaussianBlur stdDeviation='15'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 700 Q 400 200 900 650 T 1900 300 T 2100 800' stroke='url(%23w1)' stroke-width='140' fill='none' opacity='0.75' filter='url(%23b1)'/><path d='M-100 700 Q 400 200 900 650 T 1900 300 T 2100 800' stroke='url(%23w1)' stroke-width='40' fill='none' opacity='0.9' filter='url(%23b2)'/><path d='M-100 350 Q 500 850 1100 250 T 2100 600' stroke='url(%23w2)' stroke-width='100' fill='none' opacity='0.65' filter='url(%23b1)'/><path d='M-100 350 Q 500 850 1100 250 T 2100 600' stroke='url(%23w2)' stroke-width='25' fill='none' opacity='0.85' filter='url(%23b2)'/></svg>";
-const coralSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231a050d'/><stop offset='50%' stop-color='%232d0617'/><stop offset='100%' stop-color='%23080206'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23fb923c'/><stop offset='50%' stop-color='%23f43f5e'/><stop offset='100%' stop-color='%23a855f7'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='45'/></filter><filter id='b2'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 400 Q 450 900 1000 300 T 2100 700' stroke='url(%23w1)' stroke-width='160' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 400 Q 450 900 1000 300 T 2100 700' stroke='url(%23w1)' stroke-width='45' fill='none' opacity='0.95' filter='url(%23b2)'/><path d='M-100 800 Q 600 200 1200 800 T 2100 200' stroke='%23fbbf24' stroke-width='90' fill='none' opacity='0.6' filter='url(%23b1)'/></svg>";
-const pastelSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23030712'/><stop offset='50%' stop-color='%230f172a'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='33%' stop-color='%23818cf8'/><stop offset='66%' stop-color='%23f43f5e'/><stop offset='100%' stop-color='%23fbbf24'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='50'/></filter><filter id='b2'><feGaussianBlur stdDeviation='20'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 200 C 500 800, 800 -200, 1400 700 C 1800 1200, 2000 100, 2100 400' stroke='url(%23w1)' stroke-width='180' fill='none' opacity='0.75' filter='url(%23b1)'/><path d='M-100 200 C 500 800, 800 -200, 1400 700 C 1800 1200, 2000 100, 2100 400' stroke='url(%23w1)' stroke-width='50' fill='none' opacity='0.9' filter='url(%23b2)'/></svg>";
-const mintSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23022c22'/><stop offset='50%' stop-color='%23064e3b'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2334d399'/><stop offset='50%' stop-color='%232dd4bf'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='40'/></filter><filter id='b2'><feGaussianBlur stdDeviation='15'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 650 Q 500 150 1100 600 T 2100 250' stroke='url(%23w1)' stroke-width='150' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 650 Q 500 150 1100 600 T 2100 250' stroke='url(%23w1)' stroke-width='40' fill='none' opacity='0.95' filter='url(%23b2)'/></svg>";
-const iridescentSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231e1b4b'/><stop offset='50%' stop-color='%232e1065'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><linearGradient id='w1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='25%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%23f59e0b'/><stop offset='75%' stop-color='%2310b981'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient><filter id='b1'><feGaussianBlur stdDeviation='45'/></filter><filter id='b2'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 300 C 400 900, 900 100, 1400 800 C 1800 1300, 2000 200, 2100 500' stroke='url(%23w1)' stroke-width='160' fill='none' opacity='0.8' filter='url(%23b1)'/><path d='M-100 300 C 400 900, 900 100, 1400 800 C 1800 1300, 2000 200, 2100 500' stroke='url(%23w1)' stroke-width='45' fill='none' opacity='0.95' filter='url(%23b2)'/></svg>";
+/* --- VIBRANT LIQUID ABSTRACT ARTWORK VECTOR URIs --- */
+const fluidSwirlSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2308051a'/><stop offset='50%' stop-color='%23120a2e'/><stop offset='100%' stop-color='%23050811'/></linearGradient><linearGradient id='f1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='40%' stop-color='%23a855f7'/><stop offset='80%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%23f59e0b'/></linearGradient><linearGradient id='f2' x1='100%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='50%' stop-color='%23818cf8'/><stop offset='100%' stop-color='%23f43f5e'/></linearGradient><filter id='glow'><feGaussianBlur stdDeviation='55'/></filter><filter id='crisp'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-150 750 C 300 200, 700 950, 1200 350 C 1600 -100, 2000 650, 2150 200' stroke='url(%23f1)' stroke-width='220' fill='none' opacity='0.85' filter='url(%23glow)'/><path d='M-150 750 C 300 200, 700 950, 1200 350 C 1600 -100, 2000 650, 2150 200' stroke='url(%23f1)' stroke-width='60' fill='none' opacity='0.95' filter='url(%23crisp)'/><path d='M-100 250 C 450 1050, 950 50, 1450 850 C 1850 1350, 2050 300, 2100 550' stroke='url(%23f2)' stroke-width='160' fill='none' opacity='0.75' filter='url(%23glow)'/><path d='M-100 250 C 450 1050, 950 50, 1450 850 C 1850 1350, 2050 300, 2100 550' stroke='url(%23f2)' stroke-width='40' fill='none' opacity='0.9' filter='url(%23crisp)'/></svg>";
+
+const chromaticSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231f030d'/><stop offset='50%' stop-color='%2333081c'/><stop offset='100%' stop-color='%23080208'/></linearGradient><linearGradient id='c1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23f43f5e'/><stop offset='33%' stop-color='%23fb923c'/><stop offset='66%' stop-color='%23ec4899'/><stop offset='100%' stop-color='%23a855f7'/></linearGradient><filter id='blur'><feGaussianBlur stdDeviation='50'/></filter><filter id='sharp'><feGaussianBlur stdDeviation='16'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 450 Q 500 1050 1050 250 T 2150 750' stroke='url(%23c1)' stroke-width='200' fill='none' opacity='0.85' filter='url(%23blur)'/><path d='M-100 450 Q 500 1050 1050 250 T 2150 750' stroke='url(%23c1)' stroke-width='55' fill='none' opacity='0.95' filter='url(%23sharp)'/><path d='M-100 850 Q 650 150 1250 850 T 2150 150' stroke='%23fbbf24' stroke-width='110' fill='none' opacity='0.65' filter='url(%23blur)'/></svg>";
+
+const auroraSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23022c22'/><stop offset='50%' stop-color='%23064e3b'/><stop offset='100%' stop-color='%23020617'/></linearGradient><linearGradient id='a1' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%2334d399'/><stop offset='50%' stop-color='%232dd4bf'/><stop offset='100%' stop-color='%2338bdf8'/></linearGradient><filter id='blur'><feGaussianBlur stdDeviation='45'/></filter><filter id='sharp'><feGaussianBlur stdDeviation='15'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 700 Q 550 100 1150 650 T 2150 200' stroke='url(%23a1)' stroke-width='180' fill='none' opacity='0.85' filter='url(%23blur)'/><path d='M-100 700 Q 550 100 1150 650 T 2150 200' stroke='url(%23a1)' stroke-width='48' fill='none' opacity='0.95' filter='url(%23sharp)'/></svg>";
+
+const spectrumSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231e1b4b'/><stop offset='50%' stop-color='%232e1065'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><linearGradient id='s1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='25%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%23f59e0b'/><stop offset='75%' stop-color='%2310b981'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient><filter id='blur'><feGaussianBlur stdDeviation='50'/></filter><filter id='sharp'><feGaussianBlur stdDeviation='18'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><path d='M-100 300 C 400 950, 900 50, 1450 850 C 1850 1350, 2050 150, 2150 450' stroke='url(%23s1)' stroke-width='190' fill='none' opacity='0.85' filter='url(%23blur)'/><path d='M-100 300 C 400 950, 900 50, 1450 850 C 1850 1350, 2050 150, 2150 450' stroke='url(%23s1)' stroke-width='50' fill='none' opacity='0.95' filter='url(%23sharp)'/></svg>";
+
 const bubblesSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23020617'/><stop offset='50%' stop-color='%230f172a'/><stop offset='100%' stop-color='%23090d16'/></linearGradient><radialGradient id='o1' cx='30%' cy='30%' r='50%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='50%' stop-color='%238b5cf6'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o2' cx='70%' cy='70%' r='60%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='50%' stop-color='%230284c7'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='o3' cx='50%' cy='40%' r='45%'><stop offset='0%' stop-color='%23f59e0b'/><stop offset='60%' stop-color='%23ef4444'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='60'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='400' cy='350' r='450' fill='url(%23o1)' opacity='0.75' filter='url(%23b)'/><circle cx='1400' cy='700' r='550' fill='url(%23o2)' opacity='0.8' filter='url(%23b)'/><circle cx='960' cy='500' r='380' fill='url(%23o3)' opacity='0.65' filter='url(%23b)'/></svg>";
+
 const lavaSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2318020c'/><stop offset='50%' stop-color='%232e0818'/><stop offset='100%' stop-color='%23090207'/></linearGradient><radialGradient id='l1' cx='20%' cy='80%' r='65%'><stop offset='0%' stop-color='%23f97316'/><stop offset='40%' stop-color='%23dc2626'/><stop offset='100%' stop-color='transparent'/></radialGradient><radialGradient id='l2' cx='80%' cy='20%' r='60%'><stop offset='0%' stop-color='%23a855f7'/><stop offset='50%' stop-color='%23ec4899'/><stop offset='100%' stop-color='transparent'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='65'/></filter></defs><rect width='100%' height='100%' fill='url(%23bg)'/><circle cx='300' cy='800' r='550' fill='url(%23l1)' opacity='0.85' filter='url(%23b)'/><circle cx='1600' cy='250' r='500' fill='url(%23l2)' opacity='0.8' filter='url(%23b)'/></svg>";
 
 /* --- THEME SWITCHER ENGINE --- */
@@ -507,20 +471,17 @@ function setGradient(theme) {
     case 'plain-onyx':
       backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
       break;
-    case 'silk-lavender':
-      backgroundStyle = `url("${lavenderSvg}")`;
+    case 'abstract-fluid':
+      backgroundStyle = `url("${fluidSwirlSvg}")`;
       break;
-    case 'silk-coral':
-      backgroundStyle = `url("${coralSvg}")`;
+    case 'abstract-chromatic':
+      backgroundStyle = `url("${chromaticSvg}")`;
       break;
-    case 'silk-pastel':
-      backgroundStyle = `url("${pastelSvg}")`;
+    case 'abstract-aurora':
+      backgroundStyle = `url("${auroraSvg}")`;
       break;
-    case 'silk-mint':
-      backgroundStyle = `url("${mintSvg}")`;
-      break;
-    case 'silk-iridescent':
-      backgroundStyle = `url("${iridescentSvg}")`;
+    case 'abstract-spectrum':
+      backgroundStyle = `url("${spectrumSvg}")`;
       break;
     case 'abstract-bubbles':
       backgroundStyle = `url("${bubblesSvg}")`;
@@ -529,7 +490,7 @@ function setGradient(theme) {
       backgroundStyle = `url("${lavaSvg}")`;
       break;
     default:
-      backgroundStyle = `url("${lavenderSvg}")`;
+      backgroundStyle = `url("${fluidSwirlSvg}")`;
   }
 
   body.style.background = backgroundStyle;
@@ -787,265 +748,8 @@ function calculateActiveTraders() {
   if (el) el.textContent = activeCount + ' Working';
 }
 
-/* --- KRIZTEL AI COPILOT ENGINE (DYNAMIC CACHE-BUSTING API ENGINE) --- */
-const KriztelAI = {
-  hubContextEnabled: true,
-  webSearchEnabled: false,
-  attachedFile: null,
-  chatHistory: [],
-  isGenerating: false,
-
-  togglePanel() {
-    const panel = document.getElementById('aiChatPanel');
-    if (panel) panel.classList.toggle('open');
-  },
-  openPanel() {
-    const panel = document.getElementById('aiChatPanel');
-    if (panel) panel.classList.add('open');
-  },
-  closePanel() {
-    const panel = document.getElementById('aiChatPanel');
-    if (panel) panel.classList.remove('open');
-  },
-  toggleHubContext() {
-    this.hubContextEnabled = !this.hubContextEnabled;
-    const tag = document.getElementById('contextStatusTag');
-    const btn = document.getElementById('aiContextToggle');
-    if (tag) {
-      tag.textContent = this.hubContextEnabled ? '● HUB Context ON' : '○ HUB Context OFF';
-    }
-    if (btn) {
-      btn.classList.toggle('off', !this.hubContextEnabled);
-    }
-  },
-  toggleSearchMode() {
-    this.webSearchEnabled = !this.webSearchEnabled;
-    const btn = document.getElementById('btnWebSearch');
-    if (btn) btn.classList.toggle('active', this.webSearchEnabled);
-  },
-  clearChat() {
-    this.chatHistory = [];
-    const wrap = document.getElementById('aiMessagesWrap');
-    if (wrap) {
-      wrap.innerHTML = `
-        <div class="ai-welcome-box" id="aiWelcomeBox">
-          <div class="welcome-title">Ask anything or select a task...</div>
-          <div class="quick-prompts-grid">
-            <button class="prompt-chip" onclick="KriztelAI.usePrompt('What are my pending tasks and duties right now?')">
-              <i class="bx bx-task" style="color:#ef4444;"></i> What are my pending tasks?
-            </button>
-            <button class="prompt-chip" onclick="KriztelAI.usePrompt('Summarize today\\'s live duties and match schedule.')">
-              <i class="bx bx-file" style="color:#f59e0b;"></i> Summarize today's duties
-            </button>
-            <button class="prompt-chip" onclick="KriztelAI.usePrompt('Search the web for the latest football news and transfer updates.')">
-              <i class="bx bx-globe" style="color:#38bdf8;"></i> Search latest sports news
-            </button>
-            <button class="prompt-chip" onclick="KriztelAI.usePrompt('Explain quantum computing in simple terms.')">
-              <i class="bx bx-brain" style="color:#ec4899;"></i> Explain a complex topic
-            </button>
-          </div>
-        </div>
-      `;
-    }
-  },
-  usePrompt(promptText) {
-    const input = document.getElementById('aiPromptInput');
-    if (input) {
-      input.value = promptText;
-      this.sendMessage();
-    }
-  },
-  autoResize(textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
-  },
-  handleKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      this.sendMessage();
-    }
-  },
-  handleFileAttach(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    this.attachedFile = file;
-    const badge = document.getElementById('attachedFileBadge');
-    const nameEl = document.getElementById('attachedFileName');
-    if (badge && nameEl) {
-      nameEl.textContent = file.name;
-      badge.style.display = 'flex';
-    }
-  },
-  removeAttachment() {
-    this.attachedFile = null;
-    const badge = document.getElementById('attachedFileBadge');
-    const input = document.getElementById('aiFileInput');
-    if (badge) badge.style.display = 'none';
-    if (input) input.value = '';
-  },
-  setStatus(show, text) {
-    const statusEl = document.getElementById('aiToolStatus');
-    const textEl = document.getElementById('aiToolStatusText');
-    if (statusEl) {
-      if (show) statusEl.classList.add('active');
-      else statusEl.classList.remove('active');
-    }
-    if (textEl && text) textEl.textContent = text;
-  },
-  getHubDataSnapshot() {
-    const activeTrader = document.getElementById('activeTraderCount')?.textContent || "0 Working";
-    const weather = document.getElementById('weatherTemp')?.textContent || "--";
-    const weatherCond = document.getElementById('weatherCond')?.textContent || "--";
-    
-    const dutyCards = document.querySelectorAll('#liveDutyContent .duty-card');
-    let dutiesSummary = [];
-    dutyCards.forEach(card => {
-      const name = card.querySelector('.duty-top span:first-child')?.textContent || '';
-      const shift = card.querySelector('.duty-top .badge-time')?.textContent || '';
-      const descs = Array.from(card.querySelectorAll('.duty-desc')).map(d => d.textContent.trim()).join(', ');
-      if (name) dutiesSummary.push(`${name} (${shift}): ${descs}`);
-    });
-
-    const gameCards = document.querySelectorAll('#gamesContainer .top-game-card');
-    let gamesSummary = [];
-    gameCards.forEach(gc => {
-      const title = gc.querySelector('.top-game-title')?.textContent || '';
-      const league = gc.querySelector('.top-game-league')?.textContent || '';
-      if (title) gamesSummary.push(`${title} [${league}]`);
-    });
-
-    return {
-      activeTraders: activeTrader,
-      weather: `${weather}, ${weatherCond}`,
-      currentSlotDuties: dutiesSummary,
-      topGamesToday: gamesSummary
-    };
-  },
-
-  copyCode(btn) {
-    const codeEl = btn.closest('.ai-code-block')?.querySelector('pre code');
-    if (codeEl) {
-      navigator.clipboard.writeText(codeEl.textContent).then(() => {
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
-      });
-    }
-  },
-
-  async sendMessage() {
-    const input = document.getElementById('aiPromptInput');
-    if (!input || this.isGenerating) return;
-    const text = input.value.trim();
-    if (!text && !this.attachedFile) return;
-
-    const welcomeBox = document.getElementById('aiWelcomeBox');
-    if (welcomeBox) welcomeBox.style.display = 'none';
-
-    const wrap = document.getElementById('aiMessagesWrap');
-    const userMsgDiv = document.createElement('div');
-    userMsgDiv.className = 'ai-msg user';
-    let fileTag = this.attachedFile ? `<div class="msg-tag"><i class='bx bx-file'></i> ${this.attachedFile.name}</div>` : '';
-    userMsgDiv.innerHTML = `${fileTag}<div class="msg-bubble">${escapeHtml(text)}</div>`;
-    wrap.appendChild(userMsgDiv);
-
-    input.value = '';
-    input.style.height = 'auto';
-    this.removeAttachment();
-    wrap.scrollTop = wrap.scrollHeight;
-
-    this.chatHistory.push({ role: 'user', content: text });
-
-    const assistantMsgDiv = document.createElement('div');
-    assistantMsgDiv.className = 'ai-msg assistant';
-    let sourceBadge = this.webSearchEnabled ? '🌐 Web' : (this.hubContextEnabled ? '📊 HUB' : '✨ AI');
-    assistantMsgDiv.innerHTML = `<div class="msg-tag">${sourceBadge}</div><div class="msg-bubble"><i class='bx bx-loader-alt bx-spin'></i></div>`;
-    wrap.appendChild(assistantMsgDiv);
-    wrap.scrollTop = wrap.scrollHeight;
-
-    const bubble = assistantMsgDiv.querySelector('.msg-bubble');
-
-    this.isGenerating = true;
-    this.setStatus(true, '🌐 Gathering resources & thinking...');
-
-    try {
-      const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
-      
-      // Dynamic Timestamp prevents Vercel CDN response caching
-      const response = await fetch(`/api/ai?t=${Date.now()}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-store',
-        body: JSON.stringify({
-          messages: this.chatHistory,
-          hubContext: this.hubContextEnabled,
-          searchWeb: true,
-          hubData: hubData
-        })
-      });
-
-      // Safely handle raw text to prevent "Unexpected token 'A' ... is not valid JSON" crashes
-      const rawText = await response.text();
-      let data = {};
-      try {
-        data = JSON.parse(rawText);
-      } catch (jsonErr) {
-        data = { content: `⚠️ **Server Response Error (${response.status})**: ${rawText.slice(0, 150)}` };
-      }
-
-      const replyText = data.content || data.reply || data.error || "No response received.";
-      bubble.innerHTML = formatMarkdown(replyText);
-      this.chatHistory.push({ role: 'assistant', content: replyText });
-
-    } catch (err) {
-      console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}`;
-      bubble.innerHTML = formatMarkdown(fallbackReply);
-      this.chatHistory.push({ role: 'assistant', content: fallbackReply });
-    } finally {
-      this.isGenerating = false;
-      this.setStatus(false, '');
-      wrap.scrollTop = wrap.scrollHeight;
-    }
-  }
-};
-
-window.KriztelAI = KriztelAI;
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function formatMarkdown(str) {
-  if (!str) return '';
-  let html = escapeHtml(str);
-
-  // Fenced Code Block formatting with Copy Button
-  html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, function (match, lang, code) {
-    const language = lang || 'code';
-    return `
-      <div class="ai-code-block">
-        <div class="code-header">
-          <span>${language}</span>
-          <button class="code-copy-btn" onclick="KriztelAI.copyCode(this)">Copy</button>
-        </div>
-        <pre><code>${code.trim()}</code></pre>
-      </div>
-    `;
-  });
-
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/`(.*?)`/g, '<code>$1</code>');
-  html = html.replace(/\n/g, '<br>');
-  return html;
-}
-
 /* --- INITIALIZATION --- */
 function initDashboardApp() {
-  try {
-    localStorage.removeItem('sbhub_user_gemini_key');
-  } catch (e) {}
-
   const savedTheme = localStorage.getItem('sbhub_theme');
   if (savedTheme) {
     const pageBody = document.getElementById('pageBody');
@@ -1057,7 +761,7 @@ function initDashboardApp() {
       pageBody.style.backgroundRepeat = 'no-repeat';
     }
   } else {
-    setGradient('silk-lavender');
+    setGradient('abstract-fluid');
   }
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
