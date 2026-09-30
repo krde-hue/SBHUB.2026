@@ -6,6 +6,6 @@
 
 # Dependencies & Builds
 node_modules/
-.vercel
+.vercel/
 dist/
 build/
