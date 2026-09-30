@@ -3,7 +3,7 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // CORS Preflight & Headers
+  // CORS Preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
@@ -38,7 +38,9 @@ export default async function handler(req) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const messages = body.messages || [];
+    // Cap chat history to last 10 turns to maintain low latency
+    const rawMessages = body.messages || [];
+    const messages = rawMessages.slice(-10);
     const hubContext = body.hubContext;
     const hubData = body.hubData;
     const userPrompt = messages.length > 0 ? messages[messages.length - 1]?.content : (body.prompt || "");
@@ -85,44 +87,19 @@ CORE OPERATING DIRECTIVES:
       contents: contents
     };
 
-    // Sequential fallback targeting supported Gemini 2.5 and 2.0 endpoints
-    const candidateEndpoints = [
-      { version: 'v1beta', model: 'gemini-2.5-flash' },
-      { version: 'v1beta', model: 'gemini-2.0-flash' },
-      { version: 'v1beta', model: 'gemini-flash-latest' },
-      { version: 'v1', model: 'gemini-2.5-flash' },
-      { version: 'v1', model: 'gemini-2.0-flash' }
-    ];
+    // Ultra-fast streaming API endpoint using Gemini 2.0 Flash
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
-    let lastError = null;
-    let replyText = null;
+    const geminiRes = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    for (const ep of candidateEndpoints) {
-      const targetUrl = `https://generativelanguage.googleapis.com/${ep.version}/models/${ep.model}:generateContent?key=${apiKey}`;
-
-      const response = await fetch(targetUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        replyText = data.candidates[0].content.parts[0].text;
-        break;
-      }
-
-      lastError = data.error?.message || `Endpoint ${ep.version}/${ep.model} failed with status ${response.status}`;
-
-      if (response.status === 401 || response.status === 403 || response.status === 429) {
-        break;
-      }
-    }
-
-    if (!replyText) {
-      return new Response(JSON.stringify({ error: lastError || 'All model endpoints failed.' }), {
-        status: 500,
+    if (!geminiRes.ok) {
+      const errData = await geminiRes.text();
+      return new Response(JSON.stringify({ error: `Gemini API error: ${errData}` }), {
+        status: geminiRes.status,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
@@ -130,10 +107,52 @@ CORE OPERATING DIRECTIVES:
       });
     }
 
-    return new Response(JSON.stringify({ content: replyText }), {
-      status: 200,
+    // Stream SSE data to client in real-time
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = geminiRes.body.getReader();
+        let buffer = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const jsonStr = line.replace('data: ', '').trim();
+                if (jsonStr === '[DONE]') continue;
+                try {
+                  const data = JSON.parse(jsonStr);
+                  const textChunk = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                  if (textChunk) {
+                    controller.enqueue(encoder.encode(textChunk));
+                  }
+                } catch (e) {
+                  // Ignore partial SSE JSON frames
+                }
+              }
+            }
+          }
+        } catch (err) {
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
+      }
+    });
+
+    return new Response(stream, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        'Cache-Control': 'no-cache',
         'Access-Control-Allow-Origin': '*',
       },
     });
