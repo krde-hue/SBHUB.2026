@@ -14,7 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=7.0.0">
+  <link rel="stylesheet" href="./styles.css?v=8.0.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,7 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- App JS -->
-  <script src="./app.js?v=7.0.0" defer></script>
+  <script src="./app.js?v=8.0.0" defer></script>
 </head>
 <body id="pageBody">
 
@@ -32,6 +32,24 @@
   <!-- FRONT SECURITY LOGIN OVERLAY MODAL -->
   <div id="authOverlay">
     <div class="login-container">
+
+      <!-- RESTORED SITTING ROBOT STAGE -->
+      <div class="sitting-robot-stage" id="sittingRobotStage">
+        <div class="robot-body-wrapper" id="robotBodyWrapper">
+          <div class="robot-antenna"></div>
+          <div class="robot-head" id="robotHead">
+            <div class="robot-visor">
+              <div class="robot-eye" id="leftEye"></div>
+              <div class="robot-eye" id="rightEye"></div>
+            </div>
+          </div>
+          <div class="robot-torso"></div>
+          <div class="robot-leg left"></div>
+          <div class="robot-leg right"></div>
+          <div class="robot-hand left"></div>
+          <div class="robot-hand right"></div>
+        </div>
+      </div>
 
       <!-- SOLID LOGIN CARD -->
       <div class="login-card" id="loginCard">
