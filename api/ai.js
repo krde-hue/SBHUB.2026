@@ -1,8 +1,39 @@
+const https = require('https');
+
+function postJSON(urlStr, data) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr);
+    const postData = JSON.stringify(data);
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
+      res.on('end', () => {
+        try {
+          resolve({ status: res.statusCode, data: JSON.parse(body) });
+        } catch (e) {
+          resolve({ status: res.statusCode, bodyRaw: body });
+        }
+      });
+    });
+
+    req.on('error', (e) => reject(e));
+    req.write(postData);
+    req.end();
+  });
+}
+
 module.exports = async function handler(req, res) {
-  // Prevent Vercel Edge & browser response caching
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -11,24 +42,23 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = (process.env.GEMINI_API_KEY || '').trim();
     if (!apiKey) {
-      return res.status(500).json({ 
-        error: 'GEMINI_API_KEY is missing in Vercel Environment Variables. Please set it in Vercel Project Settings.' 
+      return res.status(200).json({ 
+        content: "⚠️ **Configuration Notice**: `GEMINI_API_KEY` is not set in Vercel.\n\n👉 **Fix**: Go to **Vercel Dashboard → Settings → Environment Variables**, add `GEMINI_API_KEY` with your Google AI Studio key (`AIzaSy...`), then click **Redeploy**." 
       });
     }
 
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch(e) {}
+    }
+    body = body || {};
+
     const { messages = [], hubContext, hubData } = body;
     const recentMessages = Array.isArray(messages) ? messages.slice(-10) : [];
 
-    let systemInstructions = `You are Kriztel AI, an authentic, highly intelligent, and versatile AI Copilot.
-
-CORE CAPABILITIES:
-- GENERAL AI FIRST: You function as a complete general AI assistant. You can write & debug code, rephrase sentences, write emails, perform math, answer science/history questions, summarize text, and analyze complex topics.
-- LIVE WEB RESEARCH: You have live web search tools enabled. Use them automatically whenever you need up-to-date real-world facts, current news, or live sports fixtures.
-- SPORTSBOOK HUB INTEGRATION: You are embedded inside Sportsbook Hub. If Hub operational context data is attached below, use it to answer workplace questions when asked. Never restrict your answers or general intelligence to Hub topics alone.
-- USER INSTRUCTIONS: Follow formatting instructions, code syntax requests, or tone adjustments strictly as requested by the user.`;
+    let systemInstructions = `You are Kriztel AI, an authentic, highly intelligent, and versatile AI Copilot. Function as a complete general AI assistant capable of answering any question, coding, writing, research, and general knowledge.`;
 
     if (hubContext && hubData) {
       systemInstructions += `\n\n[SPORTSBOOK HUB TELEMETRY DATA]:\n${JSON.stringify(hubData, null, 2)}`;
@@ -40,7 +70,7 @@ CORE CAPABILITIES:
     }));
 
     if (contents.length === 0) {
-      return res.status(400).json({ error: 'No prompt or messages provided.' });
+      return res.status(200).json({ content: 'Please enter a prompt or message.' });
     }
 
     const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
@@ -56,25 +86,19 @@ CORE CAPABILITIES:
         tools: [{ googleSearch: {} }]
       };
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const result = await postJSON(url, payload);
 
-      const data = await response.json();
-
-      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        return res.status(200).json({ content: data.candidates[0].content.parts[0].text });
+      if (result.status === 200 && result.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return res.status(200).json({ content: result.data.candidates[0].content.parts[0].text });
       }
 
-      lastError = data.error?.message || `Model ${model} returned status ${response.status}`;
-      if (response.status === 401 || response.status === 403) break;
+      lastError = result.data?.error?.message || `Model ${model} returned status ${result.status}`;
+      if (result.status === 401 || result.status === 403) break;
     }
 
-    return res.status(500).json({ error: `Gemini API Error: ${lastError}` });
+    return res.status(200).json({ content: `⚠️ **Gemini API Error**: ${lastError}` });
 
   } catch (err) {
-    return res.status(500).json({ error: `Server error: ${err.message}` });
+    return res.status(200).json({ content: `⚠️ **Server Function Error**: ${err.message}` });
   }
 };
