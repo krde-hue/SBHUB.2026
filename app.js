@@ -928,7 +928,7 @@ const KriztelAI = {
     const key = (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY) ? LOCAL_GEMINI_KEY : '';
     if (!key) throw new Error("No client-side Gemini key set.");
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     
     let contextAddition = "";
     if (this.hubContextEnabled) {
@@ -1018,7 +1018,7 @@ const KriztelAI = {
           if (response.status === 404) {
             throw new Error("Vercel route '/api/ai' not found (404). Check that 'api/ai.js' exists in your repo.");
           } else {
-            throw new Error(`Server returned status ${response.status}. Update api/ai.js with CommonJS syntax and redeploy.`);
+            throw new Error(`Server returned status ${response.status}. Please check Vercel logs.`);
           }
         }
       }
@@ -1028,7 +1028,7 @@ const KriztelAI = {
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Steps:**\n1. Update \`api/ai.js\` with the new CommonJS code.\n2. Commit and push the changes to GitHub.\n3. Redeploy your project in Vercel.`;
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n**Quick Fix Checklist:**\n1. Update \`api/ai.js\` with the new model endpoints.\n2. Push to GitHub and deploy to Vercel.`;
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
