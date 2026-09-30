@@ -13,16 +13,16 @@
   <!-- Boxicons CSS -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
-  <!-- Stylesheet (v4.0.0 Cache-Buster) -->
-  <link rel="stylesheet" href="./styles.css?v=4.0.0">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./styles.css?v=5.0.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
-  <!-- App JS (v4.0.0 Cache-Buster) -->
-  <script src="./app.js?v=4.0.0" defer></script>
+  <!-- App JS -->
+  <script src="./app.js?v=5.0.0" defer></script>
 </head>
 <body id="pageBody">
 
@@ -537,10 +537,6 @@
         </div>
       </div>
       <div class="ai-header-actions">
-        <!-- LOCAL BROWSER KEY BUTTON -->
-        <button class="ai-action-icon" onclick="KriztelAI.promptForApiKey()" title="Configure Local Gemini API Key">
-          <i class="bx bx-key" style="color:#f59e0b;"></i>
-        </button>
         <button class="ai-badge-btn" id="aiContextToggle" onclick="KriztelAI.toggleHubContext()" title="Toggle HUB Context Permission">
           <span id="contextStatusTag">● HUB Context ON</span>
         </button>
