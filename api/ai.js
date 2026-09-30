@@ -1,4 +1,8 @@
 export default async function handler(req, res) {
+  // Disable all Vercel Edge & CDN caching permanently
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,7 +13,7 @@ export default async function handler(req, res) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY is missing in Vercel Environment Variables. Please set it in Vercel Settings.' });
+      return res.status(500).json({ error: 'GEMINI_API_KEY is missing in Vercel Environment Variables. Please configure it in Vercel Settings.' });
     }
 
     const { messages = [], hubContext, hubData } = req.body || {};
@@ -32,46 +36,40 @@ CORE CAPABILITIES:
       parts: [{ text: String(m.content || '') }]
     }));
 
-    // Primary active production model endpoint
-    const model = 'gemini-2.0-flash';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+    let lastError = '';
 
-    // Payload with Google Search Grounding
-    const payloadWithSearch = {
-      systemInstruction: { parts: [{ text: systemInstructions }] },
-      contents: contents,
-      tools: [{ googleSearch: {} }]
-    };
+    for (let rawModel of candidateModels) {
+      // Force conversion of any non-ASCII dash or en-dash variants to strict ASCII '-'
+      const model = String(rawModel)
+        .replace(/[\u2010-\u201F\u2013\u2014]/g, '-')
+        .replace(/[^\x00-\x7F]/g, '-');
 
-    let response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payloadWithSearch)
-    });
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-    let data = await response.json();
-
-    // Fallback: If search grounding fails, retry as standard completion
-    if (!response.ok) {
-      const payloadStandard = {
+      const payload = {
         systemInstruction: { parts: [{ text: systemInstructions }] },
-        contents: contents
+        contents: contents,
+        tools: [{ googleSearch: {} }]
       };
 
-      response = await fetch(url, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payloadStandard)
+        body: JSON.stringify(payload)
       });
-      data = await response.json();
+
+      const data = await response.json();
+
+      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return res.status(200).json({ content: data.candidates[0].content.parts[0].text });
+      }
+
+      lastError = data.error?.message || `Model ${model} returned status ${response.status}`;
+      if (response.status === 401 || response.status === 403) break;
     }
 
-    if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      return res.status(200).json({ content: data.candidates[0].content.parts[0].text });
-    }
-
-    const errMessage = data.error?.message || `Gemini API returned status ${response.status}`;
-    return res.status(500).json({ error: `Gemini API Error: ${errMessage}` });
+    return res.status(500).json({ error: `Gemini API Error: ${lastError}` });
 
   } catch (err) {
     return res.status(500).json({ error: `Server error: ${err.message}` });
