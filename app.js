@@ -1,9 +1,6 @@
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
-// Optional hardcoded key (Only for private repos)
-const LOCAL_GEMINI_KEY = ""; 
-
 /* --- FIREBASE ROSTER INITIALIZATION --- */
 let rosterDb = null;
 try {
@@ -790,29 +787,13 @@ function calculateActiveTraders() {
   if (el) el.textContent = activeCount + ' Working';
 }
 
-/* --- KRIZTEL AI COPILOT ENGINE --- */
+/* --- KRIZTEL AI COPILOT ENGINE (100% AUTOMATIC SERVERLESS PROXY) --- */
 const KriztelAI = {
   hubContextEnabled: true,
   webSearchEnabled: false,
   attachedFile: null,
   chatHistory: [],
   isGenerating: false,
-
-  getEffectiveApiKey() {
-    if (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY && LOCAL_GEMINI_KEY.trim().length > 0) {
-      return LOCAL_GEMINI_KEY.trim();
-    }
-    return (localStorage.getItem('sbhub_user_gemini_key') || '').trim();
-  },
-
-  promptForApiKey() {
-    const current = this.getEffectiveApiKey();
-    const key = prompt("🔑 Enter your Google Gemini API Key for direct AI connections:\n\n(Key is saved only in your local browser and never committed to GitHub)", current);
-    if (key !== null) {
-      localStorage.setItem('sbhub_user_gemini_key', key.trim());
-      alert(key.trim() ? "✅ API key saved locally in browser!" : "ℹ️ API key cleared.");
-    }
-  },
 
   togglePanel() {
     const panel = document.getElementById('aiChatPanel');
@@ -941,55 +922,6 @@ const KriztelAI = {
     };
   },
 
-  async callGeminiDirect(promptText) {
-    const apiKey = this.getEffectiveApiKey();
-    if (!apiKey) throw new Error("No API key available.");
-
-    let contextAddition = "";
-    if (this.hubContextEnabled) {
-      contextAddition = `\n\n[CURRENT AUTHORIZED HUB CONTEXT DATA]:\n${JSON.stringify(this.getHubDataSnapshot(), null, 2)}`;
-    }
-
-    const systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant. You think outside the box, gather live web search resources when asked, write code, rephrase text, and reason through complex questions.${contextAddition}`;
-
-    const recentHistory = this.chatHistory.slice(-10);
-    const contents = recentHistory.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: String(m.content || '') }]
-    }));
-
-    const payload = {
-      systemInstruction: { parts: [{ text: systemInstructions }] },
-      contents: contents,
-      tools: [{ googleSearch: {} }]
-    };
-
-    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
-    let lastErr = "";
-
-    for (let rawModel of candidateModels) {
-      // Runtime sanitizer converts en-dashes / em-dashes to standard ASCII hyphens
-      const model = String(rawModel).replace(/[\u2010-\u201F\u2013\u2014]/g, '-').replace(/[^\x00-\x7F]/g, '-');
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        return data.candidates[0].content.parts[0].text;
-      }
-
-      lastErr = data.error?.message || `Status ${response.status}`;
-      if (response.status === 401 || response.status === 403) break;
-    }
-
-    throw new Error(lastErr || "Failed to generate AI response.");
-  },
-
   copyCode(btn) {
     const codeEl = btn.closest('.ai-code-block')?.querySelector('pre code');
     if (codeEl) {
@@ -1036,44 +968,36 @@ const KriztelAI = {
     this.setStatus(true, '🌐 Gathering resources & thinking...');
 
     try {
-      let replyText = "";
-      const effectiveKey = this.getEffectiveApiKey();
+      const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
+      
+      // Send directly to secure Vercel serverless proxy (/api/ai)
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: this.chatHistory,
+          hubContext: this.hubContextEnabled,
+          searchWeb: true,
+          hubData: hubData
+        })
+      });
 
-      if (effectiveKey && effectiveKey.length > 0) {
-        replyText = await this.callGeminiDirect(text);
-        bubble.innerHTML = formatMarkdown(replyText);
-      } else {
-        const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
-        const response = await fetch('/api/ai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: this.chatHistory,
-            hubContext: this.hubContextEnabled,
-            searchWeb: true,
-            hubData: hubData
-          })
-        });
-
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.error || `Server status ${response.status}`);
-          }
-          replyText = data.content || data.reply || "No response received.";
-          bubble.innerHTML = formatMarkdown(replyText);
-        } else {
-          throw new Error(`Server returned status ${response.status}`);
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || `Server status ${response.status}`);
         }
+        const replyText = data.content || data.reply || "No response received.";
+        bubble.innerHTML = formatMarkdown(replyText);
+        this.chatHistory.push({ role: 'assistant', content: replyText });
+      } else {
+        throw new Error(`Server returned non-JSON status ${response.status}`);
       }
-
-      this.chatHistory.push({ role: 'assistant', content: replyText });
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n💡 **Quick Fix:** Click the **🔑 Key** button in the chat header, paste your Gemini API key once, and click save!`;
-
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}`;
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
     } finally {
@@ -1117,6 +1041,11 @@ function formatMarkdown(str) {
 
 /* --- INITIALIZATION --- */
 function initDashboardApp() {
+  // Purge any old local keys saved in browser memory
+  try {
+    localStorage.removeItem('sbhub_user_gemini_key');
+  } catch (e) {}
+
   const savedTheme = localStorage.getItem('sbhub_theme');
   if (savedTheme) {
     const pageBody = document.getElementById('pageBody');
