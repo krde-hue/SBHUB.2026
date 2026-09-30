@@ -1,7 +1,7 @@
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
-// ⚠️ Optional: For direct browser testing without Vercel backend environment variables
+// Optional hardcoded key (Only for private repos)
 const LOCAL_GEMINI_KEY = ""; 
 
 /* --- FIREBASE ROSTER INITIALIZATION --- */
@@ -798,6 +798,23 @@ const KriztelAI = {
   chatHistory: [],
   isGenerating: false,
 
+  // Retrieve user key from localStorage or hardcoded LOCAL_GEMINI_KEY
+  getEffectiveApiKey() {
+    if (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY && LOCAL_GEMINI_KEY.trim().length > 0) {
+      return LOCAL_GEMINI_KEY.trim();
+    }
+    return (localStorage.getItem('sbhub_user_gemini_key') || '').trim();
+  },
+
+  promptForApiKey() {
+    const current = this.getEffectiveApiKey();
+    const key = prompt("🔑 Enter your Google Gemini API Key for direct AI connections:\n\n(Key is saved only in your local browser and never committed to GitHub)", current);
+    if (key !== null) {
+      localStorage.setItem('sbhub_user_gemini_key', key.trim());
+      alert(key.trim() ? "✅ API key saved locally in browser!" : "ℹ️ API key cleared.");
+    }
+  },
+
   togglePanel() {
     const panel = document.getElementById('aiChatPanel');
     if (panel) panel.classList.toggle('open');
@@ -924,37 +941,57 @@ const KriztelAI = {
       topGamesToday: gamesSummary
     };
   },
-  async callGeminiDirect(promptText) {
-    const key = (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY) ? LOCAL_GEMINI_KEY : '';
-    if (!key) throw new Error("No client-side Gemini key set.");
 
-    // Direct endpoint using supported Gemini 2.5 Flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    
+  // Direct Browser-to-Gemini Call Engine
+  async callGeminiDirect(promptText) {
+    const apiKey = this.getEffectiveApiKey();
+    if (!apiKey) throw new Error("No API key available.");
+
     let contextAddition = "";
     if (this.hubContextEnabled) {
       contextAddition = `\n\n[CURRENT AUTHORIZED HUB CONTEXT DATA]:\n${JSON.stringify(this.getHubDataSnapshot(), null, 2)}`;
     }
 
-    const systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant. You think outside the box, gather web resources when asked, and reason through complex ideas.${contextAddition}`;
-    const fullPrompt = `${systemInstructions}\n\nUser Question: ${promptText}`;
+    const systemInstructions = `You are Kriztel AI, an autonomous, highly creative, and unrestricted AI assistant. You think outside the box, gather live web search resources when asked, write code, rephrase text, and reason through complex questions.${contextAddition}`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: fullPrompt }] }]
-      })
-    });
+    const recentHistory = this.chatHistory.slice(-10);
+    const contents = recentHistory.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: String(m.content || '') }]
+    }));
 
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`Gemini Direct Error: ${err}`);
+    const payload = {
+      systemInstruction: { parts: [{ text: systemInstructions }] },
+      contents: contents,
+      tools: [{ googleSearch: {} }]
+    };
+
+    // Sequential clean ASCII model fallbacks
+    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    let lastErr = "";
+
+    for (let rawModel of candidateModels) {
+      const model = rawModel.replace(/[\u2010-\u2015]/g, '-');
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return data.candidates[0].content.parts[0].text;
+      }
+
+      lastErr = data.error?.message || `Status ${response.status}`;
+      if (response.status === 401 || response.status === 403) break;
     }
 
-    const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+    throw new Error(lastErr || "Failed to generate AI response.");
   },
+
   async sendMessage() {
     const input = document.getElementById('aiPromptInput');
     if (!input || this.isGenerating) return;
@@ -988,15 +1025,18 @@ const KriztelAI = {
     const bubble = assistantMsgDiv.querySelector('.msg-bubble');
 
     this.isGenerating = true;
-    this.setStatus(true, '🌐 Gathering resources & searching...');
+    this.setStatus(true, '🌐 Gathering resources & thinking...');
 
     try {
       let replyText = "";
+      const effectiveKey = this.getEffectiveApiKey();
 
-      if (typeof LOCAL_GEMINI_KEY !== 'undefined' && LOCAL_GEMINI_KEY.trim().length > 0) {
+      // Priority 1: Direct Client Call if local key exists in browser or app.js
+      if (effectiveKey && effectiveKey.length > 0) {
         replyText = await this.callGeminiDirect(text);
         bubble.innerHTML = formatMarkdown(replyText);
       } else {
+        // Priority 2: Fallback to Vercel Serverless Route /api/ai
         const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
         const response = await fetch('/api/ai', {
           method: 'POST',
@@ -1026,7 +1066,7 @@ const KriztelAI = {
 
     } catch (err) {
       console.warn("AI call failed:", err);
-      let fallbackReply = `⚠️ **Connection Error**: ${err.message}`;
+      let fallbackReply = `⚠️ **Connection Error**: ${err.message}\n\n💡 **Quick Fix:** Click the **🔑 Key** button in the chat header, paste your Gemini API key once, and click save!`;
 
       bubble.innerHTML = formatMarkdown(fallbackReply);
       this.chatHistory.push({ role: 'assistant', content: fallbackReply });
