@@ -970,13 +970,10 @@ const KriztelAI = {
     try {
       const hubData = this.hubContextEnabled ? this.getHubDataSnapshot() : null;
       
-      // Dynamic Timestamp parameter (?t=...) forces Vercel CDN to bypass response cache
+      // Dynamic Timestamp prevents Vercel CDN response caching
       const response = await fetch(`/api/ai?t=${Date.now()}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        },
+        headers: { 'Content-Type': 'application/json' },
         cache: 'no-store',
         body: JSON.stringify({
           messages: this.chatHistory,
@@ -986,18 +983,10 @@ const KriztelAI = {
         })
       });
 
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || `Server status ${response.status}`);
-        }
-        const replyText = data.content || data.reply || "No response received.";
-        bubble.innerHTML = formatMarkdown(replyText);
-        this.chatHistory.push({ role: 'assistant', content: replyText });
-      } else {
-        throw new Error(`Server returned status ${response.status}`);
-      }
+      const data = await response.json();
+      const replyText = data.content || data.reply || data.error || "No response received.";
+      bubble.innerHTML = formatMarkdown(replyText);
+      this.chatHistory.push({ role: 'assistant', content: replyText });
 
     } catch (err) {
       console.warn("AI call failed:", err);
