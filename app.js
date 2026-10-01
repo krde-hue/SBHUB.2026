@@ -506,14 +506,23 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- HIGH-DEFINITION REAL 4K ABSTRACT WALLPAPER DIRECTORY --- */
+/* --- HIGH-DEFINITION REAL 4K 3D LIQUID & FLUID ART DIRECTORY --- */
 const ABSTRACT_WALLPAPERS = {
+  // Primary Keys
   'neon-waves': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop',
   'neural-flow': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop',
   'dark-3d-swirl': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop',
   'liquid-chrome': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop',
   'cyan-abyss': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2069&auto=format&fit=crop',
-  'fire-vortex': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2070&auto=format&fit=crop'
+  'fire-vortex': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2070&auto=format&fit=crop',
+
+  // Legacy & Backward Compatibility Aliases
+  'abstract-fluid': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop',
+  'abstract-chromatic': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop',
+  'abstract-aurora': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2069&auto=format&fit=crop',
+  'abstract-spectrum': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop',
+  'abstract-bubbles': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop',
+  'abstract-lava': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2070&auto=format&fit=crop'
 };
 
 /* --- THEME SWITCHER ENGINE --- */
@@ -524,6 +533,8 @@ function setGradient(theme) {
 
   if (ABSTRACT_WALLPAPERS[theme]) {
     backgroundStyle = `url("${ABSTRACT_WALLPAPERS[theme]}")`;
+  } else if (typeof theme === 'string' && (theme.startsWith('http') || theme.startsWith('url('))) {
+    backgroundStyle = theme.startsWith('url(') ? theme : `url("${theme}")`;
   } else {
     switch(theme) {
       case 'plain-slate':
@@ -548,7 +559,7 @@ function setGradient(theme) {
 
   const themeMenu = document.getElementById('themeMenu');
   if (themeMenu) themeMenu.classList.remove('show');
-  localStorage.setItem('sbhub_theme', backgroundStyle);
+  localStorage.setItem('sbhub_theme', theme);
 }
 
 /* --- REAL-TIME LIVE DUTY ROSTER --- */
@@ -804,14 +815,7 @@ function calculateActiveTraders() {
 function initDashboardApp() {
   const savedTheme = localStorage.getItem('sbhub_theme');
   if (savedTheme) {
-    const pageBody = document.getElementById('pageBody');
-    if (pageBody) {
-      pageBody.style.background = savedTheme;
-      pageBody.style.backgroundSize = 'cover';
-      pageBody.style.backgroundPosition = 'center';
-      pageBody.style.backgroundAttachment = 'fixed';
-      pageBody.style.backgroundRepeat = 'no-repeat';
-    }
+    setGradient(savedTheme);
   } else {
     setGradient('neon-waves');
   }
