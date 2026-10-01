@@ -27,11 +27,12 @@ let selectedGameDayOffset = 0;
 const brandTabData = {
   ibet: [
     { name: "IBET ADMIN", url: "https://mga-betbook.center/ibet/bets" },
-    { name: "BETSSON", url: "https://b2b.betssonbusiness.com/" },
+    { name: "IBET BETSSON", url: "https://b2b.betssonbusiness.com/" },
     { name: "BET CONSTRUCT", url: "https://backoffice.betconstruct.com/" }
   ],
   edge: [
     { name: "KT SBX", url: "https://p2ibet.sbx.bet/bets" },
+    { name: "KT PROJECTS", url: "https://kickertech.atlassian.net/jira/projects" },
     { name: "EDGE ADMIN", url: "https://admin.edgegaming.io/admin/qbet/homepage" },
     { name: "SERVICE DESK", url: "https://kickertech.atlassian.net/servicedesk/customer/user/login?destination=portals" }
   ],
@@ -58,6 +59,17 @@ function switchBrandTab(tabName) {
     a.innerHTML = `<span>${item.name}</span><i class='bx bx-right-arrow-alt'></i>`;
     container.appendChild(a);
   });
+}
+
+/* --- TICKET TRACKING SEARCH ENGINE --- */
+function trackTicket() {
+  const ticketKey = document.getElementById('ticketKeyInput')?.value.trim();
+  const brand = document.getElementById('brandSelect')?.value;
+  const status = document.getElementById('statusSelect')?.value;
+  const createdTime = document.getElementById('createdTimeInput')?.value;
+
+  console.log("Tracking Ticket:", { ticketKey, brand, status, createdTime });
+  // Add your ticket filtering or API lookup logic here
 }
 
 /* --- COMPREHENSIVE LEAGUES DIRECTORY (TOP TIER + SECONDARY LEAGUES) --- */
@@ -508,31 +520,12 @@ function restoreSavedWidgets() {
 
 /* --- HIGH-DEFINITION REAL 4K 3D CHROME & VECTOR WAVE DIRECTORY --- */
 const ABSTRACT_WALLPAPERS = {
-  // Category 1: 3D Glossy Chrome & Dark Fluid Glass Swirls
   '3d-chrome-swirl': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop',
   'cyan-liquid-glass': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop',
   'deep-liquid-chrome': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop',
-
-  // Category 2: Fine Vector Line Waves & Glowing Grids
   'neon-line-ribbon': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2560&auto=format&fit=crop',
   'neural-wireframe': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2560&auto=format&fit=crop',
-  'dark-energy-vortex': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop',
-
-  // Backward Compatibility Mapping
-  'neon-waves': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2560&auto=format&fit=crop',
-  'neural-flow': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2560&auto=format&fit=crop',
-  'dark-3d-swirl': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop',
-  'liquid-chrome': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop',
-  'cyan-abyss': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop',
-  'fire-vortex': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop',
-
-  // Legacy Fallbacks
-  'abstract-fluid': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop',
-  'abstract-chromatic': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop',
-  'abstract-aurora': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop',
-  'abstract-spectrum': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2560&auto=format&fit=crop',
-  'abstract-bubbles': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop',
-  'abstract-lava': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop'
+  'dark-energy-vortex': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop'
 };
 
 /* --- THEME SWITCHER ENGINE --- */
