@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Chart.js CDN for Pie Chart Visualization -->
+    <!-- Chart.js CDN for Visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Firebase Realtime Database SDKs -->
@@ -307,29 +307,45 @@
         }
         .custom-dropdown-btn:hover { filter: brightness(1.15); transform: scale(1.02); }
 
+        /* VIEWPORT-FIXED SCROLLABLE PORTAL DROPDOWN MENU */
         .custom-dropdown-menu {
             display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
+            position: fixed; /* Escapes container overflow completely */
             background: rgba(15, 23, 42, 0.98);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
-            box-shadow: 0 14px 40px rgba(0,0,0,0.85);
-            z-index: 9999;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95);
+            z-index: 999999;
             max-height: 260px;
-            min-width: 135px;
+            min-width: 165px;
             overflow-y: auto;
-            margin-top: 4px;
             padding: 6px;
+            touch-action: pan-y; /* Enables smooth vertical scrolling on touch devices */
+            overscroll-behavior: contain; /* Prevents scroll chaining to parent elements */
+        }
+
+        /* Modern Sleek Scrollbar */
+        .custom-dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .custom-dropdown-menu::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 4px;
+        }
+        .custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
         }
 
         .custom-dropdown-menu.show { display: block; }
 
         .custom-dropdown-item {
-            padding: 6px 8px;
+            padding: 7px 10px;
             font-weight: 800;
             font-size: 11px;
             cursor: pointer;
@@ -357,6 +373,22 @@
         .shift-bg-15-0-wfh    { background-color: #881337 !important; color: #ffffff !important; border: 1px solid #fecdd3; font-weight: 800; }
         .shift-bg-adjusted    { background-color: #b45309 !important; color: #ffffff !important; border: 1px solid #fde047; font-weight: 800; }
 
+        /* SPLIT LOWER DISPLAY GRID */
+        .lower-split-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+        }
+
+        @media (min-width: 1200px) {
+            .lower-split-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+        }
+
         .leave-section {
             background: var(--glass-card);
             backdrop-filter: blur(16px);
@@ -368,22 +400,27 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
         }
 
         .leave-section-title {
             font-size: 15px;
             font-weight: 800;
             color: var(--accent-cyan);
-            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
+        .split-row {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
         .chart-box {
             background: rgba(15, 23, 42, 0.4);
-            padding: 18px;
+            padding: 16px;
             border-radius: 12px;
             border: 1px solid var(--glass-border);
             display: flex;
@@ -395,8 +432,22 @@
         .chart-container-inner {
             position: relative;
             width: 100%;
-            max-width: 320px;
-            height: 320px;
+            max-width: 340px;
+            height: 260px;
+        }
+
+        .sub-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
         }
 
         .leave-table { width: 100%; min-width: 100%; }
@@ -474,7 +525,7 @@
 
         <div class="header-top-controls">
             <span id="viewerBadge" class="viewer-badge" onclick="showActiveViewers()" title="Active Viewers">
-                👁️ <span id="activeViewersCount">1</span>
+                👁 <span id="activeViewersCount">1</span>
             </span>
             <a id="btnLeaveReq" href="leave-req.html" class="btn btn-leave-req">📝 Leave Application</a>
             <button id="mobileViewToggleBtn" class="btn btn-mobile-toggle" onclick="toggleMobileView()">📱 Mobile View</button>
@@ -485,7 +536,7 @@
         </div>
     </div>
     
-    <!-- CONTROLS BAR WITH CLOSELY GROUPED MONTH NAVIGATOR -->
+    <!-- CONTROLS BAR -->
     <div class="controls">
         <button class="btn btn-secondary" onclick="changeMonth(-1)">◄ Prev</button>
         <div>
@@ -506,7 +557,6 @@
             <input type="number" id="year-input" value="2026" min="2020" max="2040" style="width: 85px;">
         </div>
 
-        <!-- EXPANDED COMPREHENSIVE GLOBAL TIMEZONE SELECTOR -->
         <div>
             <label for="timezone-select">🌐 Timezone: </label>
             <select id="timezone-select" onchange="changeTimezoneGlobal(this.value)">
@@ -534,7 +584,6 @@
             </select>
         </div>
 
-        <!-- Space-Saving Member Manager Dropdown -->
         <div class="custom-dropdown team-manager-dropdown">
             <button id="memberDropdownBtn" class="btn btn-secondary" onclick="toggleMemberDropdown(event)">👥 Manage Members ▾</button>
             <div id="memberDropdownMenu" class="custom-dropdown-menu" style="min-width: 220px; padding: 10px; right: 0; left: auto;">
@@ -542,17 +591,15 @@
                 <div style="border-top: 1px solid var(--glass-border); margin: 8px 0;"></div>
                 <label for="manage-member-select" style="font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block;">Delete Member:</label>
                 <div style="display: flex; gap: 6px;">
-                    <select id="manage-member-select" style="font-size: 11px; padding: 4px; flex: 1; max-width: 130px;">
-                        <!-- Populated dynamically -->
-                    </select>
-                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="removeSelectedMember()">🗑️ Delete</button>
+                    <select id="manage-member-select" style="font-size: 11px; padding: 4px; flex: 1; max-width: 130px;"></select>
+                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="removeSelectedMember()">🗑 Delete</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="main-layout">
-        <!-- Responsive Dual Table Containers -->
+        <!-- ROTA SCHEDULE TABLE -->
         <div class="table-container" id="standardTableContainer">
             <table>
                 <thead>
@@ -562,41 +609,81 @@
             </table>
         </div>
 
-        <div class="leave-section">
-            <div>
+        <!-- SPLIT LOWER DISPLAY: 2 TRACKER PANELS -->
+        <div class="lower-split-container">
+            
+            <!-- SECTION 1: VL & SL LEAVE TRACKER -->
+            <div class="leave-section">
                 <div class="leave-section-title">📊 Team VL Usage Tracker (<span id="vlChartYearLabel">2026</span>)</div>
-                <div class="chart-box">
-                    <div class="chart-container-inner">
-                        <canvas id="vlPieChart"></canvas>
+                
+                <div class="split-row">
+                    <!-- GRAPH 1: VL Pie Chart -->
+                    <div class="chart-box">
+                        <div class="chart-container-inner">
+                            <canvas id="vlPieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- TABLE 1: VL & SL Dates Table -->
+                    <div>
+                        <div class="sub-title">🎋 Vacation & Sick Leave Dates (Jan – Dec)</div>
+                        <div class="table-responsive">
+                            <table class="leave-table">
+                                <thead>
+                                    <tr id="leave-header-row">
+                                        <th style="width: 50px;">Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leave-dates-body"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div>
-                <div class="leave-section-title">🎋 Vacation & Sick Leave Dates (Jan – Dec)</div>
-                <table class="leave-table">
-                    <thead>
-                        <tr id="leave-header-row">
-                            <th style="width: 50px;">Type</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leave-dates-body"></tbody>
-                </table>
+            <!-- SECTION 2: LATE SHIFT TRACKER & WFH TRACKER -->
+            <div class="leave-section">
+                <div class="leave-section-title" style="color: #fda4af;">🌙 Late Shift Tracker — 15:00 - 00:00 & WFH (<span id="lateShiftYearLabel">2026</span>)</div>
+                
+                <div class="split-row">
+                    <!-- GRAPH 2: Late Shift Bar Chart -->
+                    <div class="chart-box">
+                        <div class="chart-container-inner">
+                            <canvas id="lateShiftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- TABLE 2: Monthly Late Shift Count Table -->
+                    <div>
+                        <div class="sub-title" id="lateShiftTableTitle">📅 Monthly Late Shift Count</div>
+                        <div class="table-responsive">
+                            <table class="leave-table">
+                                <thead id="late-shift-thead"></thead>
+                                <tbody id="late-shift-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLE 3: WFH ALLOWANCE TRACKER -->
+                <div style="margin-top: 10px;">
+                    <div class="sub-title" style="color: var(--accent-cyan);">🏠 WFH Allowance Tracker</div>
+                    <div class="table-responsive">
+                        <table class="leave-table">
+                            <thead>
+                                <tr>
+                                    <th>Team Member</th>
+                                    <th>WFH Dates Taken</th>
+                                    <th style="width: 90px;">Total Used</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wfh-tracker-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
-            <div>
-                <div class="leave-section-title" style="color: var(--accent-cyan);">🏠 WFH Allowance Tracker</div>
-                <table class="leave-table">
-                    <thead>
-                        <tr>
-                            <th>Team Member</th>
-                            <th>WFH Dates Taken</th>
-                            <th style="width: 90px;">Total Used</th>
-                        </tr>
-                    </thead>
-                    <tbody id="wfh-tracker-body"></tbody>
-                </table>
-            </div>
         </div>
     </div>
 
@@ -667,6 +754,7 @@
         const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
 
         let vlChartInstance = null;
+        let lateShiftChartInstance = null;
         let globalTzOffset = 8;
         let rotaData = {};
         let leaveMatrixData = {};
@@ -676,9 +764,6 @@
         let isViewOnlyMode = true;
         const ADMIN_PASSWORD = "sb2026";
 
-        /**
-         * Helper to sort array of date strings ("D-Mon") in descending order (e.g. Dec at top down to Jan)
-         */
         function sortLeaveDatesDescending(arr) {
             const monthOrder = {
                 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
@@ -705,9 +790,9 @@
                 if (!parsedB) return -1;
 
                 if (parsedB.month !== parsedA.month) {
-                    return parsedB.month - parsedA.month; // Dec (11) on top, Jan (0) at bottom
+                    return parsedB.month - parsedA.month;
                 }
-                return parsedB.day - parsedA.day; // Latest day on top
+                return parsedB.day - parsedA.day;
             });
         }
 
@@ -795,6 +880,7 @@
             menu.classList.toggle('show');
         }
 
+        /* GLOBAL DISMISS FOR DROPDOWNS */
         document.addEventListener('click', function(e) {
             const memberMenu = document.getElementById('memberDropdownMenu');
             const memberBtn = document.getElementById('memberDropdownBtn');
@@ -803,7 +889,18 @@
                     memberMenu.classList.remove('show');
                 }
             }
+            if (!e.target.closest('.custom-dropdown') && !e.target.closest('.custom-dropdown-menu')) {
+                document.querySelectorAll('.custom-dropdown-menu').forEach(m => m.classList.remove('show'));
+            }
         });
+
+        /* CLOSE DROPDOWNS ON PAGE/CONTAINER SCROLL — IGNORES SCROLLING INSIDE DROPDOWN MENU */
+        window.addEventListener('scroll', (e) => {
+            if (e.target && e.target.classList && e.target.classList.contains('custom-dropdown-menu')) {
+                return; // Do NOT close when scrolling inside the dropdown menu itself
+            }
+            document.querySelectorAll('.custom-dropdown-menu.show').forEach(m => m.classList.remove('show'));
+        }, true);
 
         function toggleMobileView() {
             isMobileViewActive = !isMobileViewActive;
@@ -878,9 +975,6 @@
             });
         }
 
-        /**
-         * Shows the active viewer list ONLY if signed in as Admin.
-         */
         function showActiveViewers() {
             if (isViewOnlyMode) {
                 alert("🔒 Admin authorization required to view active viewer names. Please click 'Admin Login' to sign in.");
@@ -1028,6 +1122,7 @@
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('sb_theme', newTheme);
             renderVLPieChart();
+            renderLateShiftTracker();
         }
 
         function changeMonth(offset) {
@@ -1082,9 +1177,13 @@
             buildLeaveTables();
             renderWFHTracker();
             renderVLPieChart();
+            renderLateShiftTracker();
         }
 
         function renderCalendar() {
+            // Clean up any old body portal dropdowns
+            document.querySelectorAll('body > .custom-dropdown-menu').forEach(m => m.remove());
+
             const isMobile = isMobileViewActive || window.innerWidth <= 768;
             if (isMobile) {
                 renderVerticalCalendar();
@@ -1112,6 +1211,81 @@
                     container.scrollLeft = Math.max(0, scrollTarget);
                 }
             });
+        }
+
+        /* BODY PORTAL DROPDOWN OPENER (BYPASSES ALL CONTAINER CLIPPING) */
+        function openSmartDropdown(btn, menu) {
+            if (isViewOnlyMode) {
+                alert("🔒 View-Only Mode Active: Please click '🔑 Admin Login' at the top to edit shifts.");
+                return;
+            }
+
+            const isAlreadyOpen = menu.classList.contains('show') && menu.parentElement === document.body;
+
+            // Close all open dropdown menus first
+            document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+                m.classList.remove('show');
+            });
+
+            if (!isAlreadyOpen) {
+                // Attach to body directly to bypass container overflow clipping
+                document.body.appendChild(menu);
+
+                const rect = btn.getBoundingClientRect();
+                const menuHeight = 260; // Max menu height
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceAbove = rect.top;
+
+                menu.style.position = 'fixed';
+                menu.style.left = `${rect.left + (rect.width / 2)}px`;
+                menu.style.transform = 'translateX(-50%)';
+                menu.style.zIndex = '999999';
+
+                // Automatically flip UPWARDS if space below is too tight
+                if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+                    menu.style.top = 'auto';
+                    menu.style.bottom = `${window.innerHeight - rect.top + 4}px`;
+                } else {
+                    menu.style.bottom = 'auto';
+                    menu.style.top = `${rect.bottom + 4}px`;
+                }
+
+                menu.classList.add('show');
+            }
+        }
+
+        function createShiftDropdownMenu(sList, btn, memberIdx, dayNum) {
+            const menu = document.createElement('div');
+            menu.className = 'custom-dropdown-menu';
+
+            // Shield menu from closing when clicked or touched internally
+            menu.addEventListener('click', (e) => e.stopPropagation());
+            menu.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+
+            sList.forEach(s => {
+                const item = document.createElement('div');
+                item.className = `custom-dropdown-item ${s.itemClass}`;
+                const displayShift = formatShiftForTimezone(s.text);
+                item.textContent = displayShift === "" ? "-- Select --" : displayShift;
+
+                item.addEventListener('click', (e) => {
+                    if (isViewOnlyMode) return;
+                    e.stopPropagation();
+
+                    btn.textContent = displayShift === "" ? "--" : displayShift;
+                    btn.className = `custom-dropdown-btn ${s.bgClass}`;
+                    menu.classList.remove('show');
+
+                    if (!rotaData[dayNum]) rotaData[dayNum] = Array(team.length).fill("");
+                    rotaData[dayNum][memberIdx] = s.text;
+
+                    saveRotaToDatabase();
+                    syncLeavesFromFullYearSchedule();
+                });
+                menu.appendChild(item);
+            });
+
+            return menu;
         }
 
         function renderHorizontalCalendar() {
@@ -1205,43 +1379,14 @@
                     btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
                     btn.textContent = convertedText === "" ? "--" : convertedText;
 
-                    const menu = document.createElement('div');
-                    menu.className = 'custom-dropdown-menu';
-
-                    shiftList.forEach(s => {
-                        const item = document.createElement('div');
-                        item.className = `custom-dropdown-item ${s.itemClass}`;
-                        const displayShift = formatShiftForTimezone(s.text);
-                        item.textContent = displayShift === "" ? "-- Select --" : displayShift;
-
-                        item.addEventListener('click', (e) => {
-                            if (isViewOnlyMode) return;
-                            e.stopPropagation();
-
-                            btn.textContent = displayShift === "" ? "--" : displayShift;
-                            btn.className = `custom-dropdown-btn ${s.bgClass}`;
-                            menu.classList.remove('show');
-
-                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                            rotaData[d][memberIdx] = s.text;
-
-                            saveRotaToDatabase();
-                            syncLeavesFromFullYearSchedule();
-                        });
-                        menu.appendChild(item);
-                    });
+                    const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
 
                     btn.addEventListener('click', (e) => {
-                        if (isViewOnlyMode) return;
                         e.stopPropagation();
-                        document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
-                            if (m !== menu) m.classList.remove('show');
-                        });
-                        menu.classList.toggle('show');
+                        openSmartDropdown(btn, menu);
                     });
 
                     dropdownContainer.appendChild(btn);
-                    dropdownContainer.appendChild(menu);
                     tdShift.appendChild(dropdownContainer);
 
                     tr.appendChild(tdShift);
@@ -1325,43 +1470,14 @@
                     btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
                     btn.textContent = convertedText === "" ? "-- Select --" : convertedText;
 
-                    const menu = document.createElement('div');
-                    menu.className = 'custom-dropdown-menu';
-
-                    shiftList.forEach(s => {
-                        const item = document.createElement('div');
-                        item.className = `custom-dropdown-item ${s.itemClass}`;
-                        const displayShift = formatShiftForTimezone(s.text);
-                        item.textContent = displayShift === "" ? "-- Select --" : displayShift;
-
-                        item.addEventListener('click', (e) => {
-                            if (isViewOnlyMode) return;
-                            e.stopPropagation();
-
-                            btn.textContent = displayShift === "" ? "-- Select --" : displayShift;
-                            btn.className = `custom-dropdown-btn ${s.bgClass}`;
-                            menu.classList.remove('show');
-
-                            if (!rotaData[d]) rotaData[d] = Array(team.length).fill("");
-                            rotaData[d][memberIdx] = s.text;
-
-                            saveRotaToDatabase();
-                            syncLeavesFromFullYearSchedule();
-                        });
-                        menu.appendChild(item);
-                    });
+                    const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
 
                     btn.addEventListener('click', (e) => {
-                        if (isViewOnlyMode) return;
                         e.stopPropagation();
-                        document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
-                            if (m !== menu) m.classList.remove('show');
-                        });
-                        menu.classList.toggle('show');
+                        openSmartDropdown(btn, menu);
                     });
 
                     dropdownContainer.appendChild(btn);
-                    dropdownContainer.appendChild(menu);
                     tdShift.appendChild(dropdownContainer);
 
                     tr.appendChild(tdShift);
@@ -1415,7 +1531,6 @@
             });
 
             team.forEach(m => {
-                // Sort leave dates descending so December is on top
                 tempMatrix[m].vl = sortLeaveDatesDescending(tempMatrix[m].vl);
                 tempMatrix[m].sl = sortLeaveDatesDescending(tempMatrix[m].sl);
 
@@ -1429,13 +1544,13 @@
             renderWFHTracker();
             renderVLPieChart();
             buildLeaveTables();
+            renderLateShiftTracker();
         }
 
         function buildLeaveTables() {
             leaveDatesBody.innerHTML = '';
             const leaveTeam = team.filter(m => m !== "Miguel");
 
-            // Sort existing leaveMatrixData descending before rendering
             leaveTeam.forEach((member) => {
                 if (leaveMatrixData[member]) {
                     if (leaveMatrixData[member].vl) {
@@ -1564,6 +1679,143 @@
                                 color: fontColor,
                                 font: { size: 11, weight: '700', family: "'Plus Jakarta Sans', sans-serif" },
                                 boxWidth: 12
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /* LATE SHIFT TRACKER LOGIC (SEP - DEC FOR 2026 | JAN - DEC FOR 2027+) */
+        function renderLateShiftTracker() {
+            const selectedYear = parseInt(yearInput.value);
+            const labelElem = document.getElementById('lateShiftYearLabel');
+            if (labelElem) labelElem.innerText = selectedYear;
+
+            const trackerTeam = team.filter(m => m !== "Miguel");
+            const lateShiftBody = document.getElementById('late-shift-body');
+            const lateShiftThead = document.getElementById('late-shift-thead');
+            const lateShiftTableTitle = document.getElementById('lateShiftTableTitle');
+
+            if (!lateShiftBody || !lateShiftThead) return;
+
+            lateShiftBody.innerHTML = '';
+            lateShiftThead.innerHTML = '';
+
+            let targetMonths = [];
+            let rangeText = "";
+
+            if (selectedYear === 2026) {
+                targetMonths = [9, 10, 11, 12];
+                rangeText = "Sep–Dec";
+            } else {
+                targetMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                rangeText = "Jan–Dec";
+            }
+
+            if (lateShiftTableTitle) {
+                lateShiftTableTitle.innerText = `📅 Monthly Late Shift Count (${rangeText})`;
+            }
+
+            let headerHtml = `<tr><th>Team Member</th>`;
+            targetMonths.forEach(mIdx => {
+                const mLabel = monthNames[mIdx - 1].substring(0, 3);
+                headerHtml += `<th>${mLabel}</th>`;
+            });
+            headerHtml += `<th style="background-color: rgba(225, 29, 72, 0.3); color: #fecdd3;">Total (${rangeText})</th></tr>`;
+            lateShiftThead.innerHTML = headerHtml;
+
+            const counts = {};
+            trackerTeam.forEach(member => {
+                counts[member] = { total: 0 };
+                targetMonths.forEach(mIdx => counts[member][mIdx] = 0);
+            });
+
+            targetMonths.forEach(mIdx => {
+                const monthKey = `${selectedYear}_${mIdx}`;
+                const monthDaysData = allYearRotaData[monthKey] || {};
+
+                Object.keys(monthDaysData).forEach(day => {
+                    const row = monthDaysData[day];
+                    trackerTeam.forEach((member) => {
+                        const memberIdx = team.indexOf(member);
+                        if (memberIdx !== -1 && row && row[memberIdx]) {
+                            const shiftVal = row[memberIdx].trim();
+                            if (shiftVal === "15:00 - 00:00" || shiftVal === "15:00 - 00:00 (WFH)") {
+                                counts[member][mIdx]++;
+                                counts[member].total++;
+                            }
+                        }
+                    });
+                });
+            });
+
+            trackerTeam.forEach(member => {
+                const tr = document.createElement('tr');
+                let rowHtml = `<td style="font-weight:700;">${member}</td>`;
+                targetMonths.forEach(mIdx => {
+                    rowHtml += `<td>${counts[member][mIdx]}</td>`;
+                });
+                rowHtml += `<td style="font-weight:800; color: #fda4af; background-color: rgba(225, 29, 72, 0.2);">${counts[member].total}</td>`;
+                tr.innerHTML = rowHtml;
+                lateShiftBody.appendChild(tr);
+            });
+
+            renderLateShiftChart(trackerTeam, counts, rangeText);
+        }
+
+        function renderLateShiftChart(trackerTeam, counts, rangeText) {
+            const ctxElem = document.getElementById('lateShiftChart');
+            if (!ctxElem) return;
+            const ctx = ctxElem.getContext('2d');
+            const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const fontColor = activeTheme === 'light' ? '#0f172a' : '#f8fafc';
+
+            const totals = trackerTeam.map(m => counts[m] ? counts[m].total : 0);
+
+            if (lateShiftChartInstance) lateShiftChartInstance.destroy();
+
+            lateShiftChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: trackerTeam,
+                    datasets: [{
+                        label: `15:00 - 00:00 Shifts (${rangeText})`,
+                        data: totals,
+                        backgroundColor: 'rgba(225, 29, 72, 0.75)',
+                        borderColor: '#e11d48',
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: fontColor,
+                                font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600' }
+                            },
+                            grid: { color: activeTheme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            ticks: {
+                                color: fontColor,
+                                font: { family: "'Plus Jakarta Sans', sans-serif", weight: '700' }
+                            },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: fontColor,
+                                font: { size: 11, weight: '700', family: "'Plus Jakarta Sans', sans-serif" }
                             }
                         }
                     }
