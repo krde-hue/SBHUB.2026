@@ -80,17 +80,19 @@
 
     /* Clickable Key Link in Banner Pill */
     .jira-pill-key-link {
-      color: #38bdf8;
+      color: #38bdf8 !important;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
+      cursor: pointer !important;
+      pointer-events: auto !important;
     }
     .jira-pill-key-link:hover {
-      color: #7dd3fc;
-      text-decoration: underline;
+      color: #7dd3fc !important;
+      text-decoration: underline !important;
     }
 
     .jira-pill-time { color: #f87171; font-weight: 700; }
@@ -119,7 +121,8 @@
     textarea:focus, input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     textarea { height: 75px; resize: vertical; }
 
-    .grid-4 { display: grid; grid-template-columns: 1.5fr 1.2fr 1fr 1.2fr; gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+    .grid-full { grid-column: 1 / -1; }
     @media (max-width: 768px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
 
     .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
@@ -153,22 +156,24 @@
     td { padding: 12px 12px; background: rgba(15, 23, 42, 0.5); font-size: 13px; word-break: break-word; overflow-wrap: anywhere; vertical-align: middle; }
     
     /* Column Width Allocation */
-    .col-key { width: 140px; }
+    .col-key { width: 150px; }
     
-    /* Styled Clickable Key Link in Table */
+    /* Clickable Key Link in Table */
     .ticket-key-link {
-      color: #38bdf8;
+      color: #38bdf8 !important;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
+      cursor: pointer !important;
+      pointer-events: auto !important;
       transition: color 0.2s;
     }
     .ticket-key-link:hover {
-      color: #7dd3fc;
-      text-decoration: underline;
+      color: #7dd3fc !important;
+      text-decoration: underline !important;
     }
 
     .col-brand { width: 110px; }
@@ -257,6 +262,10 @@
           <label for="ticket-time">Creation Time</label>
           <input type="datetime-local" id="ticket-time" />
         </div>
+        <div class="form-group grid-full">
+          <label for="ticket-url">Direct Ticket Link / URL</label>
+          <input type="url" id="ticket-url" placeholder="https://betssongroup.atlassian.net/.../B2B-16446" />
+        </div>
       </div>
 
       <div class="btn-row">
@@ -272,7 +281,7 @@
         <table>
           <thead>
             <tr>
-              <th class="col-key">Key (Link)</th>
+              <th class="col-key">Key (Click Link)</th>
               <th class="col-brand">Brand</th>
               <th class="col-summary">Summary</th>
               <th class="col-created">Created</th>
@@ -308,22 +317,41 @@
       return match ? match[0] : '';
     }
 
-    // Auto-clean any old stored tickets and migration to URL field
-    function cleanExistingStorage() {
+    // Self-Healing URL Generator if missing
+    function constructFallbackJiraUrl(key, brand) {
+      const cleanK = sanitizeKey(key) || 'JIRA-TICKET';
+      const cleanB = String(brand).toUpperCase();
+      
+      if (cleanB === 'BETSSON') {
+        return `https://betssongroup.atlassian.net/servicedesk/customer/portal/2019/${cleanK}`;
+      } else if (cleanB === 'IBET') {
+        return `https://ibet.atlassian.net/browse/${cleanK}`;
+      }
+      return `https://ibet.atlassian.net/browse/${cleanK}`;
+    }
+
+    // Auto-repair missing URLs in LocalStorage
+    function autoRepairLocalStorage() {
       let tickets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       let updated = false;
 
       tickets = tickets.map(t => {
-        let extractedUrl = extractUrl(t.url) || extractUrl(t.summary) || extractUrl(t.key);
         let cleanK = sanitizeKey(t.key);
+        let foundUrl = extractUrl(t.url) || extractUrl(t.summary) || extractUrl(t.key);
+        
+        if (!foundUrl || !foundUrl.startsWith('http')) {
+          foundUrl = constructFallbackJiraUrl(cleanK, t.brand);
+          updated = true;
+        }
+
         let cleanS = t.summary ? t.summary.replace(/https?:\/\/[^\s]+/gi, '').trim() : '';
 
-        if (cleanK !== t.key || cleanS !== t.summary || (extractedUrl && t.url !== extractedUrl)) {
+        if (cleanK !== t.key || cleanS !== t.summary || t.url !== foundUrl) {
           updated = true;
           return {
             ...t,
             key: cleanK || 'JIRA-TICKET',
-            url: extractedUrl || t.url || '',
+            url: foundUrl,
             summary: cleanS || cleanK || 'Jira Ticket'
           };
         }
@@ -342,12 +370,17 @@
     }
     setDefaultTime();
 
-    // Auto-extract Jira key from input on paste
+    // Auto-extract Jira key and URL on paste
     document.getElementById('smart-input').addEventListener('input', (e) => {
       const text = e.target.value;
       const extractedKey = sanitizeKey(text);
+      const extractedUrl = extractUrl(text);
+
       if (extractedKey && extractedKey.includes('-') && !editingTicketId) {
         document.getElementById('ticket-key').value = extractedKey;
+      }
+      if (extractedUrl && !editingTicketId) {
+        document.getElementById('ticket-url').value = extractedUrl;
       }
     });
 
@@ -377,6 +410,7 @@
 
     function saveTicketHandler() {
       const keyInput = document.getElementById('ticket-key');
+      const urlInput = document.getElementById('ticket-url');
       const brandInput = document.getElementById('ticket-brand');
       const inputSummary = document.getElementById('smart-input');
       const statusInput = document.getElementById('ticket-status');
@@ -385,7 +419,8 @@
       if (!keyInput.value.trim()) return alert('Please provide a Jira Ticket Key.');
 
       const cleanKey = sanitizeKey(keyInput.value);
-      const extractedUrl = extractUrl(inputSummary.value) || extractUrl(keyInput.value);
+      let finalUrl = extractUrl(urlInput.value) || extractUrl(inputSummary.value) || constructFallbackJiraUrl(cleanKey, brandInput.value);
+      
       const tickets = getTickets();
 
       if (editingTicketId) {
@@ -395,7 +430,7 @@
           tickets[index] = {
             ...tickets[index],
             key: cleanKey,
-            url: extractedUrl || tickets[index].url || '',
+            url: finalUrl,
             brand: brandInput.value,
             summary: cleanTextSummary(inputSummary.value, cleanKey),
             status: statusInput.value,
@@ -407,7 +442,7 @@
         const newTicket = {
           id: Date.now().toString(),
           key: cleanKey,
-          url: extractedUrl,
+          url: finalUrl,
           brand: brandInput.value,
           summary: cleanTextSummary(inputSummary.value, cleanKey),
           status: statusInput.value,
@@ -428,16 +463,17 @@
       editingTicketId = id;
 
       document.getElementById('ticket-key').value = ticket.key;
+      document.getElementById('ticket-url').value = ticket.url || '';
       document.getElementById('ticket-brand').value = ticket.brand || 'KT PROJECTS';
       document.getElementById('ticket-status').value = ticket.status || 'Open';
-      document.getElementById('smart-input').value = ticket.url ? `${ticket.summary} ${ticket.url}` : ticket.summary;
+      document.getElementById('smart-input').value = ticket.summary;
 
       if (ticket.createdAt) {
         const localDate = new Date(new Date(ticket.createdAt).getTime() - new Date().getTimezoneOffset() * 60000);
         document.getElementById('ticket-time').value = localDate.toISOString().slice(0, 16);
       }
 
-      document.getElementById('form-title').innerText = `✏ Editing Ticket: ${ticket.key}`;
+      document.getElementById('form-title').innerText = `✏️ Editing Ticket: ${ticket.key}`;
       document.getElementById('save-ticket-btn').innerText = '💾 Save Changes';
       document.getElementById('cancel-edit-btn').style.display = 'inline-block';
 
@@ -447,6 +483,7 @@
     function resetForm() {
       editingTicketId = null;
       document.getElementById('ticket-key').value = '';
+      document.getElementById('ticket-url').value = '';
       document.getElementById('smart-input').value = '';
       document.getElementById('ticket-brand').value = 'KT PROJECTS';
       document.getElementById('ticket-status').value = 'Open';
@@ -471,6 +508,7 @@
     }
 
     function render() {
+      autoRepairLocalStorage();
       const tickets = getTickets();
       const tbody = document.getElementById('ticket-table-body');
       tbody.innerHTML = '';
@@ -485,11 +523,10 @@
         if (overdue) overdueTickets.push(ticket);
 
         const createdDate = new Date(ticket.createdAt);
+        const ticketUrl = ticket.url || constructFallbackJiraUrl(ticket.key, ticket.brand);
         
-        // Render Key as Clickable Link if URL exists
-        const keyHTML = ticket.url 
-          ? `<a href="${ticket.url}" target="_blank" rel="noreferrer" class="ticket-key-link" title="Open Jira Ticket">${ticket.key} <i class="bx bx-external-link" style="font-size:11px;"></i></a>`
-          : `<span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#38bdf8;">${ticket.key}</span>`;
+        // Render Key as Clickable Link
+        const keyHTML = `<a href="${ticketUrl}" target="_blank" rel="noreferrer" class="ticket-key-link" title="Open ${ticket.key} in Atlassian">${ticket.key} <i class="bx bx-external-link"></i></a>`;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -522,9 +559,8 @@
 
       if (overdueTickets.length > 0) {
         const pillsHTML = overdueTickets.map(t => {
-          const pillKeyHTML = t.url
-            ? `<a href="${t.url}" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open Jira Ticket">${t.key} <i class="bx bx-external-link" style="font-size:10px;"></i></a>`
-            : `<span style="color:#38bdf8; font-family:'JetBrains Mono',monospace; font-weight:700;">${t.key}</span>`;
+          const ticketUrl = t.url || constructFallbackJiraUrl(t.key, t.brand);
+          const pillKeyHTML = `<a href="${ticketUrl}" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open Jira Ticket ${t.key}">${t.key} <i class="bx bx-external-link" style="font-size:11px;"></i></a>`;
 
           return `
             <div class="jira-pill-item">
@@ -542,8 +578,6 @@
       }
     }
 
-    // Clean old storage and initialize
-    cleanExistingStorage();
     channel.onmessage = () => render();
     window.addEventListener('storage', () => render());
     document.getElementById('save-ticket-btn').addEventListener('click', saveTicketHandler);
