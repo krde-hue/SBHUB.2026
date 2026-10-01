@@ -8,7 +8,7 @@
   <!-- Preconnect & Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   
   <!-- Boxicons CSS -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
@@ -16,68 +16,114 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./styles.css?v=8.0.0">
 
-  <!-- Real-Time Jira Banner Styling -->
+  <!-- Glassmorphic News Ticker Banner Styles -->
   <style>
-    .jira-alert-banner {
+    .jira-ticker-banner {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      background: rgba(222, 53, 11, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: #ffffff;
-      padding: 10px 24px;
+      height: 40px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(239, 68, 68, 0.4);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(239, 68, 68, 0.3);
       display: none;
       align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 20px rgba(222, 53, 11, 0.4);
+      overflow: hidden;
       z-index: 99999;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      animation: slideDownBanner 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .jira-alert-banner.active {
+    .jira-ticker-banner.active {
       display: flex;
     }
-    @keyframes slideDownBanner {
-      from { transform: translateY(-100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .jira-alert-content {
+    
+    /* Fixed Left Badge */
+    .ticker-label-badge {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 10;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      padding: 0 16px;
       display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      box-shadow: 6px 0 15px rgba(0, 0, 0, 0.5);
+      border-right: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .ticker-label-badge i {
+      font-size: 16px;
+      animation: pulseAlert 1.5s infinite;
+    }
+
+    @keyframes pulseAlert {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.15); }
+    }
+
+    /* Moving Ticker Wrapper */
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+      padding-left: 175px; /* Offset for fixed left badge */
+      box-sizing: border-box;
+    }
+    .ticker-move {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      animation: tickerContinuous 28s linear infinite;
+    }
+    .ticker-move:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes tickerContinuous {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+
+    /* Ticker Item Formatting */
+    .ticker-item {
+      display: inline-flex;
       align-items: center;
       gap: 10px;
-    }
-    .jira-alert-badge {
-      background-color: #ffffff;
-      color: #de350b;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-    }
-    .jira-alert-icon {
-      font-size: 18px;
-      color: #ffbdad;
-    }
-    .jira-alert-link {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 5px 12px;
-      border-radius: 6px;
-      text-decoration: none;
+      padding: 0 32px;
       font-size: 12px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: background 0.2s ease;
+      font-weight: 600;
+      color: #f1f5f9;
     }
-    .jira-alert-link:hover {
-      background: rgba(255, 255, 255, 0.35);
+    .ticker-brand-tag {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .ticker-key {
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    .ticker-time-passed {
+      color: #f87171;
+      font-weight: 700;
+    }
+    .ticker-divider {
+      color: rgba(255, 255, 255, 0.2);
+      margin: 0 8px;
     }
   </style>
 
@@ -91,14 +137,16 @@
 </head>
 <body id="pageBody">
 
-  <!-- TOP PERSISTENT REAL-TIME JIRA OVERDUE BANNER -->
-  <div id="jiraAlertBanner" class="jira-alert-banner">
-    <div class="jira-alert-content">
-      <span class="jira-alert-badge" id="jiraOverdueCount">0</span>
-      <i class="bx bx-error-circle jira-alert-icon"></i>
-      <span class="jira-alert-text" id="jiraAlertText">Pending Jira tickets past 24 hours requiring resolution!</span>
+  <!-- TOP GLASS NEWS TICKER JIRA BANNER -->
+  <div id="jiraAlertBanner" class="jira-ticker-banner">
+    <div class="ticker-label-badge">
+      <i class="bx bx-error-circle"></i> PENDING TICKET ALERT
     </div>
-    <a href="jira.html" target="_blank" class="jira-alert-link">Open Jira Tracker <i class="bx bx-right-arrow-alt"></i></a>
+    <div class="ticker-wrap">
+      <div class="ticker-move" id="tickerContainer">
+        <!-- Rendered Dynamically -->
+      </div>
+    </div>
   </div>
 
   <!-- ANIMATED PLASMA BACKGROUND CANVAS -->
@@ -443,7 +491,7 @@
           </div>
 
           <div class="banner-controls-group">
-            <!-- JIRA TRACKER BUTTON (ADDED BESIDE WIDGETS) -->
+            <!-- JIRA TRACKER BUTTON (BESIDE WIDGETS) -->
             <a href="jira.html" target="_blank" rel="noreferrer" class="dropdown-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
               <i class="bx bx-task"></i> Jira Tracker
             </a>
@@ -596,18 +644,30 @@
     </main>
   </div>
 
-  <!-- REAL-TIME JIRA SLA SYNC SCRIPT -->
+  <!-- REAL-TIME NEWS TICKER JIRA SYNC SCRIPT -->
   <script>
     (function() {
       const STORAGE_KEY = 'jira_tracked_tickets';
       const channel = new BroadcastChannel('jira_sync_channel');
+
+      function formatElapsedTime(createdAt) {
+        const diffMs = new Date() - new Date(createdAt);
+        const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const days = Math.floor(totalHours / 24);
+        const hours = totalHours % 24;
+
+        if (days > 0) {
+          return `${days}d ${hours}h passed (${totalHours}h total)`;
+        }
+        return `${totalHours}h passed`;
+      }
 
       function checkJiraSLA() {
         const rawData = localStorage.getItem(STORAGE_KEY);
         const tickets = JSON.parse(rawData || '[]');
         const now = new Date();
 
-        // Filter tickets older than 24h that are NOT Resolved
+        // Filter tickets > 24 hours old that are NOT Resolved
         const overdueTickets = tickets.filter(t => {
           const isNotResolved = t.status !== 'Resolved';
           const hoursOld = (now - new Date(t.createdAt)) / (1000 * 60 * 60);
@@ -615,13 +675,29 @@
         });
 
         const banner = document.getElementById('jiraAlertBanner');
-        const countBadge = document.getElementById('jiraOverdueCount');
-        const alertText = document.getElementById('jiraAlertText');
+        const tickerContainer = document.getElementById('tickerContainer');
 
         if (overdueTickets.length > 0) {
-          const details = overdueTickets.map(t => `${t.key}${t.brand ? ' [' + t.brand + ']' : ''}`).join(', ');
-          if (countBadge) countBadge.innerText = overdueTickets.length;
-          if (alertText) alertText.innerText = `Pending tickets past 24 hours unresolved: ${details}`;
+          // Construct clean ticker items without raw URLs
+          let tickerItemsHTML = overdueTickets.map(t => {
+            const timeStr = formatElapsedTime(t.createdAt);
+            const brandStr = t.brand ? t.brand : 'KT PROJECTS';
+            return `
+              <span class="ticker-item">
+                <span class="ticker-brand-tag">${brandStr}</span>
+                <span class="ticker-key">${t.key}</span>
+                <span>• Raised <span class="ticker-time-passed">${timeStr}</span> (UNRESOLVED)</span>
+              </span>
+              <span class="ticker-divider">///</span>
+            `;
+          }).join('');
+
+          // Repeat items if small count for smooth continuous looping
+          if (overdueTickets.length <= 2) {
+            tickerItemsHTML = tickerItemsHTML + tickerItemsHTML + tickerItemsHTML;
+          }
+
+          if (tickerContainer) tickerContainer.innerHTML = tickerItemsHTML;
           if (banner) banner.classList.add('active');
         } else {
           // Auto-hide when resolved
@@ -629,11 +705,9 @@
         }
       }
 
-      // Sync across tabs via BroadcastChannel & LocalStorage events
       channel.onmessage = checkJiraSLA;
       window.addEventListener('storage', checkJiraSLA);
 
-      // Execute on startup & periodic 15s check
       document.addEventListener('DOMContentLoaded', checkJiraSLA);
       setInterval(checkJiraSLA, 15000);
     })();
