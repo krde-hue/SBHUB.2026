@@ -28,7 +28,7 @@
       border: 1px solid rgba(239, 68, 68, 0.7);
       border-radius: 8px;
       box-shadow: 0 0 15px rgba(239, 68, 68, 0.25), inset 0 0 10px rgba(239, 68, 68, 0.15);
-      display: none; /* Toggled to flex via JS */
+      display: none; /* Toggled via JS */
       align-items: center;
       justify-content: space-between;
       padding: 6px 14px;
@@ -103,10 +103,19 @@
       border: 1px solid rgba(239, 68, 68, 0.5);
     }
 
-    .jira-pill-key {
+    /* Clickable Key Link in Banner Pill */
+    .jira-pill-key-link {
       color: #38bdf8;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .jira-pill-key-link:hover {
+      color: #7dd3fc;
+      text-decoration: underline;
     }
 
     .jira-pill-time {
@@ -701,10 +710,14 @@
             const timeStr = formatElapsedTime(t.createdAt);
             const brandStr = t.brand ? t.brand : 'KT PROJECTS';
 
+            const keyLinkHTML = t.url
+              ? `<a href="${t.url}" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open Jira Ticket">${cleanKey} <i class="bx bx-external-link" style="font-size:10px;"></i></a>`
+              : `<span style="color:#38bdf8; font-family:'JetBrains Mono',monospace; font-weight:700;">${cleanKey}</span>`;
+
             return `
               <div class="jira-pill-item">
                 <span class="jira-pill-brand">${brandStr}</span>
-                <span class="jira-pill-key">${cleanKey}</span>
+                ${keyLinkHTML}
                 <span>• <span class="jira-pill-time">${timeStr}</span></span>
               </div>
             `;
