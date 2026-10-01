@@ -61,22 +61,36 @@ function switchBrandTab(tabName) {
 }
 
 /* --- COMPREHENSIVE LEAGUES DIRECTORY (TOP TIER + SECONDARY LEAGUES) --- */
-const ALL_COMPETITION_LEAGUES = [
+const TOP_TIER_LEAGUES = [
   { name: "UEFA Champions League", code: "uefa.champions" },
-  { name: "UEFA Europa League", code: "uefa.europa" },
-  { name: "UEFA Conference League", code: "uefa.europa.conf" },
   { name: "Premier League", code: "eng.1" },
   { name: "La Liga", code: "esp.1" },
   { name: "Bundesliga", code: "ger.1" },
   { name: "Serie A", code: "ita.1" },
   { name: "Ligue 1", code: "fra.1" },
+  { name: "UEFA Europa League", code: "uefa.europa" },
+  { name: "UEFA Conference League", code: "uefa.europa.conf" },
+  { name: "Copa Libertadores", code: "conmebol.libertadores" }
+];
+
+const SECONDARY_LEAGUES = [
+  { name: "EFL Championship", code: "eng.2" },
+  { name: "Major League Soccer", code: "usa.1" },
   { name: "Eredivisie", code: "ned.1" },
   { name: "Primeira Liga", code: "por.1" },
   { name: "Saudi Pro League", code: "sau.1" },
-  { name: "EFL Championship", code: "eng.2" },
-  { name: "Major League Soccer", code: "usa.1" },
-  { name: "Copa Libertadores", code: "conmebol.libertadores" }
+  { name: "Argentine Liga Profesional", code: "arg.1" },
+  { name: "Brasileirão Serie A", code: "bra.1" },
+  { name: "Liga MX", code: "mex.1" },
+  { name: "FIFA ASEAN CUP", code: "aff.championship" },
+  { name: "UEFA Nations League - League A", code: "uefa.nations" },
+  { name: "UEFA Nations League - League B", code: "uefa.nations" },
+  { name: "UEFA Nations League - League C", code: "uefa.nations" },
+  { name: "UEFA Nations League - League D", code: "uefa.nations" },
+  { name: "AFRICA CUP OF NATIONS", code: "caf.nations" }
 ];
+
+const ALL_COMPETITION_LEAGUES = [...TOP_TIER_LEAGUES, ...SECONDARY_LEAGUES];
 
 /* --- REAL-TIME TOP PICKS / HOT BOOSTS ENGINE --- */
 async function fetchTopPicksAndBoosts() {
@@ -85,6 +99,7 @@ async function fetchTopPicksAndBoosts() {
 
   try {
     let allPicks = [];
+    const seenMatchKeys = new Set();
 
     for (const league of ALL_COMPETITION_LEAGUES) {
       if (allPicks.length >= 7) break;
@@ -111,6 +126,10 @@ async function fetchTopPicksAndBoosts() {
               const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
               const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
 
+              const matchKey = evt.id || `${homeName}-${awayName}`;
+              if (seenMatchKeys.has(matchKey)) continue;
+              seenMatchKeys.add(matchKey);
+
               const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
               const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
 
@@ -132,13 +151,14 @@ async function fetchTopPicksAndBoosts() {
               ];
 
               const selectedMarket = markets[allPicks.length % markets.length];
+              const displayedLeagueName = data.leagues?.[0]?.name || league.name;
 
               allPicks.push({
                 homeName,
                 awayName,
                 homeLogo,
                 awayLogo,
-                leagueName: league.name,
+                leagueName: displayedLeagueName,
                 market: selectedMarket,
                 badge: (allPicks.length % 2 === 0) ? "TOP PICK" : "HOT",
                 kickOff: kickOffStr
@@ -690,20 +710,28 @@ async function fetchLiveGames() {
 }
 
 async function fetchLeagueList(leagueList, dateQuery) {
-  const fetchPromises = leagueList.map(league =>
-    fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateQuery}`)
+  const uniqueCodeToLeagues = new Map();
+  leagueList.forEach(league => {
+    if (!uniqueCodeToLeagues.has(league.code)) {
+      uniqueCodeToLeagues.set(league.code, league.name);
+    }
+  });
+
+  const fetchPromises = Array.from(uniqueCodeToLeagues.entries()).map(([code, defaultName]) =>
+    fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`)
       .then(res => res.ok ? res.json() : null)
-      .then(data => data ? { league, data } : null)
+      .then(data => data ? { code, defaultName, data } : null)
       .catch(() => null)
   );
 
   const results = await Promise.all(fetchPromises);
   let matches = [];
+  const seenMatchKeys = new Set();
 
   for (const item of results) {
     if (!item || !item.data || !item.data.events) continue;
     for (const evt of item.data.events) {
-      if (matches.length >= 12) break;
+      if (matches.length >= 15) break;
       const comp = evt.competitions?.[0];
       if (!comp) continue;
 
@@ -713,6 +741,10 @@ async function fetchLeagueList(leagueList, dateQuery) {
       if (homeTeam && awayTeam) {
         const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
         const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
+
+        const matchKey = evt.id || `${homeName}-${awayName}`;
+        if (seenMatchKeys.has(matchKey)) continue;
+        seenMatchKeys.add(matchKey);
 
         const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
         const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
@@ -728,12 +760,14 @@ async function fetchLeagueList(leagueList, dateQuery) {
           }).format(dObj);
         }
 
+        const displayedLeagueName = item.data.leagues?.[0]?.name || item.defaultName;
+
         matches.push({
           homeName,
           awayName,
           homeLogo,
           awayLogo,
-          leagueName: item.league.name,
+          leagueName: displayedLeagueName,
           kickOffTime
         });
       }
