@@ -29,50 +29,55 @@
       background-attachment: fixed;
       color: var(--text-main);
       min-height: 100vh;
-      padding-top: 40px;
+      padding-top: 30px;
       line-height: 1.5;
     }
 
-    /* Inline Banner Inside Jira Tracker Page */
-    .jira-inline-ticker-banner {
-      width: 100%; height: 38px;
+    /* Static High-Visibility Alert Banner Inside Jira Tracker */
+    .jira-static-alert-banner {
+      width: 100%;
+      min-height: 40px;
       margin-bottom: 24px;
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(220, 38, 38, 0.18);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(239, 68, 68, 0.4);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(239, 68, 68, 0.7);
       border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(239, 68, 68, 0.15);
-      display: none; align-items: center; position: relative; overflow: hidden;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.25), inset 0 0 10px rgba(239, 68, 68, 0.15);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px;
+      gap: 12px;
+      box-sizing: border-box;
     }
-    .jira-inline-ticker-banner.active { display: flex; }
+    .jira-static-alert-banner.active { display: flex !important; }
 
-    .ticker-label-badge {
-      position: absolute; left: 0; top: 0; bottom: 0; z-index: 10;
+    .jira-alert-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .jira-alert-badge {
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      color: #ffffff; padding: 0 14px; display: flex; align-items: center; gap: 6px;
-      font-weight: 800; font-size: 10px; text-transform: uppercase;
-      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4); border-right: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff; font-weight: 800; font-size: 11px; padding: 5px 12px;
+      border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
     }
 
-    .ticker-wrap { width: 100%; overflow: hidden; padding-left: 170px; box-sizing: border-box; }
-    
-    .ticker-move {
-      display: inline-block; white-space: nowrap; padding-left: 100%;
-      animation: tickerWithPause 40s linear infinite;
-    }
-    .ticker-move:hover { animation-play-state: paused; }
+    .jira-ticket-pills-container { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-    @keyframes tickerWithPause {
-      0% { transform: translate3d(0, 0, 0); }
-      75% { transform: translate3d(-100%, 0, 0); }
-      100% { transform: translate3d(-100%, 0, 0); }
+    .jira-pill-item {
+      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 4px 10px; border-radius: 6px; font-size: 12px; color: #f8fafc;
+      display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
     }
 
-    .ticker-item { display: inline-flex; align-items: center; gap: 8px; padding: 0 28px; font-size: 12px; font-weight: 600; color: #f1f5f9; }
-    .ticker-brand-tag { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); padding: 1px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; }
-    .ticker-key { color: #ffffff; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-    .ticker-time-passed { color: #f87171; font-weight: 700; }
-    .ticker-divider { color: rgba(255, 255, 255, 0.2); margin: 0 6px; }
+    .jira-pill-brand {
+      color: #fca5a5; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 10px;
+      background: rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+
+    .jira-pill-key { color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .jira-pill-time { color: #f87171; font-weight: 700; }
 
     .container { max-width: 1100px; margin: 0 auto 40px auto; padding: 0 20px; }
     
@@ -127,13 +132,13 @@
   <div class="container">
     <h1>📋 Jira Resolution Tracker</h1>
 
-    <!-- Inline Banner inside Jira Tracker -->
-    <div id="notification-banner" class="jira-inline-ticker-banner">
-      <div class="ticker-label-badge">
-        ⚠️ PENDING TICKET ALERT
-      </div>
-      <div class="ticker-wrap">
-        <div class="ticker-move" id="tickerContainer">
+    <!-- Static High-Visibility Banner -->
+    <div id="notification-banner" class="jira-static-alert-banner">
+      <div class="jira-alert-left">
+        <div class="jira-alert-badge">
+          ⚠️ PENDING JIRA (>24H)
+        </div>
+        <div class="jira-ticket-pills-container" id="jiraPillsContainer">
           <!-- Rendered Dynamically -->
         </div>
       </div>
@@ -285,7 +290,7 @@
       let overdueTickets = [];
 
       tickets.forEach(ticket => {
-        const isResolved = ticket.status === 'Resolved';
+        const isResolved = String(ticket.status).toLowerCase() === 'resolved';
         const hoursAgo = Math.floor((new Date() - new Date(ticket.createdAt)) / 3600000);
         const overdue = !isResolved && hoursAgo >= 24;
 
@@ -312,26 +317,23 @@
         tbody.appendChild(tr);
       });
 
-      // Render Ticker Banner
+      // Render Alert Banner
       const banner = document.getElementById('notification-banner');
-      const tickerContainer = document.getElementById('tickerContainer');
+      const pillsContainer = document.getElementById('jiraPillsContainer');
 
       if (overdueTickets.length > 0) {
-        let tickerHTML = overdueTickets.map(t => `
-          <span class="ticker-item">
-            <span class="ticker-brand-tag">${t.brand || 'KT PROJECTS'}</span>
-            <span class="ticker-key">${t.key}</span>
-            <span>• Raised <span class="ticker-time-passed">${formatElapsedTime(t.createdAt)}</span> (UNRESOLVED)</span>
-          </span>
-          <span class="ticker-divider">///</span>
+        const pillsHTML = overdueTickets.map(t => `
+          <div class="jira-pill-item">
+            <span class="jira-pill-brand">${t.brand || 'KT PROJECTS'}</span>
+            <span class="jira-pill-key">${t.key}</span>
+            <span>• <span class="jira-pill-time">${formatElapsedTime(t.createdAt)}</span></span>
+          </div>
         `).join('');
 
-        if (overdueTickets.length <= 2) tickerHTML = tickerHTML + tickerHTML + tickerHTML;
-
-        tickerContainer.innerHTML = tickerHTML;
-        banner.classList.add('active');
+        if (pillsContainer) pillsContainer.innerHTML = pillsHTML;
+        if (banner) banner.classList.add('active');
       } else {
-        banner.classList.remove('active');
+        if (banner) banner.classList.remove('active');
       }
     }
 
@@ -340,7 +342,7 @@
     document.getElementById('add-ticket-btn').addEventListener('click', addTicket);
 
     render();
-    setInterval(render, 15000);
+    setInterval(render, 10000);
   </script>
 </body>
 </html>
