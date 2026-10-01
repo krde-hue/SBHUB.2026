@@ -16,30 +16,30 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./styles.css?v=8.0.0">
 
-  <!-- Glassmorphic News Ticker Banner Styles -->
+  <!-- Glassmorphic Banner Styles (Positioned in Yellow Box) -->
   <style>
-    .jira-ticker-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* Inline Banner placed inside Top Banner Card (Yellow Box Position) */
+    .jira-inline-ticker-banner {
       width: 100%;
-      height: 40px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(239, 68, 68, 0.4);
-      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(239, 68, 68, 0.3);
+      height: 36px;
+      margin: 12px 0 14px 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(239, 68, 68, 0.15);
       display: none;
       align-items: center;
+      position: relative;
       overflow: hidden;
-      z-index: 99999;
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    .jira-ticker-banner.active {
+    .jira-inline-ticker-banner.active {
       display: flex;
     }
     
-    /* Fixed Left Badge */
+    /* Left Alert Badge */
     .ticker-label-badge {
       position: absolute;
       left: 0;
@@ -48,67 +48,81 @@
       z-index: 10;
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       color: #ffffff;
-      padding: 0 16px;
+      padding: 0 14px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-weight: 800;
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing: 0.8px;
       text-transform: uppercase;
-      box-shadow: 6px 0 15px rgba(0, 0, 0, 0.5);
-      border-right: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      border-top-left-radius: 7px;
+      border-bottom-left-radius: 7px;
     }
     .ticker-label-badge i {
-      font-size: 16px;
-      animation: pulseAlert 1.5s infinite;
+      font-size: 15px;
+      animation: pulseAlert 3.5s ease-in-out infinite;
     }
 
     @keyframes pulseAlert {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(1.15); }
+      50% { opacity: 0.7; transform: scale(1.08); }
     }
 
-    /* Moving Ticker Wrapper */
+    /* Ticker Wrapper & Animation with 10-second Pause */
     .ticker-wrap {
       width: 100%;
       overflow: hidden;
-      padding-left: 175px; /* Offset for fixed left badge */
+      padding-left: 170px; /* Offset for fixed left badge */
       box-sizing: border-box;
     }
+    
     .ticker-move {
       display: inline-block;
       white-space: nowrap;
       padding-left: 100%;
-      animation: tickerContinuous 28s linear infinite;
+      /* 40s total: 30s slow roll + 10s pause before re-rolling */
+      animation: tickerWithPause 40s linear infinite;
     }
+    
     .ticker-move:hover {
       animation-play-state: paused;
     }
 
-    @keyframes tickerContinuous {
-      0% { transform: translate3d(0, 0, 0); }
-      100% { transform: translate3d(-100%, 0, 0); }
+    @keyframes tickerWithPause {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      75% {
+        /* 75% of 40s = 30 seconds of slow scrolling */
+        transform: translate3d(-100%, 0, 0);
+      }
+      100% {
+        /* Remaining 25% (10 seconds) holds position as pause before looping */
+        transform: translate3d(-100%, 0, 0);
+      }
     }
 
-    /* Ticker Item Formatting */
+    /* Ticker Text Formatting */
     .ticker-item {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 0 32px;
+      gap: 8px;
+      padding: 0 28px;
       font-size: 12px;
       font-weight: 600;
       color: #f1f5f9;
     }
     .ticker-brand-tag {
-      background: rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.25);
       color: #fca5a5;
       border: 1px solid rgba(239, 68, 68, 0.5);
-      padding: 2px 8px;
+      padding: 1px 6px;
       border-radius: 4px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.5px;
     }
@@ -123,7 +137,7 @@
     }
     .ticker-divider {
       color: rgba(255, 255, 255, 0.2);
-      margin: 0 8px;
+      margin: 0 6px;
     }
   </style>
 
@@ -136,18 +150,6 @@
   <script src="./app.js?v=8.0.0" defer></script>
 </head>
 <body id="pageBody">
-
-  <!-- TOP GLASS NEWS TICKER JIRA BANNER -->
-  <div id="jiraAlertBanner" class="jira-ticker-banner">
-    <div class="ticker-label-badge">
-      <i class="bx bx-error-circle"></i> PENDING TICKET ALERT
-    </div>
-    <div class="ticker-wrap">
-      <div class="ticker-move" id="tickerContainer">
-        <!-- Rendered Dynamically -->
-      </div>
-    </div>
-  </div>
 
   <!-- ANIMATED PLASMA BACKGROUND CANVAS -->
   <canvas id="bgCanvas"></canvas>
@@ -473,6 +475,18 @@
           </div>
         </div>
 
+        <!-- MIDDLE ROW: JIRA PENDING TICKETS BANNER (EXACT YELLOW BOX POSITION) -->
+        <div id="jiraAlertBanner" class="jira-inline-ticker-banner">
+          <div class="ticker-label-badge">
+            <i class="bx bx-error-circle"></i> PENDING JIRA ALERT
+          </div>
+          <div class="ticker-wrap">
+            <div class="ticker-move" id="tickerContainer">
+              <!-- Rendered Dynamically -->
+            </div>
+          </div>
+        </div>
+
         <!-- BOTTOM ROW -->
         <div class="banner-bottom-row">
           <div class="world-clocks">
@@ -491,7 +505,7 @@
           </div>
 
           <div class="banner-controls-group">
-            <!-- JIRA TRACKER BUTTON (BESIDE WIDGETS) -->
+            <!-- JIRA TRACKER BUTTON -->
             <a href="jira.html" target="_blank" rel="noreferrer" class="dropdown-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
               <i class="bx bx-task"></i> Jira Tracker
             </a>
@@ -644,11 +658,17 @@
     </main>
   </div>
 
-  <!-- REAL-TIME NEWS TICKER JIRA SYNC SCRIPT -->
+  <!-- REAL-TIME TICKER & SLA SYNC SCRIPT -->
   <script>
     (function() {
       const STORAGE_KEY = 'jira_tracked_tickets';
       const channel = new BroadcastChannel('jira_sync_channel');
+
+      function sanitizeTicketKey(key) {
+        if (!key) return 'JIRA TICKET';
+        const keyMatch = key.match(/[A-Z0-9]{2,10}-\d+/i);
+        return keyMatch ? keyMatch[0].toUpperCase() : (key.length > 20 ? key.substring(0, 20) + '...' : key);
+      }
 
       function formatElapsedTime(createdAt) {
         const diffMs = new Date() - new Date(createdAt);
@@ -667,7 +687,7 @@
         const tickets = JSON.parse(rawData || '[]');
         const now = new Date();
 
-        // Filter tickets > 24 hours old that are NOT Resolved
+        // Filter tickets older than 24h that are NOT Resolved
         const overdueTickets = tickets.filter(t => {
           const isNotResolved = t.status !== 'Resolved';
           const hoursOld = (now - new Date(t.createdAt)) / (1000 * 60 * 60);
@@ -678,21 +698,22 @@
         const tickerContainer = document.getElementById('tickerContainer');
 
         if (overdueTickets.length > 0) {
-          // Construct clean ticker items without raw URLs
           let tickerItemsHTML = overdueTickets.map(t => {
+            const cleanKey = sanitizeTicketKey(t.key);
             const timeStr = formatElapsedTime(t.createdAt);
             const brandStr = t.brand ? t.brand : 'KT PROJECTS';
+
             return `
               <span class="ticker-item">
                 <span class="ticker-brand-tag">${brandStr}</span>
-                <span class="ticker-key">${t.key}</span>
+                <span class="ticker-key">${cleanKey}</span>
                 <span>• Raised <span class="ticker-time-passed">${timeStr}</span> (UNRESOLVED)</span>
               </span>
               <span class="ticker-divider">///</span>
             `;
           }).join('');
 
-          // Repeat items if small count for smooth continuous looping
+          // Repeat items for smooth continuous marquee flow if only 1-2 tickets exist
           if (overdueTickets.length <= 2) {
             tickerItemsHTML = tickerItemsHTML + tickerItemsHTML + tickerItemsHTML;
           }
