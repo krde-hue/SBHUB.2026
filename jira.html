@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jira Ticket Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Color Variables & Theming */
+    :root {
+      /* Light Mode Variables */
+      --bg-gradient: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+      --glass-bg: rgba(255, 255, 255, 0.55);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      --text-main: #172b4d;
+      --text-muted: #5e6c84;
+      --input-bg: rgba(255, 255, 255, 0.8);
+      --input-border: rgba(255, 255, 255, 0.6);
+      
+      --primary: #0052cc;
+      --primary-hover: #0065ff;
+      --danger: #de350b;
+      --danger-bg: rgba(222, 53, 11, 0.15);
+      --success: #00875a;
+      --success-bg: rgba(0, 135, 90, 0.15);
+      --brand-pill-bg: rgba(23, 43, 77, 0.1);
+    }
+
+    [data-theme="dark"] {
+      /* Dark Mode Variables */
+      --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+      --glass-bg: rgba(20, 20, 25, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      --text-main: #e3e5e8;
+      --text-muted: #9fa6b2;
+      --input-bg: rgba(255, 255, 255, 0.08);
+      --input-border: rgba(255, 255, 255, 0.15);
+
+      --primary: #4c9aff;
+      --primary-hover: #2684ff;
+      --danger: #ff5630;
+      --danger-bg: rgba(255, 86, 48, 0.2);
+      --success: #36b37e;
+      --success-bg: rgba(54, 179, 126, 0.2);
+      --brand-pill-bg: rgba(255, 255, 255, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+    
+    body {
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-top: 80px;
+      line-height: 1.5;
+    }
+
+    /* Top Persistent Banner */
+    #notification-banner {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: rgba(222, 53, 11, 0.9);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #ffffff;
+      padding: 12px 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(222, 53, 11, 0.3);
+      z-index: 9999;
+      font-size: 14px;
+      font-weight: 500;
+      animation: slideDown 0.3s ease-out;
+    }
+    #notification-banner.active { display: flex; }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
+
+    .banner-badge {
+      background-color: #ffffff;
+      color: var(--danger);
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-right: 10px;
+    }
+
+    /* Layout & Glassmorphism Cards */
+    .container { max-width: 1100px; margin: 0 auto 40px auto; padding: 0 20px; }
+    
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 28px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+    h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+
+    /* Theme Toggle Switch */
+    .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; }
+    .theme-switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--input-border); transition: .4s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(22px); }
+
+    /* Inputs & Forms */
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 8px; color: var(--text-muted); }
+    
+    textarea, input, select {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+    }
+    textarea:focus, input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.15); }
+    [data-theme="dark"] textarea:focus, [data-theme="dark"] input:focus, [data-theme="dark"] select:focus { box-shadow: 0 0 0 3px rgba(76, 154, 255, 0.2); }
+    
+    /* Quick Paste gets special blur styling */
+    textarea { height: 75px; resize: vertical; background: rgba(255,255,255,0.4); }
+    [data-theme="dark"] textarea { background: rgba(0,0,0,0.2); }
+    
+    select option { background: var(--card-bg, #fff); color: #172b4d; }
+    [data-theme="dark"] select option { background: #203a43; color: #fff; }
+
+    .grid-4 { display: grid; grid-template-columns: 1.5fr 1.2fr 1fr 1.2fr; gap: 16px; }
+    @media (max-width: 768px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 82, 204, 0.3);
+      transform: translateY(0);
+      transition: all 0.2s ease;
+    }
+    .btn:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 82, 204, 0.4); }
+    .btn:active { transform: translateY(0); }
+
+    /* Table Styles */
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 10px; }
+    th { text-align: left; padding: 10px 16px; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--glass-border); }
+    
+    td { padding: 14px 16px; background: var(--input-bg); font-size: 14px; }
+    td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+    td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+    
+    /* Badges */
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-brand { background-color: var(--brand-pill-bg); color: var(--text-main); border: 1px solid var(--input-border); }
+    .badge-overdue { background-color: var(--danger-bg); color: var(--danger); border: 1px solid rgba(222, 53, 11, 0.2); animation: pulse 2s infinite; }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(222, 53, 11, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(222, 53, 11, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(222, 53, 11, 0); }
+    }
+
+    .action-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+    .action-btn:hover { background: var(--danger-bg); color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Persistent Banner for >24h Unresolved Tickets -->
+  <div id="notification-banner">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="banner-badge" id="banner-count">0</span>
+      <strong>Overdue Ticket Alert:</strong>
+      <span id="banner-message">One or more tickets passed 24 hours without resolution.</span>
+    </div>
+  </div>
+
+  <div class="container">
+    
+    <div class="header-row">
+      <h1>📋 Glass Jira Tracker</h1>
+      <div class="theme-switch-wrapper">
+        <label for="checkbox">Dark Mode</label>
+        <label class="theme-switch" for="checkbox">
+          <input type="checkbox" id="checkbox" />
+          <div class="slider"></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Quick Paste & Add Card -->
+    <div class="glass-card">
+      <h2>Add New Ticket</h2>
+      <div class="form-group">
+        <label for="smart-input">Quick Paste (Summary, URL, or Text)</label>
+        <textarea id="smart-input" placeholder="Paste raw text here... Keys like PROJ-1234 will auto-extract"></textarea>
+      </div>
+
+      <div class="grid-4">
+        <div class="form-group">
+          <label for="ticket-key">Ticket Key</label>
+          <input type="text" id="ticket-key" placeholder="e.g. JIRA-1234" />
+        </div>
+        <div class="form-group">
+          <label for="ticket-brand">Brand</label>
+          <select id="ticket-brand">
+            <option value="KT PROJECTS">KT PROJECTS</option>
+            <option value="IBET">IBET</option>
+            <option value="BETSSON">BETSSON</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ticket-status">Status</label>
+          <select id="ticket-status">
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="In Review">In Review</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ticket-time">Creation Time</label>
+          <input type="datetime-local" id="ticket-time" />
+        </div>
+      </div>
+
+      <button class="btn" id="add-ticket-btn">+ Track Ticket</button>
+    </div>
+
+    <!-- Active Tickets Table -->
+    <div class="glass-card">
+      <h2>Active Tracker</h2>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Brand</th>
+              <th>Summary</th>
+              <th>Created</th>
+              <th>SLA Status</th>
+              <th>State</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="ticket-table-body">
+            <!-- Dynamically Rendered -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle Logic
+    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+    const currentTheme = localStorage.getItem('theme');
+    
+    if (currentTheme) {
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      if (currentTheme === 'dark') toggleSwitch.checked = true;
+    }
+
+    toggleSwitch.addEventListener('change', function(e) {
+      if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    // App Logic
+    const STORAGE_KEY = 'jira_tracked_tickets';
+    const channel = new BroadcastChannel('jira_sync_channel');
+
+    // Default time picker
+    document.getElementById('ticket-time').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+    // Auto-extract Key
+    document.getElementById('smart-input').addEventListener('input', (e) => {
+      const text = e.target.value;
+      const keyMatch = text.match(/[A-Z]{2,10}-\d+/i);
+      if (keyMatch) document.getElementById('ticket-key').value = keyMatch[0].toUpperCase();
+    });
+
+    function getTickets() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+
+    function saveTickets(tickets) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+      channel.postMessage('update');
+      render();
+    }
+
+    function addTicket() {
+      const keyInput = document.getElementById('ticket-key');
+      const brandInput = document.getElementById('ticket-brand');
+      const inputSummary = document.getElementById('smart-input');
+      const statusInput = document.getElementById('ticket-status');
+      const timeInput = document.getElementById('ticket-time');
+
+      if (!keyInput.value.trim()) return alert('Please provide a Ticket Key.');
+
+      const tickets = getTickets();
+      const newTicket = {
+        id: Date.now().toString(),
+        key: keyInput.value.trim().toUpperCase(),
+        brand: brandInput.value,
+        summary: inputSummary.value.trim() || keyInput.value.trim().toUpperCase(),
+        status: statusInput.value,
+        createdAt: timeInput.value ? new Date(timeInput.value).toISOString() : new Date().toISOString()
+      };
+
+      tickets.unshift(newTicket);
+      saveTickets(tickets);
+
+      keyInput.value = '';
+      inputSummary.value = '';
+      document.getElementById('ticket-time').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+
+    function updateStatus(id, newStatus) {
+      const tickets = getTickets();
+      const ticket = tickets.find(t => t.id === id);
+      if (ticket) { ticket.status = newStatus; saveTickets(tickets); }
+    }
+
+    function deleteTicket(id) {
+      saveTickets(getTickets().filter(t => t.id !== id));
+    }
+
+    function isOver24Hours(createdAt) {
+      return ((new Date() - new Date(createdAt)) / 3600000) >= 24;
+    }
+
+    function render() {
+      const tickets = getTickets();
+      const tbody = document.getElementById('ticket-table-body');
+      tbody.innerHTML = '';
+
+      let overdueCount = 0;
+      let overdueDetails = [];
+
+      tickets.forEach(ticket => {
+        const isResolved = ticket.status === 'Resolved';
+        const overdue = !isResolved && isOver24Hours(ticket.createdAt);
+
+        if (overdue) {
+          overdueCount++;
+          overdueDetails.push(`${ticket.key} (${ticket.brand || 'N/A'})`);
+        }
+
+        const createdDate = new Date(ticket.createdAt);
+        const hoursAgo = Math.floor((new Date() - createdDate) / 3600000);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${ticket.key}</strong></td>
+          <td><span class="badge badge-brand">${ticket.brand || 'N/A'}</span></td>
+          <td>${ticket.summary}</td>
+          <td style="white-space: nowrap;">${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+          <td>
+            ${overdue ? `<span class="badge badge-overdue">⚠️ ${hoursAgo}h ago (>24h)</span>` : `<span>${hoursAgo}h ago</span>`}
+          </td>
+          <td>
+            <select style="width: auto; padding: 6px 10px;" onchange="updateStatus('${ticket.id}', this.value)">
+              <option value="Open" ${ticket.status === 'Open' ? 'selected' : ''}>Open</option>
+              <option value="In Progress" ${ticket.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option value="In Review" ${ticket.status === 'In Review' ? 'selected' : ''}>In Review</option>
+              <option value="Resolved" ${ticket.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+            </select>
+          </td>
+          <td>
+            <button class="action-btn" onclick="deleteTicket('${ticket.id}')">✕ Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Banner Sync
+      const banner = document.getElementById('notification-banner');
+      if (overdueCount > 0) {
+        banner.classList.add('active');
+        document.getElementById('banner-count').innerText = overdueCount;
+        document.getElementById('banner-message').innerText = `${overdueDetails.join(', ')}`;
+      } else {
+        banner.classList.remove('active');
+      }
+    }
+
+    channel.onmessage = () => render();
+    window.addEventListener('storage', () => render());
+    document.getElementById('add-ticket-btn').addEventListener('click', addTicket);
+
+    render();
+    setInterval(render, 30000);
+  </script>
+</body>
+</html>
