@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Jira Ticket Tracker</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Boxicons CSS for icons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <style>
     :root {
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -76,7 +78,21 @@
       background: rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5);
     }
 
-    .jira-pill-key { color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    /* Clickable Key Link in Banner Pill */
+    .jira-pill-key-link {
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .jira-pill-key-link:hover {
+      color: #7dd3fc;
+      text-decoration: underline;
+    }
+
     .jira-pill-time { color: #f87171; font-weight: 700; }
 
     .container { max-width: 1100px; margin: 0 auto 40px auto; padding: 0 20px; }
@@ -130,14 +146,31 @@
       border-collapse: separate;
       border-spacing: 0 8px;
       margin-top: 10px;
-      table-layout: fixed; /* Fixes cell width blowouts */
+      table-layout: fixed;
     }
     
     th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--glass-border); }
     td { padding: 12px 12px; background: rgba(15, 23, 42, 0.5); font-size: 13px; word-break: break-word; overflow-wrap: anywhere; vertical-align: middle; }
     
     /* Column Width Allocation */
-    .col-key { width: 120px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #38bdf8; }
+    .col-key { width: 140px; }
+    
+    /* Styled Clickable Key Link in Table */
+    .ticket-key-link {
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s;
+    }
+    .ticket-key-link:hover {
+      color: #7dd3fc;
+      text-decoration: underline;
+    }
+
     .col-brand { width: 110px; }
     .col-summary { width: auto; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .col-created { width: 140px; white-space: nowrap; font-size: 12px; }
@@ -239,7 +272,7 @@
         <table>
           <thead>
             <tr>
-              <th class="col-key">Key</th>
+              <th class="col-key">Key (Link)</th>
               <th class="col-brand">Brand</th>
               <th class="col-summary">Summary</th>
               <th class="col-created">Created</th>
@@ -268,20 +301,29 @@
       return match ? match[0].toUpperCase() : rawText.trim().toUpperCase();
     }
 
-    // Auto-clean any old stored tickets that contained giant URLs as keys
+    // Helper: Extract Full URL
+    function extractUrl(rawText) {
+      if (!rawText) return '';
+      const match = String(rawText).match(/https?:\/\/[^\s]+/i);
+      return match ? match[0] : '';
+    }
+
+    // Auto-clean any old stored tickets and migration to URL field
     function cleanExistingStorage() {
       let tickets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       let updated = false;
 
       tickets = tickets.map(t => {
+        let extractedUrl = extractUrl(t.url) || extractUrl(t.summary) || extractUrl(t.key);
         let cleanK = sanitizeKey(t.key);
         let cleanS = t.summary ? t.summary.replace(/https?:\/\/[^\s]+/gi, '').trim() : '';
-        
-        if (cleanK !== t.key || cleanS !== t.summary) {
+
+        if (cleanK !== t.key || cleanS !== t.summary || (extractedUrl && t.url !== extractedUrl)) {
           updated = true;
           return {
             ...t,
             key: cleanK || 'JIRA-TICKET',
+            url: extractedUrl || t.url || '',
             summary: cleanS || cleanK || 'Jira Ticket'
           };
         }
@@ -343,6 +385,7 @@
       if (!keyInput.value.trim()) return alert('Please provide a Jira Ticket Key.');
 
       const cleanKey = sanitizeKey(keyInput.value);
+      const extractedUrl = extractUrl(inputSummary.value) || extractUrl(keyInput.value);
       const tickets = getTickets();
 
       if (editingTicketId) {
@@ -352,6 +395,7 @@
           tickets[index] = {
             ...tickets[index],
             key: cleanKey,
+            url: extractedUrl || tickets[index].url || '',
             brand: brandInput.value,
             summary: cleanTextSummary(inputSummary.value, cleanKey),
             status: statusInput.value,
@@ -363,6 +407,7 @@
         const newTicket = {
           id: Date.now().toString(),
           key: cleanKey,
+          url: extractedUrl,
           brand: brandInput.value,
           summary: cleanTextSummary(inputSummary.value, cleanKey),
           status: statusInput.value,
@@ -385,14 +430,14 @@
       document.getElementById('ticket-key').value = ticket.key;
       document.getElementById('ticket-brand').value = ticket.brand || 'KT PROJECTS';
       document.getElementById('ticket-status').value = ticket.status || 'Open';
-      document.getElementById('smart-input').value = ticket.summary;
+      document.getElementById('smart-input').value = ticket.url ? `${ticket.summary} ${ticket.url}` : ticket.summary;
 
       if (ticket.createdAt) {
         const localDate = new Date(new Date(ticket.createdAt).getTime() - new Date().getTimezoneOffset() * 60000);
         document.getElementById('ticket-time').value = localDate.toISOString().slice(0, 16);
       }
 
-      document.getElementById('form-title').innerText = `✏️️ Editing Ticket: ${ticket.key}`;
+      document.getElementById('form-title').innerText = `✏ Editing Ticket: ${ticket.key}`;
       document.getElementById('save-ticket-btn').innerText = '💾 Save Changes';
       document.getElementById('cancel-edit-btn').style.display = 'inline-block';
 
@@ -440,9 +485,15 @@
         if (overdue) overdueTickets.push(ticket);
 
         const createdDate = new Date(ticket.createdAt);
+        
+        // Render Key as Clickable Link if URL exists
+        const keyHTML = ticket.url 
+          ? `<a href="${ticket.url}" target="_blank" rel="noreferrer" class="ticket-key-link" title="Open Jira Ticket">${ticket.key} <i class="bx bx-external-link" style="font-size:11px;"></i></a>`
+          : `<span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#38bdf8;">${ticket.key}</span>`;
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="col-key">${ticket.key}</td>
+          <td class="col-key">${keyHTML}</td>
           <td class="col-brand"><span class="badge badge-brand">${ticket.brand || 'N/A'}</span></td>
           <td class="col-summary" title="${ticket.summary}">${ticket.summary}</td>
           <td class="col-created">${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
@@ -470,13 +521,19 @@
       const pillsContainer = document.getElementById('jiraPillsContainer');
 
       if (overdueTickets.length > 0) {
-        const pillsHTML = overdueTickets.map(t => `
-          <div class="jira-pill-item">
-            <span class="jira-pill-brand">${t.brand || 'KT PROJECTS'}</span>
-            <span class="jira-pill-key">${t.key}</span>
-            <span>• <span class="jira-pill-time">${formatElapsedTime(t.createdAt)}</span></span>
-          </div>
-        `).join('');
+        const pillsHTML = overdueTickets.map(t => {
+          const pillKeyHTML = t.url
+            ? `<a href="${t.url}" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open Jira Ticket">${t.key} <i class="bx bx-external-link" style="font-size:10px;"></i></a>`
+            : `<span style="color:#38bdf8; font-family:'JetBrains Mono',monospace; font-weight:700;">${t.key}</span>`;
+
+          return `
+            <div class="jira-pill-item">
+              <span class="jira-pill-brand">${t.brand || 'KT PROJECTS'}</span>
+              ${pillKeyHTML}
+              <span>• <span class="jira-pill-time">${formatElapsedTime(t.createdAt)}</span></span>
+            </div>
+          `;
+        }).join('');
 
         if (pillsContainer) pillsContainer.innerHTML = pillsHTML;
         if (banner) banner.classList.add('active');
