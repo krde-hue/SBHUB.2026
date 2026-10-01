@@ -508,12 +508,12 @@ function restoreSavedWidgets() {
 
 /* --- HIGH-DEFINITION REAL 4K ABSTRACT WALLPAPER DIRECTORY --- */
 const ABSTRACT_WALLPAPERS = {
-  'abstract-fluid': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop',
-  'abstract-chromatic': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop',
-  'abstract-aurora': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2069&auto=format&fit=crop',
-  'abstract-spectrum': 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=2090&auto=format&fit=crop',
-  'abstract-bubbles': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop',
-  'abstract-lava': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2070&auto=format&fit=crop'
+  'neon-waves': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop',
+  'neural-flow': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop',
+  'dark-3d-swirl': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop',
+  'liquid-chrome': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop',
+  'cyan-abyss': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2069&auto=format&fit=crop',
+  'fire-vortex': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2070&auto=format&fit=crop'
 };
 
 /* --- THEME SWITCHER ENGINE --- */
@@ -536,7 +536,7 @@ function setGradient(theme) {
         backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
         break;
       default:
-        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['abstract-fluid']}")`;
+        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['neon-waves']}")`;
     }
   }
 
@@ -813,7 +813,7 @@ function initDashboardApp() {
       pageBody.style.backgroundRepeat = 'no-repeat';
     }
   } else {
-    setGradient('abstract-fluid');
+    setGradient('neon-waves');
   }
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
