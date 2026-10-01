@@ -18,7 +18,6 @@
       
       --primary: #3b82f6;
       --primary-hover: #2563eb;
-      --success: #10b981;
       --danger: #ef4444;
       --danger-bg: rgba(239, 68, 68, 0.2);
     }
@@ -123,20 +122,53 @@
     }
     .btn-cancel:hover { background-color: rgba(255, 255, 255, 0.2); color: #fff; }
 
-    table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 10px; }
-    th { text-align: left; padding: 10px 16px; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--glass-border); }
-    td { padding: 14px 16px; background: rgba(15, 23, 42, 0.5); font-size: 14px; }
-    td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    /* Table Fixes: Strict Fixed Layout Prevents Cell Blowout */
+    .table-container { width: 100%; overflow-x: auto; }
+    
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      margin-top: 10px;
+      table-layout: fixed; /* Fixes cell width blowouts */
+    }
+    
+    th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--glass-border); }
+    td { padding: 12px 12px; background: rgba(15, 23, 42, 0.5); font-size: 13px; word-break: break-word; overflow-wrap: anywhere; vertical-align: middle; }
+    
+    /* Column Width Allocation */
+    .col-key { width: 120px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #38bdf8; }
+    .col-brand { width: 110px; }
+    .col-summary { width: auto; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .col-created { width: 140px; white-space: nowrap; font-size: 12px; }
+    .col-sla { width: 110px; }
+    .col-state { width: 120px; }
+    .col-action { width: 150px; text-align: right; }
+
+    td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
     td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
     
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
     .badge-brand { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); }
     .badge-overdue { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
 
-    .action-btn-group { display: flex; gap: 6px; align-items: center; }
+    .action-btn-group { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
 
-    .action-btn { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); cursor: pointer; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
-    .action-btn:hover { background: rgba(255, 255, 255, 0.15); }
+    .action-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .action-btn:hover { background: rgba(255, 255, 255, 0.2); }
     .action-btn.edit-btn:hover { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4); }
     .action-btn.remove-btn:hover { background: var(--danger-bg); color: var(--danger); border-color: rgba(239, 68, 68, 0.4); }
   </style>
@@ -203,17 +235,17 @@
     <!-- Active Tickets -->
     <div class="glass-card">
       <h2>Tracked Tickets</h2>
-      <div style="overflow-x: auto;">
+      <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th>Key</th>
-              <th>Brand</th>
-              <th>Summary</th>
-              <th>Created</th>
-              <th>SLA Status</th>
-              <th>State</th>
-              <th>Action</th>
+              <th class="col-key">Key</th>
+              <th class="col-brand">Brand</th>
+              <th class="col-summary">Summary</th>
+              <th class="col-created">Created</th>
+              <th class="col-sla">SLA Status</th>
+              <th class="col-state">State</th>
+              <th class="col-action">Action</th>
             </tr>
           </thead>
           <tbody id="ticket-table-body">
@@ -229,6 +261,38 @@
     const channel = new BroadcastChannel('jira_sync_channel');
     let editingTicketId = null;
 
+    // Helper: Extract Clean Key (e.g. B2B-16446)
+    function sanitizeKey(rawText) {
+      if (!rawText) return '';
+      const match = String(rawText).match(/[A-Z0-9]{2,10}-\d+/i);
+      return match ? match[0].toUpperCase() : rawText.trim().toUpperCase();
+    }
+
+    // Auto-clean any old stored tickets that contained giant URLs as keys
+    function cleanExistingStorage() {
+      let tickets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      let updated = false;
+
+      tickets = tickets.map(t => {
+        let cleanK = sanitizeKey(t.key);
+        let cleanS = t.summary ? t.summary.replace(/https?:\/\/[^\s]+/gi, '').trim() : '';
+        
+        if (cleanK !== t.key || cleanS !== t.summary) {
+          updated = true;
+          return {
+            ...t,
+            key: cleanK || 'JIRA-TICKET',
+            summary: cleanS || cleanK || 'Jira Ticket'
+          };
+        }
+        return t;
+      });
+
+      if (updated) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+      }
+    }
+
     // Default Creation Time to Now
     function setDefaultTime() {
       const nowLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -236,19 +300,19 @@
     }
     setDefaultTime();
 
-    // Auto-extract Jira key from input
+    // Auto-extract Jira key from input on paste
     document.getElementById('smart-input').addEventListener('input', (e) => {
       const text = e.target.value;
-      const keyMatch = text.match(/[A-Z0-9]{2,10}-\d+/i);
-      if (keyMatch && !editingTicketId) {
-        document.getElementById('ticket-key').value = keyMatch[0].toUpperCase();
+      const extractedKey = sanitizeKey(text);
+      if (extractedKey && extractedKey.includes('-') && !editingTicketId) {
+        document.getElementById('ticket-key').value = extractedKey;
       }
     });
 
-    function cleanTextSummary(text, key) {
-      if (!text) return key;
+    function cleanTextSummary(text, fallbackKey) {
+      if (!text) return fallbackKey;
       let cleaned = text.replace(/https?:\/\/[^\s]+/gi, '').trim();
-      return cleaned || key;
+      return cleaned || fallbackKey;
     }
 
     function formatElapsedTime(createdAt) {
@@ -278,7 +342,7 @@
 
       if (!keyInput.value.trim()) return alert('Please provide a Jira Ticket Key.');
 
-      const keyVal = keyInput.value.trim().toUpperCase();
+      const cleanKey = sanitizeKey(keyInput.value);
       const tickets = getTickets();
 
       if (editingTicketId) {
@@ -287,9 +351,9 @@
         if (index !== -1) {
           tickets[index] = {
             ...tickets[index],
-            key: keyVal,
+            key: cleanKey,
             brand: brandInput.value,
-            summary: cleanTextSummary(inputSummary.value, keyVal),
+            summary: cleanTextSummary(inputSummary.value, cleanKey),
             status: statusInput.value,
             createdAt: timeInput.value ? new Date(timeInput.value).toISOString() : tickets[index].createdAt
           };
@@ -298,9 +362,9 @@
         // ADD NEW TICKET
         const newTicket = {
           id: Date.now().toString(),
-          key: keyVal,
+          key: cleanKey,
           brand: brandInput.value,
-          summary: cleanTextSummary(inputSummary.value, keyVal),
+          summary: cleanTextSummary(inputSummary.value, cleanKey),
           status: statusInput.value,
           createdAt: timeInput.value ? new Date(timeInput.value).toISOString() : new Date().toISOString()
         };
@@ -323,18 +387,15 @@
       document.getElementById('ticket-status').value = ticket.status || 'Open';
       document.getElementById('smart-input').value = ticket.summary;
 
-      // Set datetime-local input
       if (ticket.createdAt) {
         const localDate = new Date(new Date(ticket.createdAt).getTime() - new Date().getTimezoneOffset() * 60000);
         document.getElementById('ticket-time').value = localDate.toISOString().slice(0, 16);
       }
 
-      // UI Changes for Edit Mode
-      document.getElementById('form-title').innerText = `✏️ Editing Ticket: ${ticket.key}`;
+      document.getElementById('form-title').innerText = `✏️️ Editing Ticket: ${ticket.key}`;
       document.getElementById('save-ticket-btn').innerText = '💾 Save Changes';
       document.getElementById('cancel-edit-btn').style.display = 'inline-block';
 
-      // Scroll to form smoothly
       document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -381,20 +442,20 @@
         const createdDate = new Date(ticket.createdAt);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${ticket.key}</td>
-          <td><span class="badge badge-brand">${ticket.brand || 'N/A'}</span></td>
-          <td>${ticket.summary}</td>
-          <td style="white-space:nowrap;">${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
-          <td>${overdue ? `<span class="badge badge-overdue">⚠️️ ${hoursAgo}h (>24h)</span>` : `<span>${hoursAgo}h ago</span>`}</td>
-          <td>
-            <select style="width:auto; padding:6px 10px;" onchange="updateStatus('${ticket.id}', this.value)">
+          <td class="col-key">${ticket.key}</td>
+          <td class="col-brand"><span class="badge badge-brand">${ticket.brand || 'N/A'}</span></td>
+          <td class="col-summary" title="${ticket.summary}">${ticket.summary}</td>
+          <td class="col-created">${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
+          <td class="col-sla">${overdue ? `<span class="badge badge-overdue">⚠️ ${hoursAgo}h (>24h)</span>` : `<span>${hoursAgo}h ago</span>`}</td>
+          <td class="col-state">
+            <select style="width:100%; padding:6px 8px;" onchange="updateStatus('${ticket.id}', this.value)">
               <option value="Open" ${ticket.status === 'Open' ? 'selected' : ''}>Open</option>
               <option value="In Progress" ${ticket.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
               <option value="In Review" ${ticket.status === 'In Review' ? 'selected' : ''}>In Review</option>
               <option value="Resolved" ${ticket.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
             </select>
           </td>
-          <td>
+          <td class="col-action">
             <div class="action-btn-group">
               <button class="action-btn edit-btn" onclick="editTicket('${ticket.id}')">✏️ Edit</button>
               <button class="action-btn remove-btn" onclick="deleteTicket('${ticket.id}')">🗑️ Remove</button>
@@ -404,7 +465,7 @@
         tbody.appendChild(tr);
       });
 
-      // Render Alert Banner
+      // Render Banner
       const banner = document.getElementById('notification-banner');
       const pillsContainer = document.getElementById('jiraPillsContainer');
 
@@ -424,6 +485,8 @@
       }
     }
 
+    // Clean old storage and initialize
+    cleanExistingStorage();
     channel.onmessage = () => render();
     window.addEventListener('storage', () => render());
     document.getElementById('save-ticket-btn').addEventListener('click', saveTicketHandler);
