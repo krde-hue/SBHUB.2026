@@ -105,17 +105,19 @@
 
     /* Clickable Key Link in Banner Pill */
     .jira-pill-key-link {
-      color: #38bdf8;
+      color: #38bdf8 !important;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
+      cursor: pointer !important;
+      pointer-events: auto !important;
     }
     .jira-pill-key-link:hover {
-      color: #7dd3fc;
-      text-decoration: underline;
+      color: #7dd3fc !important;
+      text-decoration: underline !important;
     }
 
     .jira-pill-time {
@@ -675,6 +677,18 @@
         return keyMatch ? keyMatch[0].toUpperCase() : (key.length > 20 ? key.substring(0, 20) + '...' : key);
       }
 
+      function constructFallbackJiraUrl(key, brand) {
+        const cleanK = sanitizeTicketKey(key) || 'JIRA-TICKET';
+        const cleanB = String(brand).toUpperCase();
+        
+        if (cleanB === 'BETSSON') {
+          return `https://betssongroup.atlassian.net/servicedesk/customer/portal/2019/${cleanK}`;
+        } else if (cleanB === 'IBET') {
+          return `https://ibet.atlassian.net/browse/${cleanK}`;
+        }
+        return `https://ibet.atlassian.net/browse/${cleanK}`;
+      }
+
       function formatElapsedTime(createdAt) {
         const createdDate = new Date(createdAt);
         if (isNaN(createdDate.getTime())) return '24h+ passed';
@@ -709,15 +723,14 @@
             const cleanKey = sanitizeTicketKey(t.key);
             const timeStr = formatElapsedTime(t.createdAt);
             const brandStr = t.brand ? t.brand : 'KT PROJECTS';
-
-            const keyLinkHTML = t.url
-              ? `<a href="${t.url}" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open Jira Ticket">${cleanKey} <i class="bx bx-external-link" style="font-size:10px;"></i></a>`
-              : `<span style="color:#38bdf8; font-family:'JetBrains Mono',monospace; font-weight:700;">${cleanKey}</span>`;
+            const ticketUrl = (t.url && t.url.startsWith('http')) ? t.url : constructFallbackJiraUrl(cleanKey, brandStr);
 
             return `
               <div class="jira-pill-item">
                 <span class="jira-pill-brand">${brandStr}</span>
-                ${keyLinkHTML}
+                <a href="${ticketUrl}" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open ${cleanKey} in Atlassian">
+                  ${cleanKey} <i class="bx bx-external-link" style="font-size:11px;"></i>
+                </a>
                 <span>• <span class="jira-pill-time">${timeStr}</span></span>
               </div>
             `;
