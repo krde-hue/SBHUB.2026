@@ -4,184 +4,119 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Jira Ticket Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    /* Color Variables & Theming */
     :root {
-      /* Light Mode Variables */
-      --bg-gradient: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-      --glass-bg: rgba(255, 255, 255, 0.55);
-      --glass-border: rgba(255, 255, 255, 0.4);
-      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-      --text-main: #172b4d;
-      --text-muted: #5e6c84;
-      --input-bg: rgba(255, 255, 255, 0.8);
-      --input-border: rgba(255, 255, 255, 0.6);
-      
-      --primary: #0052cc;
-      --primary-hover: #0065ff;
-      --danger: #de350b;
-      --danger-bg: rgba(222, 53, 11, 0.15);
-      --success: #00875a;
-      --success-bg: rgba(0, 135, 90, 0.15);
-      --brand-pill-bg: rgba(23, 43, 77, 0.1);
-    }
-
-    [data-theme="dark"] {
-      /* Dark Mode Variables */
-      --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-      --glass-bg: rgba(20, 20, 25, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-      --text-main: #e3e5e8;
-      --text-muted: #9fa6b2;
-      --input-bg: rgba(255, 255, 255, 0.08);
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --glass-bg: rgba(30, 41, 59, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --input-bg: rgba(15, 23, 42, 0.6);
       --input-border: rgba(255, 255, 255, 0.15);
-
-      --primary: #4c9aff;
-      --primary-hover: #2684ff;
-      --danger: #ff5630;
-      --danger-bg: rgba(255, 86, 48, 0.2);
-      --success: #36b37e;
-      --success-bg: rgba(54, 179, 126, 0.2);
-      --brand-pill-bg: rgba(255, 255, 255, 0.1);
+      
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.2);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.2s, color 0.2s; }
     
     body {
       background: var(--bg-gradient);
       background-attachment: fixed;
       color: var(--text-main);
       min-height: 100vh;
-      padding-top: 80px;
+      padding-top: 40px;
       line-height: 1.5;
     }
 
-    /* Top Persistent Banner */
-    #notification-banner {
-      position: fixed;
-      top: 0; left: 0; width: 100%;
-      background: rgba(222, 53, 11, 0.9);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: #ffffff;
-      padding: 12px 20px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 15px rgba(222, 53, 11, 0.3);
-      z-index: 9999;
-      font-size: 14px;
-      font-weight: 500;
-      animation: slideDown 0.3s ease-out;
+    /* Inline Banner Inside Jira Tracker Page */
+    .jira-inline-ticker-banner {
+      width: 100%; height: 38px;
+      margin-bottom: 24px;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(239, 68, 68, 0.15);
+      display: none; align-items: center; position: relative; overflow: hidden;
     }
-    #notification-banner.active { display: flex; }
+    .jira-inline-ticker-banner.active { display: flex; }
 
-    @keyframes slideDown {
-      from { transform: translateY(-100%); }
-      to { transform: translateY(0); }
+    .ticker-label-badge {
+      position: absolute; left: 0; top: 0; bottom: 0; z-index: 10;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff; padding: 0 14px; display: flex; align-items: center; gap: 6px;
+      font-weight: 800; font-size: 10px; text-transform: uppercase;
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4); border-right: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .banner-badge {
-      background-color: #ffffff;
-      color: var(--danger);
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      margin-right: 10px;
+    .ticker-wrap { width: 100%; overflow: hidden; padding-left: 170px; box-sizing: border-box; }
+    
+    .ticker-move {
+      display: inline-block; white-space: nowrap; padding-left: 100%;
+      animation: tickerWithPause 40s linear infinite;
+    }
+    .ticker-move:hover { animation-play-state: paused; }
+
+    @keyframes tickerWithPause {
+      0% { transform: translate3d(0, 0, 0); }
+      75% { transform: translate3d(-100%, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
     }
 
-    /* Layout & Glassmorphism Cards */
+    .ticker-item { display: inline-flex; align-items: center; gap: 8px; padding: 0 28px; font-size: 12px; font-weight: 600; color: #f1f5f9; }
+    .ticker-brand-tag { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); padding: 1px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; }
+    .ticker-key { color: #ffffff; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .ticker-time-passed { color: #f87171; font-weight: 700; }
+    .ticker-divider { color: rgba(255, 255, 255, 0.2); margin: 0 6px; }
+
     .container { max-width: 1100px; margin: 0 auto 40px auto; padding: 0 20px; }
     
     .glass-card {
       background: var(--glass-bg);
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 28px;
-      margin-bottom: 28px;
+      border-radius: 16px; padding: 28px; margin-bottom: 28px;
       box-shadow: var(--glass-shadow);
     }
 
-    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
-    h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    h1 { font-size: 24px; font-weight: 800; margin-bottom: 20px; }
+    h2 { font-size: 16px; font-weight: 700; margin-bottom: 18px; color: #cbd5e1; }
 
-    /* Theme Toggle Switch */
-    .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; }
-    .theme-switch { position: relative; display: inline-block; width: 46px; height: 24px; }
-    .theme-switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--input-border); transition: .4s; border-radius: 24px; }
-    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--primary); }
-    input:checked + .slider:before { transform: translateX(22px); }
-
-    /* Inputs & Forms */
     .form-group { margin-bottom: 18px; }
-    label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 8px; color: var(--text-muted); }
+    label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
     
     textarea, input, select {
-      width: 100%;
-      padding: 12px 14px;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 10px;
-      color: var(--text-main);
-      font-size: 14px;
-      outline: none;
+      width: 100%; padding: 12px 14px;
+      background: var(--input-bg); border: 1px solid var(--input-border);
+      border-radius: 10px; color: var(--text-main); font-size: 14px; outline: none;
     }
-    textarea:focus, input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.15); }
-    [data-theme="dark"] textarea:focus, [data-theme="dark"] input:focus, [data-theme="dark"] select:focus { box-shadow: 0 0 0 3px rgba(76, 154, 255, 0.2); }
-    
-    /* Quick Paste gets special blur styling */
-    textarea { height: 75px; resize: vertical; background: rgba(255,255,255,0.4); }
-    [data-theme="dark"] textarea { background: rgba(0,0,0,0.2); }
-    
-    select option { background: var(--card-bg, #fff); color: #172b4d; }
-    [data-theme="dark"] select option { background: #203a43; color: #fff; }
+    textarea:focus, input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    textarea { height: 75px; resize: vertical; }
 
     .grid-4 { display: grid; grid-template-columns: 1.5fr 1.2fr 1fr 1.2fr; gap: 16px; }
     @media (max-width: 768px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
 
     .btn {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 82, 204, 0.3);
-      transform: translateY(0);
-      transition: all 0.2s ease;
+      background-color: var(--primary); color: white; border: none;
+      padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
-    .btn:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 82, 204, 0.4); }
-    .btn:active { transform: translateY(0); }
+    .btn:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
 
-    /* Table Styles */
-    .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 10px; }
-    th { text-align: left; padding: 10px 16px; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--glass-border); }
-    
-    td { padding: 14px 16px; background: var(--input-bg); font-size: 14px; }
-    td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+    th { text-align: left; padding: 10px 16px; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--glass-border); }
+    td { padding: 14px 16px; background: rgba(15, 23, 42, 0.5); font-size: 14px; }
+    td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
     td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
     
-    /* Badges */
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .badge-brand { background-color: var(--brand-pill-bg); color: var(--text-main); border: 1px solid var(--input-border); }
-    .badge-overdue { background-color: var(--danger-bg); color: var(--danger); border: 1px solid rgba(222, 53, 11, 0.2); animation: pulse 2s infinite; }
-    
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(222, 53, 11, 0.4); }
-      70% { box-shadow: 0 0 0 6px rgba(222, 53, 11, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(222, 53, 11, 0); }
-    }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+    .badge-brand { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); }
+    .badge-overdue { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
 
     .action-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; }
     .action-btn:hover { background: var(--danger-bg); color: var(--danger); }
@@ -189,40 +124,33 @@
 </head>
 <body>
 
-  <!-- Top Persistent Banner for >24h Unresolved Tickets -->
-  <div id="notification-banner">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span class="banner-badge" id="banner-count">0</span>
-      <strong>Overdue Ticket Alert:</strong>
-      <span id="banner-message">One or more tickets passed 24 hours without resolution.</span>
-    </div>
-  </div>
-
   <div class="container">
-    
-    <div class="header-row">
-      <h1>📋 Glass Jira Tracker</h1>
-      <div class="theme-switch-wrapper">
-        <label for="checkbox">Dark Mode</label>
-        <label class="theme-switch" for="checkbox">
-          <input type="checkbox" id="checkbox" />
-          <div class="slider"></div>
-        </label>
+    <h1>📋 Jira Resolution Tracker</h1>
+
+    <!-- Inline Banner inside Jira Tracker -->
+    <div id="notification-banner" class="jira-inline-ticker-banner">
+      <div class="ticker-label-badge">
+        ⚠️ PENDING TICKET ALERT
+      </div>
+      <div class="ticker-wrap">
+        <div class="ticker-move" id="tickerContainer">
+          <!-- Rendered Dynamically -->
+        </div>
       </div>
     </div>
 
-    <!-- Quick Paste & Add Card -->
+    <!-- Quick Paste Card -->
     <div class="glass-card">
-      <h2>Add New Ticket</h2>
+      <h2>Paste & Track Ticket</h2>
       <div class="form-group">
-        <label for="smart-input">Quick Paste (Summary, URL, or Text)</label>
-        <textarea id="smart-input" placeholder="Paste raw text here... Keys like PROJ-1234 will auto-extract"></textarea>
+        <label for="smart-input">Quick Paste Jira Link or Summary</label>
+        <textarea id="smart-input" placeholder="Paste ticket details or Atlassian URL..."></textarea>
       </div>
 
       <div class="grid-4">
         <div class="form-group">
           <label for="ticket-key">Ticket Key</label>
-          <input type="text" id="ticket-key" placeholder="e.g. JIRA-1234" />
+          <input type="text" id="ticket-key" placeholder="e.g. B2B-16446" />
         </div>
         <div class="form-group">
           <label for="ticket-brand">Brand</label>
@@ -250,10 +178,10 @@
       <button class="btn" id="add-ticket-btn">+ Track Ticket</button>
     </div>
 
-    <!-- Active Tickets Table -->
+    <!-- Active Tickets -->
     <div class="glass-card">
-      <h2>Active Tracker</h2>
-      <div class="table-responsive">
+      <h2>Tracked Tickets</h2>
+      <div style="overflow-x: auto;">
         <table>
           <thead>
             <tr>
@@ -267,7 +195,7 @@
             </tr>
           </thead>
           <tbody id="ticket-table-body">
-            <!-- Dynamically Rendered -->
+            <!-- Rendered Dynamically -->
           </tbody>
         </table>
       </div>
@@ -275,38 +203,34 @@
   </div>
 
   <script>
-    // Theme Toggle Logic
-    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
-    const currentTheme = localStorage.getItem('theme');
-    
-    if (currentTheme) {
-      document.documentElement.setAttribute('data-theme', currentTheme);
-      if (currentTheme === 'dark') toggleSwitch.checked = true;
-    }
-
-    toggleSwitch.addEventListener('change', function(e) {
-      if (e.target.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
-      }
-    });
-
-    // App Logic
     const STORAGE_KEY = 'jira_tracked_tickets';
     const channel = new BroadcastChannel('jira_sync_channel');
 
-    // Default time picker
     document.getElementById('ticket-time').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
-    // Auto-extract Key
     document.getElementById('smart-input').addEventListener('input', (e) => {
       const text = e.target.value;
-      const keyMatch = text.match(/[A-Z]{2,10}-\d+/i);
-      if (keyMatch) document.getElementById('ticket-key').value = keyMatch[0].toUpperCase();
+      const keyMatch = text.match(/[A-Z0-9]{2,10}-\d+/i);
+      if (keyMatch) {
+        document.getElementById('ticket-key').value = keyMatch[0].toUpperCase();
+      }
     });
+
+    function cleanTextSummary(text, key) {
+      if (!text) return key;
+      let cleaned = text.replace(/https?:\/\/[^\s]+/gi, '').trim();
+      return cleaned || key;
+    }
+
+    function formatElapsedTime(createdAt) {
+      const diffMs = new Date() - new Date(createdAt);
+      const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const days = Math.floor(totalHours / 24);
+      const hours = totalHours % 24;
+
+      if (days > 0) return `${days}d ${hours}h passed`;
+      return `${totalHours}h passed`;
+    }
 
     function getTickets() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
 
@@ -323,14 +247,16 @@
       const statusInput = document.getElementById('ticket-status');
       const timeInput = document.getElementById('ticket-time');
 
-      if (!keyInput.value.trim()) return alert('Please provide a Ticket Key.');
+      if (!keyInput.value.trim()) return alert('Please provide a Jira Ticket Key.');
 
+      const keyVal = keyInput.value.trim().toUpperCase();
       const tickets = getTickets();
+
       const newTicket = {
         id: Date.now().toString(),
-        key: keyInput.value.trim().toUpperCase(),
+        key: keyVal,
         brand: brandInput.value,
-        summary: inputSummary.value.trim() || keyInput.value.trim().toUpperCase(),
+        summary: cleanTextSummary(inputSummary.value, keyVal),
         status: statusInput.value,
         createdAt: timeInput.value ? new Date(timeInput.value).toISOString() : new Date().toISOString()
       };
@@ -349,64 +275,61 @@
       if (ticket) { ticket.status = newStatus; saveTickets(tickets); }
     }
 
-    function deleteTicket(id) {
-      saveTickets(getTickets().filter(t => t.id !== id));
-    }
-
-    function isOver24Hours(createdAt) {
-      return ((new Date() - new Date(createdAt)) / 3600000) >= 24;
-    }
+    function deleteTicket(id) { saveTickets(getTickets().filter(t => t.id !== id)); }
 
     function render() {
       const tickets = getTickets();
       const tbody = document.getElementById('ticket-table-body');
       tbody.innerHTML = '';
 
-      let overdueCount = 0;
-      let overdueDetails = [];
+      let overdueTickets = [];
 
       tickets.forEach(ticket => {
         const isResolved = ticket.status === 'Resolved';
-        const overdue = !isResolved && isOver24Hours(ticket.createdAt);
+        const hoursAgo = Math.floor((new Date() - new Date(ticket.createdAt)) / 3600000);
+        const overdue = !isResolved && hoursAgo >= 24;
 
-        if (overdue) {
-          overdueCount++;
-          overdueDetails.push(`${ticket.key} (${ticket.brand || 'N/A'})`);
-        }
+        if (overdue) overdueTickets.push(ticket);
 
         const createdDate = new Date(ticket.createdAt);
-        const hoursAgo = Math.floor((new Date() - createdDate) / 3600000);
-
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>${ticket.key}</strong></td>
+          <td>${ticket.key}</td>
           <td><span class="badge badge-brand">${ticket.brand || 'N/A'}</span></td>
           <td>${ticket.summary}</td>
-          <td style="white-space: nowrap;">${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+          <td style="white-space:nowrap;">${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
+          <td>${overdue ? `<span class="badge badge-overdue">⚠️ ${hoursAgo}h (>24h)</span>` : `<span>${hoursAgo}h ago</span>`}</td>
           <td>
-            ${overdue ? `<span class="badge badge-overdue">⚠️ ${hoursAgo}h ago (>24h)</span>` : `<span>${hoursAgo}h ago</span>`}
-          </td>
-          <td>
-            <select style="width: auto; padding: 6px 10px;" onchange="updateStatus('${ticket.id}', this.value)">
+            <select style="width:auto; padding:6px 10px;" onchange="updateStatus('${ticket.id}', this.value)">
               <option value="Open" ${ticket.status === 'Open' ? 'selected' : ''}>Open</option>
               <option value="In Progress" ${ticket.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
               <option value="In Review" ${ticket.status === 'In Review' ? 'selected' : ''}>In Review</option>
               <option value="Resolved" ${ticket.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
             </select>
           </td>
-          <td>
-            <button class="action-btn" onclick="deleteTicket('${ticket.id}')">✕ Delete</button>
-          </td>
+          <td><button class="action-btn" onclick="deleteTicket('${ticket.id}')">✕ Delete</button></td>
         `;
         tbody.appendChild(tr);
       });
 
-      // Banner Sync
+      // Render Ticker Banner
       const banner = document.getElementById('notification-banner');
-      if (overdueCount > 0) {
+      const tickerContainer = document.getElementById('tickerContainer');
+
+      if (overdueTickets.length > 0) {
+        let tickerHTML = overdueTickets.map(t => `
+          <span class="ticker-item">
+            <span class="ticker-brand-tag">${t.brand || 'KT PROJECTS'}</span>
+            <span class="ticker-key">${t.key}</span>
+            <span>• Raised <span class="ticker-time-passed">${formatElapsedTime(t.createdAt)}</span> (UNRESOLVED)</span>
+          </span>
+          <span class="ticker-divider">///</span>
+        `).join('');
+
+        if (overdueTickets.length <= 2) tickerHTML = tickerHTML + tickerHTML + tickerHTML;
+
+        tickerContainer.innerHTML = tickerHTML;
         banner.classList.add('active');
-        document.getElementById('banner-count').innerText = overdueCount;
-        document.getElementById('banner-message').innerText = `${overdueDetails.join(', ')}`;
       } else {
         banner.classList.remove('active');
       }
@@ -417,7 +340,7 @@
     document.getElementById('add-ticket-btn').addEventListener('click', addTicket);
 
     render();
-    setInterval(render, 30000);
+    setInterval(render, 15000);
   </script>
 </body>
 </html>
