@@ -314,10 +314,10 @@ body {
 .sidebar-menu-scroll {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   overflow-y: auto;
   flex: 1;
-  padding-right: 4px;
+  padding: 0 10px 15px 10px;
   scrollbar-width: thin;
 }
 
@@ -344,13 +344,14 @@ body {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  padding: 9px 14px;
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 11px;
   backdrop-filter: var(--card-blur);
   -webkit-backdrop-filter: var(--card-blur);
+  margin-bottom: 4px;
 }
 
 .search-box input {
@@ -362,41 +363,73 @@ body {
   width: 100%;
 }
 
-.nav-group { display: flex; flex-direction: column; gap: 4px; }
+.nav-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px; 
+  margin-bottom: 5px;
+}
 
+/* COMPACT UNIFORM BUTTONS */
 .nav-main-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 14px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  font-size: 12px;
+  padding: 5px 10px;
+  min-height: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 11px;
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
   backdrop-filter: var(--card-blur);
   -webkit-backdrop-filter: var(--card-blur);
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
 }
 
 .nav-main-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.nav-main-left { display: flex; align-items: center; gap: 10px; }
+.nav-main-left { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-main-btn span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
 
 .icon-badge {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   color: #ffffff;
+  flex-shrink: 0;
+}
+
+.toggle-icon {
+  font-size: 14px;
+  opacity: 0.7;
   flex-shrink: 0;
 }
 
@@ -415,8 +448,9 @@ body {
 .sub-menu {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-left: 14px;
+  gap: 3px;
+  padding-left: 4px;
+  margin-top: 3px;
   max-height: 450px;
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.3s ease;
@@ -432,11 +466,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 12px 7px 16px;
+  padding: 5px 10px;
+  min-height: 32px;
+  height: 32px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-  font-size: 11px;
+  border-radius: 6px;
+  font-size: 10.5px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.95);
   text-decoration: none;
@@ -452,16 +488,16 @@ body {
 
 /* QUICK LAUNCH DOCK IN SIDEBAR */
 .sidebar-quick-dock {
-  margin-top: 14px;
-  padding: 12px;
+  margin-top: 10px;
+  padding: 10px;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
+  border-radius: 14px;
   backdrop-filter: var(--card-blur);
   -webkit-backdrop-filter: var(--card-blur);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .quick-dock-title {
@@ -486,11 +522,13 @@ body {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 8px 12px !important;
+  padding: 5px 10px !important;
+  min-height: 34px !important;
+  height: 34px !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 999px !important;
-  font-size: 11.5px !important;
+  border-radius: 8px !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
   color: #ffffff !important;
   text-decoration: none !important;
@@ -516,7 +554,7 @@ body {
 .quick-launch-btn .btn-left {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
 }
 
 /* DOCKED ADMIN PROFILE FOOTER PILL */
@@ -535,7 +573,7 @@ body {
   align-items: center !important;
   justify-content: space-between !important;
   width: 100% !important;
-  padding: 8px 14px !important;
+  padding: 6px 12px !important;
   background: #090e17 !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 999px !important;
@@ -546,35 +584,35 @@ body {
 }
 
 .sidebar-admin-footer .avatar-circle {
-  width: 36px !important;
-  height: 36px !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 50% !important;
   background: #d1d5db !important;
   color: #111827 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 800 !important;
   flex-shrink: 0 !important;
 }
 
 .sidebar-admin-footer .user-title {
-  font-size: 14px !important;
+  font-size: 13px !important;
   font-weight: 800 !important;
   color: #ffffff !important;
   text-align: center !important;
   flex: 1 !important;
-  margin: 0 8px !important;
+  margin: 0 6px !important;
 }
 
 .sidebar-admin-footer .logout-action-btn {
   background: rgba(127, 29, 29, 0.6) !important;
   border: 1px solid #991b1b !important;
   color: #fca5a5 !important;
-  padding: 6px 14px !important;
+  padding: 5px 12px !important;
   border-radius: 999px !important;
-  font-size: 11px !important;
+  font-size: 10.5px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
   display: flex !important;
@@ -839,6 +877,50 @@ body {
   scrollbar-width: thin;
 }
 
+/* TOP PICKS 7-CARD GRID ON DESKTOP & LAPTOP SCREENS */
+@media screen and (min-width: 1025px) {
+  .top-picks-scroll-row {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    overflow-x: visible !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .top-pick-card, 
+  .top-picks-scroll-row > div {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 8px 6px !important;
+    margin: 0 !important;
+  }
+
+  .top-pick-card .team-logo,
+  .top-picks-scroll-row img {
+    max-width: 20px !important;
+    max-height: 20px !important;
+  }
+
+  .top-pick-card .match-title {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .top-pick-card .selection-text {
+    font-size: 9.5px !important;
+    line-height: 1.2 !important;
+  }
+
+  .top-pick-card .odds-badge {
+    font-size: 9px !important;
+    padding: 2px 5px !important;
+  }
+}
+
 .boost-card {
   min-width: 210px;
   max-width: 230px;
@@ -1060,7 +1142,6 @@ body {
     overflow-x: hidden;
   }
 
-  /* DISABLE HEAVY BLUR TO ELIMINATE SCROLL LAG ON PHONES */
   .glass-card,
   .nav-main-btn,
   .nav-sub-btn,
@@ -1072,7 +1153,6 @@ body {
     background: rgba(15, 23, 42, 0.95) !important;
   }
 
-  /* STICKY TOP HEADER FOR MOBILE */
   .mobile-nav-header {
     display: flex;
     align-items: center;
@@ -1124,7 +1204,6 @@ body {
     cursor: pointer;
   }
 
-  /* OFF-CANVAS SIDEBAR DRAWER */
   .sidebar-overlay {
     display: block;
     position: fixed;
@@ -1169,7 +1248,6 @@ body {
     justify-content: center;
   }
 
-  /* MAIN WORKSPACE MOBILE WRAPPER */
   #dashboardApp {
     flex-direction: column;
     gap: 0;
@@ -1183,7 +1261,6 @@ body {
     gap: 14px;
   }
 
-  /* NON-STICKY TOP BANNER ON MOBILE (PREVENTS SCREEN BLOCKING) */
   .top-banner-card {
     position: relative !important;
     top: auto !important;
@@ -1292,48 +1369,6 @@ body {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95) !important;
   }
 
-  /* JIRA STATIC BANNER MOBILE FIT */
-  .jira-static-alert-banner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    padding: 10px;
-  }
-
-  .jira-alert-left {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .jira-alert-badge {
-    align-self: flex-start;
-    font-size: 10px;
-    padding: 4px 8px;
-  }
-
-  .jira-ticket-pills-container {
-    width: 100%;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .jira-pill-item {
-    flex-shrink: 0;
-    font-size: 11px;
-    padding: 4px 8px;
-  }
-
-  .jira-open-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 8px;
-    font-size: 11px;
-  }
-
-  /* HORIZONTAL TOUCH CAROUSEL FOR BOOSTS */
   .top-picks-scroll-row {
     gap: 10px;
     -webkit-overflow-scrolling: touch;
@@ -1347,7 +1382,6 @@ body {
     padding: 14px;
   }
 
-  /* 1-COLUMN DASHBOARD GRID ON MOBILE */
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -1358,7 +1392,6 @@ body {
     border-radius: 18px;
   }
 
-  /* LOGIN GATEWAY FIT WITH SCROLL FOR SMALL PHONES */
   #authOverlay {
     padding: 20px 10px;
     overflow-y: auto;
