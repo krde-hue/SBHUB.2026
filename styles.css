@@ -15,6 +15,11 @@
   -webkit-font-smoothing: antialiased;
 }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   min-height: 100vh;
   background: #090d16;
@@ -26,7 +31,6 @@ body {
   display: flex;
   padding: 24px;
   gap: 24px;
-  overflow-x: hidden;
   transition: background 0.5s ease;
   position: relative;
 }
@@ -84,7 +88,7 @@ body {
   z-index: 5;
 }
 
-/* RESTORED SITTING ROBOT STAGE */
+/* SITTING ROBOT STAGE */
 .sitting-robot-stage {
   position: absolute;
   top: -72px;
@@ -292,7 +296,7 @@ body {
   visibility: visible;
 }
 
-/* SIDEBAR NAVIGATION */
+/* SIDEBAR NAVIGATION (DESKTOP) */
 .sidebar {
   width: 270px;
   display: flex;
@@ -644,22 +648,14 @@ body {
   z-index: 1000;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.22);
-
   background-color: #080c1a !important;
-
   background-image: 
-    linear-gradient(
-      180deg, 
-      rgba(10, 14, 26, 0.40) 0%, 
-      rgba(8, 11, 20, 0.55) 100%
-    ), 
+    linear-gradient(180deg, rgba(10, 14, 26, 0.40) 0%, rgba(8, 11, 20, 0.55) 100%), 
     url('./sports-banner.jpg'), 
     url('./american-football-player-neon-style_23-2151827356.avif') !important;
-
   background-size: cover, cover, cover !important;
   background-position: center 25%, center 25%, center 25% !important;
   background-repeat: no-repeat, no-repeat, no-repeat !important;
-
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 20px 50px rgba(0, 0, 0, 0.65);
 }
 
@@ -677,7 +673,6 @@ body {
   flex-shrink: 0;
 }
 
-/* ENCAPSULATED TITLE FROSTED GLASS PILL CONTAINER */
 .top-banner-card .banner-title-area {
   background: rgba(8, 12, 22, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
@@ -705,7 +700,6 @@ body {
   font-weight: 500;
 }
 
-/* PHILIPPINES WEATHER WIDGET FROSTED GLASS PILL */
 .top-banner-card .weather-banner-widget {
   background: rgba(8, 12, 22, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
@@ -731,7 +725,6 @@ body {
 .weather-location-tag { font-weight: 700; color: #ffffff; }
 .weather-banner-details { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 8.5px; color: rgba(255, 255, 255, 0.75); font-weight: 600; }
 
-/* INNER HORIZONTAL SEPARATOR LINE */
 .banner-bottom-row {
   display: flex;
   justify-content: space-between;
@@ -744,7 +737,6 @@ body {
 
 .world-clocks { display: flex; gap: 8px; align-items: center; }
 
-/* FROSTED GLASS CLOCK BADGES */
 .top-banner-card .clock-badge {
   background: rgba(8, 12, 22, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
@@ -764,7 +756,6 @@ body {
 
 .banner-controls-group { display: flex; align-items: center; gap: 10px; position: relative; }
 
-/* FROSTED GLASS BUTTONS & METRIC PILL */
 .top-banner-card .metric-pill {
   background: rgba(8, 12, 22, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
@@ -798,7 +789,6 @@ body {
   gap: 6px;
 }
 
-/* UNCLIPPED HIGH-STACK DROPDOWN MENUS */
 .dropdown-menu {
   display: none;
   position: absolute;
@@ -1053,7 +1043,7 @@ body {
 }
 
 /* ==========================================================================
-   MOBILE & TOUCHSCREEN RESPONSIVE ENGINE (ACTIVE ONLY ON MOBILE DEVICES)
+   HIGH-PERFORMANCE MOBILE & TOUCHSCREEN RESPONSIVE CSS (PHONE ONLY)
    ========================================================================== */
 .mobile-nav-header {
   display: none;
@@ -1070,23 +1060,33 @@ body {
     overflow-x: hidden;
   }
 
-  /* STICKY TOP HEADER FOR MOBILE VIEWPORTS */
+  /* DISABLE HEAVY BLUR TO ELIMINATE SCROLL LAG ON PHONES */
+  .glass-card,
+  .nav-main-btn,
+  .nav-sub-btn,
+  .sidebar-quick-dock,
+  .search-box,
+  .login-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+  }
+
+  /* STICKY TOP HEADER FOR MOBILE */
   .mobile-nav-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 10px 16px;
-    background: rgba(11, 17, 32, 0.92);
+    padding: 10px 14px;
+    background: rgba(11, 17, 32, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
+    border-radius: 14px;
     margin-bottom: 12px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
     position: sticky;
-    top: 10px;
-    z-index: 10000;
+    top: 0;
+    z-index: 9000;
   }
 
   .mobile-menu-toggle {
@@ -1130,8 +1130,6 @@ body {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
     z-index: 99998;
     opacity: 0;
     visibility: hidden;
@@ -1148,12 +1146,12 @@ body {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 290px;
-    max-width: 82vw;
+    width: 280px;
+    max-width: 85vw;
     height: 100vh;
     max-height: 100vh;
     z-index: 99999;
-    background: rgba(11, 17, 32, 0.98);
+    background: #0b1120;
     border-right: 1px solid rgba(255, 255, 255, 0.2);
     padding: 16px;
     transform: translateX(-100%);
@@ -1185,16 +1183,15 @@ body {
     gap: 14px;
   }
 
-  /* FLUID TOP BANNER FOR MOBILE */
+  /* NON-STICKY TOP BANNER ON MOBILE (PREVENTS SCREEN BLOCKING) */
   .top-banner-card {
-    position: relative;
-    top: 0;
-    z-index: 100;
+    position: relative !important;
+    top: auto !important;
+    z-index: 10;
     padding: 14px;
     min-height: auto;
     border-radius: 18px;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
+    margin-bottom: 12px;
   }
 
   .banner-top-row {
@@ -1336,7 +1333,7 @@ body {
     font-size: 11px;
   }
 
-  /* SWIPEABLE TOUCH CAROUSEL FOR BOOSTS */
+  /* HORIZONTAL TOUCH CAROUSEL FOR BOOSTS */
   .top-picks-scroll-row {
     gap: 10px;
     -webkit-overflow-scrolling: touch;
@@ -1344,7 +1341,7 @@ body {
   }
 
   .boost-card {
-    min-width: 78vw;
+    min-width: 80vw;
     max-width: 82vw;
     scroll-snap-align: center;
     padding: 14px;
@@ -1359,25 +1356,24 @@ body {
   .glass-card {
     padding: 14px;
     border-radius: 18px;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
   }
 
-  /* LOGIN GATEWAY FIT FOR MOBILE */
+  /* LOGIN GATEWAY FIT WITH SCROLL FOR SMALL PHONES */
   #authOverlay {
-    padding: 12px;
+    padding: 20px 10px;
+    overflow-y: auto;
+    align-items: flex-start;
   }
 
   .login-container {
-    margin-top: 50px;
+    margin-top: 60px;
+    margin-bottom: 20px;
     max-width: 100%;
   }
 
   .login-card {
     padding: 24px 18px;
     border-radius: 24px;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
   }
 
   .login-title {
@@ -1385,8 +1381,8 @@ body {
   }
 
   .sitting-robot-stage {
-    top: -65px;
-    transform: translateX(-50%) scale(0.9);
+    top: -60px;
+    transform: translateX(-50%) scale(0.8);
   }
 }
 
