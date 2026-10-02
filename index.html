@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sportsbook Hub - Secured Dashboard</title>
   
   <!-- Preconnect & Google Fonts -->
@@ -103,7 +103,6 @@
       border: 1px solid rgba(239, 68, 68, 0.5);
     }
 
-    /* Clickable Key Link in Banner Pill */
     .jira-pill-key-link {
       color: #38bdf8 !important;
       font-family: 'JetBrains Mono', monospace;
@@ -227,7 +226,7 @@
   <!-- DASHBOARD APP CONTAINER -->
   <div id="dashboardApp">
 
-    <!-- MOBILE NAVIGATION HEADER (MOBILE PHONES ONLY) -->
+    <!-- MOBILE NAVIGATION HEADER (VISIBLE ON MOBILE PHONES ONLY) -->
     <div class="mobile-nav-header">
       <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation Menu">
         <i class="bx bx-menu"></i>
@@ -756,7 +755,6 @@
           if (pillsContainer) pillsContainer.innerHTML = pillsHTML;
           if (banner) banner.classList.add('active');
         } else {
-          // Auto-hide when resolved
           if (banner) banner.classList.remove('active');
         }
       }
