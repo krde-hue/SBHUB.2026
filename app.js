@@ -1,6 +1,9 @@
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
+/* --- HELPER FOR MOBILE SCREEN DETECTION --- */
+const isMobileDevice = () => window.innerWidth <= 768;
+
 /* --- FIREBASE ROSTER INITIALIZATION --- */
 let rosterDb = null;
 try {
@@ -22,6 +25,25 @@ try {
 }
 
 let selectedGameDayOffset = 0;
+
+/* --- MOBILE DRAWER NAVIGATION SYSTEM --- */
+function toggleMobileSidebar(forceState) {
+  const sidebar = document.getElementById('mainSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sidebar || !overlay) return;
+
+  const isActive = forceState !== undefined ? forceState : !sidebar.classList.contains('mobile-open');
+
+  if (isActive) {
+    sidebar.classList.add('mobile-open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  } else {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
 
 /* --- BRAND DIRECTORY TAB DATA & SWITCHER --- */
 const brandTabData = {
@@ -69,10 +91,9 @@ function trackTicket() {
   const createdTime = document.getElementById('createdTimeInput')?.value;
 
   console.log("Tracking Ticket:", { ticketKey, brand, status, createdTime });
-  // Add your ticket filtering or API lookup logic here
 }
 
-/* --- COMPREHENSIVE LEAGUES DIRECTORY (TOP TIER + SECONDARY LEAGUES) --- */
+/* --- COMPREHENSIVE LEAGUES DIRECTORY --- */
 const TOP_TIER_LEAGUES = [
   { name: "UEFA Champions League", code: "uefa.champions" },
   { name: "Premier League", code: "eng.1" },
@@ -225,7 +246,7 @@ async function fetchTopPicksAndBoosts() {
   }
 }
 
-/* --- ANIMATED PLASMA BACKGROUND CANVAS --- */
+/* --- ANIMATED PLASMA BACKGROUND CANVAS (LAG-FREE MOBILE PERFORMANCE) --- */
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
 let width = 0, height = 0, particles = [];
@@ -234,17 +255,23 @@ function resizeCanvas() {
   if (!canvas) return;
   width = canvas.width = window.innerWidth;
   height = canvas.height = window.innerHeight;
+  initParticles();
 }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  if (!isMobileDevice()) toggleMobileSidebar(false);
+});
 
 class Particle {
   constructor() {
+    this.reset();
+  }
+  reset() {
     this.x = Math.random() * width;
     this.y = Math.random() * height;
-    this.radius = Math.random() * 2 + 1;
-    this.vx = (Math.random() - 0.5) * 0.8;
-    this.vy = (Math.random() - 0.5) * 0.8;
+    this.radius = Math.random() * (isMobileDevice() ? 1.5 : 2) + 1;
+    this.vx = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
+    this.vy = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
     this.alpha = Math.random() * 0.4 + 0.1;
   }
   update() {
@@ -258,15 +285,24 @@ class Particle {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(56, 189, 248, ${this.alpha})`;
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = '#00f2fe';
+    if (!isMobileDevice()) {
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#00f2fe';
+    } else {
+      ctx.shadowBlur = 0; // Disables GPU shadow render delay on mobile phones
+    }
     ctx.fill();
   }
 }
 
-if (canvas) {
-  for (let i = 0; i < 45; i++) particles.push(new Particle());
+function initParticles() {
+  if (!canvas) return;
+  particles = [];
+  const particleCount = isMobileDevice() ? 15 : 45; // Reduces particle overhead on mobile screens
+  for (let i = 0; i < particleCount; i++) particles.push(new Particle());
 }
+
+resizeCanvas();
 
 function animateCanvas() {
   if (!canvas || !ctx) return;
@@ -281,6 +317,8 @@ if (canvas) animateCanvas();
 
 /* --- SITTING ROBOT EYE & HEAD TRACKING --- */
 document.addEventListener('mousemove', (e) => {
+  if (isMobileDevice()) return; // Skips mouse tracking logic on mobile to eliminate touch/scroll delay
+
   const robotStage = document.getElementById('sittingRobotStage');
   const authOverlay = document.getElementById('authOverlay');
   if (!robotStage || (authOverlay && authOverlay.classList.contains('unlocked'))) return;
@@ -518,7 +556,7 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- HIGH-DEFINITION REAL 4K 3D CHROME & VECTOR WAVE DIRECTORY --- */
+/* --- ABSTRACT WALLPAPERS --- */
 const ABSTRACT_WALLPAPERS = {
   '3d-chrome-swirl': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop',
   'cyan-liquid-glass': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop',
@@ -658,7 +696,7 @@ function renderLiveDutyWidget(rosterData) {
   calculateActiveTraders();
 }
 
-/* --- TOP GAMES ENGINE (EXPANDED DYNAMIC MULTI-LEAGUE PARSER) --- */
+/* --- TOP GAMES ENGINE --- */
 function getGMT8DateObj(offsetDays = 0) {
   const now = new Date();
   const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
@@ -838,6 +876,13 @@ function initDashboardApp() {
   calculateActiveTraders();
   fetchManilaWeather();
   setInterval(fetchManilaWeather, 15 * 60 * 1000);
+
+  // Auto-close sidebar on mobile when links are clicked
+  document.querySelectorAll('.nav-sub-btn, .quick-launch-btn').forEach(link => {
+    link.addEventListener('click', () => {
+      if (isMobileDevice()) toggleMobileSidebar(false);
+    });
+  });
 }
 
 if (document.readyState === 'loading') {
