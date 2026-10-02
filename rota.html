@@ -40,8 +40,8 @@
             --dropdown-text: #f8fafc;
             --banner-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             --banner-text: #ffffff;
-            --sticky-col-bg: rgba(30, 42, 74, 0.95);
-            --sticky-header-bg: rgba(15, 23, 42, 0.95);
+            --sticky-col-bg: #111a2e;
+            --sticky-header-bg: #0b132b;
         }
 
         [data-theme="light"] {
@@ -256,10 +256,11 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        table { border-collapse: collapse; width: max-content; min-width: 100%; }
+        table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
 
         th, td {
-            border: 1px solid var(--glass-border);
+            border-right: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
             padding: 8px 6px;
             text-align: center;
             font-size: 12px;
@@ -303,6 +304,7 @@
             border-right: 2px solid rgba(234, 179, 8, 0.6) !important;
         }
 
+        /* DESKTOP STICKY PERSON COLUMN */
         th.person-col, td.person-col {
             position: sticky;
             left: 0;
@@ -316,7 +318,33 @@
         th.person-col { background-color: var(--sticky-header-bg); }
         td.person-col { background-color: var(--sticky-col-bg); backdrop-filter: blur(16px); }
 
-        .day-col-mobile, .date-col-mobile { min-width: 62px; width: 62px; }
+        /* MOBILE VIEW FROZEN DAY & DATE COLUMNS (ALWAYS PINNED IN VERTICAL MODE) */
+        th.day-col-mobile, td.day-col-mobile {
+            position: sticky !important;
+            left: 0 !important;
+            z-index: 30 !important;
+            min-width: 48px !important;
+            width: 48px !important;
+            max-width: 48px !important;
+            background-color: var(--sticky-col-bg) !important;
+        }
+
+        th.date-col-mobile, td.date-col-mobile {
+            position: sticky !important;
+            left: 48px !important; /* Matches day-col-mobile width */
+            z-index: 30 !important;
+            min-width: 64px !important;
+            width: 64px !important;
+            max-width: 64px !important;
+            border-right: 2px solid var(--accent-cyan) !important;
+            background-color: var(--sticky-col-bg) !important;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.25);
+        }
+
+        th.day-col-mobile, th.date-col-mobile {
+            z-index: 35 !important; /* Header cells stay above body cells when scrolling */
+            background-color: var(--sticky-header-bg) !important;
+        }
 
         .week-divider { border-right: 3px solid var(--week-divider) !important; }
 
@@ -603,33 +631,6 @@
                 position: sticky;
                 top: 0;
                 z-index: 20;
-            }
-
-            th.day-col-mobile, td.day-col-mobile {
-                position: sticky;
-                left: 0;
-                z-index: 25;
-                min-width: 48px;
-                width: 48px;
-            }
-
-            th.date-col-mobile, td.date-col-mobile {
-                position: sticky;
-                left: 48px;
-                z-index: 25;
-                min-width: 62px;
-                width: 62px;
-                border-right: 2px solid var(--glass-border);
-            }
-
-            /* Solid Opaque Backgrounds for Sticky Cells to Prevent Scroll Bleed */
-            th.day-col-mobile, th.date-col-mobile {
-                z-index: 30;
-                background-color: var(--sticky-header-bg) !important;
-            }
-
-            td.day-col-mobile, td.date-col-mobile {
-                background-color: var(--sticky-col-bg) !important;
             }
 
             .leave-section { padding: 14px; }
