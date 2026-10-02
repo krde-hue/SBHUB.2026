@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sportsbook Hub - Secured Dashboard</title>
   
   <!-- Preconnect & Google Fonts -->
@@ -226,7 +226,7 @@
   <!-- DASHBOARD APP CONTAINER -->
   <div id="dashboardApp">
 
-    <!-- MOBILE NAVIGATION HEADER (VISIBLE ON MOBILE PHONES ONLY) -->
+    <!-- MOBILE NAVIGATION HEADER (MOBILE PHONES ONLY) -->
     <div class="mobile-nav-header">
       <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation Menu">
         <i class="bx bx-menu"></i>
@@ -430,7 +430,7 @@
               </div>
               <i class="bx bx-export" style="font-size: 13px; opacity: 0.7;"></i>
             </a>
-            <a href="file:///C:/Users/KriztelJoyDeVilla/Downloads/Edge_Gaming_Client_Risk_Segmentation_Tool_July_2026_Dashboard.html" target="_blank" rel="noreferrer" class="quick-launch-btn">
+            <a href="Edge_Gaming_Client_Risk_Segmentation_Tool_July_2026_Dashboard.html" target="_blank" rel="noreferrer" class="quick-launch-btn">
               <div class="btn-left">
                 <div class="icon-badge icon-risk"><i class="bx bx-shield-quarter"></i></div>
                 <span>Risk Seg. Tool</span>
@@ -499,7 +499,7 @@
         <div id="jiraAlertBanner" class="jira-static-alert-banner">
           <div class="jira-alert-left">
             <div class="jira-alert-badge">
-              <i class="bx bx-error-circle"></i> PENDING JIRA (>24H)
+              <i class="bx bx-error-circle"></i> PENDING JIRA (&gt;24H)
             </div>
             <div class="jira-ticket-pills-container" id="jiraPillsContainer">
               <!-- Rendered Dynamically -->
@@ -684,72 +684,69 @@
   <!-- REAL-TIME STATIC JIRA ALERT SYNC SCRIPT -->
   <script>
     (function() {
-      const STORAGE_KEY = 'jira_tracked_tickets';
-      const channel = new BroadcastChannel('jira_sync_channel');
+      var STORAGE_KEY = 'jira_tracked_tickets';
+      var channel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('jira_sync_channel') : null;
 
       function sanitizeTicketKey(key) {
         if (!key) return 'JIRA TICKET';
-        const keyMatch = key.match(/[A-Z0-9]{2,10}-\d+/i);
+        var keyMatch = key.match(/[A-Z0-9]{2,10}-\d+/i);
         return keyMatch ? keyMatch[0].toUpperCase() : (key.length > 20 ? key.substring(0, 20) + '...' : key);
       }
 
       function constructFallbackJiraUrl(key, brand) {
-        const cleanK = sanitizeTicketKey(key) || 'JIRA-TICKET';
-        const cleanB = String(brand).toUpperCase();
+        var cleanK = sanitizeTicketKey(key) || 'JIRA-TICKET';
+        var cleanB = String(brand).toUpperCase();
         
         if (cleanB === 'BETSSON') {
-          return `https://betssongroup.atlassian.net/servicedesk/customer/portal/2019/${cleanK}`;
+          return 'https://betssongroup.atlassian.net/servicedesk/customer/portal/2019/' + cleanK;
         } else if (cleanB === 'IBET') {
-          return `https://ibet.atlassian.net/browse/${cleanK}`;
+          return 'https://ibet.atlassian.net/browse/' + cleanK;
         }
-        return `https://ibet.atlassian.net/browse/${cleanK}`;
+        return 'https://ibet.atlassian.net/browse/' + cleanK;
       }
 
       function formatElapsedTime(createdAt) {
-        const createdDate = new Date(createdAt);
+        var createdDate = new Date(createdAt);
         if (isNaN(createdDate.getTime())) return '24h+ passed';
         
-        const diffMs = new Date() - createdDate;
-        const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const days = Math.floor(totalHours / 24);
-        const hours = totalHours % 24;
+        var diffMs = new Date() - createdDate;
+        var totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+        var days = Math.floor(totalHours / 24);
+        var hours = totalHours % 24;
 
-        if (days > 0) return `${days}d ${hours}h passed`;
-        return `${totalHours}h passed`;
+        if (days > 0) return days + 'd ' + hours + 'h passed';
+        return totalHours + 'h passed';
       }
 
       function checkJiraSLA() {
-        const rawData = localStorage.getItem(STORAGE_KEY);
-        const tickets = JSON.parse(rawData || '[]');
-        const now = new Date();
+        var rawData = localStorage.getItem(STORAGE_KEY);
+        var tickets = JSON.parse(rawData || '[]');
+        var now = new Date();
 
-        // Filter tickets older than 24h that are NOT Resolved
-        const overdueTickets = tickets.filter(t => {
-          const isNotResolved = String(t.status).toLowerCase() !== 'resolved';
-          const createdDate = new Date(t.createdAt);
-          const hoursOld = isNaN(createdDate.getTime()) ? 25 : (now - createdDate) / (1000 * 60 * 60);
+        var overdueTickets = tickets.filter(function(t) {
+          var isNotResolved = String(t.status).toLowerCase() !== 'resolved';
+          var createdDate = new Date(t.createdAt);
+          var hoursOld = isNaN(createdDate.getTime()) ? 25 : (now - createdDate) / (1000 * 60 * 60);
           return isNotResolved && hoursOld >= 24;
         });
 
-        const banner = document.getElementById('jiraAlertBanner');
-        const pillsContainer = document.getElementById('jiraPillsContainer');
+        var banner = document.getElementById('jiraAlertBanner');
+        var pillsContainer = document.getElementById('jiraPillsContainer');
 
         if (overdueTickets.length > 0) {
-          const pillsHTML = overdueTickets.map(t => {
-            const cleanKey = sanitizeTicketKey(t.key);
-            const timeStr = formatElapsedTime(t.createdAt);
-            const brandStr = t.brand ? t.brand : 'KT PROJECTS';
-            const ticketUrl = (t.url && t.url.startsWith('http')) ? t.url : constructFallbackJiraUrl(cleanKey, brandStr);
+          var pillsHTML = overdueTickets.map(function(t) {
+            var cleanKey = sanitizeTicketKey(t.key);
+            var timeStr = formatElapsedTime(t.createdAt);
+            var brandStr = t.brand ? t.brand : 'KT PROJECTS';
+            var ticketUrl = (t.url && t.url.startsWith('http')) ? t.url : constructFallbackJiraUrl(cleanKey, brandStr);
 
-            return `
-              <div class="jira-pill-item">
-                <span class="jira-pill-brand">${brandStr}</span>
-                <a href="${ticketUrl}" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open ${cleanKey} in Atlassian">
-                  ${cleanKey} <i class="bx bx-external-link" style="font-size:11px;"></i>
-                </a>
-                <span>• <span class="jira-pill-time">${timeStr}</span></span>
-              </div>
-            `;
+            return '<div class="jira-pill-item">' +
+                     '<span class="jira-pill-brand">' + brandStr + '</span>' +
+                     '<a href="' + ticketUrl + '" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open ' + cleanKey + ' in Atlassian">' +
+                       cleanKey + ' <i class="bx bx-external-link" style="font-size:11px;"></i>' +
+                     '</a>' +
+                     '<span>• <span class="jira-pill-time">' + timeStr + '</span></span>' +
+                   '</div>';
           }).join('');
 
           if (pillsContainer) pillsContainer.innerHTML = pillsHTML;
@@ -759,7 +756,7 @@
         }
       }
 
-      channel.onmessage = checkJiraSLA;
+      if (channel) channel.onmessage = checkJiraSLA;
       window.addEventListener('storage', checkJiraSLA);
 
       document.addEventListener('DOMContentLoaded', checkJiraSLA);
