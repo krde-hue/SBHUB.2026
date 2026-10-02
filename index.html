@@ -14,275 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=8.0.0">
-
-  <!-- Static High-Visibility Alert Banner & Compact Custom Overrides -->
-  <style>
-    /* ==========================================
-       1. UNIFORM COMPACT SIDEBAR BUTTONS
-       ========================================== */
-    .sidebar-menu-scroll {
-      padding: 0 10px 15px 10px !important;
-    }
-
-    .nav-group {
-      margin-bottom: 5px !important;
-    }
-
-    .nav-main-btn {
-      padding: 5px 10px !important;
-      min-height: 36px !important;
-      height: 36px !important;
-      border-radius: 8px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      box-sizing: border-box !important;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      background: rgba(255, 255, 255, 0.05) !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    }
-
-    .nav-main-btn:hover {
-      background: rgba(255, 255, 255, 0.12) !important;
-      border-color: rgba(255, 255, 255, 0.2) !important;
-    }
-
-    .nav-main-left {
-      display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-      flex: 1 !important;
-      min-width: 0 !important;
-    }
-
-    .icon-badge {
-      width: 24px !important;
-      height: 24px !important;
-      min-width: 24px !important;
-      font-size: 13px !important;
-      border-radius: 6px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex-shrink: 0 !important;
-    }
-
-    .nav-main-btn span {
-      font-size: 11px !important;
-      font-weight: 700 !important;
-      letter-spacing: 0.3px !important;
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      text-transform: uppercase !important;
-    }
-
-    .toggle-icon {
-      font-size: 14px !important;
-      opacity: 0.7 !important;
-      flex-shrink: 0 !important;
-    }
-
-    .sub-menu {
-      padding-left: 4px !important;
-      margin-top: 3px !important;
-    }
-
-    .nav-sub-btn {
-      padding: 5px 10px !important;
-      min-height: 32px !important;
-      height: 32px !important;
-      border-radius: 6px !important;
-      font-size: 10.5px !important;
-      font-weight: 700 !important;
-      margin-bottom: 3px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-    }
-
-    .quick-launch-btn {
-      padding: 5px 10px !important;
-      min-height: 34px !important;
-      height: 34px !important;
-      border-radius: 8px !important;
-    }
-
-    /* ==========================================
-       2. TOP PICKS 7-CARD DESKTOP & LAPTOP GRID
-       ========================================== */
-    @media screen and (min-width: 1025px) {
-      .top-picks-scroll-row {
-        display: grid !important;
-        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
-        gap: 8px !important;
-        overflow-x: visible !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      .top-pick-card, 
-      .top-picks-scroll-row > div {
-        width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-        padding: 8px 6px !important;
-        margin: 0 !important;
-      }
-
-      .top-pick-card .team-logo,
-      .top-picks-scroll-row img {
-        max-width: 20px !important;
-        max-height: 20px !important;
-      }
-
-      .top-pick-card .match-title {
-        font-size: 10px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-
-      .top-pick-card .selection-text {
-        font-size: 9.5px !important;
-        line-height: 1.2 !important;
-      }
-
-      .top-pick-card .odds-badge {
-        font-size: 9px !important;
-        padding: 2px 5px !important;
-      }
-    }
-
-    /* ==========================================
-       3. STATIC JIRA ALERT BANNER
-       ========================================== */
-    .jira-static-alert-banner {
-      width: 100%;
-      min-height: 40px;
-      margin: 10px 0;
-      background: rgba(220, 38, 38, 0.18);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(239, 68, 68, 0.7);
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.25), inset 0 0 10px rgba(239, 68, 68, 0.15);
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 14px;
-      gap: 12px;
-      box-sizing: border-box;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .jira-static-alert-banner.active {
-      display: flex !important;
-    }
-
-    .jira-alert-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .jira-alert-badge {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      color: #ffffff;
-      font-weight: 800;
-      font-size: 11px;
-      padding: 5px 12px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-      text-transform: uppercase;
-    }
-    .jira-alert-badge i {
-      font-size: 15px;
-      animation: pulseGlow 2s infinite ease-in-out;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.1); }
-    }
-
-    .jira-ticket-pills-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .jira-pill-item {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      color: #f8fafc;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-    }
-
-    .jira-pill-brand {
-      color: #fca5a5;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 800;
-      font-size: 10px;
-      background: rgba(239, 68, 68, 0.3);
-      padding: 2px 6px;
-      border-radius: 4px;
-      border: 1px solid rgba(239, 68, 68, 0.5);
-    }
-
-    .jira-pill-key-link {
-      color: #38bdf8 !important;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer !important;
-      pointer-events: auto !important;
-    }
-    .jira-pill-key-link:hover {
-      color: #7dd3fc !important;
-      text-decoration: underline !important;
-    }
-
-    .jira-pill-time {
-      color: #f87171;
-      font-weight: 700;
-    }
-
-    .jira-open-btn {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 5px 12px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: background 0.2s;
-    }
-    .jira-open-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css?v=8.1.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -418,7 +150,7 @@
           <div class="nav-main-btn" onclick="toggleMenu('sub-dailytask', this)">
             <div class="nav-main-left">
               <div class="icon-badge icon-tasks"><i class="bx bx-task"></i></div>
-              <span>DAILY TASK</span>
+              <span>DAILY TASKS</span>
             </div>
             <i class="bx bx-chevron-down toggle-icon"></i>
           </div>
@@ -473,7 +205,7 @@
           <div class="nav-main-btn" onclick="toggleMenu('sub-multimonitor', this)">
             <div class="nav-main-left">
               <div class="icon-badge icon-multi"><i class="bx bx-desktop"></i></div>
-              <span>MULTI MONITOR</span>
+              <span>MULTI-MONITOR</span>
             </div>
             <i class="bx bx-chevron-down toggle-icon"></i>
           </div>
@@ -601,15 +333,8 @@
       <!-- TOP WIDE BANNER CARD -->
       <div class="glass-card top-banner-card">
         
-        <!-- TOP ROW -->
+        <!-- TOP ROW: WEATHER WIDGET ONLY -->
         <div class="banner-top-row">
-          <div class="banner-left-group">
-            <div class="banner-title-area">
-              <div class="banner-title">SPORTSBOOK HUB OVERVIEW</div>
-              <div class="banner-subtitle">Glass dashboard management system &amp; operations monitor</div>
-            </div>
-          </div>
-
           <!-- PHILIPPINES WEATHER WIDGET -->
           <div class="weather-banner-widget">
             <div class="weather-banner-header">
