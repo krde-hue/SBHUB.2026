@@ -227,12 +227,29 @@
   <!-- DASHBOARD APP CONTAINER -->
   <div id="dashboardApp">
 
+    <!-- MOBILE NAVIGATION HEADER (MOBILE PHONES ONLY) -->
+    <div class="mobile-nav-header">
+      <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation Menu">
+        <i class="bx bx-menu"></i>
+      </button>
+      <div class="mobile-brand-title">SPORTSBOOK HUB</div>
+      <button type="button" class="mobile-lock-btn" onclick="handleLogout()" title="Lock Session">
+        <i class="bx bx-log-out"></i>
+      </button>
+    </div>
+
+    <!-- SIDEBAR BACKDROP OVERLAY FOR MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar(false)"></div>
+
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
       <!-- SCROLLABLE MENU ITEMS AREA -->
       <div class="sidebar-menu-scroll">
         <div class="sidebar-header">
           <span>SPORTSBOOK HUB</span>
+          <button type="button" class="mobile-sidebar-close" onclick="toggleMobileSidebar(false)" aria-label="Close Sidebar">
+            <i class="bx bx-x"></i>
+          </button>
         </div>
 
         <div class="search-box">
