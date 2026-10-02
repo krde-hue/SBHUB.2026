@@ -246,7 +246,7 @@ async function fetchTopPicksAndBoosts() {
   }
 }
 
-/* --- ANIMATED PLASMA BACKGROUND CANVAS (LAG-FREE MOBILE PERFORMANCE) --- */
+/* --- ANIMATED PLASMA BACKGROUND CANVAS --- */
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
 let width = 0, height = 0, particles = [];
@@ -289,7 +289,7 @@ class Particle {
       ctx.shadowBlur = 8;
       ctx.shadowColor = '#00f2fe';
     } else {
-      ctx.shadowBlur = 0; // Disables GPU shadow render delay on mobile phones
+      ctx.shadowBlur = 0;
     }
     ctx.fill();
   }
@@ -298,7 +298,7 @@ class Particle {
 function initParticles() {
   if (!canvas) return;
   particles = [];
-  const particleCount = isMobileDevice() ? 15 : 45; // Reduces particle overhead on mobile screens
+  const particleCount = isMobileDevice() ? 15 : 45;
   for (let i = 0; i < particleCount; i++) particles.push(new Particle());
 }
 
@@ -317,7 +317,7 @@ if (canvas) animateCanvas();
 
 /* --- SITTING ROBOT EYE & HEAD TRACKING --- */
 document.addEventListener('mousemove', (e) => {
-  if (isMobileDevice()) return; // Skips mouse tracking logic on mobile to eliminate touch/scroll delay
+  if (isMobileDevice()) return;
 
   const robotStage = document.getElementById('sittingRobotStage');
   const authOverlay = document.getElementById('authOverlay');
@@ -876,13 +876,6 @@ function initDashboardApp() {
   calculateActiveTraders();
   fetchManilaWeather();
   setInterval(fetchManilaWeather, 15 * 60 * 1000);
-
-  // Auto-close sidebar on mobile when links are clicked
-  document.querySelectorAll('.nav-sub-btn, .quick-launch-btn').forEach(link => {
-    link.addEventListener('click', () => {
-      if (isMobileDevice()) toggleMobileSidebar(false);
-    });
-  });
 }
 
 if (document.readyState === 'loading') {
