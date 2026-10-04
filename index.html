@@ -14,7 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=8.2.0">
+  <link rel="stylesheet" href="./styles.css?v=8.3.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -333,8 +333,22 @@
       <!-- TOP WIDE BANNER CARD -->
       <div class="glass-card top-banner-card">
         
-        <!-- TOP ROW: WEATHER WIDGET ONLY -->
+        <!-- TOP ROW: INLINE JIRA RED GLOWING ALERT ON LEFT, WEATHER ON RIGHT -->
         <div class="banner-top-row">
+          
+          <!-- STATIC INLINE RED GLOWING JIRA PENDING TICKETS BANNER -->
+          <div id="jiraAlertBanner" class="jira-static-alert-banner">
+            <div class="jira-alert-badge">
+              <i class="bx bx-error-circle"></i> PENDING JIRA (&gt;24H)
+            </div>
+            <div class="jira-ticket-pills-container" id="jiraPillsContainer">
+              <!-- Rendered Dynamically -->
+            </div>
+            <a href="jira.html" target="_blank" rel="noreferrer" class="jira-open-btn">
+              View Tracker <i class="bx bx-right-arrow-alt"></i>
+            </a>
+          </div>
+
           <!-- PHILIPPINES WEATHER WIDGET -->
           <div class="weather-banner-widget">
             <div class="weather-banner-header">
@@ -359,26 +373,10 @@
               </div>
             </div>
           </div>
+
         </div>
 
-        <!-- MIDDLE ROW: STATIC RED GLOWING JIRA PENDING TICKETS BANNER -->
-        <div id="jiraAlertBanner" class="jira-static-alert-banner">
-          <div class="jira-alert-header-row">
-            <div class="jira-alert-badge">
-              <i class="bx bx-error-circle"></i> PENDING JIRA (&gt;24H)
-            </div>
-          </div>
-          <div class="jira-ticket-pills-container" id="jiraPillsContainer">
-            <!-- Rendered Dynamically -->
-          </div>
-          <div>
-            <a href="jira.html" target="_blank" rel="noreferrer" class="jira-open-btn">
-              View Tracker <i class="bx bx-right-arrow-alt"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- BOTTOM ROW -->
+        <!-- BOTTOM ROW: WORLD CLOCKS & BANNER CONTROLS -->
         <div class="banner-bottom-row">
           <div class="world-clocks">
             <div class="clock-badge">
