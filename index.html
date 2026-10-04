@@ -14,7 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=8.1.0">
+  <link rel="stylesheet" href="./styles.css?v=8.2.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -361,19 +361,21 @@
           </div>
         </div>
 
-        <!-- MIDDLE ROW: STATIC HIGH-VISIBILITY JIRA PENDING TICKETS BANNER -->
+        <!-- MIDDLE ROW: STATIC RED GLOWING JIRA PENDING TICKETS BANNER -->
         <div id="jiraAlertBanner" class="jira-static-alert-banner">
-          <div class="jira-alert-left">
+          <div class="jira-alert-header-row">
             <div class="jira-alert-badge">
               <i class="bx bx-error-circle"></i> PENDING JIRA (&gt;24H)
             </div>
-            <div class="jira-ticket-pills-container" id="jiraPillsContainer">
-              <!-- Rendered Dynamically -->
-            </div>
           </div>
-          <a href="jira.html" target="_blank" rel="noreferrer" class="jira-open-btn">
-            View Tracker <i class="bx bx-right-arrow-alt"></i>
-          </a>
+          <div class="jira-ticket-pills-container" id="jiraPillsContainer">
+            <!-- Rendered Dynamically -->
+          </div>
+          <div>
+            <a href="jira.html" target="_blank" rel="noreferrer" class="jira-open-btn">
+              View Tracker <i class="bx bx-right-arrow-alt"></i>
+            </a>
+          </div>
         </div>
 
         <!-- BOTTOM ROW -->
@@ -607,11 +609,11 @@
             var ticketUrl = (t.url && t.url.startsWith('http')) ? t.url : constructFallbackJiraUrl(cleanKey, brandStr);
 
             return '<div class="jira-pill-item">' +
-                     '<span class="jira-pill-brand">' + brandStr + '</span>' +
+                     '<span class="jira-pill-brand">' + brandStr + '</span> ' +
                      '<a href="' + ticketUrl + '" target="_blank" rel="noreferrer" class="jira-pill-key-link" title="Open ' + cleanKey + ' in Atlassian">' +
                        cleanKey + ' <i class="bx bx-external-link" style="font-size:11px;"></i>' +
-                     '</a>' +
-                     '<span style="opacity:0.5;">•</span>' +
+                     '</a> ' +
+                     '<span style="color:rgba(255,255,255,0.4); margin:0 2px;">•</span> ' +
                      '<span class="jira-pill-time">' + timeStr + '</span>' +
                    '</div>';
           }).join('');
