@@ -603,10 +603,18 @@ function setGradient(theme) {
   localStorage.setItem('sbhub_theme', theme);
 }
 
-/* --- REAL-TIME LIVE DUTY ROSTER --- */
+/* --- REAL-TIME LIVE DUTY ROSTER (ACCURATE GMT+8 / MANILA TIME) --- */
+function getGMT8IsoDate() {
+  const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  const year = nowManila.getFullYear();
+  const month = String(nowManila.getMonth() + 1).padStart(2, '0');
+  const day = String(nowManila.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getCurrentSlotInfo() {
-  const now = new Date();
-  const hours = now.getHours();
+  const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  const hours = nowManila.getHours();
   if (hours >= 6 && hours < 9)    return { slotId: "slot_6_9", label: "7:00 - 9:00" };
   if (hours >= 9 && hours < 12)  return { slotId: "slot_9_12", label: "9:00 - 12:00" };
   if (hours >= 12 && hours < 15) return { slotId: "slot_12_15", label: "12:00 - 15:00" };
@@ -631,13 +639,22 @@ function renderLiveDutyWidget(rosterData) {
     return;
   }
 
-  const todayIso = new Date().toISOString().split('T')[0];
+  const todayIso = getGMT8IsoDate();
   const { slotId, label: slotLabel } = getCurrentSlotInfo();
 
-  let activeDayKey = Object.keys(rosterData).find(key => key !== 'archives' && rosterData[key]?.isoDate === todayIso);
+  let activeDayKey = Object.keys(rosterData).find(key => {
+    if (key === 'archives') return false;
+    const entry = rosterData[key];
+    return entry?.isoDate === todayIso || entry?.date === todayIso || key === todayIso || key.includes(todayIso);
+  });
+
   if (!activeDayKey) {
     const activeKeys = Object.keys(rosterData).filter(k => k !== 'archives');
-    activeKeys.sort((a, b) => (rosterData[b]?.isoDate || '').localeCompare(rosterData[a]?.isoDate || ''));
+    activeKeys.sort((a, b) => {
+      const dateA = rosterData[b]?.isoDate || rosterData[b]?.date || b;
+      const dateB = rosterData[a]?.isoDate || rosterData[a]?.date || a;
+      return String(dateA).localeCompare(String(dateB));
+    });
     activeDayKey = activeKeys[0];
   }
 
@@ -647,6 +664,7 @@ function renderLiveDutyWidget(rosterData) {
   }
 
   const dayData = rosterData[activeDayKey];
+  const displayDate = dayData.isoDate || dayData.date || todayIso;
   const teamMembers = [
     { id: 'ann', name: 'ANN' }, { id: 'dave', name: 'DAVE' },
     { id: 'ken', name: 'KEN' }, { id: 'kriztel', name: 'KRIZTEL' }
@@ -654,7 +672,7 @@ function renderLiveDutyWidget(rosterData) {
 
   let html = `
     <div style="font-size:11px; font-weight:700; opacity:0.9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-      <span>📅 ${dayData.isoDate || todayIso}</span>
+      <span>📅 ${displayDate}</span>
       <span class="badge-time">⏰ ${slotLabel}</span>
     </div>
   `;
