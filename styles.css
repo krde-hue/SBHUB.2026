@@ -678,20 +678,19 @@ body {
   opacity: 0.6;
 }
 
-/* OVERVIEW BANNER CARD WITH UNCLIPPED DROPDOWNS */
+/* OVERVIEW BANNER CARD - COMPACT RESPONSIVE CONTAINER */
 .top-banner-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
-  padding: 22px 26px;
+  gap: 14px;
+  padding: 18px 22px;
   width: 100%;
-  min-height: 180px;
+  min-height: auto !important;
   box-sizing: border-box;
   overflow: visible !important;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  position: relative;
+  z-index: 100;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   background-color: #080c1a !important;
@@ -705,162 +704,12 @@ body {
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 20px 50px rgba(0, 0, 0, 0.65);
 }
 
-/* ==========================================================================
-   STATIC HIGH-VISIBILITY RED GLOWING JIRA ALERT BANNER STYLES
-   ========================================================================== */
-@keyframes redPulseGlow {
-  0% {
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.2);
-    border-color: rgba(248, 113, 113, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 22px rgba(239, 68, 68, 0.85), inset 0 0 18px rgba(239, 68, 68, 0.35);
-    border-color: rgba(252, 165, 165, 1);
-  }
-  100% {
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.2);
-    border-color: rgba(248, 113, 113, 0.7);
-  }
-}
-
-.jira-static-alert-banner {
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  width: auto;
-  max-width: 100%;
-  padding: 12px 16px;
-  background: rgba(153, 27, 27, 0.45) !important;
-  border: 1.5px solid #f87171 !important;
-  border-radius: 16px !important;
-  backdrop-filter: blur(16px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-  animation: redPulseGlow 2s infinite ease-in-out !important;
-  margin-top: 6px;
-  margin-bottom: 6px;
-  z-index: 1005;
-}
-
-.jira-static-alert-banner.active {
-  display: flex !important;
-}
-
-.jira-alert-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-}
-
-.jira-alert-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #ffffff !important;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
-}
-
-.jira-alert-badge i {
-  font-size: 16px;
-  color: #fca5a5 !important;
-}
-
-.jira-ticket-pills-container {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-}
-
-.jira-pill-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.75) !important;
-  border: 1px solid rgba(248, 113, 113, 0.4) !important;
-  padding: 6px 12px !important;
-  border-radius: 10px !important;
-  font-size: 11.5px !important;
-  color: #ffffff !important;
-  font-weight: 600;
-  flex-wrap: wrap;
-}
-
-.jira-pill-brand {
-  font-weight: 800 !important;
-  color: #ffffff !important;
-  text-transform: uppercase;
-  background: rgba(220, 38, 38, 0.6) !important;
-  border: 1px solid rgba(252, 165, 165, 0.4) !important;
-  padding: 2px 8px !important;
-  border-radius: 6px !important;
-  font-size: 10px !important;
-  letter-spacing: 0.5px;
-  margin-right: 2px;
-}
-
-.jira-pill-key-link,
-.jira-pill-key-link:visited,
-.jira-pill-key-link:active,
-.jira-pill-key-link:hover,
-.jira-pill-key-link:focus {
-  color: #38bdf8 !important; /* Bright sky blue clickable link */
-  font-weight: 800 !important;
-  text-decoration: underline !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer !important;
-  transition: color 0.2s ease, transform 0.1s ease;
-}
-
-.jira-pill-key-link:hover {
-  color: #7dd3fc !important;
-  text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
-}
-
-.jira-pill-time {
-  color: #fca5a5 !important;
-  font-weight: 700 !important;
-  font-size: 11px !important;
-}
-
-.jira-open-btn,
-.jira-open-btn:visited,
-.jira-open-btn:active,
-.jira-open-btn:hover,
-.jira-open-btn:focus {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: #38bdf8 !important;
-  padding: 4px 10px !important;
-  border-radius: 8px !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  transition: all 0.2s ease !important;
-}
-
-.jira-open-btn:hover {
-  background: rgba(56, 189, 248, 0.25) !important;
-  border-color: #38bdf8 !important;
-  color: #ffffff !important;
-  text-decoration: none !important;
-}
-
+/* TOP ROW FLEX (JIRA ALERT ON LEFT, WEATHER ON RIGHT) */
 .banner-top-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: flex-start;
+  gap: 16px;
   width: 100%;
 }
 
@@ -877,6 +726,7 @@ body {
   -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
   flex-shrink: 0;
+  margin-left: auto; /* Always pins Weather Widget to the right */
 }
 
 .weather-banner-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 3px; }
@@ -889,6 +739,146 @@ body {
 .weather-location-tag { font-weight: 700; color: #ffffff; }
 .weather-banner-details { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 8.5px; color: rgba(255, 255, 255, 0.75); font-weight: 600; }
 
+/* ==========================================================================
+   INLINE HIGH-VISIBILITY RED GLOWING JIRA ALERT BANNER
+   ========================================================================== */
+@keyframes redPulseGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.2);
+    border-color: rgba(248, 113, 113, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.85), inset 0 0 14px rgba(239, 68, 68, 0.35);
+    border-color: rgba(252, 165, 165, 1);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.2);
+    border-color: rgba(248, 113, 113, 0.7);
+  }
+}
+
+.jira-static-alert-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(153, 27, 27, 0.5) !important;
+  border: 1.5px solid #f87171 !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  animation: redPulseGlow 2s infinite ease-in-out !important;
+  flex-wrap: wrap;
+  max-width: calc(100% - 260px);
+}
+
+.jira-static-alert-banner.active {
+  display: inline-flex !important;
+}
+
+.jira-alert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffffff !important;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+}
+
+.jira-alert-badge i {
+  font-size: 14px;
+  color: #fca5a5 !important;
+}
+
+.jira-ticket-pills-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jira-pill-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(248, 113, 113, 0.4) !important;
+  padding: 3px 10px !important;
+  border-radius: 8px !important;
+  font-size: 11px !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.jira-pill-brand {
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  background: rgba(220, 38, 38, 0.7) !important;
+  border: 1px solid rgba(252, 165, 165, 0.4) !important;
+  padding: 1px 6px !important;
+  border-radius: 5px !important;
+  font-size: 9.5px !important;
+  letter-spacing: 0.4px;
+}
+
+.jira-pill-key-link,
+.jira-pill-key-link:visited,
+.jira-pill-key-link:active,
+.jira-pill-key-link:hover,
+.jira-pill-key-link:focus {
+  color: #38bdf8 !important; /* Bright sky blue clickable link */
+  font-weight: 800 !important;
+  text-decoration: underline !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer !important;
+}
+
+.jira-pill-key-link:hover {
+  color: #7dd3fc !important;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+}
+
+.jira-pill-time {
+  color: #fca5a5 !important;
+  font-weight: 700 !important;
+  font-size: 10.5px !important;
+}
+
+.jira-open-btn,
+.jira-open-btn:visited,
+.jira-open-btn:active,
+.jira-open-btn:hover,
+.jira-open-btn:focus {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #38bdf8 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+}
+
+.jira-open-btn:hover {
+  background: rgba(56, 189, 248, 0.3) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+
+/* BOTTOM ROW FLEX (CLOCKS & CONTROLS) */
 .banner-bottom-row {
   display: flex;
   justify-content: space-between;
@@ -1277,8 +1267,22 @@ body {
     background: rgba(15, 23, 42, 0.95) !important;
   }
 
+  .banner-top-row {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
   .jira-static-alert-banner {
-    padding: 12px;
+    max-width: 100%;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .top-banner-card .weather-banner-widget {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
   }
 
   .mobile-nav-header {
@@ -1397,18 +1401,6 @@ body {
     min-height: auto;
     border-radius: 18px;
     margin-bottom: 12px;
-  }
-
-  .banner-top-row {
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
-  }
-
-  .top-banner-card .weather-banner-widget {
-    width: 100%;
-    min-width: 0;
-    padding: 10px 12px;
   }
 
   .banner-bottom-row {
