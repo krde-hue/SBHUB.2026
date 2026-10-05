@@ -31,7 +31,7 @@ body {
   display: flex;
   padding: 24px;
   gap: 24px;
-  transition: background 0.5s ease, color 0.3s ease;
+  transition: background 0.4s ease, color 0.3s ease;
   position: relative;
 }
 
@@ -41,7 +41,7 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb {
@@ -378,13 +378,14 @@ body {
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.5px;
+  color: #ffffff;
 }
 
 .mobile-sidebar-close {
   display: none;
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: inherit;
   font-size: 22px;
   cursor: pointer;
 }
@@ -464,6 +465,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
+  color: inherit;
 }
 
 .icon-badge {
@@ -475,7 +477,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  color: #ffffff;
+  color: #ffffff !important;
   flex-shrink: 0;
 }
 
@@ -1315,31 +1317,33 @@ body {
 }
 
 /* ==========================================================================
-   LIGHT THEME CONTRAST & VISIBILITY OVERRIDES
+   LIGHT THEME (DAYLIGHT OPTIONS) - FULL HIGH-CONTRAST OVERRIDES
    ========================================================================== */
 body.light-theme {
-  color: #0f172a;
-}
-
-body.light-theme .sidebar-header,
-body.light-theme .mobile-brand-title {
-  color: #0f172a;
-}
-
-/* Glass Cards in Light Mode */
-body.light-theme .glass-card {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border: 1px solid rgba(203, 213, 225, 0.85) !important;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-}
-
-/* Sidebar Controls & Inputs */
-body.light-theme .search-box {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
+}
+
+/* General Text & Headers in Light Mode */
+body.light-theme .sidebar-header,
+body.light-theme .mobile-brand-title,
+body.light-theme .card-header span {
+  color: #0f172a !important;
+}
+
+/* Glass Cards - White Clean Cards with Crisp Borders & Soft Shadow */
+body.light-theme .glass-card {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Sidebar Search Box */
+body.light-theme .search-box {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 body.light-theme .search-box input {
@@ -1354,16 +1358,16 @@ body.light-theme .search-box i {
   color: #475569 !important;
 }
 
-/* Sidebar Navigation Buttons */
+/* Sidebar Navigation Main Buttons */
 body.light-theme .nav-main-btn {
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04) !important;
 }
 
 body.light-theme .nav-main-btn:hover {
-  background: #ffffff !important;
+  background: #f1f5f9 !important;
   border-color: #0284c7 !important;
 }
 
@@ -1375,10 +1379,12 @@ body.light-theme .toggle-icon {
   color: #475569 !important;
 }
 
+/* Sidebar Sub-Menu Buttons */
 body.light-theme .nav-sub-btn {
-  background: rgba(241, 245, 249, 0.95) !important;
-  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
   color: #1e293b !important;
+  box-shadow: none !important;
 }
 
 body.light-theme .nav-sub-btn:hover {
@@ -1387,14 +1393,28 @@ body.light-theme .nav-sub-btn:hover {
   color: #0284c7 !important;
 }
 
+body.light-theme .nav-sub-btn span {
+  color: #1e293b !important;
+}
+
+/* Sidebar Quick Launch Dock */
 body.light-theme .sidebar-quick-dock {
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
 }
 
+body.light-theme .quick-dock-title {
+  color: #0284c7 !important;
+}
+
 body.light-theme .quick-launch-btn {
-  background: rgba(241, 245, 249, 0.95) !important;
-  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+body.light-theme .quick-launch-btn span {
   color: #0f172a !important;
 }
 
@@ -1404,7 +1424,7 @@ body.light-theme .quick-launch-btn:hover {
   color: #0284c7 !important;
 }
 
-/* Sidebar Footer Admin Pill */
+/* Sidebar Admin Footer Pill */
 body.light-theme .sidebar-admin-footer .admin-top-pill {
   background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
@@ -1415,30 +1435,73 @@ body.light-theme .sidebar-admin-footer .user-title {
   color: #0f172a !important;
 }
 
-/* Action Rows & Cards inside Workspace */
+/* Brand Directory Links & Action Rows */
 body.light-theme .action-row {
-  background: rgba(241, 245, 249, 0.95) !important;
+  background: #f8fafc !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
+}
+
+body.light-theme .action-row span {
+  color: #0f172a !important;
+}
+
+body.light-theme .action-row i {
+  color: #0284c7 !important;
 }
 
 body.light-theme .action-row:hover {
   background: #ffffff !important;
   border-color: #0284c7 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12) !important;
 }
 
+/* Tab Pills */
+body.light-theme .tab-pill {
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+body.light-theme .tab-pill.active {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* Live Time-Slot Duties Cards */
 body.light-theme .duty-card {
-  background: rgba(241, 245, 249, 0.95) !important;
+  background: #f8fafc !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
+}
+
+body.light-theme .duty-card:hover {
+  border-color: #0284c7 !important;
 }
 
 body.light-theme .duty-top {
   color: #0f172a !important;
 }
 
+body.light-theme .duty-top span {
+  color: #0f172a !important;
+}
+
 body.light-theme .duty-desc {
   color: #334155 !important;
+}
+
+body.light-theme .duty-desc span {
+  color: #1e293b !important;
+}
+
+body.light-theme #liveDutyContent {
+  color: #0f172a !important;
+}
+
+body.light-theme #liveDutyContent div {
+  color: #0f172a !important;
 }
 
 body.light-theme .badge-time {
@@ -1447,32 +1510,53 @@ body.light-theme .badge-time {
   color: #0f172a !important;
 }
 
+/* Top Games (Daily Matchday) Cards */
 body.light-theme .top-game-card {
-  background: rgba(241, 245, 249, 0.95) !important;
+  background: #f8fafc !important;
   border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
 body.light-theme .top-game-card:hover {
   background: #ffffff !important;
   border-color: #0284c7 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12) !important;
 }
 
 body.light-theme .top-game-title {
   color: #0f172a !important;
 }
 
+body.light-theme .top-game-title .vs-light {
+  color: #64748b !important;
+}
+
 body.light-theme .top-game-league {
   color: #475569 !important;
 }
 
+/* Top Matchday Header Navigation Bar */
+body.light-theme #widget-games-dock > div:nth-child(2) {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Top Picks / Hot Boost Cards */
 body.light-theme .boost-card {
-  background: rgba(241, 245, 249, 0.95) !important;
+  background: #f8fafc !important;
   border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
 body.light-theme .boost-card:hover {
   background: #ffffff !important;
   border-color: #0284c7 !important;
+}
+
+body.light-theme .boost-card.highlight-border {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.2) !important;
 }
 
 body.light-theme .boost-match-title {
@@ -1492,24 +1576,17 @@ body.light-theme .vs-light {
   color: #64748b !important;
 }
 
-/* Tab Pills */
-body.light-theme .tab-pill {
-  background: #e2e8f0 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #334155 !important;
+body.light-theme .boost-kickoff-pill {
+  background: #e0f2fe !important;
+  border: 1px solid #bae6fd !important;
+  color: #0284c7 !important;
 }
 
-body.light-theme .tab-pill.active {
-  background: #0284c7 !important;
-  border-color: #0284c7 !important;
-  color: #ffffff !important;
-}
-
-/* Top Banner Clocks, Metrics & Dropdowns */
+/* Top Banner Header Clocks & Controls */
 body.light-theme .top-banner-card .clock-badge,
 body.light-theme .top-banner-card .metric-pill,
 body.light-theme .top-banner-card .dropdown-btn {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -1522,10 +1599,11 @@ body.light-theme .top-banner-card .clock-time {
   color: #0284c7 !important;
 }
 
+/* Dropdown Menus in Light Mode */
 body.light-theme .dropdown-menu {
   background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
 }
 
 body.light-theme .menu-option {
@@ -1544,8 +1622,9 @@ body.light-theme .dropdown-section-title {
   border-bottom-color: #e2e8f0 !important;
 }
 
+/* Weather Banner Widget */
 body.light-theme .weather-banner-widget {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -1558,6 +1637,31 @@ body.light-theme .weather-location-tag {
 body.light-theme .weather-banner-cond,
 body.light-theme .weather-banner-details {
   color: #475569 !important;
+}
+
+/* Jira Alert Banner in Light Mode */
+body.light-theme .jira-static-alert-banner {
+  background: #fef2f2 !important;
+  border: 1.5px solid #f87171 !important;
+}
+
+body.light-theme .jira-alert-badge {
+  color: #991b1b !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .jira-alert-badge i {
+  color: #dc2626 !important;
+}
+
+body.light-theme .jira-pill-item {
+  background: #ffffff !important;
+  border: 1px solid #fca5a5 !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .jira-pill-time {
+  color: #dc2626 !important;
 }
 
 /* ==========================================================================
@@ -1632,7 +1736,7 @@ body.light-theme .weather-banner-details {
   }
 
   body.light-theme .mobile-nav-header {
-    background: rgba(255, 255, 255, 0.95);
+    background: #ffffff;
     border-color: #cbd5e1;
   }
 
