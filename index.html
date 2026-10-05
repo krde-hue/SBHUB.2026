@@ -14,7 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=8.6.0">
+  <link rel="stylesheet" href="./styles.css?v=8.7.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,7 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- App JS -->
-  <script src="./app.js?v=8.2.0" defer></script>
+  <script src="./app.js?v=8.3.0" defer></script>
 </head>
 <body id="pageBody">
 
@@ -686,7 +686,6 @@
       var banner = document.getElementById('urgentHandoverBanner');
       var modalList = document.getElementById('handoverModalList');
 
-      // 1. Render Banner Pills
       if (list.length > 0) {
         var pillsHTML = list.map(function(item) {
           return '<div class="handover-pill-item">' +
@@ -701,7 +700,6 @@
         if (banner) banner.classList.remove('has-items');
       }
 
-      // 2. Render Modal List
       if (modalList) {
         if (list.length === 0) {
           modalList.innerHTML = '<div style="text-align:center; padding:15px; font-size:11px; opacity:0.7;">No active handovers. Add one above!</div>';
