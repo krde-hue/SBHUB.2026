@@ -35,6 +35,23 @@ body {
   position: relative;
 }
 
+/* CUSTOM SCROLLBARS */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
 #bgCanvas {
   position: fixed;
   inset: 0;
@@ -42,6 +59,9 @@ body {
   pointer-events: none;
 }
 
+/* ==========================================================================
+   AUTHENTICATION OVERLAY & LOGIN MODAL
+   ========================================================================== */
 #authOverlay {
   position: fixed;
   inset: 0;
@@ -86,6 +106,17 @@ body {
   gap: 18px;
   position: relative;
   z-index: 5;
+}
+
+.login-card.shake {
+  animation: shakeKey 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shakeKey {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
 /* SITTING ROBOT STAGE */
@@ -232,6 +263,7 @@ body {
 .field-label-row { display: flex; justify-content: space-between; align-items: center; }
 .login-label { font-size: 11px; font-weight: 700; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; }
 .forgot-link { font-size: 11px; color: #38bdf8; text-decoration: none; }
+.forgot-link:hover { text-decoration: underline; }
 .password-field-wrap { position: relative; width: 100%; }
 
 .login-input {
@@ -243,6 +275,12 @@ body {
   font-size: 14px;
   color: #ffffff;
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
 }
 
 .password-toggle-btn {
@@ -255,6 +293,10 @@ body {
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   font-size: 18px;
+}
+
+.password-toggle-btn:hover {
+  color: #ffffff;
 }
 
 .remember-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255, 255, 255, 0.85); }
@@ -270,6 +312,10 @@ body {
   color: #0f172a;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .login-btn:hover {
@@ -279,6 +325,9 @@ body {
 
 .login-error { font-size: 11px; font-weight: 700; color: #f87171; min-height: 16px; text-align: center; }
 
+/* ==========================================================================
+   MAIN DASHBOARD APP LAYOUT
+   ========================================================================== */
 #dashboardApp {
   display: flex;
   gap: 24px;
@@ -434,6 +483,7 @@ body {
   font-size: 14px;
   opacity: 0.7;
   flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
 .icon-internal { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
@@ -635,6 +685,7 @@ body {
   color: #ffffff !important;
 }
 
+/* MAIN WORKSPACE */
 .main-workspace {
   flex: 1;
   display: flex;
@@ -726,7 +777,7 @@ body {
   -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
   flex-shrink: 0;
-  margin-left: auto; /* Always pins Weather Widget to the right */
+  margin-left: auto;
 }
 
 .weather-banner-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 3px; }
@@ -739,9 +790,7 @@ body {
 .weather-location-tag { font-weight: 700; color: #ffffff; }
 .weather-banner-details { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 8.5px; color: rgba(255, 255, 255, 0.75); font-weight: 600; }
 
-/* ==========================================================================
-   INLINE HIGH-VISIBILITY RED GLOWING JIRA ALERT BANNER
-   ========================================================================== */
+/* INLINE HIGH-VISIBILITY RED GLOWING JIRA ALERT BANNER */
 @keyframes redPulseGlow {
   0% {
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.2);
@@ -832,7 +881,7 @@ body {
 .jira-pill-key-link:active,
 .jira-pill-key-link:hover,
 .jira-pill-key-link:focus {
-  color: #38bdf8 !important; /* Bright sky blue clickable link */
+  color: #38bdf8 !important;
   font-weight: 800 !important;
   text-decoration: underline !important;
   display: inline-flex;
@@ -985,6 +1034,9 @@ body {
 
 .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.4); display: inline-block; }
 
+/* ==========================================================================
+   TOP PICKS / HOT BOOSTS WIDGET
+   ========================================================================== */
 .top-picks-scroll-row {
   display: flex;
   gap: 14px;
@@ -1004,36 +1056,48 @@ body {
     box-sizing: border-box !important;
   }
 
-  .top-pick-card, 
-  .top-picks-scroll-row > div {
+  .boost-card {
     width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
-    padding: 8px 6px !important;
+    padding: 10px 8px !important;
     margin: 0 !important;
   }
 
-  .top-pick-card .team-logo,
-  .top-picks-scroll-row img {
-    max-width: 20px !important;
-    max-height: 20px !important;
+  .top-picks-scroll-row .team-flag-img {
+    width: 24px !important;
+    height: 24px !important;
   }
 
-  .top-pick-card .match-title {
+  .top-picks-scroll-row .boost-match-title {
     font-size: 10px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
 
-  .top-pick-card .selection-text {
-    font-size: 9.5px !important;
-    line-height: 1.2 !important;
+  .top-picks-scroll-row .boost-league-sub {
+    font-size: 8.5px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
-  .top-pick-card .odds-badge {
+  .top-picks-scroll-row .boost-market-desc {
+    font-size: 9.5px !important;
+    line-height: 1.2 !important;
+    min-height: 24px !important;
+  }
+
+  .top-picks-scroll-row .boost-badge {
+    font-size: 8px !important;
+    padding: 2px 6px !important;
+  }
+
+  .top-picks-scroll-row .boost-kickoff-pill {
     font-size: 9px !important;
-    padding: 2px 5px !important;
+    padding: 2px 6px !important;
   }
 }
 
@@ -1049,7 +1113,12 @@ body {
   justify-content: space-between;
   gap: 12px;
   flex-shrink: 0;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.boost-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .boost-card.highlight-border {
@@ -1109,6 +1178,84 @@ body {
   gap: 4px;
 }
 
+/* ==========================================================================
+   DASHBOARD THREE-COLUMN GRID
+   ========================================================================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+.tab-pills { display: flex; gap: 6px; }
+.tab-pill {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab-pill.active {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.action-row:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.duty-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.duty-card:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.duty-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; }
+.badge-time {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+}
+.duty-desc { font-size: 10px; opacity: 0.85; }
+
 .top-game-card {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1167,80 +1314,9 @@ body {
   letter-spacing: 0.3px;
 }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-  width: 100%;
-  position: relative;
-  z-index: 1;
-}
-
-@media (max-width: 1200px) {
-  .dashboard-grid { grid-template-columns: 1fr; }
-}
-
-.tab-pills { display: flex; gap: 6px; }
-.tab-pill {
-  padding: 5px 12px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.tab-pill.active {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(255, 255, 255, 0.7);
-  color: #ffffff;
-}
-
-.action-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 10px 14px;
-  border-radius: 14px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.duty-card {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.duty-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; }
-.badge-time {
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-size: 9px;
-}
-.duty-desc { font-size: 10px; opacity: 0.85; }
-
-.game-card {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* MOBILE & TOUCHSCREEN RESPONSIVE CSS */
+/* ==========================================================================
+   MOBILE & TOUCHSCREEN RESPONSIVE MEDIA QUERIES
+   ========================================================================== */
 .mobile-nav-header {
   display: none;
 }
