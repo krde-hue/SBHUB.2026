@@ -14,7 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=8.5.0">
+  <link rel="stylesheet" href="./styles.css?v=8.6.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -336,7 +336,7 @@
         <!-- TOP ROW: JIRA RED GLOWING ALERT ON LEFT, URGENT HANDOVER YELLOW GLOWING BANNER IN MIDDLE, WEATHER ON RIGHT -->
         <div class="banner-top-row">
           
-          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1;">
+          <div class="banner-top-left-group">
             <!-- STATIC INLINE RED GLOWING JIRA PENDING TICKETS BANNER -->
             <div id="jiraAlertBanner" class="jira-static-alert-banner">
               <div class="jira-alert-badge">
@@ -350,7 +350,7 @@
               </a>
             </div>
 
-            <!-- URGENT HANDOVER YELLOW GLOWING BANNER (IN YELLOW BOX LOCATION) -->
+            <!-- URGENT HANDOVER YELLOW GLOWING BANNER (STAYS WITHIN BOX) -->
             <div id="urgentHandoverBanner" class="urgent-handover-banner active">
               <div class="handover-alert-badge">
                 <i class="bx bx-alarm-exclamation"></i> URGENT HANDOVER
@@ -691,13 +691,13 @@
         var pillsHTML = list.map(function(item) {
           return '<div class="handover-pill-item">' +
                    '<span class="handover-pill-brand">' + item.brand.toUpperCase() + '</span> ' +
-                   '<span class="handover-pill-msg">' + item.msg + '</span>' +
+                   '<span class="handover-pill-msg" title="' + item.msg.replace(/"/g, '&quot;') + '">' + item.msg + '</span>' +
                  '</div>';
         }).join('');
         if (container) container.innerHTML = pillsHTML;
         if (banner) banner.classList.add('has-items');
       } else {
-        if (container) container.innerHTML = '<span style="font-size:10.5px; opacity:0.8; font-weight:600;">No active urgent notes.</span>';
+        if (container) container.innerHTML = '<span style="font-size:10.5px; opacity:0.85; font-weight:600;">No active urgent notes.</span>';
         if (banner) banner.classList.remove('has-items');
       }
 
