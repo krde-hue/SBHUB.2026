@@ -14,7 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=8.7.0">
+  <link rel="stylesheet" href="./styles.css?v=8.8.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,7 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- App JS -->
-  <script src="./app.js?v=8.3.0" defer></script>
+  <script src="./app.js?v=8.4.0" defer></script>
 </head>
 <body id="pageBody">
 
@@ -350,17 +350,19 @@
               </a>
             </div>
 
-            <!-- URGENT HANDOVER YELLOW GLOWING BANNER (STAYS WITHIN BOX) -->
+            <!-- URGENT HANDOVER YELLOW GLOWING BANNER -->
             <div id="urgentHandoverBanner" class="urgent-handover-banner active">
-              <div class="handover-alert-badge">
-                <i class="bx bx-alarm-exclamation"></i> URGENT HANDOVER
+              <div class="handover-header-row">
+                <div class="handover-alert-badge" id="handoverAlertBadge">
+                  <i class="bx bx-alarm-exclamation"></i> URGENT HANDOVER
+                </div>
+                <button type="button" class="handover-manage-btn" onclick="openHandoverModal()">
+                  <i class="bx bx-plus-circle"></i> Manage Notes
+                </button>
               </div>
               <div class="handover-pills-container" id="handoverPillsContainer">
                 <!-- Rendered Dynamically -->
               </div>
-              <button type="button" class="handover-manage-btn" onclick="openHandoverModal()">
-                <i class="bx bx-plus-circle"></i> Manage Notes
-              </button>
             </div>
           </div>
 
@@ -569,14 +571,19 @@
   <div id="handoverModal" class="handover-modal-overlay">
     <div class="handover-modal-card">
       <div class="handover-modal-header">
-        <span class="handover-modal-title"><i class="bx bx-alarm-exclamation" style="color: #facc15;"></i> Manage Urgent Handovers</span>
+        <span class="handover-modal-title"><i class="bx bx-alarm-exclamation" style="color: #facc15;"></i> Manage Handovers</span>
         <i class="bx bx-x handover-modal-close" onclick="closeHandoverModal()"></i>
       </div>
       
       <form onsubmit="addUrgentHandover(event)" class="handover-modal-form">
         <div class="handover-form-group">
+          <select id="handoverPriorityInput" class="handover-field select-priority" required>
+            <option value="URGENT/CRITICAL" selected>🚨 URGENT / CRITICAL</option>
+            <option value="Need Attention">⚠️ Need Attention</option>
+            <option value="Normal">ℹ️ Normal</option>
+          </select>
           <input type="text" id="handoverBrandInput" placeholder="Brand/Topic (e.g. IBET, QBET, MTS)" required class="handover-field short">
-          <input type="text" id="handoverMsgInput" placeholder="Urgent Handover Note / Issue Details..." required class="handover-field flex-1">
+          <input type="text" id="handoverMsgInput" placeholder="Handover Note / Issue Details..." required class="handover-field flex-1">
           <button type="submit" class="handover-post-btn"><i class="bx bx-plus"></i> Post Note</button>
         </div>
       </form>
@@ -666,12 +673,32 @@
       setInterval(checkJiraSLA, 10000);
     })();
 
-    /* --- URGENT HANDOVER MANAGER SYSTEM --- */
+    /* --- URGENT HANDOVER MANAGER SYSTEM WITH CATEGORIZATION & COUNT --- */
     var HANDOVER_STORAGE_KEY = 'sbhub_urgent_handovers';
     var handoverChannel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('handover_sync_channel') : null;
 
+    function getPriorityWeight(p) {
+      if (p === 'URGENT/CRITICAL') return 3;
+      if (p === 'Need Attention') return 2;
+      return 1; // Normal
+    }
+
+    function getPriorityBadgeHTML(p) {
+      if (p === 'URGENT/CRITICAL') return '<span class="priority-tag urgent"><i class="bx bx-error"></i> URGENT</span>';
+      if (p === 'Need Attention') return '<span class="priority-tag attention"><i class="bx bx-error-circle"></i> ATTENTION</span>';
+      return '<span class="priority-tag normal"><i class="bx bx-info-circle"></i> NORMAL</span>';
+    }
+
     function getHandovers() {
-      return JSON.parse(localStorage.getItem(HANDOVER_STORAGE_KEY) || '[]');
+      var raw = localStorage.getItem(HANDOVER_STORAGE_KEY) || '[]';
+      var list = JSON.parse(raw);
+      // Sort by Priority Weight descending, then timestamp descending
+      return list.sort(function(a, b) {
+        var wA = getPriorityWeight(a.priority);
+        var wB = getPriorityWeight(b.priority);
+        if (wA !== wB) return wB - wA;
+        return new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+      });
     }
 
     function saveHandovers(list) {
@@ -683,31 +710,75 @@
     function renderUrgentHandovers() {
       var list = getHandovers();
       var container = document.getElementById('handoverPillsContainer');
+      var alertBadge = document.getElementById('handoverAlertBadge');
       var banner = document.getElementById('urgentHandoverBanner');
       var modalList = document.getElementById('handoverModalList');
 
       if (list.length > 0) {
-        var pillsHTML = list.map(function(item) {
+        var highestPriority = list[0].priority || 'URGENT/CRITICAL';
+        var totalCount = list.length;
+        
+        // 1. Update Title Header & Notification Count Badge
+        var titleText = 'URGENT HANDOVER';
+        var titleIcon = 'bx-alarm-exclamation';
+        if (highestPriority === 'Need Attention') {
+          titleText = 'ATTENTION HANDOVER';
+          titleIcon = 'bx-error-circle';
+        } else if (highestPriority === 'Normal') {
+          titleText = 'HANDOVER NOTE';
+          titleIcon = 'bx-info-circle';
+        }
+
+        var countHTML = (totalCount >= 2) ? '<span class="handover-count-pill">' + totalCount + '</span>' : '';
+        if (alertBadge) {
+          alertBadge.innerHTML = '<i class="bx ' + titleIcon + '"></i> ' + titleText + countHTML;
+        }
+
+        // 2. Smart Space Layout:
+        // If top item message is long (>120 chars), display 1 item only.
+        // If short (<=120 chars), fit 2 to 3 items depending on total space.
+        var displayItems = [];
+        displayItems.push(list[0]);
+
+        if (list[0].msg.length <= 120) {
+          var accumulatedLength = list[0].msg.length;
+          for (var i = 1; i < list.length && i < 3; i++) {
+            if (list[i].msg.length > 120 || accumulatedLength + list[i].msg.length > 240) {
+              break;
+            }
+            displayItems.push(list[i]);
+            accumulatedLength += list[i].msg.length;
+          }
+        }
+
+        // 3. Render Banner Pills
+        var pillsHTML = displayItems.map(function(item) {
+          var priorityBadge = getPriorityBadgeHTML(item.priority || 'URGENT/CRITICAL');
           return '<div class="handover-pill-item">' +
                    '<span class="handover-pill-brand">' + item.brand.toUpperCase() + '</span> ' +
-                   '<span class="handover-pill-msg" title="' + item.msg.replace(/"/g, '&quot;') + '">' + item.msg + '</span>' +
+                   priorityBadge + ' ' +
+                   '<span class="handover-pill-msg">' + item.msg + '</span>' +
                  '</div>';
         }).join('');
+
         if (container) container.innerHTML = pillsHTML;
-        if (banner) banner.classList.add('has-items');
+        if (banner) banner.style.display = 'flex';
       } else {
-        if (container) container.innerHTML = '<span style="font-size:10.5px; opacity:0.85; font-weight:600;">No active urgent notes.</span>';
-        if (banner) banner.classList.remove('has-items');
+        if (container) container.innerHTML = '<span style="font-size:10.5px; opacity:0.85; font-weight:600;">No active handover notes.</span>';
+        if (alertBadge) alertBadge.innerHTML = '<i class="bx bx-alarm-exclamation"></i> URGENT HANDOVER';
       }
 
+      // 4. Render Interactive Modal Manager List
       if (modalList) {
         if (list.length === 0) {
           modalList.innerHTML = '<div style="text-align:center; padding:15px; font-size:11px; opacity:0.7;">No active handovers. Add one above!</div>';
         } else {
           modalList.innerHTML = list.map(function(item, idx) {
+            var badge = getPriorityBadgeHTML(item.priority || 'URGENT/CRITICAL');
             return '<div class="handover-manage-row">' +
                      '<div class="handover-manage-left">' +
                        '<span class="handover-manage-brand">' + item.brand.toUpperCase() + '</span>' +
+                       badge +
                        '<span class="handover-manage-text">' + item.msg + '</span>' +
                      '</div>' +
                      '<button type="button" class="handover-delete-btn" onclick="deleteUrgentHandover(' + idx + ')" title="Mark as Completed & Delete">' +
@@ -732,16 +803,19 @@
 
     function addUrgentHandover(event) {
       event.preventDefault();
+      var priorityEl = document.getElementById('handoverPriorityInput');
       var brandEl = document.getElementById('handoverBrandInput');
       var msgEl = document.getElementById('handoverMsgInput');
       if (!brandEl || !msgEl) return;
 
+      var priority = priorityEl ? priorityEl.value : 'URGENT/CRITICAL';
       var brand = brandEl.value.trim();
       var msg = msgEl.value.trim();
       if (!brand || !msg) return;
 
       var list = getHandovers();
       list.unshift({
+        priority: priority,
         brand: brand,
         msg: msg,
         timestamp: new Date().toISOString()
