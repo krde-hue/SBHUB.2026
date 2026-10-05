@@ -777,14 +777,15 @@ body {
   box-sizing: border-box;
 }
 
+/* STACK JIRA AND HANDOVER VERTICALLY TO GIVE HANDOVER FULL WIDTH */
 .banner-top-left-group {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
-  flex: 1 1 auto;
-  min-width: 0;
-  max-width: calc(100% - 260px);
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: calc(100% - 260px) !important;
 }
 
 .top-banner-card .weather-banner-widget {
@@ -951,7 +952,7 @@ body {
 }
 
 /* ==========================================================================
-   YELLOW GLOWING URGENT HANDOVER BANNER - FULL TEXT WRAPPING & CONTAINMENT
+   YELLOW GLOWING URGENT HANDOVER BANNER - FULL WRAP NO-TRUNCATION FIX
    ========================================================================== */
 @keyframes yellowPulseGlow {
   0% {
@@ -969,26 +970,28 @@ body {
 }
 
 .urgent-handover-banner {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px 10px !important;
-  padding: 6px 12px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 10px 14px !important;
+  padding: 8px 14px !important;
   background: rgba(113, 63, 18, 0.65) !important;
   border: 1.5px solid #facc15 !important;
   border-radius: 12px !important;
   backdrop-filter: blur(14px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   animation: yellowPulseGlow 2s infinite ease-in-out !important;
-  flex-wrap: wrap !important;
+  width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
+  flex-wrap: wrap !important;
 }
 
 .handover-alert-badge {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 5px !important;
+  gap: 6px !important;
   color: #ffffff !important;
   font-size: 10.5px !important;
   font-weight: 800 !important;
@@ -997,6 +1000,7 @@ body {
   white-space: nowrap !important;
   text-shadow: 0 0 6px rgba(234, 179, 8, 0.8) !important;
   flex-shrink: 0 !important;
+  margin-top: 3px !important;
 }
 
 .handover-alert-badge i {
@@ -1005,31 +1009,29 @@ body {
 }
 
 .handover-pills-container {
-  display: inline-flex !important;
-  align-items: center !important;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 8px !important;
-  flex-wrap: wrap !important;
+  flex: 1 1 auto !important;
   min-width: 0 !important;
   max-width: 100% !important;
-  flex: 1 1 auto !important;
 }
 
 .handover-pill-item {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
   background: rgba(15, 23, 42, 0.85) !important;
   border: 1px solid rgba(250, 204, 21, 0.5) !important;
-  padding: 4px 10px !important;
+  padding: 6px 12px !important;
   border-radius: 8px !important;
   font-size: 11px !important;
   color: #ffffff !important;
   font-weight: 600 !important;
+  width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
-  flex-shrink: 1 !important;
-  flex-wrap: wrap !important;
 }
 
 .handover-pill-brand {
@@ -1038,25 +1040,28 @@ body {
   text-transform: uppercase !important;
   background: rgba(202, 138, 4, 0.85) !important;
   border: 1px solid rgba(253, 224, 71, 0.5) !important;
-  padding: 1px 6px !important;
+  padding: 2px 7px !important;
   border-radius: 5px !important;
   font-size: 9.5px !important;
   letter-spacing: 0.4px !important;
   flex-shrink: 0 !important;
+  margin-top: 1px !important;
 }
 
-/* FULL WRAPPING TEXT CONTROL - NO TRUNCATION */
+/* FULL UNRESTRICTED MULTI-LINE TEXT DISPLAY - NO (...) TRUNCATION */
 .handover-pill-msg {
   color: #fef08a !important;
   font-weight: 700 !important;
-  white-space: normal !important;      /* Wrap text onto multiple lines */
-  word-break: break-word !important;    /* Break long continuous text/words */
-  overflow-wrap: anywhere !important;  /* Ensure long text stays inside banner */
-  max-width: 100% !important;
-  min-width: 0 !important;
-  display: inline !important;
-  vertical-align: middle !important;
-  line-height: 1.35 !important;
+  white-space: normal !important;        /* Wrap text onto multiple lines */
+  word-break: break-word !important;      /* Wrap long words cleanly */
+  overflow-wrap: anywhere !important;    /* Ensure words wrap inside box */
+  overflow: visible !important;          /* Show all content */
+  text-overflow: clip !important;         /* Do not cut off with ellipsis (...) */
+  max-width: none !important;             /* Remove width restrictions */
+  width: 100% !important;
+  display: block !important;
+  line-height: 1.45 !important;
+  font-size: 11px !important;
 }
 
 .handover-manage-btn {
@@ -1066,7 +1071,7 @@ body {
   background: rgba(254, 240, 138, 0.25) !important;
   border: 1px solid rgba(250, 204, 21, 0.6) !important;
   color: #fef08a !important;
-  padding: 3px 8px !important;
+  padding: 4px 10px !important;
   border-radius: 6px !important;
   font-size: 10px !important;
   font-weight: 800 !important;
@@ -1074,6 +1079,7 @@ body {
   white-space: nowrap !important;
   transition: all 0.2s ease !important;
   flex-shrink: 0 !important;
+  margin-top: 2px !important;
 }
 
 .handover-manage-btn:hover {
@@ -2046,10 +2052,7 @@ body.light-theme .handover-manage-text { color: #1e293b !important; }
     transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
-  .sidebar-overlay.active {
-    opacity: 1;
-    visibility: visible;
-  }
+  .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
   .sidebar {
     position: fixed;
