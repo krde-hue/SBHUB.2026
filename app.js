@@ -562,6 +562,13 @@ function setGradient(theme) {
   if (!body) return;
   let backgroundStyle = '';
 
+  const lightThemes = ['plain-daylight', 'plain-sky-light', 'plain-warm-light'];
+  if (lightThemes.includes(theme)) {
+    body.classList.add('light-theme');
+  } else {
+    body.classList.remove('light-theme');
+  }
+
   if (ABSTRACT_WALLPAPERS[theme]) {
     backgroundStyle = `url("${ABSTRACT_WALLPAPERS[theme]}")`;
   } else if (typeof theme === 'string' && (theme.startsWith('http') || theme.startsWith('url('))) {
@@ -576,6 +583,15 @@ function setGradient(theme) {
         break;
       case 'plain-onyx':
         backgroundStyle = 'linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)), #121212';
+        break;
+      case 'plain-daylight':
+        backgroundStyle = 'linear-gradient(rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0.95)), #f8fafc';
+        break;
+      case 'plain-sky-light':
+        backgroundStyle = 'linear-gradient(rgba(224, 242, 254, 0.95), rgba(224, 242, 254, 0.95)), #e0f2fe';
+        break;
+      case 'plain-warm-light':
+        backgroundStyle = 'linear-gradient(rgba(245, 245, 244, 0.95), rgba(245, 245, 244, 0.95)), #f5f5f4';
         break;
       default:
         backgroundStyle = `url("${ABSTRACT_WALLPAPERS['3d-chrome-swirl']}")`;
