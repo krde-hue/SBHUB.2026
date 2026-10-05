@@ -95,32 +95,22 @@ function trackTicket() {
 
 /* --- COMPREHENSIVE LEAGUES DIRECTORY --- */
 const TOP_TIER_LEAGUES = [
+  { name: "European Championship", code: "uefa.euro" },
   { name: "UEFA Champions League", code: "uefa.champions" },
   { name: "Premier League", code: "eng.1" },
   { name: "La Liga", code: "esp.1" },
   { name: "Bundesliga", code: "ger.1" },
   { name: "Serie A", code: "ita.1" },
   { name: "Ligue 1", code: "fra.1" },
-  { name: "UEFA Europa League", code: "uefa.europa" },
-  { name: "UEFA Conference League", code: "uefa.europa.conf" },
-  { name: "Copa Libertadores", code: "conmebol.libertadores" }
+  { name: "Primeira Liga", code: "por.1" },
+  { name: "Eredivisie", code: "ned.1" }
 ];
 
 const SECONDARY_LEAGUES = [
-  { name: "EFL Championship", code: "eng.2" },
+  { name: "UEFA Nations League", code: "uefa.nations" },
   { name: "Major League Soccer", code: "usa.1" },
-  { name: "Eredivisie", code: "ned.1" },
-  { name: "Primeira Liga", code: "por.1" },
-  { name: "Saudi Pro League", code: "sau.1" },
-  { name: "Argentine Liga Profesional", code: "arg.1" },
-  { name: "Brasileirão Serie A", code: "bra.1" },
-  { name: "Liga MX", code: "mex.1" },
-  { name: "FIFA ASEAN CUP", code: "aff.championship" },
-  { name: "UEFA Nations League - League A", code: "uefa.nations" },
-  { name: "UEFA Nations League - League B", code: "uefa.nations" },
-  { name: "UEFA Nations League - League C", code: "uefa.nations" },
-  { name: "UEFA Nations League - League D", code: "uefa.nations" },
-  { name: "AFRICA CUP OF NATIONS", code: "caf.nations" }
+  { name: "Veikkausliiga", code: "fin.1" },
+  { name: "Eliteserien", code: "nor.1" }
 ];
 
 const ALL_COMPETITION_LEAGUES = [...TOP_TIER_LEAGUES, ...SECONDARY_LEAGUES];
@@ -747,7 +737,22 @@ async function fetchLiveGames() {
     const labelEl = document.getElementById("matchDayDisplay");
     if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
 
-    let matches = await fetchLeagueList(ALL_COMPETITION_LEAGUES, targetDateQuery);
+    // Fetch Top Tier games first
+    let matches = await fetchLeagueList(TOP_TIER_LEAGUES, targetDateQuery);
+
+    // If Top Tier games are insufficient, fallback to Secondary Tournaments
+    if (matches.length < 10) {
+      const secondaryMatches = await fetchLeagueList(SECONDARY_LEAGUES, targetDateQuery);
+      const seenMatchKeys = new Set(matches.map(m => `${m.homeName}-${m.awayName}`));
+      
+      for (const sm of secondaryMatches) {
+        const key = `${sm.homeName}-${sm.awayName}`;
+        if (!seenMatchKeys.has(key)) {
+          seenMatchKeys.add(key);
+          matches.push(sm);
+        }
+      }
+    }
 
     if (matches.length === 0) {
       container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
