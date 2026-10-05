@@ -31,8 +31,17 @@ body {
   display: flex;
   padding: 24px;
   gap: 24px;
-  transition: background 0.5s ease;
+  transition: background 0.5s ease, color 0.3s ease;
   position: relative;
+}
+
+body.light-theme {
+  color: #0f172a;
+}
+
+body.light-theme .sidebar-header,
+body.light-theme .mobile-brand-title {
+  color: #0f172a;
 }
 
 /* CUSTOM SCROLLBARS */
