@@ -760,6 +760,17 @@ body {
   align-items: flex-start;
   gap: 16px;
   width: 100%;
+  min-width: 0;
+}
+
+.banner-top-left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+  max-width: calc(100% - 260px);
 }
 
 .top-banner-card .weather-banner-widget {
@@ -816,6 +827,7 @@ body {
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   animation: redPulseGlow 2s infinite ease-in-out !important;
   flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .jira-static-alert-banner.active {
@@ -925,7 +937,7 @@ body {
 }
 
 /* ==========================================================================
-   YELLOW GLOWING URGENT HANDOVER BANNER
+   YELLOW GLOWING URGENT HANDOVER BANNER - CONTAINED NO-OVERFLOW FIX
    ========================================================================== */
 @keyframes yellowPulseGlow {
   0% {
@@ -954,6 +966,9 @@ body {
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   animation: yellowPulseGlow 2s infinite ease-in-out !important;
   flex-wrap: wrap;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .handover-alert-badge {
@@ -979,6 +994,8 @@ body {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .handover-pill-item {
@@ -992,7 +1009,9 @@ body {
   font-size: 11px !important;
   color: #ffffff !important;
   font-weight: 600;
-  white-space: nowrap;
+  max-width: 480px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .handover-pill-brand {
@@ -1005,11 +1024,18 @@ body {
   border-radius: 5px !important;
   font-size: 9.5px !important;
   letter-spacing: 0.4px;
+  flex-shrink: 0;
 }
 
+/* Long Sentence Ellipsis Truncation Control */
 .handover-pill-msg {
   color: #fef08a !important;
   font-weight: 700 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 340px;
+  display: inline-block;
 }
 
 .handover-manage-btn {
@@ -1026,6 +1052,7 @@ body {
   cursor: pointer !important;
   white-space: nowrap !important;
   transition: all 0.2s ease !important;
+  flex-shrink: 0;
 }
 
 .handover-manage-btn:hover {
@@ -1184,14 +1211,14 @@ body {
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .handover-manage-text {
   font-size: 12px;
   color: #cbd5e1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .handover-delete-btn {
@@ -1207,6 +1234,7 @@ body {
   align-items: center;
   gap: 4px;
   transition: background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .handover-delete-btn:hover {
@@ -2068,6 +2096,11 @@ body.light-theme .handover-manage-text {
     flex-direction: column;
     gap: 10px;
     align-items: stretch;
+  }
+
+  .banner-top-left-group {
+    max-width: 100%;
+    width: 100%;
   }
 
   .jira-static-alert-banner,
