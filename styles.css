@@ -421,7 +421,6 @@ body {
   margin-bottom: 5px;
 }
 
-/* HIGH-GLOSS FROSTED GLASS BUTTONS */
 .nav-main-btn {
   display: flex;
   align-items: center;
@@ -543,7 +542,6 @@ body {
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 12px rgba(56, 189, 248, 0.3);
 }
 
-/* QUICK LAUNCH DOCK IN SIDEBAR */
 .sidebar-quick-dock {
   margin-top: 10px;
   padding: 10px;
@@ -617,7 +615,6 @@ body {
   gap: 8px !important;
 }
 
-/* DOCKED ADMIN PROFILE FOOTER PILL */
 .sidebar-admin-footer {
   margin-top: auto;
   padding-top: 10px;
@@ -731,7 +728,7 @@ body {
   opacity: 0.6;
 }
 
-/* OVERVIEW BANNER CARD - COMPACT RESPONSIVE CONTAINER */
+/* OVERVIEW BANNER CARD - HERO HEADER */
 .top-banner-card {
   display: flex;
   flex-direction: column;
@@ -745,7 +742,7 @@ body {
   position: relative;
   z-index: 100;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   background-color: #080c1a !important;
   background-image: 
     linear-gradient(180deg, rgba(10, 14, 26, 0.40) 0%, rgba(8, 11, 20, 0.55) 100%), 
@@ -754,10 +751,9 @@ body {
   background-size: cover, cover, cover !important;
   background-position: center 25%, center 25%, center 25% !important;
   background-repeat: no-repeat, no-repeat, no-repeat !important;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 20px 50px rgba(0, 0, 0, 0.65);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 20px 50px rgba(0, 0, 0, 0.65) !important;
 }
 
-/* TOP ROW FLEX (JIRA ALERT ON LEFT, WEATHER ON RIGHT) */
 .banner-top-row {
   display: flex;
   justify-content: space-between;
@@ -813,14 +809,13 @@ body {
   align-items: center;
   gap: 10px;
   padding: 6px 12px;
-  background: rgba(153, 27, 27, 0.5) !important;
+  background: rgba(153, 27, 27, 0.55) !important;
   border: 1.5px solid #f87171 !important;
   border-radius: 12px !important;
   backdrop-filter: blur(14px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   animation: redPulseGlow 2s infinite ease-in-out !important;
   flex-wrap: wrap;
-  max-width: calc(100% - 260px);
 }
 
 .jira-static-alert-banner.active {
@@ -927,6 +922,296 @@ body {
   background: rgba(56, 189, 248, 0.3) !important;
   border-color: #38bdf8 !important;
   color: #ffffff !important;
+}
+
+/* ==========================================================================
+   YELLOW GLOWING URGENT HANDOVER BANNER
+   ========================================================================== */
+@keyframes yellowPulseGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.55), inset 0 0 8px rgba(234, 179, 8, 0.25);
+    border-color: rgba(250, 204, 21, 0.85);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(234, 179, 8, 0.95), inset 0 0 14px rgba(234, 179, 8, 0.4);
+    border-color: rgba(253, 224, 71, 1);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.55), inset 0 0 8px rgba(234, 179, 8, 0.25);
+    border-color: rgba(250, 204, 21, 0.85);
+  }
+}
+
+.urgent-handover-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(113, 63, 18, 0.65) !important;
+  border: 1.5px solid #facc15 !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  animation: yellowPulseGlow 2s infinite ease-in-out !important;
+  flex-wrap: wrap;
+}
+
+.handover-alert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffffff !important;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(234, 179, 8, 0.8);
+}
+
+.handover-alert-badge i {
+  font-size: 14px;
+  color: #fde047 !important;
+}
+
+.handover-pills-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.handover-pill-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(250, 204, 21, 0.5) !important;
+  padding: 3px 10px !important;
+  border-radius: 8px !important;
+  font-size: 11px !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.handover-pill-brand {
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  background: rgba(202, 138, 4, 0.85) !important;
+  border: 1px solid rgba(253, 224, 71, 0.5) !important;
+  padding: 1px 6px !important;
+  border-radius: 5px !important;
+  font-size: 9.5px !important;
+  letter-spacing: 0.4px;
+}
+
+.handover-pill-msg {
+  color: #fef08a !important;
+  font-weight: 700 !important;
+}
+
+.handover-manage-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  background: rgba(254, 240, 138, 0.25) !important;
+  border: 1px solid rgba(250, 204, 21, 0.6) !important;
+  color: #fef08a !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+}
+
+.handover-manage-btn:hover {
+  background: rgba(250, 204, 21, 0.45) !important;
+  color: #ffffff !important;
+  border-color: #fde047 !important;
+}
+
+/* INTERACTIVE HANDOVER MODAL */
+.handover-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 9999999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.handover-modal-overlay.show {
+  display: flex !important;
+}
+
+.handover-modal-card {
+  width: 100%;
+  max-width: 580px;
+  background: #0f172a;
+  border: 1.5px solid #eab308;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(234, 179, 8, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #ffffff;
+}
+
+.handover-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.handover-modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.handover-modal-close {
+  font-size: 24px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.handover-modal-close:hover {
+  color: #f87171;
+}
+
+.handover-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.handover-form-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.handover-field {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #ffffff;
+  outline: none;
+}
+
+.handover-field:focus {
+  border-color: #eab308;
+}
+
+.handover-field.short { width: 140px; }
+.handover-field.flex-1 { flex: 1; min-width: 180px; }
+
+.handover-post-btn {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.2s ease;
+}
+
+.handover-post-btn:hover {
+  transform: translateY(-1px);
+}
+
+.handover-modal-subtitle {
+  font-size: 10px;
+  font-weight: 800;
+  color: #eab308;
+  letter-spacing: 0.5px;
+}
+
+.handover-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.handover-manage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  border-radius: 10px;
+  gap: 12px;
+}
+
+.handover-manage-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.handover-manage-brand {
+  background: #ca8a04;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.handover-manage-text {
+  font-size: 12px;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.handover-delete-btn {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #34d399;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease;
+}
+
+.handover-delete-btn:hover {
+  background: #10b981;
+  color: #ffffff;
 }
 
 /* BOTTOM ROW FLEX (CLOCKS & CONTROLS) */
@@ -1680,6 +1965,68 @@ body.light-theme .jira-pill-time {
   color: #dc2626 !important;
 }
 
+/* Urgent Handover Banner in Light Mode */
+body.light-theme .urgent-handover-banner {
+  background: #fefce8 !important;
+  border: 1.5px solid #eab308 !important;
+}
+
+body.light-theme .handover-alert-badge {
+  color: #713f12 !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .handover-alert-badge i {
+  color: #ca8a04 !important;
+}
+
+body.light-theme .handover-pill-item {
+  background: #ffffff !important;
+  border: 1px solid #fef08a !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .handover-pill-msg {
+  color: #713f12 !important;
+}
+
+body.light-theme .handover-manage-btn {
+  background: #fef08a !important;
+  border-color: #eab308 !important;
+  color: #713f12 !important;
+}
+
+/* Handover Modal in Light Mode */
+body.light-theme .handover-modal-card {
+  background: #ffffff !important;
+  border-color: #eab308 !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .handover-modal-title {
+  color: #0f172a !important;
+}
+
+body.light-theme .handover-modal-form {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+body.light-theme .handover-field {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .handover-manage-row {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+body.light-theme .handover-manage-text {
+  color: #1e293b !important;
+}
+
 /* ==========================================================================
    MOBILE & TOUCHSCREEN RESPONSIVE MEDIA QUERIES
    ========================================================================== */
@@ -1723,7 +2070,8 @@ body.light-theme .jira-pill-time {
     align-items: stretch;
   }
 
-  .jira-static-alert-banner {
+  .jira-static-alert-banner,
+  .urgent-handover-banner {
     max-width: 100%;
     width: 100%;
     padding: 10px;
