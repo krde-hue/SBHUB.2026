@@ -353,6 +353,25 @@ function getBaselinePicksWithScriptedMarkets() {
   }));
 }
 
+/* --- DYNAMIC ROLLING DATE GENERATOR (NEXT 10 UPCOMING DAYS) --- */
+function getRollingUpcomingDates(numDays = 10) {
+  const dates = [];
+  const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  
+  const oct10Start = new Date("2026-10-10T00:00:00+08:00");
+  let startDate = nowManila < oct10Start ? oct10Start : nowManila;
+
+  for (let i = 0; i < numDays; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    dates.push(`${yyyy}${mm}${dd}`);
+  }
+  return dates;
+}
+
 /* --- FETCH LIVE MATCHES & MERGE WITH BASELINE DATASET --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
@@ -361,7 +380,7 @@ async function fetchTopPicksAndBoosts() {
   try {
     let apiPicks = [];
     const seenMatchKeys = new Set();
-    const targetDates = ["20261010", "20261011", "20261012", "20261014"];
+    const targetDates = getRollingUpcomingDates(10);
 
     for (const league of PRIORITY_LEAGUES) {
       for (const dStr of targetDates) {
@@ -373,6 +392,11 @@ async function fetchTopPicksAndBoosts() {
           if (data && data.events && data.events.length > 0) {
             for (let i = 0; i < data.events.length; i++) {
               const evt = data.events[i];
+              
+              // Skip completed games so finished matches roll off automatically
+              const gameState = evt.status?.type?.state;
+              if (gameState === 'post') continue;
+
               const comp = evt.competitions?.[0];
               if (!comp) continue;
 
@@ -426,7 +450,6 @@ async function fetchTopPicksAndBoosts() {
     const baselinePrepared = getBaselinePicksWithScriptedMarkets();
 
     if (apiPicks.length > 0) {
-      // Merge live API picks with Flashscore baseline to guarantee full coverage
       const apiKeys = new Set(apiPicks.map(p => `${p.homeName}-${p.awayName}`.toLowerCase()));
       const supplementaryBaseline = baselinePrepared.filter(
         b => !apiKeys.has(`${b.homeName}-${b.awayName}`.toLowerCase())
@@ -471,7 +494,6 @@ function renderFilteredTopPicks() {
     displayPicks = displayPicks.filter(pick => pick.leagueKey === currentFilterKey);
   }
 
-  // Fail-safe guarantee: if filter yields 0 items, pull directly from baseline for that league
   if (displayPicks.length === 0 && currentFilterKey !== 'all') {
     displayPicks = baselineFallback.filter(pick => pick.leagueKey === currentFilterKey);
   }
