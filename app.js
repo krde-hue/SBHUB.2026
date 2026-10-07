@@ -137,7 +137,7 @@ function loadCachedTopPicks() {
   }
 }
 
-/* --- FAST PARALLEL FETCHING ENGINE --- */
+/* --- PARALLEL FETCHING ENGINE WITH FULL MATCHDAY COVERAGE (&limit=100) --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
@@ -146,13 +146,21 @@ async function fetchTopPicksAndBoosts() {
     const now = new Date();
     const seenMatchKeys = new Set();
 
-    // Fetch all 8 priority leagues simultaneously in parallel using Promise.all
-    const fetchPromises = PRIORITY_LEAGUES.map(league =>
-      fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard`)
-        .then(res => res.ok ? res.json() : null)
-        .then(data => ({ league, data }))
-        .catch(() => null)
-    );
+    // Query target matchday dates (Oct 10, 11, 12, 14) with limit=100
+    // so ESPN returns ALL games in the daily lineup for La Liga, EPL, etc.
+    const targetDates = ["20261010", "20261011", "20261012", "20261014"];
+
+    const fetchPromises = [];
+    for (const league of PRIORITY_LEAGUES) {
+      for (const dateStr of targetDates) {
+        fetchPromises.push(
+          fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateStr}&limit=100`)
+            .then(res => res.ok ? res.json() : null)
+            .then(data => ({ league, data }))
+            .catch(() => null)
+        );
+      }
+    }
 
     const results = await Promise.all(fetchPromises);
     let apiPicks = [];
@@ -251,7 +259,7 @@ function renderFilteredTopPicks() {
   if (!container) return;
 
   const now = new Date();
-  
+
   // Guarantee any pick that reached kickoff time while user is viewing is removed
   let activePicks = cachedTopPicks.filter(pick => pick.kickOffTimestamp > now.getTime());
   let displayPicks = activePicks.filter(pick => pick.leagueKey === currentFilterKey);
