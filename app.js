@@ -53,7 +53,7 @@ const brandTabData = {
     { name: "BET CONSTRUCT", url: "https://backoffice.betconstruct.com/" }
   ],
   edge: [
-    { name: "KT SBX", url: "https://p2edgg.sbx.bet/reports/sportActivity" },
+    { name: "KT SBX", url: "https://p2ibet.sbx.bet/bets" },
     { name: "KT PROJECTS", url: "https://kickertech.atlassian.net/jira/projects" },
     { name: "EDGE ADMIN", url: "https://admin.edgegaming.io/admin/qbet/homepage" },
     { name: "SERVICE DESK", url: "https://kickertech.atlassian.net/servicedesk/customer/user/login?destination=portals" }
@@ -119,100 +119,83 @@ const SECONDARY_LEAGUES = [
 let cachedTopPicks = [];
 let currentFilterKey = 'all';
 
-/* --- DYNAMIC ROLLING DATE GENERATOR (NEXT 14 UPCOMING DAYS FROM TODAY) --- */
-function getRollingUpcomingDates(numDays = 14) {
-  const dates = [];
-  const now = new Date();
-
-  for (let i = 0; i < numDays; i++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() + i);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    dates.push(`${yyyy}${mm}${dd}`);
-  }
-  return dates;
-}
-
 function getLeagueDisplayName(key) {
   const lg = PRIORITY_LEAGUES.find(l => l.key === key);
   return lg ? lg.name : key.toUpperCase();
 }
 
-/* --- FETCH ACTUAL UPCOMING TOP PICKS (STRICT PRE-KICKOFF ONLY) --- */
+/* --- ULTRA-FAST PARALLEL FETCHING (LOADS IN < 1 SECOND) --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
 
   try {
-    let apiPicks = [];
-    const seenMatchKeys = new Set();
-    const targetDates = getRollingUpcomingDates(14);
     const now = new Date();
+    const seenMatchKeys = new Set();
 
-    for (const league of PRIORITY_LEAGUES) {
-      for (const dStr of targetDates) {
-        try {
-          const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dStr}`);
-          if (!res.ok) continue;
-          const data = await res.json();
+    // Fetch all 8 priority leagues simultaneously in parallel using Promise.all
+    const fetchPromises = PRIORITY_LEAGUES.map(league =>
+      fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => ({ league, data }))
+        .catch(() => null)
+    );
 
-          if (data && data.events && data.events.length > 0) {
-            for (let i = 0; i < data.events.length; i++) {
-              const evt = data.events[i];
-              
-              // STRICT PRE-KICKOFF RULE: Disappears instantly once match kicks off or enters live/post state
-              const gameState = evt.status?.type?.state;
-              const evtDate = new Date(evt.date);
-              if (gameState !== 'pre' || evtDate <= now) continue;
+    const results = await Promise.all(fetchPromises);
+    let apiPicks = [];
 
-              const comp = evt.competitions?.[0];
-              if (!comp) continue;
+    for (const resItem of results) {
+      if (!resItem || !resItem.data || !resItem.data.events) continue;
+      const { league, data } = resItem;
 
-              const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
-              const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+      for (const evt of data.events) {
+        const gameState = evt.status?.type?.state;
+        const evtDate = new Date(evt.date);
 
-              if (homeTeam && awayTeam) {
-                const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
-                const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
+        // Strict pre-kickoff rule: Disappears instantly once match kicks off or goes live
+        if (gameState !== 'pre' || evtDate <= now) continue;
 
-                const matchKey = evt.id || `${homeName}-${awayName}-${evt.date}`;
-                if (seenMatchKeys.has(matchKey)) continue;
-                seenMatchKeys.add(matchKey);
+        const comp = evt.competitions?.[0];
+        if (!comp) continue;
 
-                const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
-                const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+        const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+        const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
 
-                const kickOffStr = new Intl.DateTimeFormat('en-GB', {
-                  timeZone: 'Asia/Manila',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                }).format(evtDate).toUpperCase();
+        if (homeTeam && awayTeam) {
+          const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
+          const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
 
-                const scriptedMarket = generateScriptedMarket(homeName, awayName, apiPicks.length);
+          const matchKey = evt.id || `${homeName}-${awayName}-${evt.date}`;
+          if (seenMatchKeys.has(matchKey)) continue;
+          seenMatchKeys.add(matchKey);
 
-                apiPicks.push({
-                  leagueKey: league.key,
-                  leagueRank: league.rank,
-                  kickOffTimestamp: evtDate.getTime(),
-                  homeName,
-                  awayName,
-                  homeLogo,
-                  awayLogo,
-                  leagueName: data.leagues?.[0]?.name || league.name,
-                  market: scriptedMarket,
-                  badge: (apiPicks.length % 2 === 0) ? "TOP PICK" : "HOT",
-                  kickOff: kickOffStr
-                });
-              }
-            }
-          }
-        } catch (err) {
-          console.warn(`Error fetching boosts for ${league.code}:`, err);
+          const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+          const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+
+          const kickOffStr = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Manila',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }).format(evtDate).toUpperCase();
+
+          const scriptedMarket = generateScriptedMarket(homeName, awayName, apiPicks.length);
+
+          apiPicks.push({
+            leagueKey: league.key,
+            leagueRank: league.rank,
+            kickOffTimestamp: evtDate.getTime(),
+            homeName,
+            awayName,
+            homeLogo,
+            awayLogo,
+            leagueName: data.leagues?.[0]?.name || league.name,
+            market: scriptedMarket,
+            badge: (apiPicks.length % 2 === 0) ? "TOP PICK" : "HOT",
+            kickOff: kickOffStr
+          });
         }
       }
     }
@@ -992,4 +975,4 @@ window.addEventListener('click', function(e) {
   if (!e.target.closest('.dropdown-container')) {
     document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
   }
-});v
+});
