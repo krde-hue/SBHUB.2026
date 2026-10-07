@@ -117,14 +117,27 @@ const SECONDARY_LEAGUES = [
 ];
 
 let cachedTopPicks = [];
-let currentFilterKey = 'all';
+let currentFilterKey = 'eng.1'; // Default active tab is EPL
 
 function getLeagueDisplayName(key) {
   const lg = PRIORITY_LEAGUES.find(l => l.key === key);
   return lg ? lg.name : key.toUpperCase();
 }
 
-/* --- ULTRA-FAST PARALLEL FETCHING (LOADS IN < 1 SECOND) --- */
+/* --- INSTANT LOCAL STORAGE CACHE LOADER (0ms PAGE LOAD) --- */
+function loadCachedTopPicks() {
+  try {
+    const stored = localStorage.getItem('sbhub_toppicks_cache');
+    if (stored) {
+      cachedTopPicks = JSON.parse(stored);
+      renderFilteredTopPicks();
+    }
+  } catch (e) {
+    console.warn("Could not parse top picks cache:", e);
+  }
+}
+
+/* --- FAST PARALLEL FETCHING ENGINE --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
@@ -206,11 +219,14 @@ async function fetchTopPicksAndBoosts() {
       return a.kickOffTimestamp - b.kickOffTimestamp;
     });
 
-    cachedTopPicks = apiPicks;
+    if (apiPicks.length > 0) {
+      cachedTopPicks = apiPicks;
+      localStorage.setItem('sbhub_toppicks_cache', JSON.stringify(apiPicks));
+    }
+    
     renderFilteredTopPicks();
   } catch (e) {
     console.error("Fetch Top Picks Error:", e);
-    cachedTopPicks = [];
     renderFilteredTopPicks();
   }
 }
@@ -223,7 +239,7 @@ function filterTopPicks(leagueKey, btnElement) {
   if (btnElement) {
     btnElement.classList.add('active');
   } else {
-    const defaultBtn = document.getElementById(`btn-boost-${leagueKey === 'all' ? 'all' : leagueKey}`);
+    const defaultBtn = document.getElementById(`btn-boost-${leagueKey}`);
     if (defaultBtn) defaultBtn.classList.add('active');
   }
 
@@ -238,21 +254,16 @@ function renderFilteredTopPicks() {
   
   // Guarantee any pick that reached kickoff time while user is viewing is removed
   let activePicks = cachedTopPicks.filter(pick => pick.kickOffTimestamp > now.getTime());
-  let displayPicks = activePicks;
-
-  if (currentFilterKey !== 'all') {
-    displayPicks = activePicks.filter(pick => pick.leagueKey === currentFilterKey);
-  }
+  let displayPicks = activePicks.filter(pick => pick.leagueKey === currentFilterKey);
 
   // Display notice if no real pre-kickoff matches exist for the selected category
   if (displayPicks.length === 0) {
-    const categoryLabel = currentFilterKey === 'all' ? 'top tier leagues' : getLeagueDisplayName(currentFilterKey);
+    const categoryLabel = getLeagueDisplayName(currentFilterKey);
     container.innerHTML = `<div style="text-align:center; padding:25px; width:100%; font-size:12px; font-weight:600; color:rgba(255,255,255,0.65);">No upcoming scheduled ${categoryLabel} matches available at this time.</div>`;
     return;
   }
 
-  const limit = currentFilterKey === 'all' ? 8 : 12;
-  displayPicks = displayPicks.slice(0, limit);
+  displayPicks = displayPicks.slice(0, 12);
 
   let cardsHtml = "";
   displayPicks.forEach(pick => {
@@ -955,6 +966,10 @@ function initDashboardApp() {
   switchBrandTab('ibet');
   restoreSavedWidgets();
 
+  // Load local cache instantly (0ms delay on refresh)
+  loadCachedTopPicks();
+
+  // Background fetch to update cached data
   fetchTopPicksAndBoosts();
   setInterval(fetchTopPicksAndBoosts, 2 * 60 * 1000);
 
