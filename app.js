@@ -93,19 +93,19 @@ function trackTicket() {
   console.log("Tracking Ticket:", { ticketKey, brand, status, createdTime });
 }
 
-/* --- COMPREHENSIVE LEAGUES DIRECTORY --- */
-const TOP_TIER_LEAGUES = [
-  { name: "European Championship", code: "uefa.euro" },
-  { name: "UEFA Champions League", code: "uefa.champions" },
-  { name: "Premier League", code: "eng.1" },
-  { name: "La Liga", code: "esp.1" },
-  { name: "Bundesliga", code: "ger.1" },
-  { name: "Serie A", code: "ita.1" },
-  { name: "Ligue 1", code: "fra.1" },
-  { name: "Primeira Liga", code: "por.1" },
-  { name: "Eredivisie", code: "ned.1" }
+/* --- RANKED PRIORITY TOURNAMENTS (OCTOBER 10+ FOCUS) --- */
+const PRIORITY_LEAGUES = [
+  { rank: 1, key: "uefa.champions", name: "UEFA Champions League", code: "uefa.champions" },
+  { rank: 2, key: "eng.1",          name: "Premier League",         code: "eng.1" },
+  { rank: 3, key: "esp.1",          name: "La Liga",                code: "esp.1" },
+  { rank: 4, key: "ger.1",          name: "Bundesliga",             code: "ger.1" },
+  { rank: 5, key: "ita.1",          name: "Serie A",                code: "ita.1" },
+  { rank: 6, key: "fra.1",          name: "Ligue 1",                code: "fra.1" },
+  { rank: 7, key: "por.1",          name: "Primeira Liga",          code: "por.1" },
+  { rank: 8, key: "ned.1",          name: "Eredivisie",             code: "ned.1" }
 ];
 
+const TOP_TIER_LEAGUES = PRIORITY_LEAGUES;
 const SECONDARY_LEAGUES = [
   { name: "UEFA Nations League", code: "uefa.nations" },
   { name: "Major League Soccer", code: "usa.1" },
@@ -113,9 +113,10 @@ const SECONDARY_LEAGUES = [
   { name: "Eliteserien", code: "nor.1" }
 ];
 
-const ALL_COMPETITION_LEAGUES = [...TOP_TIER_LEAGUES, ...SECONDARY_LEAGUES];
+let cachedTopPicks = [];
+let currentFilterKey = 'all';
 
-/* --- REAL-TIME TOP PICKS / HOT BOOSTS ENGINE --- */
+/* --- FETCH & CACHE PRIORITY TOP PICKS STARTING OCT 10 --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
@@ -123,22 +124,19 @@ async function fetchTopPicksAndBoosts() {
   try {
     let allPicks = [];
     const seenMatchKeys = new Set();
+    
+    // Target date window starting Oct 10, 2026
+    const oct10Query = "20261010-20261020";
 
-    for (const league of ALL_COMPETITION_LEAGUES) {
-      if (allPicks.length >= 7) break;
+    for (const league of PRIORITY_LEAGUES) {
       try {
-        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard`);
+        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${oct10Query}`);
         if (!res.ok) continue;
         const data = await res.json();
 
         if (data && data.events && data.events.length > 0) {
           for (let i = 0; i < data.events.length; i++) {
-            if (allPicks.length >= 7) break;
             const evt = data.events[i];
-
-            const isPreGame = evt.status?.type?.state === 'pre';
-            if (!isPreGame) continue;
-
             const comp = evt.competitions?.[0];
             if (!comp) continue;
 
@@ -177,6 +175,8 @@ async function fetchTopPicksAndBoosts() {
               const displayedLeagueName = data.leagues?.[0]?.name || league.name;
 
               allPicks.push({
+                leagueKey: league.key,
+                leagueRank: league.rank,
                 homeName,
                 awayName,
                 homeLogo,
@@ -194,46 +194,80 @@ async function fetchTopPicksAndBoosts() {
       }
     }
 
-    if (allPicks.length === 0) {
-      container.innerHTML = `<div style="text-align:center; padding:15px; width:100%; font-size:11px; opacity:0.7;">No active pre-game boosts available at this moment.</div>`;
-      return;
-    }
+    // Sort globally by Priority Rank
+    allPicks.sort((a, b) => a.leagueRank - b.leagueRank);
+    cachedTopPicks = allPicks;
 
-    allPicks = allPicks.slice(0, 7);
-
-    let cardsHtml = "";
-    allPicks.forEach(pick => {
-      const isTopPick = pick.badge === "TOP PICK";
-      cardsHtml += `
-        <div class="boost-card ${isTopPick ? 'highlight-border' : ''}">
-          <div class="flags-row">
-            <img src="${pick.homeLogo}" alt="${pick.homeName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
-            <span class="vs-text">VS</span>
-            <img src="${pick.awayLogo}" alt="${pick.awayName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
-          </div>
-          
-          <div class="boost-match-info">
-            <div class="boost-match-title">${pick.homeName} <span class="vs-light">vs</span> ${pick.awayName}</div>
-            <div class="boost-league-sub">${pick.leagueName}</div>
-          </div>
-
-          <div>
-            <span class="boost-badge ${isTopPick ? 'top-pick' : 'hot'}">${pick.badge}</span>
-          </div>
-
-          <div class="boost-market-desc">${pick.market}</div>
-
-          <div class="boost-card-bottom">
-            <div class="boost-kickoff-pill"><i class='bx bx-time-five'></i> ${pick.kickOff}</div>
-          </div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = cardsHtml;
+    renderFilteredTopPicks();
   } catch (e) {
-    container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:#f87171;">Failed to fetch live boosts.</div>`;
+    if (container) {
+      container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:#f87171;">Failed to fetch live boosts.</div>`;
+    }
   }
+}
+
+/* --- FILTER AND RENDER TOP PICKS BY SELECTED TOURNAMENT --- */
+function filterTopPicks(leagueKey, btnElement) {
+  currentFilterKey = leagueKey;
+
+  document.querySelectorAll('.boost-filter-btn').forEach(btn => btn.classList.remove('active'));
+  if (btnElement) {
+    btnElement.classList.add('active');
+  } else {
+    const defaultBtn = document.getElementById(`btn-boost-${leagueKey === 'all' ? 'all' : leagueKey}`);
+    if (defaultBtn) defaultBtn.classList.add('active');
+  }
+
+  renderFilteredTopPicks();
+}
+
+function renderFilteredTopPicks() {
+  const container = document.getElementById('topPicksContainer');
+  if (!container) return;
+
+  let displayPicks = cachedTopPicks;
+  if (currentFilterKey !== 'all') {
+    displayPicks = cachedTopPicks.filter(pick => pick.leagueKey === currentFilterKey);
+  }
+
+  if (displayPicks.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:20px; width:100%; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled top picks available for this tournament starting Oct 10.</div>`;
+    return;
+  }
+
+  const limit = currentFilterKey === 'all' ? 8 : 12;
+  displayPicks = displayPicks.slice(0, limit);
+
+  let cardsHtml = "";
+  displayPicks.forEach(pick => {
+    const isTopPick = pick.badge === "TOP PICK";
+    cardsHtml += `
+      <div class="boost-card ${isTopPick ? 'highlight-border' : ''}">
+        <div class="flags-row">
+          <img src="${pick.homeLogo}" alt="${pick.homeName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+          <span class="vs-text">VS</span>
+          <img src="${pick.awayLogo}" alt="${pick.awayName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+        </div>
+        
+        <div class="boost-match-info">
+          <div class="boost-match-title">${pick.homeName} <span class="vs-light">vs</span> ${pick.awayName}</div>
+          <div class="boost-league-sub">${pick.leagueName}</div>
+        </div>
+
+        <div>
+          <span class="boost-badge ${isTopPick ? 'top-pick' : 'hot'}">${pick.badge}</span>
+        </div>
+
+        <div class="boost-market-desc">${pick.market}</div>
+
+        <div class="boost-card-bottom">
+          <div class="boost-kickoff-pill"><i class='bx bx-time-five'></i> ${pick.kickOff}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = cardsHtml;
 }
 
 /* --- ANIMATED PLASMA BACKGROUND CANVAS --- */
@@ -753,10 +787,8 @@ async function fetchLiveGames() {
     const labelEl = document.getElementById("matchDayDisplay");
     if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
 
-    // Fetch Top Tier games first
     let matches = await fetchLeagueList(TOP_TIER_LEAGUES, targetDateQuery);
 
-    // If Top Tier games are insufficient, fallback to Secondary Tournaments
     if (matches.length < 10) {
       const secondaryMatches = await fetchLeagueList(SECONDARY_LEAGUES, targetDateQuery);
       const seenMatchKeys = new Set(matches.map(m => `${m.homeName}-${m.awayName}`));
