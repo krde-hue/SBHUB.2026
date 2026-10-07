@@ -14,7 +14,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=8.9.0">
+  <link rel="stylesheet" href="./styles.css?v=8.8.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,7 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- App JS -->
-  <script src="./app.js?v=8.5.0" defer></script>
+  <script src="./app.js?v=8.4.0" defer></script>
 </head>
 <body id="pageBody">
 
@@ -57,11 +57,13 @@
         <div class="login-subtitle">SPORTSBOOK HUB OPERATIONAL PORTAL</div>
         
         <form class="login-input-group" onsubmit="handleLogin(event)">
+          <!-- USERNAME INPUT FIELD -->
           <div class="field-wrapper">
             <label class="login-label" for="usernameInput">Username or email</label>
             <input type="text" id="usernameInput" class="login-input" value="sportsbook2026" required autocomplete="username">
           </div>
 
+          <!-- PASSWORD INPUT FIELD -->
           <div class="field-wrapper">
             <div class="field-label-row">
               <label class="login-label" for="passwordInput">Security Key</label>
@@ -75,6 +77,7 @@
             </div>
           </div>
 
+          <!-- REMEMBER ME CHECKBOX -->
           <div class="remember-row">
             <input type="checkbox" id="rememberMe" checked>
             <label for="rememberMe">Maintain active session</label>
@@ -82,6 +85,7 @@
 
           <div class="login-error" id="loginErrorMsg"></div>
 
+          <!-- SUBMIT BUTTON -->
           <button type="submit" class="login-btn">
             <i class="bx bx-key"></i> ACCESS DASHBOARD
           </button>
@@ -110,6 +114,7 @@
 
     <!-- SIDEBAR NAVIGATION -->
     <aside class="sidebar" id="mainSidebar">
+      <!-- SCROLLABLE MENU ITEMS AREA -->
       <div class="sidebar-menu-scroll">
         <div class="sidebar-header">
           <span>SPORTSBOOK HUB</span>
@@ -337,7 +342,9 @@
               <div class="jira-alert-badge">
                 <i class="bx bx-error-circle"></i> PENDING JIRA (&gt;24H)
               </div>
-              <div class="jira-ticket-pills-container" id="jiraPillsContainer"></div>
+              <div class="jira-ticket-pills-container" id="jiraPillsContainer">
+                <!-- Rendered Dynamically -->
+              </div>
               <a href="jira.html" target="_blank" rel="noreferrer" class="jira-open-btn">
                 View Tracker <i class="bx bx-right-arrow-alt"></i>
               </a>
@@ -353,7 +360,9 @@
                   <i class="bx bx-plus-circle"></i> Manage Notes
                 </button>
               </div>
-              <div class="handover-pills-container" id="handoverPillsContainer"></div>
+              <div class="handover-pills-container" id="handoverPillsContainer">
+                <!-- Rendered Dynamically -->
+              </div>
             </div>
           </div>
 
@@ -402,10 +411,12 @@
           </div>
 
           <div class="banner-controls-group">
+            <!-- JIRA TRACKER BUTTON -->
             <a href="jira.html" target="_blank" rel="noreferrer" class="dropdown-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
               <i class="bx bx-task"></i> Jira Tracker
             </a>
 
+            <!-- MANAGE WIDGETS DROPDOWN -->
             <div class="dropdown-container">
               <button class="dropdown-btn" type="button" onclick="toggleDropdown('widgetMenu')">
                 <i class="bx bx-slider-alt"></i> Widgets <i class="bx bx-chevron-down"></i>
@@ -434,9 +445,10 @@
               </div>
             </div>
 
+            <!-- THEME CUSTOMIZER DROPDOWN -->
             <div class="dropdown-container">
               <button class="dropdown-btn" type="button" onclick="toggleDropdown('themeMenu')">
-                <i class="bx bx-palette"></i> Theme <i class="bx bx-chevron-down"></i>
+              <i class="bx bx-palette"></i> Theme <i class="bx bx-chevron-down"></i>
               </button>
               <div class="dropdown-menu" id="themeMenu">
                 <div class="dropdown-section-title">PLAIN COLORS</div>
@@ -459,6 +471,7 @@
               </div>
             </div>
 
+            <!-- ACTIVE TRADER COUNTER -->
             <div class="metric-pill">
               <i class="bx bx-user-check"></i>
               <div>
@@ -507,6 +520,7 @@
         <!-- COLUMN 1: BRAND DIRECTORY & DAILY TASKS -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           
+          <!-- WIDGET: BRAND DIRECTORY -->
           <div class="glass-card" id="widget-brand-dock">
             <div class="card-header">
               <span style="color: #f59e0b;"><i class="bx bx-pin"></i> BRAND DIRECTORY DOCK</span>
@@ -522,6 +536,7 @@
             <div id="brandLinksContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
           </div>
 
+          <!-- WIDGET: DAILY TASK DOCK -->
           <div class="glass-card" id="widget-task-dock">
             <div class="card-header">
               <span style="color: #ef4444;"><i class="bx bx-list-ul"></i> DAILY TASK DOCK</span>
@@ -589,13 +604,16 @@
       </form>
 
       <div class="handover-modal-subtitle">ACTIVE HANDOVERS (Click <i class="bx bx-check"></i> when completed to delete)</div>
-      <div class="handover-items-list" id="handoverModalList"></div>
+      <div class="handover-items-list" id="handoverModalList">
+        <!-- Rendered Dynamically -->
+      </div>
     </div>
   </div>
 
   <!-- REAL-TIME JIRA & URGENT HANDOVER SYNC SCRIPT -->
   <script>
     (function() {
+      /* --- JIRA SLA REAL-TIME ALERT --- */
       var JIRA_KEY = 'jira_tracked_tickets';
       var jiraChannel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('jira_sync_channel') : null;
 
@@ -670,14 +688,14 @@
       setInterval(checkJiraSLA, 10000);
     })();
 
-    /* HANDOVER MANAGER SYSTEM */
+    /* --- URGENT HANDOVER MANAGER SYSTEM WITH CATEGORIZATION & COUNT --- */
     var HANDOVER_STORAGE_KEY = 'sbhub_urgent_handovers';
     var handoverChannel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('handover_sync_channel') : null;
 
     function getPriorityWeight(p) {
       if (p === 'URGENT/CRITICAL') return 3;
       if (p === 'Need Attention') return 2;
-      return 1;
+      return 1; // Normal
     }
 
     function getPriorityBadgeHTML(p) {
@@ -729,11 +747,15 @@
           alertBadge.innerHTML = '<i class="bx ' + titleIcon + '"></i> ' + titleText + countHTML;
         }
 
-        var displayItems = [list[0]];
+        var displayItems = [];
+        displayItems.push(list[0]);
+
         if (list[0].msg.length <= 120) {
           var accumulatedLength = list[0].msg.length;
           for (var i = 1; i < list.length && i < 3; i++) {
-            if (list[i].msg.length > 120 || accumulatedLength + list[i].msg.length > 240) break;
+            if (list[i].msg.length > 120 || accumulatedLength + list[i].msg.length > 240) {
+              break;
+            }
             displayItems.push(list[i]);
             accumulatedLength += list[i].msg.length;
           }
