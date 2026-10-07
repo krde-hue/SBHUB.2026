@@ -53,7 +53,7 @@ const brandTabData = {
     { name: "BET CONSTRUCT", url: "https://backoffice.betconstruct.com/" }
   ],
   edge: [
-    { name: "KT SBX", url: "https://p2ibet.sbx.bet/bets" },
+    { name: "KT SBX", url: "https://p2edgg.sbx.bet/reports/sportActivity" },
     { name: "KT PROJECTS", url: "https://kickertech.atlassian.net/jira/projects" },
     { name: "EDGE ADMIN", url: "https://admin.edgegaming.io/admin/qbet/homepage" },
     { name: "SERVICE DESK", url: "https://kickertech.atlassian.net/servicedesk/customer/user/login?destination=portals" }
