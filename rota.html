@@ -1276,31 +1276,49 @@
         }
 
         function formatShiftForTimezone(shiftText) {
-            if (!shiftText || ["RD", "VL", "SL", "Adjusted"].includes(shiftText)) return shiftText;
-            if (shiftText.includes("-") && !shiftList.some(s => s.text === shiftText)) {
-                const parts = shiftText.split("-").map(p => p.trim());
-                if (parts.length === 2 && parts[0].includes(":") && parts[1].includes(":")) {
-                    const startH = parseInt(parts[0].split(":")[0]);
-                    const endH = parseInt(parts[1].split(":")[0]);
-                    const diff = globalTzOffset - 8;
-                    let newStart = (startH + diff + 24) % 24;
-                    let newEnd = (endH + diff + 24) % 24;
-                    return `${newStart}:00 - ${newEnd}:00`;
-                }
-                return shiftText;
-            }
+            if (!shiftText || ["RD", "VL", "SL"].includes(shiftText)) return shiftText;
+            if (shiftText === "Adjusted") return "Adjusted";
+
             const baseShift = shiftList.find(s => s.text === shiftText);
-            if (!baseShift || baseShift.start === null) return shiftText;
-            const diff = globalTzOffset - 8;
-            let newStart = (baseShift.start + diff + 24) % 24;
-            let newEnd = (baseShift.end + diff + 24) % 24;
-            const isWFH = shiftText.includes("(WFH)") ? " (WFH)" : "";
-            return `${newStart}:00 - ${newEnd}:00${isWFH}`;
+            if (baseShift && baseShift.start !== null) {
+                const diff = globalTzOffset - 8;
+                let newStart = (baseShift.start + diff + 24) % 24;
+                let newEnd = (baseShift.end + diff + 24) % 24;
+                const isWFH = shiftText.includes("(WFH)") ? " (WFH)" : "";
+                return `${newStart}:00 - ${newEnd}:00${isWFH}`;
+            }
+
+            if (shiftText.includes("-")) {
+                const timeMatch = shiftText.match(/(\d{1,2}(?::\d{2})?)\s*-\s*(\d{1,2}(?::\d{2})?)/);
+                if (timeMatch) {
+                    const diff = globalTzOffset - 8;
+                    const adjustTime = (tStr) => {
+                        let parts = tStr.split(":");
+                        let h = parseInt(parts[0]);
+                        let m = parts[1] ? parts[1] : "00";
+                        let newH = (h + diff + 24) % 24;
+                        return `${newH}:${m}`;
+                    };
+                    const newStartStr = adjustTime(timeMatch[1]);
+                    const newEndStr = adjustTime(timeMatch[2]);
+
+                    if (shiftText.startsWith("Adjusted:")) {
+                        return `Adjusted: ${newStartStr} - ${newEndStr}`;
+                    } else if (shiftText.includes("Adjusted")) {
+                        return `${shiftText.split(":")[0]}: ${newStartStr} - ${newEndStr}`;
+                    } else {
+                        return `${newStartStr} - ${newEndStr}`;
+                    }
+                }
+            }
+
+            return shiftText;
         }
 
         function getShiftInfo(val) {
-            if (val && val.startsWith("Adjusted:")) return { bgClass: "shift-bg-adjusted" };
-            return shiftList.find(s => s.text === val) || shiftList[0];
+            if (!val) return shiftList[0];
+            if (val === "Adjusted" || val.startsWith("Adjusted") || val.includes("Adjusted")) return { bgClass: "shift-bg-adjusted" };
+            return shiftList.find(s => s.text === val) || { bgClass: "shift-bg-adjusted" };
         }
 
         function renderAll() {
@@ -1408,12 +1426,34 @@
                     if (isViewOnlyMode) return;
                     e.stopPropagation();
 
-                    btn.textContent = displayShift === "" ? "--" : displayShift;
-                    btn.className = `custom-dropdown-btn ${s.bgClass}`;
+                    let newShiftVal = s.text;
+
+                    if (s.text === "Adjusted") {
+                        const customTime = prompt("Enter specific emergency / adjusted shift time (e.g., 10:00 - 19:00 or 8:30 - 17:30):", "10:00 - 19:00");
+                        if (customTime === null) {
+                            return;
+                        }
+                        const trimmedTime = customTime.trim();
+                        if (trimmedTime !== "") {
+                            if (trimmedTime.toLowerCase().startsWith("adjusted")) {
+                                newShiftVal = trimmedTime;
+                            } else {
+                                newShiftVal = `Adjusted: ${trimmedTime}`;
+                            }
+                        } else {
+                            newShiftVal = "Adjusted";
+                        }
+                    }
+
+                    const info = getShiftInfo(newShiftVal);
+                    const formattedText = formatShiftForTimezone(newShiftVal);
+
+                    btn.textContent = formattedText === "" ? "--" : formattedText;
+                    btn.className = `custom-dropdown-btn ${info.bgClass}`;
                     menu.classList.remove('show');
 
                     if (!rotaData[dayNum]) rotaData[dayNum] = Array(team.length).fill("");
-                    rotaData[dayNum][memberIdx] = s.text;
+                    rotaData[dayNum][memberIdx] = newShiftVal;
 
                     saveRotaToDatabase();
                     syncLeavesFromFullYearSchedule();
