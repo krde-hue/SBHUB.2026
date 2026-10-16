@@ -163,7 +163,7 @@
         /* SPREADSHEET MASTER LAYOUT GRID */
         .workspace-grid {
             display: grid;
-            grid-template-columns: 1.1fr 1fr 1.3fr 1.2fr;
+            grid-template-columns: 1.5fr 1.2fr 1.3fr;
             gap: 1rem;
             align-items: start;
         }
@@ -188,7 +188,6 @@
             font-size: 0.85rem;
             font-weight: 800;
             padding: 0.45rem 0.75rem;
-            text-align: center;
             border-bottom: 1.5px solid var(--grid-border);
             color: #000000;
             text-transform: uppercase;
@@ -208,7 +207,7 @@
         .add-row-btn {
             background: rgba(255, 255, 255, 0.4);
             border: none;
-            color: #000000;
+            color: inherit;
             width: 20px;
             height: 20px;
             border-radius: 3px;
@@ -222,18 +221,31 @@
         }
         .add-row-btn:hover {
             background: #ffffff;
+            color: #000;
         }
 
         table.sheet-table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        table.sheet-table td, table.sheet-table th {
+        table.sheet-table th {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            font-weight: 700;
+            text-align: left;
+            border: 1px solid var(--grid-border);
+            padding: 0.4rem 0.6rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        table.sheet-table td {
             border: 1px solid var(--grid-border);
             padding: 0.4rem 0.6rem;
             font-size: 0.8rem;
-            vertical-align: middle;
+            vertical-align: top;
             position: relative;
         }
 
@@ -245,29 +257,68 @@
         .cell-label {
             font-weight: 700;
             color: var(--text-main);
-            width: 38%;
+            width: 25%;
+        }
+        
+        .cell-desc {
+            color: var(--text-muted);
+            width: 45%;
+            font-style: italic;
         }
 
-        .url-link {
+        .cell-link {
+            width: 30%;
+        }
+
+        .url-link-icon {
             color: var(--accent-color);
-            text-decoration: none;
-            font-weight: 600;
-            word-break: break-all;
+            transition: color 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
+            justify-content: center;
+            padding: 2px;
+            border-radius: 4px;
         }
 
-        .url-link:hover {
-            text-decoration: underline;
+        .url-link-icon:hover {
+            color: var(--accent-hover);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Editable fields styling */
+        .editable {
+            outline: none;
+            border-bottom: 1px dashed transparent;
+            transition: border-color 0.2s, background-color 0.2s;
+            min-height: 1.2em;
+            display: inline-block;
+            width: 100%;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .editable:focus {
+            border-bottom: 1px dashed var(--accent-color);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .section-header .editable {
+            width: auto;
+            border-bottom: 1px dashed rgba(0,0,0,0.2);
+            white-space: nowrap;
+            overflow-wrap: normal;
+        }
+        
+        .header-slack-green .editable, .header-slack-red .editable {
+            border-bottom: 1px dashed rgba(255,255,255,0.3);
         }
 
         .row-delete-btn {
             display: none;
             position: absolute;
             right: 4px;
-            top: 50%;
-            transform: translateY(-50%);
+            bottom: 4px;
             background: rgba(239, 68, 68, 0.2);
             color: #ef4444;
             border: 1px solid #ef4444;
@@ -286,25 +337,6 @@
         .task-list-table td {
             font-style: italic;
             font-weight: 600;
-        }
-
-        /* SLACK CHANNEL GUIDE TABLE */
-        .slack-table th {
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            font-weight: 700;
-            text-align: left;
-        }
-
-        .slack-channel-name {
-            font-weight: 700;
-            color: var(--accent-color);
-        }
-
-        .slack-desc {
-            font-style: italic;
-            color: var(--text-muted);
-            font-size: 0.78rem;
         }
 
         @media (max-width: 1280px) {
@@ -331,11 +363,9 @@
             <span class="title-credit">kdv_2026 model</span>
         </div>
         <div class="header-controls">
-            <!-- ACTIVE VIEWER COUNT BADGE -->
             <span class="btn" style="cursor: default; pointer-events: none;" title="Active Viewers">
                 👁️ <span id="activeViewersCount">1</span>
             </span>
-
             <a href="index.html" class="btn">
                 <i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i>
                 Back to Dashboard
@@ -356,35 +386,53 @@
         <!-- COLUMN 1: MONITORS, BACKOFFICES & DATA SHEETS -->
         <div class="grid-column">
             
-            <!-- MONITORS / BETTICKERS -->
             <div class="section-card">
                 <div class="section-header header-purple">
-                    <span>Monitors / Bettickers</span>
+                    <span class="editable" contenteditable="true" onblur="updateSectionTitle('title_monitors', this.innerText)" id="title_monitors">Monitors / Bettickers</span>
                     <button class="add-row-btn" onclick="addSectionRow('monitors')" title="Add Row">+</button>
                 </div>
                 <table class="sheet-table bg-purple">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Title</th>
+                            <th style="width: 45%">Description</th>
+                            <th style="width: 30%">Link Data</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-monitors"></tbody>
                 </table>
             </div>
 
-            <!-- BACKOFFICES -->
             <div class="section-card">
                 <div class="section-header header-green">
-                    <span>Tools & BackOffices</span>
+                    <span class="editable" contenteditable="true" onblur="updateSectionTitle('title_backoffices', this.innerText)" id="title_backoffices">Tools & BackOffices</span>
                     <button class="add-row-btn" onclick="addSectionRow('backoffices')" title="Add Row">+</button>
                 </div>
                 <table class="sheet-table bg-green">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Title</th>
+                            <th style="width: 45%">Description</th>
+                            <th style="width: 30%">Link Data</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-backoffices"></tbody>
                 </table>
             </div>
 
-            <!-- TOOLS / DATA SHEETS -->
             <div class="section-card">
                 <div class="section-header header-pink">
-                    <span>Data Sheets</span>
+                    <span class="editable" contenteditable="true" onblur="updateSectionTitle('title_tools', this.innerText)" id="title_tools">Data Sheets</span>
                     <button class="add-row-btn" onclick="addSectionRow('tools')" title="Add Row">+</button>
                 </div>
                 <table class="sheet-table bg-pink">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Title</th>
+                            <th style="width: 45%">Description</th>
+                            <th style="width: 30%">Link Data</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-tools"></tbody>
                 </table>
             </div>
@@ -394,64 +442,67 @@
         <!-- COLUMN 2: TASKS EXAMPLES & BRANDS URL -->
         <div class="grid-column">
             
-            <!-- TASKS EXAMPLES -->
             <div class="section-card">
                 <div class="section-header header-blue">
-                    <span>Tasks Examples</span>
+                    <span class="editable" contenteditable="true" onblur="updateSectionTitle('title_tasks', this.innerText)" id="title_tasks">Tasks Examples</span>
                     <button class="add-row-btn" onclick="addSectionRow('tasks')" title="Add Task">+</button>
                 </div>
                 <table class="sheet-table task-list-table">
+                    <thead>
+                        <tr><th>Task Description</th></tr>
+                    </thead>
                     <tbody id="tbody-tasks"></tbody>
                 </table>
             </div>
 
-            <!-- BRANDS URL -->
             <div class="section-card">
                 <div class="section-header header-blue">
-                    <span>Brands URL</span>
+                    <span class="editable" contenteditable="true" onblur="updateSectionTitle('title_brands', this.innerText)" id="title_brands">Brands URL</span>
                     <button class="add-row-btn" onclick="addSectionRow('brands')" title="Add Brand">+</button>
                 </div>
                 <table class="sheet-table bg-blue">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Brand</th>
+                            <th style="width: 45%">Description</th>
+                            <th style="width: 30%">URL</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-brands"></tbody>
                 </table>
             </div>
 
         </div>
 
-        <!-- COLUMN 3: SLACK CHANNELS (Qbet, 30bet, 55bet, BVB) -->
-        <div class="grid-column" style="grid-column: span 1;">
+        <!-- COLUMN 3: SLACK CHANNELS -->
+        <div class="grid-column">
             
             <div class="section-card">
                 <div class="section-header header-slack-green">
-                    <span>Slack Channels (Qbet, 30bet, 55bet) also BVB</span>
+                    <span class="editable" contenteditable="true" onblur="updateSectionTitle('title_slackMain', this.innerText)" id="title_slackMain">Slack Channels (Qbet, 30bet, 55bet) also BVB</span>
                     <button class="add-row-btn" onclick="addSectionRow('slackMain')" title="Add Channel">+</button>
                 </div>
                 <table class="sheet-table slack-table">
                     <thead>
                         <tr>
-                            <th>Slack Channel</th>
-                            <th>About Channel (Purpose)</th>
+                            <th style="width: 35%">Slack Channel</th>
+                            <th style="width: 65%">About Channel (Purpose)</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-slackMain"></tbody>
                 </table>
             </div>
 
-        </div>
-
-        <!-- COLUMN 4: SLACK CHANNELS (Ibet) -->
-        <div class="grid-column" style="grid-column: span 1;">
-            
             <div class="section-card">
                 <div class="section-header header-slack-red">
-                    <span>Slack Channels (Ibet)</span>
+                    <span class="editable" contenteditable="true" onblur="updateSectionTitle('title_slackIbet', this.innerText)" id="title_slackIbet">Slack Channels (Ibet)</span>
                     <button class="add-row-btn" onclick="addSectionRow('slackIbet')" title="Add Channel">+</button>
                 </div>
                 <table class="sheet-table slack-table">
                     <thead>
                         <tr>
-                            <th>Slack Channel</th>
-                            <th>About Channel (Ibet)</th>
+                            <th style="width: 35%">Slack Channel</th>
+                            <th style="width: 65%">About Channel (Ibet)</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-slackIbet"></tbody>
@@ -486,47 +537,50 @@
                 if (snap.val() === true) {
                     const userSessionRef = presenceRef.push();
                     userSessionRef.onDisconnect().remove();
-
-                    userSessionRef.set({
-                        online: true,
-                        joinedAt: firebase.database.ServerValue.TIMESTAMP
-                    });
+                    userSessionRef.set({ online: true, joinedAt: firebase.database.ServerValue.TIMESTAMP });
                 }
             });
 
             presenceRef.on('value', (snap) => {
                 const count = snap.numChildren();
                 const countElem = document.getElementById('activeViewersCount');
-                if (countElem) {
-                    countElem.innerText = count > 0 ? count : 1;
-                }
+                if (countElem) countElem.innerText = count > 0 ? count : 1;
             });
         }
 
         function getDefaultHubData() {
             return {
+                titles: {
+                    title_monitors: "Monitors / Bettickers",
+                    title_backoffices: "Tools & BackOffices",
+                    title_tools: "Data Sheets",
+                    title_tasks: "Tasks Examples",
+                    title_brands: "Brands URL",
+                    title_slackMain: "Slack Channels (Qbet, 30bet, 55bet) also BVB",
+                    title_slackIbet: "Slack Channels (Ibet)"
+                },
                 monitors: [
-                    { label: "Qbet, 30bet, 55bet", url: "https://betbook.center/monitor" },
-                    { label: "ibet sweden", url: "https://mga-betbook.center/" },
-                    { label: "ibet betsson", url: "https://p2p.betssonbusiness.com/" },
-                    { label: "pubs, bvbet", url: "https://eu-b7k.center/" }
+                    { label: "Qbet, 30bet, 55bet", desc: "Main monitor for core brands", url: "https://betbook.center/monitor" },
+                    { label: "ibet sweden", desc: "MGA Betbook environment", url: "https://mga-betbook.center/" },
+                    { label: "ibet betsson", desc: "Betsson business portal", url: "https://p2p.betssonbusiness.com/" },
+                    { label: "pubs, bvbet", desc: "B7K center tracking", url: "https://eu-b7k.center/" }
                 ],
                 backoffices: [
-                    { label: "Pubs, Ibet, Bvbet (Player Limit Adjustment, Market Creation & Suspension)", url: "https://backoffice.betconstruct.com/" },
-                    { label: "All Brands (Except Ibet) Customer Info", url: "https://admin.edgegaming.io/" },
-                    { label: "Ibet Customer Info", url: "https://admin.apexplatform.io/login" },
-                    { label: "Pubs Customer Info", url: "https://pg-backoffice-eu.gogaming.cc/" },
-                    { label: "Betradar", url: "https://mtsc-lts.betradar.com/" },
-                    { label: "Betradar Portal", url: "https://portal.betradar.com/" },
-                    { label: "Kickortech", url: "https://p2ibes.sbx.bet" }
+                    { label: "Pubs, Ibet, Bvbet", desc: "Player Limit Adjustment, Market Creation & Suspension", url: "https://backoffice.betconstruct.com/" },
+                    { label: "Edgegaming", desc: "All Brands (Except Ibet) Customer Info", url: "https://admin.edgegaming.io/" },
+                    { label: "Apex Platform", desc: "Ibet Customer Info", url: "https://admin.apexplatform.io/login" },
+                    { label: "GoGaming", desc: "Pubs Customer Info", url: "https://pg-backoffice-eu.gogaming.cc/" },
+                    { label: "Betradar", desc: "Main odds feed control", url: "https://mtsc-lts.betradar.com/" },
+                    { label: "Betradar Portal", desc: "Portal access", url: "https://portal.betradar.com/" },
+                    { label: "Kickortech", desc: "SBX Bet platform", url: "https://p2ibes.sbx.bet" }
                 ],
                 tools: [
-                    { label: "Black Listed Countries", url: "https://docs.google.com/spreadsheets/d/1HXuRMiLo4vas9zUHvMbUdSFWOG05IORWktFNKznY8/edit#gid=617972875" },
-                    { label: "Asian Monitor", url: "https://www.asianmonitor.com/" },
-                    { label: "Betsson Service Desk", url: "https://p2b.betssonbusiness.com/" },
-                    { label: "BambooHR", url: "https://igroup.bamboohr.com/home/" },
-                    { label: "Confluence", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" },
-                    { label: "Edgegaming Limits Tracker (Qbet, 30bet, 55bet, BVB)", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0DgNYSqFhccXKnMkgJ8z/edit#gid=1305147410" }
+                    { label: "Black Listed Countries", desc: "Google Sheet reference", url: "https://docs.google.com/spreadsheets/d/1HXuRMiLo4vas9zUHvMbUdSFWOG05IORWktFNKznY8/edit#gid=617972875" },
+                    { label: "Asian Monitor", desc: "Asian odds tracking", url: "https://www.asianmonitor.com/" },
+                    { label: "Betsson Service Desk", desc: "P2B Support", url: "https://p2b.betssonbusiness.com/" },
+                    { label: "BambooHR", desc: "HR Portal", url: "https://igroup.bamboohr.com/home/" },
+                    { label: "Confluence", desc: "Team Wiki", url: "https://ibet.atlassian.net/wiki/spaces/Sportsbook/overview" },
+                    { label: "Edgegaming Limits Tracker", desc: "Qbet, 30bet, 55bet, BVB Limits", url: "https://docs.google.com/spreadsheets/d/1qruVq-HZCyM0DgNYSqFhccXKnMkgJ8z/edit#gid=1305147410" }
                 ],
                 tasks: [
                     { task: "Check Big Winners" },
@@ -541,12 +595,12 @@
                     { task: "Other tasks as instructed by Manager" }
                 ],
                 brands: [
-                    { label: "Qbet:", url: "https://www.qbet.com/en-UN" },
-                    { label: "30bet:", url: "https://www.30bet.com/en-UN" },
-                    { label: "55bet:", url: "https://www.55bet.com/en-UN" },
-                    { label: "Ibet:", url: "https://www.ibet.com/en-UN" },
-                    { label: "Pubs:", url: "https://pubs.com/en-us" },
-                    { label: "BVB:", url: "https://www.bvbet.com/en-UN" }
+                    { label: "Qbet:", desc: "Main Site", url: "https://www.qbet.com/en-UN" },
+                    { label: "30bet:", desc: "Main Site", url: "https://www.30bet.com/en-UN" },
+                    { label: "55bet:", desc: "Main Site", url: "https://www.55bet.com/en-UN" },
+                    { label: "Ibet:", desc: "Main Site", url: "https://www.ibet.com/en-UN" },
+                    { label: "Pubs:", desc: "Main Site", url: "https://pubs.com/en-us" },
+                    { label: "BVB:", desc: "Main Site", url: "https://www.bvbet.com/en-UN" }
                 ],
                 slackMain: [
                     { name: "#sportsbook-fraud-risk", desc: "Escalations for limited users and user fund concerns" },
@@ -580,11 +634,13 @@
             db.ref('workspace_hub_data').on('value', (snapshot) => {
                 const live = snapshot.val();
                 if (live && typeof live === 'object') {
+                    if (!live.titles) live.titles = getDefaultHubData().titles;
                     hubData = live;
                 } else {
                     hubData = getDefaultHubData();
                     saveToDatabase();
                 }
+                updateUIHeaders();
                 renderAllTables();
             });
         }
@@ -592,7 +648,6 @@
         function saveToDatabase() {
             const statusDot = document.querySelector('.status-dot');
             const statusText = document.getElementById('save-status');
-            
             statusText.textContent = "Syncing...";
             statusDot.style.backgroundColor = "#eab308";
 
@@ -602,60 +657,107 @@
             });
         }
 
+        // --- INLINE EDITING LOGIC ---
+        function updateItem(sectionKey, idx, field, newValue) {
+            if (hubData[sectionKey] && hubData[sectionKey][idx]) {
+                if (hubData[sectionKey][idx][field] !== newValue.trim()) {
+                    hubData[sectionKey][idx][field] = newValue.trim();
+                    saveToDatabase();
+                }
+            }
+        }
+
+        function updateSectionTitle(titleKey, newTitle) {
+            if (!hubData.titles) hubData.titles = {};
+            if (hubData.titles[titleKey] !== newTitle.trim()) {
+                hubData.titles[titleKey] = newTitle.trim();
+                saveToDatabase();
+            }
+        }
+
+        function updateUIHeaders() {
+            if (hubData.titles) {
+                Object.keys(hubData.titles).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el && document.activeElement !== el) {
+                        el.innerText = hubData.titles[key];
+                    }
+                });
+            }
+        }
+
+        // --- RENDERING FUNCTIONS ---
         function renderLinkTable(sectionKey, tbodyId) {
             const tbody = document.getElementById(tbodyId);
-            tbody.innerHTML = '';
             const list = hubData[sectionKey] || [];
+            let html = '';
 
             list.forEach((item, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="cell-label">${item.label || ''}</td>
-                    <td>
-                        <a href="${item.url || '#'}" target="_blank" class="url-link">${item.url || ''} <i data-lucide="external-link" style="width:11px; height:11px;"></i></a>
-                        <button class="row-delete-btn" onclick="deleteItem('${sectionKey}', ${idx})">🗑️</button>
-                    </td>
+                html += `
+                    <tr>
+                        <td class="cell-label">
+                            <span class="editable" contenteditable="true" onblur="updateItem('${sectionKey}', ${idx}, 'label', this.innerText)">${item.label || ''}</span>
+                        </td>
+                        <td class="cell-desc">
+                            <span class="editable" contenteditable="true" onblur="updateItem('${sectionKey}', ${idx}, 'desc', this.innerText)">${item.desc || ''}</span>
+                        </td>
+                        <td class="cell-link">
+                            <div style="display: flex; align-items: flex-start; gap: 0.35rem; padding-bottom: 8px;">
+                                <span class="editable" style="font-size: 0.72rem; color: var(--text-muted); flex-grow: 1;" contenteditable="true" onblur="updateItem('${sectionKey}', ${idx}, 'url', this.innerText)" title="Edit URL">${item.url || ''}</span>
+                                <a href="${item.url || '#'}" target="_blank" title="Open Link" class="url-link-icon" style="flex-shrink: 0; margin-top: 1px;">
+                                    <i data-lucide="external-link" style="width:14px; height:14px;"></i>
+                                </a>
+                            </div>
+                            <button class="row-delete-btn" onclick="deleteItem('${sectionKey}', ${idx})">🗑️</button>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
+            tbody.innerHTML = html;
         }
 
         function renderTasksTable() {
             const tbody = document.getElementById('tbody-tasks');
-            tbody.innerHTML = '';
             const list = hubData.tasks || [];
+            let html = '';
 
             list.forEach((item, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        ${item.task || ''}
-                        <button class="row-delete-btn" onclick="deleteItem('tasks', ${idx})">🗑️</button>
-                    </td>
+                html += `
+                    <tr>
+                        <td>
+                            <span class="editable" contenteditable="true" onblur="updateItem('tasks', ${idx}, 'task', this.innerText)">${item.task || ''}</span>
+                            <button class="row-delete-btn" onclick="deleteItem('tasks', ${idx})">🗑️</button>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
+            tbody.innerHTML = html;
         }
 
         function renderSlackTable(sectionKey, tbodyId) {
             const tbody = document.getElementById(tbodyId);
-            tbody.innerHTML = '';
             const list = hubData[sectionKey] || [];
+            let html = '';
 
             list.forEach((item, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="slack-channel-name">${item.name || ''}</td>
-                    <td class="slack-desc">
-                        ${(item.desc || '').replace(/\n/g, '<br>')}
-                        <button class="row-delete-btn" onclick="deleteItem('${sectionKey}', ${idx})">🗑️</button>
-                    </td>
+                html += `
+                    <tr>
+                        <td style="font-weight: 700; color: var(--accent-color);">
+                            <span class="editable" contenteditable="true" onblur="updateItem('${sectionKey}', ${idx}, 'name', this.innerText)">${item.name || ''}</span>
+                        </td>
+                        <td style="font-style: italic; color: var(--text-muted); font-size: 0.78rem;">
+                            <span class="editable" contenteditable="true" onblur="updateItem('${sectionKey}', ${idx}, 'desc', this.innerText)">${item.desc || ''}</span>
+                            <button class="row-delete-btn" onclick="deleteItem('${sectionKey}', ${idx})">🗑️</button>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
+            tbody.innerHTML = html;
         }
 
         function renderAllTables() {
+            if (document.activeElement && document.activeElement.classList.contains('editable')) return;
+
             renderLinkTable('monitors', 'tbody-monitors');
             renderLinkTable('backoffices', 'tbody-backoffices');
             renderLinkTable('tools', 'tbody-tools');
@@ -670,6 +772,7 @@
             if (confirm("Delete this entry?")) {
                 hubData[sectionKey].splice(idx, 1);
                 saveToDatabase();
+                renderAllTables();
             }
         }
 
@@ -677,21 +780,18 @@
             if (!hubData[sectionKey]) hubData[sectionKey] = [];
 
             if (sectionKey === 'tasks') {
-                const newVal = prompt("Enter new task name:", "New Task Example");
-                if (newVal) hubData[sectionKey].push({ task: newVal });
+                hubData[sectionKey].push({ task: "New Task" });
             } else if (sectionKey === 'slackMain' || sectionKey === 'slackIbet') {
-                const name = prompt("Enter Slack channel name:", "#new-channel");
-                const desc = prompt("Enter channel purpose/description:", "Channel purpose");
-                if (name) hubData[sectionKey].push({ name, desc: desc || "" });
+                hubData[sectionKey].push({ name: "#new-channel", desc: "Channel purpose" });
             } else {
-                const label = prompt("Enter reference label:", "New Item");
-                const url = prompt("Enter URL:", "https://");
-                if (label) hubData[sectionKey].push({ label, url: url || "https://" });
+                hubData[sectionKey].push({ label: "New Item", desc: "Description", url: "https://" });
             }
 
             saveToDatabase();
+            renderAllTables();
         }
 
+        // --- THEME TOGGLE ---
         const themeToggleBtn = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const themeText = document.getElementById('theme-text');
