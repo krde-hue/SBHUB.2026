@@ -333,7 +333,7 @@
                 </select>
             </div>
 
-            <!-- RED BOX TOOLBAR CONTROLS POSITION -->
+            <!-- SECONDARY TOOLBAR WITH UNDO, REDO, ADD ROW -->
             <div class="toolbar-right">
                 <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled title="Undo (Ctrl+Z)">↩️ Undo</button>
                 <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled title="Redo (Ctrl+Y)">↪️ Redo</button>
@@ -449,6 +449,7 @@
             return found ? found.class : "type-single";
         }
 
+        // FULL 8 LEAGUES AND 5 RULES TRANSPOSED FROM IMAGE
         const guidelinesData = {
             hero: [
                 { rank: "1", league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] },
@@ -477,11 +478,8 @@
             ]
         };
 
+        // REQUESTED TAB ORDER: FOOTBALL, TENNIS, OTHER SPORTS, BANNERS, GUIDELINES
         const embeddedData = {
-            "EDGE Banners": {
-                headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"],
-                rows: []
-            },
             "Edge Football": {
                 headers: ["BO", "PUB", "Brands", "KO Date", "KO Time", "Sports", "League", "Event", "Type", "Market 1", "Market 2", "Market 3", "Market 4", "Notes", "Other Ideas"],
                 meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
@@ -495,6 +493,10 @@
             "Edge Other Sports": {
                 headers: ["BO", "PUB", "Brands", "Event Date", "Sports", "League", "Event", "Type", "Markets", "Notes", "Other Ideas"],
                 meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
+                rows: []
+            },
+            "EDGE Banners": {
+                headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"],
                 rows: []
             },
             "Guideliness": {
@@ -643,10 +645,30 @@
                 }
                 const liveData = snapshot.val();
                 if (liveData && typeof liveData === 'object') {
-                    workbookData = liveData;
+                    const ordered = {};
+                    const tabOrder = ["Edge Football", "Edge Tennis", "Edge Other Sports", "EDGE Banners", "Guideliness"];
+                    
+                    tabOrder.forEach(key => {
+                        if (liveData[key]) {
+                            ordered[key] = liveData[key];
+                        } else if (embeddedData[key]) {
+                            ordered[key] = embeddedData[key];
+                        }
+                    });
+
+                    if (!ordered["Guideliness"] || !ordered["Guideliness"].data || !ordered["Guideliness"].data.hero || ordered["Guideliness"].data.hero.length < 8) {
+                        ordered["Guideliness"] = {
+                            headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"],
+                            rows: [],
+                            data: guidelinesData
+                        };
+                    }
+
+                    workbookData = ordered;
                 } else {
                     saveToFirebaseNow();
                 }
+                renderTabs();
                 renderActiveSheet();
             });
         }
@@ -679,16 +701,21 @@
         function renderTabs() {
             const tabsNav = document.getElementById('tabsNav');
             tabsNav.innerHTML = '';
-            Object.keys(workbookData).forEach(sheetName => {
-                const btn = document.createElement('button');
-                btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
-                btn.innerText = sheetName;
-                btn.onclick = () => {
-                    currentSheet = sheetName;
-                    renderTabs();
-                    renderActiveSheet();
-                };
-                tabsNav.appendChild(btn);
+            
+            const tabOrder = ["Edge Football", "Edge Tennis", "Edge Other Sports", "EDGE Banners", "Guideliness"];
+
+            tabOrder.forEach(sheetName => {
+                if (workbookData[sheetName]) {
+                    const btn = document.createElement('button');
+                    btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
+                    btn.innerText = sheetName;
+                    btn.onclick = () => {
+                        currentSheet = sheetName;
+                        renderTabs();
+                        renderActiveSheet();
+                    };
+                    tabsNav.appendChild(btn);
+                }
             });
         }
 
@@ -1179,7 +1206,7 @@
                 if (h === "BO" || h === "PUB") return false;
                 if (h === "Brands") return "7Abet/BVBet/GQ";
                 if (h === "KO Date" || h === "Event Date") return ""; 
-                if (h === "Sports") return currentSheet === "Edge Tennis" ? "Tennis" : "Football";
+                if (h === "Sports") return currentSheet === "iBET Tennis" ? "Tennis" : "Football";
                 if (h === "Type") return "Bet Builder";
                 return "";
             });
@@ -1298,7 +1325,7 @@
                         wsData.push(sheet.headers);
                     }
                     if (sheet.rows && Array.isArray(sheet.rows)) {
-                        const dateColIdx = sheetName === "EDGE Banners" ? 1 : 3;
+                        const dateColIdx = sheetName === "iBET Banners" ? 1 : 3;
 
                         sheet.rows.forEach(r => {
                             let shouldInclude = true;
@@ -1325,9 +1352,9 @@
             let fileName;
             if (targetMonthIndex !== null) {
                 const monthName = monthNames[targetMonthIndex];
-                fileName = `EDGE_Boosts_${monthName}_${now.getFullYear()}.xlsx`;
+                fileName = `iBET_Boosts_${monthName}_${now.getFullYear()}.xlsx`;
             } else {
-                fileName = `EDGE_Boosts_FULL_HISTORY_${now.getFullYear()}.xlsx`;
+                fileName = `iBET_Boosts_FULL_HISTORY_${now.getFullYear()}.xlsx`;
             }
 
             XLSX.writeFile(wb, fileName);
