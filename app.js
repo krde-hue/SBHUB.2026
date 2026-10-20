@@ -3,9 +3,9 @@
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
     document.documentElement.classList.add('sbhub-authenticated');
   }
-  const savedTheme = localStorage.getItem('sbhub_theme') || 'cyan-liquid-glass';
-  if (savedTheme === 'cyan-liquid-glass') {
-    document.documentElement.style.background = 'url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat';
+  const savedTheme = localStorage.getItem('sbhub_theme') || '3d-chrome-swirl';
+  if (savedTheme === '3d-chrome-swirl') {
+    document.documentElement.style.background = 'url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat';
   }
 })();
 
@@ -197,7 +197,6 @@ async function fetchTopPicksAndBoosts() {
         const gameState = evt.status?.type?.state;
         const evtDate = new Date(evt.date);
 
-        // Strict pre-kickoff rule: Disappears instantly once match kicks off or goes live
         if (gameState !== 'pre' || evtDate <= now) continue;
 
         const comp = evt.competitions?.[0];
@@ -686,7 +685,7 @@ function setGradient(theme) {
         backgroundStyle = 'linear-gradient(rgba(245, 245, 244, 0.95), rgba(245, 245, 244, 0.95)), #f5f5f4';
         break;
       default:
-        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['cyan-liquid-glass']}")`;
+        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['3d-chrome-swirl']}")`;
     }
   }
 
@@ -995,7 +994,7 @@ function initDashboardApp() {
   if (savedTheme) {
     setGradient(savedTheme);
   } else {
-    setGradient('cyan-liquid-glass'); // Default theme set to Liquid Chrome & Blue
+    setGradient('3d-chrome-swirl'); // Liquid Chrome & Blue set as true default
   }
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
