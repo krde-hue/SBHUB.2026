@@ -22,7 +22,7 @@ html, body {
 
 body {
   min-height: 100vh;
-  /* Primary Default Wallpaper: Liquid Chrome & Blue */
+  /* Primary Default Wallpaper: Liquid Chrome & Blue / Fluid Ink Swirl */
   background: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat #090d16;
   color: #ffffff;
   display: flex;
