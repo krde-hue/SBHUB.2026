@@ -45,26 +45,26 @@
         }
 
         [data-theme="light"] {
-            --bg-gradient: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 50%, #cbd5e1 100%);
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-card: rgba(255, 255, 255, 0.88);
-            --glass-border: rgba(0, 0, 0, 0.1);
-            --glass-input: rgba(255, 255, 255, 0.9);
+            --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #f8fafc 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-card: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(148, 163, 184, 0.25);
+            --glass-input: #ffffff;
             --text-main: #0f172a;
-            --text-muted: #64748b;
+            --text-muted: #475569;
             --accent-cyan: #0284c7;
             --accent-glow: rgba(2, 132, 199, 0.15);
-            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --table-header-bg: rgba(241, 245, 249, 0.95);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --table-header-bg: #e2e8f0;
             --week-divider: #0284c7;
-            --chart-box-bg: rgba(241, 245, 249, 0.75);
-            --chart-box-border: rgba(203, 213, 225, 0.7);
-            --dropdown-bg: rgba(255, 255, 255, 0.98);
+            --chart-box-bg: rgba(255, 255, 255, 0.9);
+            --chart-box-border: rgba(203, 213, 225, 0.8);
+            --dropdown-bg: #ffffff;
             --dropdown-text: #0f172a;
             --banner-bg: linear-gradient(135deg, #fecdd3 0%, #f43f5e 100%);
             --banner-text: #881337;
-            --sticky-col-bg: #ffffff;
-            --sticky-header-bg: #f1f5f9;
+            --sticky-col-bg: #f8fafc;
+            --sticky-header-bg: #e2e8f0;
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
@@ -239,7 +239,10 @@
             outline: none;
         }
 
-        .team-manager-dropdown { position: relative; z-index: 110; }
+        .team-manager-dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
         .main-layout { display: flex; flex-direction: column; gap: 28px; width: 100%; position: relative; z-index: 1; }
 
@@ -318,7 +321,7 @@
         th.person-col { background-color: var(--sticky-header-bg); }
         td.person-col { background-color: var(--sticky-col-bg); backdrop-filter: blur(16px); }
 
-        /* MOBILE VIEW FROZEN DAY & DATE COLUMNS (ALWAYS PINNED IN VERTICAL MODE) */
+        /* MOBILE VIEW FROZEN DAY & DATE COLUMNS */
         th.day-col-mobile, td.day-col-mobile {
             position: sticky !important;
             left: 0 !important;
@@ -331,7 +334,7 @@
 
         th.date-col-mobile, td.date-col-mobile {
             position: sticky !important;
-            left: 48px !important; /* Matches day-col-mobile width */
+            left: 48px !important;
             z-index: 30 !important;
             min-width: 64px !important;
             width: 64px !important;
@@ -342,7 +345,7 @@
         }
 
         th.day-col-mobile, th.date-col-mobile {
-            z-index: 35 !important; /* Header cells stay above body cells when scrolling */
+            z-index: 35 !important;
             background-color: var(--sticky-header-bg) !important;
         }
 
@@ -370,7 +373,7 @@
         }
         .custom-dropdown-btn:hover { filter: brightness(1.15); transform: scale(1.02); }
 
-        /* VIEWPORT-FIXED SCROLLABLE PORTAL DROPDOWN MENU */
+        /* PORTAL-STYLE PORTRAIT FIXED DROPDOWN (PREVENTS TABLE CLIPPING) */
         .custom-dropdown-menu {
             display: none;
             position: fixed;
@@ -380,20 +383,15 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
-            z-index: 999999;
-            max-height: 260px;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
+            z-index: 9999999 !important;
+            max-height: 280px;
             min-width: 165px;
             overflow-y: auto;
             padding: 6px;
             touch-action: pan-y;
             overscroll-behavior: contain;
         }
-
-        .custom-dropdown-menu::-webkit-scrollbar { width: 6px; }
-        .custom-dropdown-menu::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); border-radius: 4px; }
-        .custom-dropdown-menu::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 4px; }
-        .custom-dropdown-menu::-webkit-scrollbar-thumb:hover { background: #0284c7; }
 
         .custom-dropdown-menu.show { display: block; }
 
@@ -409,7 +407,7 @@
         }
         .custom-dropdown-item:hover { filter: brightness(1.15); }
 
-        /* DARK MODE SHIFT STYLES */
+        /* SHIFT STYLES */
         .shift-bg-rd          { background-color: #334155 !important; color: #94a3b8 !important; border: 1px solid #475569; font-weight: 700; }
         .shift-bg-vl          { background: linear-gradient(135deg, #ca8a04, #a16207) !important; color: #ffffff !important; border: 1px solid #facc15; font-weight: 800; }
         .shift-bg-sl          { background: linear-gradient(135deg, #7e22ce, #6b21a8) !important; color: #ffffff !important; border: 1px solid #c084fc; font-weight: 800; }
@@ -427,48 +425,21 @@
         .shift-bg-15-0-wfh    { background-color: #881337 !important; color: #ffffff !important; border: 1px solid #fecdd3; font-weight: 800; }
         .shift-bg-adjusted    { background-color: #b45309 !important; color: #ffffff !important; border: 1px solid #fde047; font-weight: 800; }
 
-        /* DAYLIGHT (LIGHT MODE) SHIFT STYLES OVERRIDES */
-        [data-theme="light"] .shift-bg-rd {
-            background-color: #e2e8f0 !important;
-            color: #475569 !important;
-            border: 1px solid #cbd5e1;
-        }
-
-        [data-theme="light"] .shift-bg-6-15-wfh {
-            background-color: #e0f2fe !important;
-            color: #0284c7 !important;
-            border: 1.5px solid #38bdf8;
-        }
-
-        [data-theme="light"] .shift-bg-7-16-wfh {
-            background-color: #ffedd5 !important;
-            color: #c2410c !important;
-            border: 1px solid #f97316;
-        }
-
-        [data-theme="light"] .shift-bg-9-18-wfh {
-            background-color: #d1fae5 !important;
-            color: #047857 !important;
-            border: 1px solid #10b981;
-        }
-
-        [data-theme="light"] .shift-bg-12-21-wfh {
-            background-color: #fce7f3 !important;
-            color: #be185d !important;
-            border: 1px solid #db2777;
-        }
-
-        [data-theme="light"] .shift-bg-15-0-wfh {
-            background-color: #ffe4e6 !important;
-            color: #be123c !important;
-            border: 1px solid #e11d48;
-        }
-
-        [data-theme="light"] .shift-bg-adjusted {
-            background-color: #fef3c7 !important;
-            color: #b45309 !important;
-            border: 1px solid #f59e0b;
-        }
+        /* DAYLIGHT (LIGHT MODE) OPTIMIZED PASTEL PALETTE */
+        [data-theme="light"] .shift-bg-rd { background-color: #f1f5f9 !important; color: #64748b !important; border: 1px solid #cbd5e1 !important; font-weight: 700; }
+        [data-theme="light"] .shift-bg-vl { background: #fef08a !important; color: #854d0e !important; border: 1px solid #fde047 !important; font-weight: 800; }
+        [data-theme="light"] .shift-bg-sl { background: #f3e8ff !important; color: #6b21a8 !important; border: 1px solid #d8b4fe !important; font-weight: 800; }
+        [data-theme="light"] .shift-bg-6-15 { background-color: #e2e8f0 !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; }
+        [data-theme="light"] .shift-bg-7-16 { background-color: #ffedd5 !important; color: #9a3412 !important; border: 1px solid #fed7aa !important; }
+        [data-theme="light"] .shift-bg-9-18 { background-color: #d1fae5 !important; color: #065f46 !important; border: 1px solid #a7f3d0 !important; }
+        [data-theme="light"] .shift-bg-12-21 { background-color: #fce7f3 !important; color: #9d174d !important; border: 1px solid #fbcfe8 !important; }
+        [data-theme="light"] .shift-bg-15-0 { background-color: #ffe4e6 !important; color: #9f1239 !important; border: 1px solid #fecdd3 !important; }
+        [data-theme="light"] .shift-bg-6-15-wfh { background-color: #e0f2fe !important; color: #0369a1 !important; border: 1.5px solid #38bdf8 !important; }
+        [data-theme="light"] .shift-bg-7-16-wfh { background-color: #ffedd5 !important; color: #c2410c !important; border: 1.5px solid #f97316 !important; }
+        [data-theme="light"] .shift-bg-9-18-wfh { background-color: #d1fae5 !important; color: #047857 !important; border: 1.5px solid #10b981 !important; }
+        [data-theme="light"] .shift-bg-12-21-wfh { background-color: #fce7f3 !important; color: #be185d !important; border: 1.5px solid #db2777 !important; }
+        [data-theme="light"] .shift-bg-15-0-wfh { background-color: #ffe4e6 !important; color: #be123c !important; border: 1.5px solid #e11d48 !important; }
+        [data-theme="light"] .shift-bg-adjusted { background-color: #fef3c7 !important; color: #92400e !important; border: 1px solid #fcd34d !important; }
 
         /* SPLIT LOWER DISPLAY GRID */
         .lower-split-container {
@@ -559,6 +530,12 @@
             border-radius: 6px;
         }
 
+        [data-theme="light"] .badge-vl {
+            background-color: #fef08a;
+            color: #854d0e;
+            border-color: #fde047;
+        }
+
         .badge-sl {
             background-color: #7e22ce;
             color: #ffffff;
@@ -566,6 +543,12 @@
             font-weight: 800;
             padding: 3px 8px;
             border-radius: 6px;
+        }
+
+        [data-theme="light"] .badge-sl {
+            background-color: #f3e8ff;
+            color: #6b21a8;
+            border-color: #d8b4fe;
         }
 
         .badge-wfh {
@@ -579,11 +562,20 @@
             margin: 2px;
         }
 
-        [data-theme="light"] .badge-wfh {
-            background-color: #e0f2fe;
-            color: #0369a1;
-            border-color: #7dd3fc;
+        .badge-location {
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-left: 4px;
+            display: inline-block;
         }
+        .badge-location.manila { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+        .badge-location.malta { background: rgba(250, 204, 21, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.4); }
+
+        [data-theme="light"] .badge-location.manila { background: #e0f2fe; color: #0284c7; border-color: #38bdf8; }
+        [data-theme="light"] .badge-location.malta { background: #fef9c3; color: #a16207; border-color: #fde047; }
 
         .date-input-cell {
             width: 100%;
@@ -598,7 +590,7 @@
             font-weight: 700;
         }
 
-        /* MOBILE & TABLET RESPONSIVE OVERRIDES (UP TO 1024PX) */
+        /* MOBILE & TABLET RESPONSIVE OVERRIDES */
         @media screen and (max-width: 1024px) {
             body { padding: 12px; }
             .header-top { flex-direction: column; align-items: stretch; gap: 12px; }
@@ -626,7 +618,6 @@
 
             #mobileViewToggleBtn { display: inline-flex !important; }
 
-            /* Sticky Table Header for Mobile/Tablet Vertical View */
             .table-container th {
                 position: sticky;
                 top: 0;
@@ -718,15 +709,17 @@
             </select>
         </div>
 
+        <!-- INLINED TEAM MANAGER DROPDOWN -->
         <div class="custom-dropdown team-manager-dropdown">
             <button id="memberDropdownBtn" class="btn btn-secondary" onclick="toggleMemberDropdown(event)">👥 Manage Members ▾</button>
-            <div id="memberDropdownMenu" class="custom-dropdown-menu" style="min-width: 220px; padding: 10px; right: 0; left: auto;">
-                <button class="btn btn-admin" style="width: 100%; margin-bottom: 8px; justify-content: center; font-size: 11px;" onclick="addNewMemberPrompt()">➕ Add New Member</button>
+            <div id="memberDropdownMenu" class="custom-dropdown-menu">
+                <button class="btn btn-admin" style="width: 100%; margin-bottom: 8px; justify-content: center; font-size: 11px;" onclick="addNewMemberPrompt()">➕ MEMBER</button>
                 <div style="border-top: 1px solid var(--glass-border); margin: 8px 0;"></div>
-                <label for="manage-member-select" style="font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block;">Delete Member:</label>
+                <label for="manage-member-select" style="font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block;">Select Member:</label>
+                <select id="manage-member-select" style="font-size: 11px; padding: 4px; width: 100%; margin-bottom: 6px;"></select>
                 <div style="display: flex; gap: 6px;">
-                    <select id="manage-member-select" style="font-size: 11px; padding: 4px; flex: 1; max-width: 130px;"></select>
-                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="removeSelectedMember()">🗑 Delete</button>
+                    <button class="btn btn-warning" style="padding: 5px 8px; font-size: 11px; flex: 1; justify-content: center;" onclick="editSelectedMember()">✏️ EDIT</button>
+                    <button class="btn btn-danger" style="padding: 5px 8px; font-size: 11px; flex: 1; justify-content: center;" onclick="removeSelectedMember()">➖ DELETE</button>
                 </div>
             </div>
         </div>
@@ -835,7 +828,16 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let team = ["Ann", "Dave", "Kenneth", "Kriztel", "Miguel"];
+        let teamObjects = [
+            { name: "Ann", location: "MANILA" },
+            { name: "Dave", location: "MANILA" },
+            { name: "Kenneth", location: "MANILA" },
+            { name: "Kriztel", location: "MANILA" },
+            { name: "Miguel", location: "MANILA" },
+            { name: "Matthew", location: "MALTA" }
+        ];
+
+        let team = teamObjects.map(t => t.name);
 
         const phHolidaysByMonth = {
             0: [{ date: "Jan 1", name: "New Year's Day" }],
@@ -1014,7 +1016,6 @@
             menu.classList.toggle('show');
         }
 
-        /* GLOBAL DISMISS FOR DROPDOWNS */
         document.addEventListener('click', function(e) {
             const memberMenu = document.getElementById('memberDropdownMenu');
             const memberBtn = document.getElementById('memberDropdownBtn');
@@ -1028,7 +1029,6 @@
             }
         });
 
-        /* CLOSE DROPDOWNS ON PAGE/CONTAINER SCROLL */
         window.addEventListener('scroll', (e) => {
             if (e.target && e.target.classList && e.target.classList.contains('custom-dropdown-menu')) {
                 return;
@@ -1140,10 +1140,25 @@
             const month = parseInt(monthSelect.value) + 1;
             const monthKey = `${year}_${month}`;
             
-            db.ref(`team_members`).on('value', (snapshot) => {
-                if (snapshot.val()) {
-                    team = snapshot.val();
+            db.ref(`team_members_v2`).on('value', (snapshot) => {
+                if (snapshot.val() && snapshot.val().length > 0) {
+                    teamObjects = snapshot.val();
+                } else {
+                    teamObjects = [
+                        { name: "Ann", location: "MANILA" },
+                        { name: "Dave", location: "MANILA" },
+                        { name: "Kenneth", location: "MANILA" },
+                        { name: "Kriztel", location: "MANILA" },
+                        { name: "Miguel", location: "MANILA" },
+                        { name: "Matthew", location: "MALTA" }
+                    ];
                 }
+                team = teamObjects.map(t => t.name);
+                updateMemberDropdown();
+                renderAll();
+            }, (error) => {
+                console.warn("Firebase Read Error / Offline Mode:", error);
+                team = teamObjects.map(t => t.name);
                 updateMemberDropdown();
                 renderAll();
             });
@@ -1193,15 +1208,15 @@
 
         function saveTeamToDatabase() {
             if (isViewOnlyMode) return;
-            db.ref('team_members').set(team);
+            db.ref('team_members_v2').set(teamObjects);
         }
 
         function updateMemberDropdown() {
             manageMemberSelect.innerHTML = '';
-            team.forEach(member => {
+            teamObjects.forEach(member => {
                 const opt = document.createElement('option');
-                opt.value = member;
-                opt.textContent = member;
+                opt.value = member.name;
+                opt.textContent = `${member.name} (${member.location || 'MANILA'})`;
                 manageMemberSelect.appendChild(opt);
             });
         }
@@ -1211,28 +1226,76 @@
             const newName = prompt("Enter new team member name:");
             if (newName && newName.trim() !== "") {
                 const trimmed = newName.trim();
-                if (!team.includes(trimmed)) {
-                    team.push(trimmed);
-                    saveTeamToDatabase();
-                    renderAll();
-                } else {
+                const existingNames = teamObjects.map(t => t.name.toLowerCase());
+                if (existingNames.includes(trimmed.toLowerCase())) {
                     alert("Team member already exists.");
+                    return;
                 }
+
+                const locationChoice = prompt("Select location for " + trimmed + ":\nType 1 for MANILA\nType 2 for MALTA", "1");
+                let location = "MANILA";
+                if (locationChoice === "2" || (locationChoice && locationChoice.toUpperCase().includes("MALTA"))) {
+                    location = "MALTA";
+                }
+
+                teamObjects.push({ name: trimmed, location: location });
+                team = teamObjects.map(t => t.name);
+
+                saveTeamToDatabase();
+                renderAll();
+                alert(`✓ Added ${trimmed} (${location}) to Rota!`);
             }
+        }
+
+        function editSelectedMember() {
+            if (isViewOnlyMode) return;
+            const selectedName = manageMemberSelect.value;
+            if (!selectedName) return;
+
+            const memberIdx = teamObjects.findIndex(t => t.name === selectedName);
+            if (memberIdx === -1) return;
+
+            const currentObj = teamObjects[memberIdx];
+            const updatedName = prompt("Edit name for team member:", currentObj.name);
+            if (updatedName === null) return;
+
+            const trimmedName = updatedName.trim();
+            if (trimmedName === "") {
+                alert("Member name cannot be empty.");
+                return;
+            }
+
+            const currentLoc = currentObj.location || "MANILA";
+            const newLocChoice = prompt(`Update location for ${trimmedName}:\nType 1 for MANILA\nType 2 for MALTA\n(Current: ${currentLoc})`, currentLoc === "MANILA" ? "1" : "2");
+            
+            let updatedLoc = currentLoc;
+            if (newLocChoice === "1" || (newLocChoice && newLocChoice.toUpperCase().includes("MANILA"))) {
+                updatedLoc = "MANILA";
+            } else if (newLocChoice === "2" || (newLocChoice && newLocChoice.toUpperCase().includes("MALTA"))) {
+                updatedLoc = "MALTA";
+            }
+
+            teamObjects[memberIdx] = { name: trimmedName, location: updatedLoc };
+            team = teamObjects.map(t => t.name);
+
+            saveTeamToDatabase();
+            renderAll();
+            alert(`✓ Updated ${trimmedName} (${updatedLoc}) details successfully!`);
         }
 
         function removeSelectedMember() {
             if (isViewOnlyMode) return;
             const selectedMember = manageMemberSelect.value;
             if (!selectedMember) return;
-            if (team.length <= 1) {
+            if (teamObjects.length <= 1) {
                 alert("Cannot delete the last remaining team member.");
                 return;
             }
             if (confirm(`Are you sure you want to remove ${selectedMember} from the Rota?`)) {
-                const index = team.indexOf(selectedMember);
+                const index = teamObjects.findIndex(t => t.name === selectedMember);
                 if (index > -1) {
-                    team.splice(index, 1);
+                    teamObjects.splice(index, 1);
+                    team = teamObjects.map(t => t.name);
                     saveTeamToDatabase();
                     renderAll();
                 }
@@ -1330,15 +1393,13 @@
         }
 
         function renderCalendar() {
-            document.querySelectorAll('body > .custom-dropdown-menu').forEach(m => m.remove());
-
             if (isMobileViewActive) {
                 renderVerticalCalendar();
             } else {
                 renderHorizontalCalendar();
             }
 
-            const leaveTeam = team.filter(m => m !== "Miguel");
+            const leaveTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
             let leaveHtml = '<th style="width: 50px;">Type</th>';
             leaveTeam.forEach(member => {
                 leaveHtml += `<th>${member}</th>`;
@@ -1360,7 +1421,7 @@
             });
         }
 
-        /* SMART DROPDOWN OPENER WITH SCREEN-BOUND CLAMPING */
+        /* SMART PORTAL DROPDOWN OPENER WITH VIEWPORT PLACEMENT TO PREVENT TABLE CLIPPING */
         function openSmartDropdown(btn, menu) {
             if (isViewOnlyMode) {
                 alert("🔒 View-Only Mode Active: Please click '🔑 Admin Login' at the top to edit shifts.");
@@ -1382,7 +1443,7 @@
                 const spaceAbove = rect.top;
 
                 menu.style.position = 'fixed';
-                menu.style.zIndex = '999999';
+                menu.style.zIndex = '9999999';
 
                 if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
                     menu.style.top = 'auto';
@@ -1413,9 +1474,6 @@
             const menu = document.createElement('div');
             menu.className = 'custom-dropdown-menu';
 
-            menu.addEventListener('click', (e) => e.stopPropagation());
-            menu.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
-
             sList.forEach(s => {
                 const item = document.createElement('div');
                 item.className = `custom-dropdown-item ${s.itemClass}`;
@@ -1430,9 +1488,7 @@
 
                     if (s.text === "Adjusted") {
                         const customTime = prompt("Enter specific emergency / adjusted shift time (e.g., 10:00 - 19:00 or 8:30 - 17:30):", "10:00 - 19:00");
-                        if (customTime === null) {
-                            return;
-                        }
+                        if (customTime === null) return;
                         const trimmedTime = customTime.trim();
                         if (trimmedTime !== "") {
                             if (trimmedTime.toLowerCase().startsWith("adjusted")) {
@@ -1477,6 +1533,7 @@
             const isCurrentMonthAndYear = (selectedMonth === realToday.getMonth() && selectedYear === realToday.getFullYear());
             const todayDayNum = realToday.getDate();
 
+            // Calculate Monday date of the current active week
             const dayOfWeek = realToday.getDay();
             const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
             const currentMondayDate = new Date(realToday);
@@ -1505,24 +1562,25 @@
                     ? `<div class="today-header-box">${dayName}<br><span style="font-size:11px;">${d} ${monthLabel}</span></div>`
                     : `<div>${dayName}</div><div style="font-size:11px; font-weight:600; opacity:0.8; margin-top:2px;">${d} ${monthLabel}</div>`;
 
-                headerHtml += `
-                    <th ${mondayHeaderId} class="${dividerClass}">
-                        ${todayHeaderBox}
-                    </th>
-                `;
+                headerHtml += `<th ${mondayHeaderId} class="${dividerClass}">${todayHeaderBox}</th>`;
             }
             scheduleHeaderRow.innerHTML = headerHtml;
 
-            team.forEach((member, memberIdx) => {
+            teamObjects.forEach((memberObj, memberIdx) => {
+                const member = memberObj.name;
+                const loc = memberObj.location || "MANILA";
                 const tr = document.createElement('tr');
 
                 const tdPerson = document.createElement('td');
                 tdPerson.className = 'person-col';
                 tdPerson.innerHTML = `
-                    <div style="font-weight:700; font-size:13px; color:var(--text-main);">${member}</div>
+                    <div style="font-weight:700; font-size:13px; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+                        <span>${member}</span>
+                        <span class="badge-location ${loc.toLowerCase()}">${loc}</span>
+                    </div>
                     <div class="bulk-set-container">
                         <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
-                            <option value="">-- Bulk Set --</option>
+                            <option value="">-- Set All --</option>
                             <option value="CLEAR">-- Clear --</option>
                             <option value="6:00 - 15:00">6:00 - 15:00</option>
                             <option value="7:00 - 16:00">7:00 - 16:00</option>
@@ -1570,6 +1628,7 @@
                 tbody.appendChild(tr);
             });
 
+            // Automatically scroll horizontal table to current week's Monday
             if (isCurrentMonthAndYear) {
                 scrollToCurrentWeek();
             }
@@ -1589,10 +1648,10 @@
             const todayDayNum = realToday.getDate();
 
             let headerHtml = '<th class="day-col-mobile">Day</th><th class="date-col-mobile">Date</th>';
-            team.forEach((member, memberIdx) => {
+            teamObjects.forEach((memberObj, memberIdx) => {
                 headerHtml += `
                     <th>
-                        <div>${member}</div>
+                        <div>${memberObj.name} <span class="badge-location ${memberObj.location.toLowerCase()}">${memberObj.location}</span></div>
                         <div class="bulk-set-container">
                             <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
                                 <option value="">-- Set All --</option>
@@ -1631,7 +1690,7 @@
                 }
                 tr.appendChild(tdDate);
 
-                team.forEach((member, memberIdx) => {
+                teamObjects.forEach((memberObj, memberIdx) => {
                     const tdShift = document.createElement('td');
                     if (isToday) tdShift.classList.add('today-cell');
 
@@ -1661,15 +1720,6 @@
                 });
                 tbody.appendChild(tr);
             }
-
-            if (isCurrentMonthAndYear) {
-                requestAnimationFrame(() => {
-                    const todayRow = document.getElementById('mobile-today-row');
-                    if (todayRow) {
-                        todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-            }
         }
 
         function bulkSetShift(memberIdx, selectElem) {
@@ -1693,7 +1743,7 @@
 
         function syncLeavesFromFullYearSchedule() {
             let tempMatrix = {};
-            team.forEach(m => tempMatrix[m] = { vl: [], sl: [] });
+            teamObjects.filter(m => (m.location || "MANILA") === "MANILA").forEach(m => tempMatrix[m.name] = { vl: [], sl: [] });
 
             Object.keys(allYearRotaData).forEach(monthKey => {
                 const monthParts = monthKey.split("_");
@@ -1704,26 +1754,28 @@
 
                     Object.keys(monthDaysData).forEach(day => {
                         let row = monthDaysData[day];
-                        team.forEach((member, memberIdx) => {
-                            let shiftVal = (row && row[memberIdx]) ? row[memberIdx] : '';
-                            if (shiftVal === 'VL') {
-                                tempMatrix[member].vl.push(`${day}-${mLabel}`);
-                            } else if (shiftVal === 'SL') {
-                                tempMatrix[member].sl.push(`${day}-${mLabel}`);
+                        teamObjects.forEach((memberObj, memberIdx) => {
+                            if ((memberObj.location || "MANILA") === "MANILA") {
+                                let shiftVal = (row && row[memberIdx]) ? row[memberIdx] : '';
+                                if (shiftVal === 'VL') {
+                                    if (tempMatrix[memberObj.name]) tempMatrix[memberObj.name].vl.push(`${day}-${mLabel}`);
+                                } else if (shiftVal === 'SL') {
+                                    if (tempMatrix[memberObj.name]) tempMatrix[memberObj.name].sl.push(`${day}-${mLabel}`);
+                                }
                             }
                         });
                     });
                 }
             });
 
-            team.forEach(m => {
-                tempMatrix[m].vl = sortLeaveDatesDescending(tempMatrix[m].vl);
-                tempMatrix[m].sl = sortLeaveDatesDescending(tempMatrix[m].sl);
+            Object.keys(tempMatrix).forEach(mName => {
+                tempMatrix[mName].vl = sortLeaveDatesDescending(tempMatrix[mName].vl);
+                tempMatrix[mName].sl = sortLeaveDatesDescending(tempMatrix[mName].sl);
 
-                while (tempMatrix[m].vl.length < 10) tempMatrix[m].vl.push('');
-                while (tempMatrix[m].sl.length < 5) tempMatrix[m].sl.push('');
-                tempMatrix[m].vl = tempMatrix[m].vl.slice(0, 10);
-                tempMatrix[m].sl = tempMatrix[m].sl.slice(0, 5);
+                while (tempMatrix[mName].vl.length < 10) tempMatrix[mName].vl.push('');
+                while (tempMatrix[mName].sl.length < 5) tempMatrix[mName].sl.push('');
+                tempMatrix[mName].vl = tempMatrix[mName].vl.slice(0, 10);
+                tempMatrix[mName].sl = tempMatrix[mName].sl.slice(0, 5);
             });
 
             leaveMatrixData = tempMatrix;
@@ -1735,7 +1787,7 @@
 
         function buildLeaveTables() {
             leaveDatesBody.innerHTML = '';
-            const leaveTeam = team.filter(m => m !== "Miguel");
+            const leaveTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
 
             leaveTeam.forEach((member) => {
                 if (leaveMatrixData[member]) {
@@ -1795,16 +1847,18 @@
             const selectedYear = parseInt(yearInput.value);
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
-            const wfhTeam = team.filter(m => m !== "Miguel");
+            const wfhTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
 
             wfhTeam.forEach((member) => {
                 const memberIdx = team.indexOf(member);
                 let wfhDates = [];
 
-                for (let d = 1; d <= totalDays; d++) {
-                    const shiftVal = (rotaData[d] && rotaData[d][memberIdx]) ? rotaData[d][memberIdx] : '';
-                    if (shiftVal.includes('WFH')) {
-                        wfhDates.push(`${d}-${monthLabel}`);
+                if (memberIdx !== -1) {
+                    for (let d = 1; d <= totalDays; d++) {
+                        const shiftVal = (rotaData[d] && rotaData[d][memberIdx]) ? rotaData[d][memberIdx] : '';
+                        if (shiftVal.includes('WFH')) {
+                            wfhDates.push(`${d}-${monthLabel}`);
+                        }
                     }
                 }
 
@@ -1824,7 +1878,7 @@
 
         function renderVLPieChart() {
             document.getElementById('vlChartYearLabel').innerText = yearInput.value;
-            const chartTeam = team.filter(m => m !== "Miguel");
+            const chartTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
             let memberVLCounts = chartTeam.map(() => 0);
 
             chartTeam.forEach((member, idx) => {
@@ -1872,13 +1926,12 @@
             });
         }
 
-        /* LATE SHIFT TRACKER LOGIC */
         function renderLateShiftTracker() {
             const selectedYear = parseInt(yearInput.value);
             const labelElem = document.getElementById('lateShiftYearLabel');
             if (labelElem) labelElem.innerText = selectedYear;
 
-            const trackerTeam = team.filter(m => m !== "Miguel");
+            const trackerTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
             const lateShiftBody = document.getElementById('late-shift-body');
             const lateShiftThead = document.getElementById('late-shift-thead');
             const lateShiftTableTitle = document.getElementById('lateShiftTableTitle');
