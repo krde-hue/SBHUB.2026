@@ -14,17 +14,27 @@ const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
 /* --- HELPER FOR CORS-SAFE FETCH ON GITHUB PAGES --- */
-const fetchCorsSafe = (targetUrl) => {
-  const isExternalHost = window.location.hostname.includes('github.io') || window.location.protocol === 'https:';
-  const urlToFetch = isExternalHost ? `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` : targetUrl;
-  
-  return fetch(urlToFetch)
-    .then(res => res.ok ? res.json() : null)
-    .catch(() => {
-      return fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`)
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null);
-    });
+const fetchCorsSafe = async (targetUrl) => {
+  try {
+    const res = await fetch(targetUrl);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    // Fallback via CORS proxy if direct fetch is blocked by origin
+  }
+  try {
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+    const res = await fetch(proxyUrl);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    // Secondary fallback proxy
+  }
+  try {
+    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    return null;
+  }
+  return null;
 };
 
 /* --- HELPER FOR MOBILE SCREEN DETECTION --- */
@@ -178,7 +188,7 @@ function loadCachedTopPicks() {
   }
 }
 
-/* --- OPTIMIZED CORS-SAFE FETCHING ENGINE FOR UPCOMING TOP PICKS --- */
+/* --- OPTIMIZED FETCHING ENGINE FOR UPCOMING TOP PICKS --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
@@ -939,6 +949,7 @@ async function fetchLeagueList(leagueList, dateQuery) {
       const gameState = evt.status?.type?.state;
       const evtDate = new Date(evt.date);
 
+      // Strict pre-kickoff filter
       if (gameState !== 'pre' || evtDate <= now) continue;
 
       const comp = evt.competitions?.[0];
