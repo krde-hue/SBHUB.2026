@@ -88,6 +88,8 @@
         .btn-danger:hover { background-color: #fed7d7; }
         .btn-success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
         .btn-success:hover { background-color: #dcfce7; }
+        .btn-save { background-color: #0284c7; color: #ffffff; font-weight: 800; border: 1px solid #38bdf8; }
+        .btn-save:hover { background-color: #0369a1; }
 
         .autosave-badge { font-size: 11px; color: #15803d; font-weight: bold; opacity: 0; transition: opacity 0.3s; background: #dcfce7; padding: 4px 10px; border-radius: 12px; display: inline-block; }
 
@@ -97,6 +99,7 @@
 
         .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--card-bg); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 12px; }
         .toolbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .search-input, .select-filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); font-size: 13px; outline: none; }
 
         .limit-select-wrapper {
@@ -292,10 +295,8 @@
             </div>
             <div class="btn-controls">
                 <span id="saveStatus" class="autosave-badge">✓ Live Synced</span>
-                <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled title="Undo (Ctrl+Z)">↩️ Undo</button>
-                <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled title="Redo (Ctrl+Y)">↪️ Redo</button>
+                <button class="btn btn-save" onclick="saveToFirebaseNow(true)" title="Save & Lock State">💾 SAVE ALL</button>
                 <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 Mode</button>
-                <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Top)</button>
                 <button class="btn btn-danger" id="clearTabBtn" onclick="clearCurrentSheet()">🗑️ Clear Tab</button>
                 <button class="btn btn-primary" onclick="openExportModal()">📊 Download Excel File</button>
                 <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
@@ -331,7 +332,12 @@
                     <option value="Formula 1">Formula 1</option>
                 </select>
             </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
+
+            <!-- SECONDARY TOOLBAR WITH UNDO, REDO, ADD ROW -->
+            <div class="toolbar-right">
+                <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled title="Undo (Ctrl+Z)">↩️ Undo</button>
+                <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled title="Redo (Ctrl+Y)">↪️ Redo</button>
+                <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Top)</button>
                 <span id="recordCounter" class="record-count">Records: 0</span>
                 <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search active tab..." oninput="filterTable()">
             </div>
@@ -443,11 +449,17 @@
             return found ? found.class : "type-single";
         }
 
-        // GUIDELINES DATA
+        // FULL 8 LEAGUES AND 5 RULES TRANSPOSED FROM IMAGE
         const guidelinesData = {
             hero: [
                 { rank: "1", league: "European Championships", options: ["Real Madrid", "Barcelona", "Man Utd", "Liverpool", "Bayern", "Juventus", "Dortmund", "Arsenal", "PSG", "Benfica", "Inter / Milan"] },
-                { rank: "2", league: "England Premier League", options: ["Man Utd", "Liverpool", "Arsenal", "Man City", "Chelsea", "Tottenham", "Aston Villa", "Leeds", "Everton", "Newcastle", ""] }
+                { rank: "2", league: "England Premier League", options: ["Man Utd", "Liverpool", "Arsenal", "Man City", "Chelsea", "Tottenham", "Aston Villa", "Leeds", "Everton", "Newcastle", ""] },
+                { rank: "3", league: "Spain La Liga", options: ["Real Madrid", "Barcelona", "Atl Madrid", "Athletic Club", "Sevilla", "Real Betis", "Valencia", "Real Sociedad", "Villarreal", "Espanyol", ""] },
+                { rank: "4", league: "Germany Bundesliga", options: ["Bayern", "Dortmund", "Eintracht Frankfurt", "Schalke 04", "Borussia M'gladbach", "Hamburger SV", "FC Köln", "Werder Bremen", "Union Berlin", "Stuttgart", ""] },
+                { rank: "5", league: "Italy Serie A", options: ["Inter", "Juventus", "Milan", "Napoli", "Roma", "Lazio", "Fiorentina", "Como", "Atalanta", "Cagliari", ""] },
+                { rank: "6", league: "France Ligue 1", options: ["PSG", "Marseille", "Lyon", "Saint Etienne", "Lens", "Lille", "Monaco", "Nantes", "Rennes", "Strasbourg", ""] },
+                { rank: "7", league: "Portugal Liga", options: ["Benfica", "Porto", "Sporting CP", "Sporting Braga", "Vitória de Guimarães", "Boavista", "Marítimo", "Belenenses", "Rio Ave", "Vitória de Setúbal", ""] },
+                { rank: "8", league: "Netherlands Eredivisie", options: ["Ajax", "Feyenoord", "PSG", "Utrecht", "Twente", "Alkmaar", "Vitesse", "Heerenveen", "NEC Nijmegen", "Groningen", ""] }
             ],
             normalBoosts: [
                 { type: "Betbuilder", maxStake: "25e max bet", odds1: "10%", odds2: "8%" },
@@ -459,16 +471,15 @@
             ],
             instructions: [
                 "Release boosts around 3PM Manila Time - double check if any line moves (we can launch with the new lines - update boost and toggle active)",
-                "If a total line or a player prop line moves, we can take the next main line available when creating boosts (example if 217.5 is listed on schedule but it moves to 218.5, we can take the 218.5)"
+                "If a total line or a player prop line moves, we can take the next main line available when creating boosts (example if 217.5 is listed on schedule but it moves to 218.5, we can take the 218.5)",
+                "Double check website from time to time - Markets tend to change all the time, in cases were a total line moves, we can toggle inactive the existing boost",
+                "Get into the habit to double checking boosts are all showing accordingly on site",
+                "if you spot any other markets which we cant combine - pls let Miguel know"
             ]
         };
 
-        // FRESH EMPTY START DATASET
+        // REQUESTED TAB ORDER: FOOTBALL, TENNIS, OTHER SPORTS, BANNERS, GUIDELINES
         const embeddedData = {
-            "iBET Banners": {
-                headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"],
-                rows: []
-            },
             "iBET Football": {
                 headers: ["BO", "PUB", "Brands", "KO Date", "KO Time", "Sports", "League", "Event", "Type", "Market 1", "Market 2", "Market 3", "Market 4", "Notes", "Other Ideas"],
                 meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
@@ -484,6 +495,10 @@
                 meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" },
                 rows: []
             },
+            "iBET Banners": {
+                headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"],
+                rows: []
+            },
             "Guideliness": {
                 headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"],
                 rows: [],
@@ -494,8 +509,6 @@
         let currentSheet = "iBET Football";
         let workbookData = JSON.parse(JSON.stringify(embeddedData));
 
-        // AUTOMATED IMPORT RECEIVER LISTENER FOR iBET
-        // Sets BO & PUB checkboxes to false (unchecked) by default for newly imported items
         function loadImportediBETBoosts() {
             const importedItems = JSON.parse(localStorage.getItem('ibet_boosts_list') || '[]');
             if (!importedItems || importedItems.length === 0) return;
@@ -514,26 +527,17 @@
 
                 const targetSheet = workbookData[targetSheetKey];
                 if (!targetSheet) return;
+                if (!targetSheet.rows) targetSheet.rows = [];
 
                 let newRow = [];
 
                 if (targetSheetKey === "iBET Football") {
                     newRow = [
-                        false,                   // BO Checkbox (UNCHECKED by default)
-                        false,                   // PUB Checkbox (UNCHECKED by default)
-                        "iBET",                  // Default Brand
-                        item.koDate || "",       // Transposed Kickoff Date
-                        item.koTime || "",       // Transposed Kickoff Time
-                        "Football",              // Sport
-                        item.league || "",       // Transposed League Name
-                        item.event || "",        // Transposed Match Event Name
-                        "Bet Builder",           // Type (Defaulted)
-                        item.market || "",       // Market 1 (Blank for Manual Typing)
-                        "",                      // Market 2
-                        "",                      // Market 3
-                        "",                      // Market 4
-                        "Imported from Dashboard", // Notes
-                        ""                       // Other Ideas
+                        false, false, "iBET", 
+                        item.koDate || "", item.koTime || "", "Football", 
+                        item.league || "", item.event || "", 
+                        "Bet Builder", item.market || "", "", "", "", 
+                        "Imported from Dashboard", ""
                     ];
                 } else if (targetSheetKey === "iBET Tennis") {
                     newRow = [
@@ -543,7 +547,7 @@
                         "Bet Builder", item.market || "", "", "", 
                         "Imported from Dashboard", ""
                     ];
-                } else { // iBET Other Sports
+                } else {
                     newRow = [
                         false, false, "iBET", 
                         item.koDate || "", item.sport || "Other", 
@@ -553,11 +557,9 @@
                     ];
                 }
 
-                // Unshift to place new imported row at the very top
                 targetSheet.rows.unshift(newRow);
             });
 
-            // Save to Firebase and render immediately
             saveToFirebaseNow();
             localStorage.removeItem('ibet_boosts_list');
             renderActiveSheet();
@@ -642,11 +644,33 @@
                     return; 
                 }
                 const liveData = snapshot.val();
-                if (liveData && typeof liveData === 'object' && liveData["iBET Football"]) {
-                    workbookData = liveData;
+                if (liveData && typeof liveData === 'object') {
+                    // RE-ORDER KEYS TO MATCH DESIRED POSITIONING
+                    const ordered = {};
+                    const tabOrder = ["iBET Football", "iBET Tennis", "iBET Other Sports", "iBET Banners", "Guideliness"];
+                    
+                    tabOrder.forEach(key => {
+                        if (liveData[key]) {
+                            ordered[key] = liveData[key];
+                        } else if (embeddedData[key]) {
+                            ordered[key] = embeddedData[key];
+                        }
+                    });
+
+                    // FORCE UPDATE GUIDELINES IF DATABASE HAS INCOMPLETE DATA
+                    if (!ordered["Guideliness"] || !ordered["Guideliness"].data || !ordered["Guideliness"].data.hero || ordered["Guideliness"].data.hero.length < 8) {
+                        ordered["Guideliness"] = {
+                            headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"],
+                            rows: [],
+                            data: guidelinesData
+                        };
+                    }
+
+                    workbookData = ordered;
                 } else {
                     saveToFirebaseNow();
                 }
+                renderTabs();
                 renderActiveSheet();
             });
         }
@@ -664,31 +688,37 @@
             }, 400);
         }
 
-        function saveToFirebaseNow() {
+        function saveToFirebaseNow(isManualSave = false) {
             if (db) {
                 db.ref('ibet_boosts_master_v1').set(workbookData);
             }
             const statusBadge = document.getElementById('saveStatus');
             if (statusBadge) {
-                statusBadge.innerText = '✓ Live Synced';
+                statusBadge.innerText = isManualSave ? '💾 SAVED & LOCKED' : '✓ Live Synced';
                 statusBadge.style.opacity = '1';
-                setTimeout(() => { statusBadge.style.opacity = '0'; }, 1000);
+                setTimeout(() => { statusBadge.style.opacity = '0'; }, 1500);
             }
         }
 
         function renderTabs() {
             const tabsNav = document.getElementById('tabsNav');
             tabsNav.innerHTML = '';
-            Object.keys(workbookData).forEach(sheetName => {
-                const btn = document.createElement('button');
-                btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
-                btn.innerText = sheetName;
-                btn.onclick = () => {
-                    currentSheet = sheetName;
-                    renderTabs();
-                    renderActiveSheet();
-                };
-                tabsNav.appendChild(btn);
+            
+            // STRICT DISPLAY ORDER: FOOTBALL, TENNIS, OTHER SPORTS, BANNERS, GUIDELINES
+            const tabOrder = ["iBET Football", "iBET Tennis", "iBET Other Sports", "iBET Banners", "Guideliness"];
+
+            tabOrder.forEach(sheetName => {
+                if (workbookData[sheetName]) {
+                    const btn = document.createElement('button');
+                    btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
+                    btn.innerText = sheetName;
+                    btn.onclick = () => {
+                        currentSheet = sheetName;
+                        renderTabs();
+                        renderActiveSheet();
+                    };
+                    tabsNav.appendChild(btn);
+                }
             });
         }
 
@@ -713,6 +743,7 @@
         }
 
         function getSortedAndLimitedRows(allRows) {
+            if (!allRows) return [];
             const dateColIdx = currentSheet === "iBET Banners" ? 1 : 3;
             const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
 
@@ -751,7 +782,7 @@
                 tableWrapper.style.display = 'none';
                 guidelinesView.style.display = 'block';
                 metaSummary.style.display = 'none';
-                addRowBtn.style.display = 'none';
+                if (addRowBtn) addRowBtn.style.display = 'none';
                 clearTabBtn.style.display = 'none';
                 searchInput.style.display = 'none';
                 sportsFilter.style.display = 'none';
@@ -763,7 +794,7 @@
 
             tableWrapper.style.display = 'block';
             guidelinesView.style.display = 'none';
-            addRowBtn.style.display = 'inline-flex';
+            if (addRowBtn) addRowBtn.style.display = 'inline-flex';
             clearTabBtn.style.display = 'inline-flex';
             searchInput.style.display = 'inline-block';
 
@@ -797,7 +828,7 @@
             headHTML += '</tr>';
             thead.innerHTML = headHTML;
 
-            let mappedRows = getSortedAndLimitedRows(sheet.rows);
+            let mappedRows = getSortedAndLimitedRows(sheet.rows || []);
 
             if (currentSheet === "iBET Other Sports" && sportsFilter.value !== "") {
                 mappedRows = mappedRows.filter(item => String(item.row[4]).toLowerCase() === sportsFilter.value.toLowerCase());
@@ -812,11 +843,11 @@
             const recordCounter = document.getElementById('recordCounter');
             
             if (recordCounter) {
-                recordCounter.innerText = `Showing ${mappedRows.length} of ${sheet.rows.length}`;
+                recordCounter.innerText = `Showing ${mappedRows.length} of ${sheet.rows ? sheet.rows.length : 0}`;
             }
 
             tbody.innerHTML = '';
-            const totalDatabaseRows = sheet.rows.length;
+            const totalDatabaseRows = sheet.rows ? sheet.rows.length : 0;
 
             mappedRows.forEach((item, displayIndex) => {
                 const sequentialLabelNumber = totalDatabaseRows - displayIndex;
@@ -843,10 +874,11 @@
             sheet.headers.forEach((headerName, colIndex) => {
                 const cellVal = row[colIndex];
 
-                if (typeof cellVal === 'boolean') {
+                if (typeof cellVal === 'boolean' || headerName === "BO" || headerName === "PUB") {
+                    const isChecked = Boolean(cellVal);
                     rowHTML += `
                         <td style="text-align: center; width: 45px;">
-                            <input type="checkbox" class="checkbox-cell" ${cellVal ? 'checked' : ''} onchange="updateCell(${originalIndex}, ${colIndex}, this.checked)">
+                            <input type="checkbox" class="checkbox-cell" ${isChecked ? 'checked' : ''} onchange="updateCell(${originalIndex}, ${colIndex}, this.checked)">
                         </td>
                     `;
                 } else if (headerName === "Sports") {
@@ -941,7 +973,10 @@
             let html = `
                 <div class="guidelines-container">
                     <div>
-                        <div class="guidelines-header-badge">HERO BANNERS</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <div class="guidelines-header-badge">HERO BANNERS</div>
+                            <button class="btn btn-success" style="padding: 4px 10px; font-size: 11px;" onclick="addHeroLeagueRow()">➕ Add League</button>
+                        </div>
                         <div class="guidelines-section-title">WHICH TEAM TO PICK? WHO'S PLAYING?</div>
                         <div style="overflow-x: auto;">
                             <table class="guidelines-table">
@@ -951,6 +986,7 @@
                                         <th>Rank</th>
                                         <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
                                         <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -974,7 +1010,12 @@
                         </td>
                     `;
                 }
-                html += `</tr>`;
+                html += `
+                        <td style="text-align:center;">
+                            <button class="delete-btn" onclick="deleteHeroLeagueRow(${rIdx})" title="Delete League">🗑️</button>
+                        </td>
+                    </tr>
+                `;
             });
 
             html += `
@@ -1087,6 +1128,29 @@
             debouncedSaveToFirebase();
         }
 
+        function addHeroLeagueRow() {
+            pushState();
+            if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+            const newRank = workbookData["Guideliness"].data.hero.length + 1;
+            workbookData["Guideliness"].data.hero.push({
+                rank: String(newRank),
+                league: "New League",
+                options: Array(11).fill("")
+            });
+            saveToFirebaseNow();
+            renderGuidelinesView();
+        }
+
+        function deleteHeroLeagueRow(rIdx) {
+            if (confirm("Are you sure you want to delete this league row?")) {
+                pushState();
+                if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
+                workbookData["Guideliness"].data.hero.splice(rIdx, 1);
+                saveToFirebaseNow();
+                renderGuidelinesView();
+            }
+        }
+
         function updateNormalBoost(nbIdx, prop, val) {
             pushState();
             if (!workbookData["Guideliness"].data) workbookData["Guideliness"].data = guidelinesData;
@@ -1139,9 +1203,10 @@
         function addNewRow() {
             pushState();
             const sheet = workbookData[currentSheet];
+            if (!sheet.rows) sheet.rows = [];
 
             const newRow = sheet.headers.map((h, idx) => {
-                if ((idx === 0 || idx === 1) && typeof sheet.rows[0]?.[idx] === 'boolean') return false;
+                if (h === "BO" || h === "PUB") return false;
                 if (h === "Brands") return "iBET";
                 if (h === "KO Date" || h === "Event Date") return ""; 
                 if (h === "Sports") return currentSheet === "iBET Tennis" ? "Tennis" : "Football";
@@ -1172,14 +1237,14 @@
             if (confirm(`Are you sure you want to CLEAR ALL records in "${currentSheet}"?`)) {
                 pushState();
                 workbookData[currentSheet].rows = [];
-                saveToFirebaseNow();
+                saveToFirebaseNow(true);
                 renderActiveSheet();
             }
         }
 
         function filterTable() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            const allRows = workbookData[currentSheet].rows;
+            const allRows = workbookData[currentSheet].rows || [];
             const mappedRows = getSortedAndLimitedRows(allRows);
             const filtered = mappedRows.filter(item => 
                 item.row.some(cell => String(cell).toLowerCase().includes(query))
@@ -1198,7 +1263,6 @@
             return String(text).replace(/"/g, "&quot;");
         }
 
-        // EXPORT MODAL CONTROL FUNCTIONS
         function openExportModal() {
             updateDynamicDownloadButtons();
             document.getElementById('exportModal').classList.add('active');
@@ -1208,7 +1272,6 @@
             document.getElementById('exportModal').classList.remove('active');
         }
 
-        // MONTHLY & FULL EXCEL EXPORT ENGINE
         function exportExcelByMonth(mode) {
             if (typeof XLSX === 'undefined') {
                 alert("Excel library is still loading. Please try again in a moment.");
@@ -1223,7 +1286,7 @@
             } else if (mode === 'custom') {
                 targetMonthIndex = parseInt(document.getElementById('customMonthSelect').value, 10);
             } else {
-                targetMonthIndex = null; // ALL
+                targetMonthIndex = null;
             }
 
             const wb = XLSX.utils.book_new();
