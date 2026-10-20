@@ -22,17 +22,28 @@ html, body {
 
 body {
   min-height: 100vh;
-  background: #090d16;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  /* Updated default background to Liquid Chrome & Blue */
+  background: url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat #090d16;
   color: #ffffff;
   display: flex;
   padding: 24px;
   gap: 24px;
   transition: background 0.4s ease, color 0.3s ease;
   position: relative;
+}
+
+/* --- INSTANT AUTHENTICATED STATE (PREVENTS REFRESH GLIMPSE) --- */
+html.sbhub-authenticated #authOverlay {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+html.sbhub-authenticated #dashboardApp {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 /* CUSTOM SCROLLBARS */
@@ -1008,7 +1019,6 @@ body {
   color: #fde047 !important;
 }
 
-/* Active Handovers Count Pill */
 .handover-count-pill {
   background: #ef4444 !important;
   color: #ffffff !important;
@@ -1022,7 +1032,6 @@ body {
   vertical-align: middle !important;
 }
 
-/* Handover Pills Container */
 .handover-pills-container {
   display: flex !important;
   flex-direction: column !important;
@@ -1061,7 +1070,6 @@ body {
   margin-top: 1px !important;
 }
 
-/* Category Priority Badges */
 .priority-tag {
   display: inline-flex !important;
   align-items: center !important;
@@ -1095,7 +1103,6 @@ body {
   color: #e0f2fe !important;
 }
 
-/* Full Multi-Line Text Wrapping */
 .handover-pill-msg {
   color: #fef08a !important;
   font-weight: 700 !important;
@@ -1134,7 +1141,6 @@ body {
   border-color: #fde047 !important;
 }
 
-/* Select Priority Dropdown in Modal Form */
 .handover-field.select-priority {
   background: #1e293b !important;
   border: 1px solid #eab308 !important;
