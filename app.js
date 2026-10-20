@@ -161,7 +161,6 @@ async function fetchTopPicksAndBoosts() {
     const now = new Date();
     const seenMatchKeys = new Set();
 
-    // Dynamically generate the next 14 days of queries instead of hardcoded past dates
     const targetDates = getUpcomingDateQueries(14);
 
     const fetchPromises = [];
@@ -187,7 +186,6 @@ async function fetchTopPicksAndBoosts() {
         const gameState = evt.status?.type?.state;
         const evtDate = new Date(evt.date);
 
-        // Include pre-match fixtures or fixtures starting today/future
         if (gameState !== 'pre' || evtDate <= now) continue;
 
         const comp = evt.competitions?.[0];
@@ -235,7 +233,6 @@ async function fetchTopPicksAndBoosts() {
       }
     }
 
-    // Sort by League Rank first, then chronologically by kickoff time
     apiPicks.sort((a, b) => {
       if (a.leagueRank !== b.leagueRank) return a.leagueRank - b.leagueRank;
       return a.kickOffTimestamp - b.kickOffTimestamp;
@@ -274,11 +271,9 @@ function renderFilteredTopPicks() {
 
   const now = new Date();
 
-  // Guarantee any pick that reached kickoff time while user is viewing is removed
   let activePicks = cachedTopPicks.filter(pick => pick.kickOffTimestamp > now.getTime());
   let displayPicks = activePicks.filter(pick => pick.leagueKey === currentFilterKey);
 
-  // Display notice if no real pre-kickoff matches exist for the selected category
   if (displayPicks.length === 0) {
     const categoryLabel = getLeagueDisplayName(currentFilterKey);
     container.innerHTML = `<div style="text-align:center; padding:25px; width:100%; font-size:12px; font-weight:600; color:rgba(255,255,255,0.65);">No upcoming scheduled ${categoryLabel} matches available at this time.</div>`;
@@ -677,7 +672,7 @@ function setGradient(theme) {
         backgroundStyle = 'linear-gradient(rgba(245, 245, 244, 0.95), rgba(245, 245, 244, 0.95)), #f5f5f4';
         break;
       default:
-        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['3d-chrome-swirl']}")`;
+        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['cyan-liquid-glass']}")`;
     }
   }
 
@@ -978,7 +973,7 @@ function initDashboardApp() {
   if (savedTheme) {
     setGradient(savedTheme);
   } else {
-    setGradient('3d-chrome-swirl');
+    setGradient('cyan-liquid-glass'); // Liquid Chrome & Blue set as the default theme for new users
   }
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
