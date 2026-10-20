@@ -22,8 +22,8 @@ html, body {
 
 body {
   min-height: 100vh;
-  /* Updated default background to Liquid Chrome & Blue */
-  background: url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat #090d16;
+  /* Primary Default Wallpaper: Liquid Chrome & Blue */
+  background: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat #090d16;
   color: #ffffff;
   display: flex;
   padding: 24px;
