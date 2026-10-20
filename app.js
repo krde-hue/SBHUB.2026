@@ -197,6 +197,7 @@ async function fetchTopPicksAndBoosts() {
         const gameState = evt.status?.type?.state;
         const evtDate = new Date(evt.date);
 
+        // Strict pre-kickoff rule: Disappears instantly once match kicks off or goes live
         if (gameState !== 'pre' || evtDate <= now) continue;
 
         const comp = evt.competitions?.[0];
@@ -907,11 +908,19 @@ async function fetchLeagueList(leagueList, dateQuery) {
   const results = await Promise.all(fetchPromises);
   let matches = [];
   const seenMatchKeys = new Set();
+  const now = new Date();
 
   for (const item of results) {
     if (!item || !item.data || !item.data.events) continue;
     for (const evt of item.data.events) {
       if (matches.length >= 15) break;
+
+      const gameState = evt.status?.type?.state;
+      const evtDate = new Date(evt.date);
+
+      // Strict pre-kickoff filter: Remove matches that have already kicked off or finished
+      if (gameState !== 'pre' || evtDate <= now) continue;
+
       const comp = evt.competitions?.[0];
       if (!comp) continue;
 
@@ -986,7 +995,7 @@ function initDashboardApp() {
   if (savedTheme) {
     setGradient(savedTheme);
   } else {
-    setGradient('cyan-liquid-glass'); // Liquid Chrome & Blue set as default theme
+    setGradient('cyan-liquid-glass'); // Default theme set to Liquid Chrome & Blue
   }
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
