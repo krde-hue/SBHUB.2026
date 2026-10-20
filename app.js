@@ -1,6 +1,7 @@
 /* --- IMMEDIATE AUTH & DEFAULT THEME CHECK --- */
 (function checkInitialStateImmediately() {
-  if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
+  const isAuth = localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true';
+  if (isAuth) {
     document.documentElement.classList.add('sbhub-authenticated');
   }
   const savedTheme = localStorage.getItem('sbhub_theme') || '3d-chrome-swirl';
@@ -122,7 +123,6 @@ function generateScriptedMarket(homeName, awayName, index) {
 }
 
 /* --- LEAGUE PRIORITY CONFIGURATION --- */
-// Tier 1: Primary Top Tier Leagues
 const TOP_TIER_LEAGUES = [
   { rank: 1, key: "eng.1",             name: "Premier League",         code: "eng.1" },
   { rank: 2, key: "ger.1",             name: "Bundesliga",             code: "ger.1" },
@@ -135,7 +135,6 @@ const TOP_TIER_LEAGUES = [
   { rank: 9, key: "usa.1",             name: "MLS (Inter Miami)",      code: "usa.1", interMiamiOnly: true }
 ];
 
-// Tier 2: Secondary / Fallback Leagues (Only checked if Tier 1 has no scheduled fixtures)
 const SECONDARY_LEAGUES = [
   { rank: 10, key: "fin.1",            name: "Veikkausliiga",          code: "fin.1" },
   { rank: 11, key: "nor.1",            name: "Eliteserien",            code: "nor.1" }
@@ -225,7 +224,6 @@ async function fetchTopPicksAndBoosts() {
           const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
           const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
 
-          // Inter Miami check for MLS
           if (league.interMiamiOnly) {
             const isInterMiami = homeName.toLowerCase().includes("inter miami") || awayName.toLowerCase().includes("inter miami");
             if (!isInterMiami) continue;
@@ -550,7 +548,7 @@ function togglePasswordVisibility() {
 }
 
 function handleLogin(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   const userInput = document.getElementById('usernameInput');
   const passInput = document.getElementById('passwordInput');
   const rememberCheckbox = document.getElementById('rememberMe');
@@ -845,4 +843,213 @@ function getGMT8DateObj(offsetDays = 0) {
 function getFormattedDateQuery(daysAhead) {
   const d = getGMT8DateObj(daysAhead);
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+}
+
+async function fetchLiveGames() {
+  const container = document.getElementById("gamesContainer");
+  if (!container) return;
+  container.innerHTML = `<div style="text-align:center; padding:15px;"><i class='bx bx-loader-alt bx-spin' style="font-size:20px; color:#38bdf8;"></i></div>`;
+  
+  try {
+    const targetDateQuery = getFormattedDateQuery(selectedGameDayOffset);
+    const targetDateObj = getGMT8DateObj(selectedGameDayOffset);
+    const dateLabelStr = targetDateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }).toUpperCase();
+    
+    let dayTag = `DAY ${selectedGameDayOffset + 1}`;
+    if (selectedGameDayOffset === 0) dayTag = `TODAY`;
+
+    const labelEl = document.getElementById("matchDayDisplay");
+    if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
+
+    let matches = await fetchLeagueList(TOP_TIER_LEAGUES, targetDateQuery);
+
+    if (matches.length < 5) {
+      const secondaryMatches = await fetchLeagueList(SECONDARY_LEAGUES, targetDateQuery);
+      const seenMatchKeys = new Set(matches.map(m => `${m.homeName}-${m.awayName}`));
+      
+      for (const sm of secondaryMatches) {
+        const key = `${sm.homeName}-${sm.awayName}`;
+        if (!seenMatchKeys.has(key)) {
+          seenMatchKeys.add(key);
+          matches.push(sm);
+        }
+      }
+    }
+
+    if (matches.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
+      return;
+    }
+
+    matches = matches.slice(0, 10);
+
+    let gamesHtml = "";
+    matches.forEach(item => {
+      gamesHtml += `
+        <div class="top-game-card">
+          <div class="top-game-flags">
+            <img src="${item.homeLogo}" alt="${item.homeName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+            <span class="vs-text">vs</span>
+            <img src="${item.awayLogo}" alt="${item.awayName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+          </div>
+          <div class="top-game-title">${item.homeName} <span class="vs-light">vs</span> ${item.awayName}</div>
+          <div class="top-game-league">${item.leagueName}${item.kickOffTime ? ' &bull; <span style="color:#38bdf8;">' + item.kickOffTime + '</span>' : ''}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = gamesHtml;
+
+  } catch (e) {
+    console.error("Fetch Live Games Error:", e);
+    container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:#f87171;">Failed to fetch live fixture data.</div>`;
+  }
+}
+
+async function fetchLeagueList(leagueList, dateQuery) {
+  const uniqueCodeToLeagues = new Map();
+  leagueList.forEach(league => {
+    if (!uniqueCodeToLeagues.has(league.code)) {
+      uniqueCodeToLeagues.set(league.code, league);
+    }
+  });
+
+  const fetchPromises = Array.from(uniqueCodeToLeagues.entries()).map(([code, leagueObj]) => {
+    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`;
+    return fetchCorsSafe(url)
+      .then(data => data ? { code, leagueObj, data } : null)
+      .catch(() => null);
+  });
+
+  const results = await Promise.all(fetchPromises);
+  let matches = [];
+  const seenMatchKeys = new Set();
+  const now = new Date();
+
+  for (const item of results) {
+    if (!item || !item.data || !item.data.events) continue;
+    const { leagueObj, data } = item;
+
+    for (const evt of data.events) {
+      if (matches.length >= 15) break;
+
+      const gameState = evt.status?.type?.state;
+      const evtDate = new Date(evt.date);
+
+      if (gameState !== 'pre' || evtDate <= now) continue;
+
+      const comp = evt.competitions?.[0];
+      if (!comp) continue;
+
+      const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+
+      if (homeTeam && awayTeam) {
+        const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
+        const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
+
+        if (leagueObj.interMiamiOnly) {
+          const isInterMiami = homeName.toLowerCase().includes("inter miami") || awayName.toLowerCase().includes("inter miami");
+          if (!isInterMiami) continue;
+        }
+
+        const matchKey = evt.id || `${homeName}-${awayName}`;
+        if (seenMatchKeys.has(matchKey)) continue;
+        seenMatchKeys.add(matchKey);
+
+        const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+        const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+
+        let kickOffTime = "";
+        if (evt.date || comp.date) {
+          const dObj = new Date(evt.date || comp.date);
+          kickOffTime = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Manila',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }).format(dObj);
+        }
+
+        const displayedLeagueName = data.leagues?.[0]?.name || leagueObj.name;
+
+        matches.push({
+          homeName,
+          awayName,
+          homeLogo,
+          awayLogo,
+          leagueName: displayedLeagueName,
+          kickOffTime
+        });
+      }
+    }
+  }
+
+  return matches;
+}
+
+function navigateMatchDay(dir) {
+  selectedGameDayOffset += dir;
+  if (selectedGameDayOffset < 0) selectedGameDayOffset = 6;
+  if (selectedGameDayOffset > 6) selectedGameDayOffset = 0;
+  fetchLiveGames();
+}
+
+function calculateActiveTraders() {
+  const dutyCards = document.querySelectorAll('.duty-card');
+  let activeCount = 0;
+  dutyCards.forEach(card => {
+    const timeBadge = card.querySelector('.badge-time');
+    if (timeBadge) {
+      const text = timeBadge.textContent.trim().toUpperCase();
+      if (!text.includes('OFF') && !text.includes('REST') && !text.includes('RD') && !text.includes('LEAVE')) {
+        activeCount++;
+      }
+    }
+  });
+  const el = document.getElementById('activeTraderCount');
+  if (el) el.textContent = activeCount + ' Working';
+}
+
+/* --- INITIALIZATION --- */
+function initDashboardApp() {
+  const savedTheme = localStorage.getItem('sbhub_theme');
+  if (savedTheme) {
+    setGradient(savedTheme);
+  } else {
+    setGradient('3d-chrome-swirl');
+  }
+
+  if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
+    unlockDashboard();
+  }
+
+  switchBrandTab('ibet');
+  restoreSavedWidgets();
+
+  loadCachedTopPicks();
+
+  fetchTopPicksAndBoosts();
+  setInterval(fetchTopPicksAndBoosts, 2 * 60 * 1000);
+
+  listenToLiveDutyRoster();
+  fetchLiveGames();
+  calculateActiveTraders();
+  fetchManilaWeather();
+  setInterval(fetchManilaWeather, 15 * 60 * 1000);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDashboardApp);
+} else {
+  initDashboardApp();
+}
+
+window.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown-container')) {
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+  }
+});
