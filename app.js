@@ -1,3 +1,14 @@
+/* --- IMMEDIATE AUTH & DEFAULT THEME CHECK --- */
+(function checkInitialStateImmediately() {
+  if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
+    document.documentElement.classList.add('sbhub-authenticated');
+  }
+  const savedTheme = localStorage.getItem('sbhub_theme') || 'cyan-liquid-glass';
+  if (savedTheme === 'cyan-liquid-glass') {
+    document.documentElement.style.background = 'url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat';
+  }
+})();
+
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
@@ -552,6 +563,7 @@ function handleLogin(event) {
 }
 
 function unlockDashboard() {
+  document.documentElement.classList.add('sbhub-authenticated');
   const authOverlay = document.getElementById('authOverlay');
   const dashboardApp = document.getElementById('dashboardApp');
   if (authOverlay) authOverlay.classList.add('unlocked');
@@ -561,6 +573,7 @@ function unlockDashboard() {
 function handleLogout() {
   localStorage.removeItem('sbhub_auth');
   sessionStorage.removeItem('sbhub_auth');
+  document.documentElement.classList.remove('sbhub-authenticated');
 
   const passInput = document.getElementById('passwordInput');
   if (passInput) passInput.value = '';
@@ -973,7 +986,7 @@ function initDashboardApp() {
   if (savedTheme) {
     setGradient(savedTheme);
   } else {
-    setGradient('cyan-liquid-glass'); // Liquid Chrome & Blue set as the default theme for new users
+    setGradient('cyan-liquid-glass'); // Liquid Chrome & Blue set as default theme
   }
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
