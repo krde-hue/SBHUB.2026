@@ -12,6 +12,22 @@
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
+/* --- HELPER FOR CORS-SAFE FETCH ON GITHUB PAGES --- */
+const fetchCorsSafe = (targetUrl) => {
+  // Uses a CORS proxy if running on a live external domain like GitHub Pages
+  const isExternalHost = window.location.hostname.includes('github.io') || window.location.protocol === 'https:';
+  const urlToFetch = isExternalHost ? `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` : targetUrl;
+  
+  return fetch(urlToFetch)
+    .then(res => res.ok ? res.json() : null)
+    .catch(() => {
+      // Fallback proxy if primary proxy is busy
+      return fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`)
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null);
+    });
+};
+
 /* --- HELPER FOR MOBILE SCREEN DETECTION --- */
 const isMobileDevice = () => window.innerWidth <= 768;
 
@@ -136,7 +152,7 @@ function getLeagueDisplayName(key) {
 }
 
 /* --- HELPER TO GENERATE UPCOMING YYYYMMDD DATES DYNAMICALLY --- */
-function getUpcomingDateQueries(daysAheadCount = 14) {
+function getUpcomingDateQueries(daysAheadCount = 7) {
   const dates = [];
   const now = new Date();
   for (let i = 0; i < daysAheadCount; i++) {
@@ -163,7 +179,7 @@ function loadCachedTopPicks() {
   }
 }
 
-/* --- PARALLEL FETCHING ENGINE FOR UPCOMING TOP PICKS --- */
+/* --- OPTIMIZED CORS-SAFE FETCHING ENGINE FOR UPCOMING TOP PICKS --- */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
@@ -171,15 +187,14 @@ async function fetchTopPicksAndBoosts() {
   try {
     const now = new Date();
     const seenMatchKeys = new Set();
-
-    const targetDates = getUpcomingDateQueries(14);
+    const targetDates = getUpcomingDateQueries(7); // Fetch 7-day window to prevent API throttling
 
     const fetchPromises = [];
     for (const league of PRIORITY_LEAGUES) {
       for (const dateStr of targetDates) {
+        const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateStr}&limit=50`;
         fetchPromises.push(
-          fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateStr}&limit=100`)
-            .then(res => res.ok ? res.json() : null)
+          fetchCorsSafe(url)
             .then(data => ({ league, data }))
             .catch(() => null)
         );
@@ -197,6 +212,7 @@ async function fetchTopPicksAndBoosts() {
         const gameState = evt.status?.type?.state;
         const evtDate = new Date(evt.date);
 
+        // Strict pre-kickoff filter
         if (gameState !== 'pre' || evtDate <= now) continue;
 
         const comp = evt.competitions?.[0];
@@ -897,12 +913,12 @@ async function fetchLeagueList(leagueList, dateQuery) {
     }
   });
 
-  const fetchPromises = Array.from(uniqueCodeToLeagues.entries()).map(([code, defaultName]) =>
-    fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`)
-      .then(res => res.ok ? res.json() : null)
+  const fetchPromises = Array.from(uniqueCodeToLeagues.entries()).map(([code, defaultName]) => {
+    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`;
+    return fetchCorsSafe(url)
       .then(data => data ? { code, defaultName, data } : null)
-      .catch(() => null)
-  );
+      .catch(() => null);
+  });
 
   const results = await Promise.all(fetchPromises);
   let matches = [];
@@ -917,7 +933,7 @@ async function fetchLeagueList(leagueList, dateQuery) {
       const gameState = evt.status?.type?.state;
       const evtDate = new Date(evt.date);
 
-      // Strict pre-kickoff filter: Remove matches that have already kicked off or finished
+      // Strict pre-kickoff filter
       if (gameState !== 'pre' || evtDate <= now) continue;
 
       const comp = evt.competitions?.[0];
@@ -994,7 +1010,7 @@ function initDashboardApp() {
   if (savedTheme) {
     setGradient(savedTheme);
   } else {
-    setGradient('3d-chrome-swirl'); // Liquid Chrome & Blue set as true default
+    setGradient('3d-chrome-swirl'); // Liquid Chrome & Blue set as default theme
   }
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
