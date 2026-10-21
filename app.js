@@ -567,6 +567,7 @@ function unlockDashboard() {
     dashboardApp.classList.add('unlocked');
     dashboardApp.style.opacity = '1';
     dashboardApp.style.visibility = 'visible';
+    dashboardApp.style.pointerEvents = 'auto';
   }
 }
 
@@ -582,7 +583,12 @@ function handleLogout() {
   const dashboardApp = document.getElementById('dashboardApp');
   const authOverlay = document.getElementById('authOverlay');
   
-  if (dashboardApp) dashboardApp.classList.remove('unlocked');
+  if (dashboardApp) {
+    dashboardApp.classList.remove('unlocked');
+    dashboardApp.style.opacity = '0';
+    dashboardApp.style.visibility = 'hidden';
+    dashboardApp.style.pointerEvents = 'none';
+  }
   if (authOverlay) {
     authOverlay.classList.remove('unlocked');
     authOverlay.style.display = 'flex';
