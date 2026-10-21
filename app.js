@@ -5,7 +5,9 @@
     document.documentElement.classList.add('sbhub-authenticated');
   }
   const savedTheme = localStorage.getItem('sbhub_theme') || '3d-chrome-swirl';
-  setGradient(savedTheme);
+  if (savedTheme === '3d-chrome-swirl') {
+    document.documentElement.style.background = 'url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat';
+  }
 })();
 
 const DEFAULT_USER = "sportsbook2026";
@@ -173,7 +175,7 @@ function getUpcomingDateQueries(daysAheadCount = 7) {
   return dates;
 }
 
-/* --- INSTANT LOCAL STORAGE CACHE LOADER --- */
+/* --- INSTANT LOCAL STORAGE CACHE LOADER (0ms PAGE LOAD) --- */
 function loadCachedTopPicks() {
   try {
     const stored = localStorage.getItem('sbhub_toppicks_cache');
@@ -353,35 +355,71 @@ function renderFilteredTopPicks() {
   container.innerHTML = cardsHtml;
 }
 
-/* --- ANIMATED HIGH-TECH WAVE CANVAS --- */
+/* --- ANIMATED PLASMA BACKGROUND CANVAS --- */
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
-let width = 0, height = 0, step = 0;
+let width = 0, height = 0, particles = [];
 
 function resizeCanvas() {
   if (!canvas) return;
   width = canvas.width = window.innerWidth;
   height = canvas.height = window.innerHeight;
+  initParticles();
 }
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  if (!isMobileDevice()) toggleMobileSidebar(false);
+});
+
+class Particle {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.radius = Math.random() * (isMobileDevice() ? 1.5 : 2) + 1;
+    this.vx = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
+    this.vy = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
+    this.alpha = Math.random() * 0.4 + 0.1;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < 0 || this.x > width) this.vx *= -1;
+    if (this.y < 0 || this.y > height) this.vy *= -1;
+  }
+  draw() {
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(56, 189, 248, ${this.alpha})`;
+    if (!isMobileDevice()) {
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#00f2fe';
+    } else {
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  if (!canvas) return;
+  particles = [];
+  const particleCount = isMobileDevice() ? 15 : 45;
+  for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+}
+
 resizeCanvas();
 
 function animateCanvas() {
   if (!canvas || !ctx) return;
   ctx.clearRect(0, 0, width, height);
-  step += 0.008;
-
-  ctx.lineWidth = 1.5;
-  for (let i = 0; i < 4; i++) {
-    ctx.beginPath();
-    ctx.strokeStyle = i % 2 === 0 ? 'rgba(56, 189, 248, 0.25)' : 'rgba(217, 70, 239, 0.25)';
-    for (let x = 0; x < width; x += 20) {
-      const y = Math.sin(x * 0.003 + step + i) * 40 + height * (0.3 + i * 0.15);
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
   requestAnimationFrame(animateCanvas);
 }
 if (canvas) animateCanvas();
@@ -526,13 +564,13 @@ function handleLogin(event) {
   const rememberCheckbox = document.getElementById('rememberMe');
 
   const userVal = userInput ? userInput.value.trim() : '';
-  const passVal = passInput ? passInput.value.trim() : '';
+  const passVal = passInput ? passInput.value : '';
   const isRemember = rememberCheckbox ? rememberCheckbox.checked : false;
 
   const errorMsg = document.getElementById('loginErrorMsg');
   const card = document.getElementById('loginCard');
 
-  if ((userVal === DEFAULT_USER || userVal === "sportsbookhub") && (passVal === DEFAULT_PASS || passVal === "" || passVal === "sb2026")) {
+  if ((userVal === DEFAULT_USER || userVal === "sportsbookhub") && passVal === DEFAULT_PASS) {
     if (isRemember) {
       localStorage.setItem('sbhub_auth', 'true');
     } else {
@@ -558,17 +596,8 @@ function unlockDashboard() {
   document.documentElement.classList.add('sbhub-authenticated');
   const authOverlay = document.getElementById('authOverlay');
   const dashboardApp = document.getElementById('dashboardApp');
-  
-  if (authOverlay) {
-    authOverlay.classList.add('unlocked');
-    authOverlay.style.display = 'none';
-  }
-  if (dashboardApp) {
-    dashboardApp.classList.add('unlocked');
-    dashboardApp.style.opacity = '1';
-    dashboardApp.style.visibility = 'visible';
-    dashboardApp.style.pointerEvents = 'auto';
-  }
+  if (authOverlay) authOverlay.classList.add('unlocked');
+  if (dashboardApp) dashboardApp.classList.add('unlocked');
 }
 
 function handleLogout() {
@@ -582,17 +611,8 @@ function handleLogout() {
   if (errorMsg) errorMsg.textContent = '';
   const dashboardApp = document.getElementById('dashboardApp');
   const authOverlay = document.getElementById('authOverlay');
-  
-  if (dashboardApp) {
-    dashboardApp.classList.remove('unlocked');
-    dashboardApp.style.opacity = '0';
-    dashboardApp.style.visibility = 'hidden';
-    dashboardApp.style.pointerEvents = 'none';
-  }
-  if (authOverlay) {
-    authOverlay.classList.remove('unlocked');
-    authOverlay.style.display = 'flex';
-  }
+  if (dashboardApp) dashboardApp.classList.remove('unlocked');
+  if (authOverlay) authOverlay.classList.remove('unlocked');
 }
 
 /* --- UI TOGGLES & WIDGET MANAGEMENT --- */
@@ -613,14 +633,7 @@ function toggleMenu(menuId, btnElement) {
 
 function toggleDropdown(menuId) {
   const menu = document.getElementById(menuId);
-  if (!menu) return;
-  
-  // Close all other open dropdowns
-  document.querySelectorAll('.dropdown-menu').forEach(m => {
-    if (m.id !== menuId) m.classList.remove('show');
-  });
-
-  menu.classList.toggle('show');
+  if (menu) menu.classList.toggle('show');
 }
 
 function toggleWidget(widgetId, show) {
@@ -654,14 +667,14 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- HIGH-RES ABSTRACT FLUID WALLPAPERS MAPPING --- */
+/* --- ABSTRACT WALLPAPERS --- */
 const ABSTRACT_WALLPAPERS = {
-  '3d-chrome-swirl': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop',
-  'luminous-glass-ribbons': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2560&auto=format&fit=crop',
-  'deep-violet-fluid': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop',
-  'neon-aura-swirl': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2560&auto=format&fit=crop',
-  'prismatic-wave-flow': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop',
-  'magenta-silk-wave': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop'
+  '3d-chrome-swirl': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop',
+  'cyan-liquid-glass': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop',
+  'deep-liquid-chrome': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop',
+  'neon-line-ribbon': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2560&auto=format&fit=crop',
+  'neural-wireframe': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2560&auto=format&fit=crop',
+  'dark-energy-vortex': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop'
 };
 
 /* --- THEME SWITCHER ENGINE --- */
@@ -717,7 +730,7 @@ function setGradient(theme) {
   localStorage.setItem('sbhub_theme', theme);
 }
 
-/* --- REAL-TIME LIVE DUTY ROSTER --- */
+/* --- REAL-TIME LIVE DUTY ROSTER (ACCURATE GMT+8 / MANILA TIME) --- */
 function getGMT8IsoDate() {
   const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
   const year = nowManila.getFullYear();
