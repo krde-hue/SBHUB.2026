@@ -22,8 +22,8 @@ html, body {
 
 body {
   min-height: 100vh;
-  /* Primary Default Wallpaper: Liquid Chrome & Blue / Fluid Ink Swirl */
-  background: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat #090d16;
+  /* Primary Default Wallpaper: Liquid Chrome & Blue Swirl */
+  background: url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat #090d16;
   color: #ffffff;
   display: flex;
   padding: 24px;
@@ -68,6 +68,7 @@ html.sbhub-authenticated #dashboardApp {
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  opacity: 0.35;
 }
 
 /* ==========================================================================
@@ -1382,7 +1383,7 @@ html.sbhub-authenticated #dashboardApp {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
-.dropdown-container { position: relative; display: inline-block; z-index: 1002; }
+.dropdown-container { position: relative; display: inline-block; z-index: 10002 !important; }
 .top-banner-card .dropdown-btn {
   background: rgba(8, 12, 22, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
@@ -1409,14 +1410,15 @@ html.sbhub-authenticated #dashboardApp {
   border: 1px solid rgba(255, 255, 255, 0.28) !important;
   border-radius: 16px;
   padding: 12px;
-  z-index: 999999 !important;
+  z-index: 9999999 !important;
   width: 240px;
   max-height: 380px;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95) !important;
+  pointer-events: auto !important;
 }
 
-.dropdown-menu.show { display: flex; flex-direction: column; gap: 6px; }
+.dropdown-menu.show { display: flex !important; flex-direction: column; gap: 6px; }
 .dropdown-section-title { font-size: 9px; font-weight: 800; color: #38bdf8; letter-spacing: 0.8px; padding: 6px 8px 2px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 2px; }
 
 .menu-option {
@@ -1424,7 +1426,7 @@ html.sbhub-authenticated #dashboardApp {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 700;
-  cursor: pointer;
+  cursor: pointer !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1432,6 +1434,7 @@ html.sbhub-authenticated #dashboardApp {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   width: 100%;
+  pointer-events: auto !important;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
