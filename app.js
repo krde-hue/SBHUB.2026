@@ -607,7 +607,14 @@ function toggleMenu(menuId, btnElement) {
 
 function toggleDropdown(menuId) {
   const menu = document.getElementById(menuId);
-  if (menu) menu.classList.toggle('show');
+  if (!menu) return;
+  
+  // Close all other open dropdowns
+  document.querySelectorAll('.dropdown-menu').forEach(m => {
+    if (m.id !== menuId) m.classList.remove('show');
+  });
+
+  menu.classList.toggle('show');
 }
 
 function toggleWidget(widgetId, show) {
