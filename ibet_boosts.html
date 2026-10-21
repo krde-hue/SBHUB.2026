@@ -330,7 +330,7 @@
             "iBET Tennis": { headers: ["BO", "PUB", "Brands", "Event Date", "KO Time", "Sports", "League", "Event", "Type", "Market 1", "Market 2", "Market 3", "Notes", "Other Ideas"], meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" }, rows: [], hiddenCols: [] },
             "iBET Other Sports": { headers: ["BO", "PUB", "Brands", "Event Date", "Sports", "League", "Event", "Type", "Markets", "Notes", "Other Ideas"], meta: { percent: "10%", max_stake: 25, mbl: 2500, showing_in: "All" }, rows: [], hiddenCols: [] },
             "iBET Banners": { headers: ["PUBLISHED", "EVENT DATE", "FOOTBALL BANNER 1", "FOOTBALL BANNER 2", "FOOTBALL BANNER 3", "TENNIS BANNER 1", "TENNIS BANNER 2", "OTHER SPORTS BANNER", "NOTES"], rows: [], hiddenCols: [] },
-            "Guideliness": { headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"], rows: [], data: guidelinesData }
+            "Guidelines": { headers: ["CATEGORY", "LEAGUE / COMPETITION", "RANK", "OPTION 1", "OPTION 2", "OPTION 3", "OPTION 4", "OPTION 5", "OPTION 6", "OPTION 7", "OPTION 8", "OPTION 9", "OPTION 10", "OPTION 11"], rows: [], data: guidelinesData }
         };
 
         let currentSheet = "iBET Football";
@@ -584,12 +584,22 @@
             db.ref('ibet_boosts_master_v1').on('value', (snapshot) => {
                 if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT')) { return; }
                 const liveData = snapshot.val();
+                
+                const tabOrder = ["iBET Football", "iBET Tennis", "iBET Other Sports", "iBET Banners", "Guidelines"];
+                const ordered = {};
+
                 if (liveData && typeof liveData === 'object') {
-                    const ordered = {};
-                    const tabOrder = ["iBET Football", "iBET Tennis", "iBET Other Sports", "iBET Banners", "Guideliness"];
-                    tabOrder.forEach(key => { ordered[key] = liveData[key] || embeddedData[key]; });
+                    tabOrder.forEach(key => {
+                        // Match key or check legacy key variants like 'Guideliness'
+                        const matchedKey = Object.keys(liveData).find(k => k.toLowerCase() === key.toLowerCase()) || key;
+                        ordered[key] = liveData[matchedKey] || embeddedData[key];
+                    });
                     workbookData = ordered;
-                } else { saveToFirebaseNow(); }
+                } else {
+                    workbookData = JSON.parse(JSON.stringify(embeddedData));
+                    saveToFirebaseNow();
+                }
+                
                 renderTabs();
                 renderActiveSheet();
             });
@@ -608,15 +618,16 @@
         function renderTabs() {
             const tabsNav = document.getElementById('tabsNav');
             tabsNav.innerHTML = '';
-            const tabOrder = ["iBET Football", "iBET Tennis", "iBET Other Sports", "iBET Banners", "Guideliness"];
+            const tabOrder = ["iBET Football", "iBET Tennis", "iBET Other Sports", "iBET Banners", "Guidelines"];
             tabOrder.forEach(sheetName => {
-                if (workbookData[sheetName]) {
-                    const btn = document.createElement('button');
-                    btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
-                    btn.innerText = sheetName;
-                    btn.onclick = () => { currentSheet = sheetName; renderTabs(); renderActiveSheet(); };
-                    tabsNav.appendChild(btn);
+                if (!workbookData[sheetName]) {
+                    workbookData[sheetName] = JSON.parse(JSON.stringify(embeddedData[sheetName] || { headers: [], rows: [] }));
                 }
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${sheetName === currentSheet ? 'active' : ''}`;
+                btn.innerText = sheetName;
+                btn.onclick = () => { currentSheet = sheetName; renderTabs(); renderActiveSheet(); };
+                tabsNav.appendChild(btn);
             });
         }
 
@@ -649,9 +660,9 @@
 
             const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
 
-            const boIdx = sheet ? sheet.headers.indexOf("BO");
-            const pubIdx = sheet ? sheet.headers.indexOf("PUB");
-            const publishedIdx = sheet ? sheet.headers.indexOf("PUBLISHED");
+            const boIdx = sheet ? sheet.headers.indexOf("BO") : -1;
+            const pubIdx = sheet ? sheet.headers.indexOf("PUB") : -1;
+            const publishedIdx = sheet ? sheet.headers.indexOf("PUBLISHED") : -1;
 
             const mappedRows = allRows.map((row, index) => {
                 const dateObj = parseRowDate(row[dateColIdx]);
@@ -689,7 +700,7 @@
             const clearTabBtn = document.getElementById('clearTabBtn');
             const searchInput = document.getElementById('searchInput');
 
-            if (currentSheet === "Guideliness") {
+            if (currentSheet === "Guidelines" || currentSheet === "Guideliness") {
                 tableWrapper.style.display = 'none'; guidelinesView.style.display = 'block'; metaSummary.style.display = 'none';
                 if (addRowBtn) addRowBtn.style.display = 'none';
                 if (marketsBtn) marketsBtn.style.display = 'none';
@@ -725,7 +736,7 @@
 
         function renderGuidelinesView() {
             const view = document.getElementById('guidelinesView');
-            const gData = (workbookData["Guideliness"] && workbookData["Guideliness"].data) ? workbookData["Guideliness"].data : guidelinesData;
+            const gData = (workbookData["Guidelines"] && workbookData["Guidelines"].data) ? workbookData["Guidelines"].data : guidelinesData;
 
             let html = `
                 <div class="guidelines-container">
