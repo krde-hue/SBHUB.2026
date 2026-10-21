@@ -327,7 +327,12 @@
             const endDate = new Date(endVal);
             endDate.setHours(23, 59, 59, 999);
 
-            const dateColIdx = currentSheet === "iBET Banners" ? 1 : 3;
+            let dateColIdx = sheet.headers.findIndex(h => {
+                const upper = h.toUpperCase();
+                return upper === "KO DATE" || upper === "EVENT DATE";
+            });
+            if (dateColIdx === -1) dateColIdx = currentSheet === "iBET Banners" ? 1 : 3;
+
             const boIdx = sheet.headers.indexOf("BO");
             const pubIdx = sheet.headers.indexOf("PUB");
             const publishedIdx = sheet.headers.indexOf("PUBLISHED");
@@ -345,7 +350,7 @@
             });
 
             if (tickedCount > 0) {
-                saveToFirebaseNow();
+                saveToFirebaseNow(true);
                 renderActiveSheet();
                 closeCalendarBulkModal();
                 alert(`Successfully ticked BO/PUB for ${tickedCount} offer(s) between ${startVal} and ${endVal}.`);
@@ -398,7 +403,7 @@
                 });
             });
 
-            saveToFirebaseNow();
+            saveToFirebaseNow(true);
             renderActiveSheet();
         }
 
@@ -451,7 +456,8 @@
 
         function parseRowDate(val) {
             if (!val || typeof val !== 'string' || val.trim() === "") return null;
-            let clean = val.split(' ')[0].replace(/-/g, '.');
+            let clean = val.trim().split(' ')[0];
+            clean = clean.replace(/[\/\-]/g, '.');
             let parts = clean.split('.');
             if (parts.length === 3) {
                 let day, month, year;
@@ -460,7 +466,8 @@
                 } else {
                     month = parseInt(parts[0], 10) - 1; day = parseInt(parts[1], 10); year = parseInt(parts[2], 10);
                 }
-                return new Date(year, month, day);
+                const d = new Date(year, month, day);
+                return isNaN(d.getTime()) ? null : d;
             }
             return null;
         }
@@ -469,7 +476,12 @@
         function getSortedAndLimitedRows(allRows) {
             if (!allRows) return [];
             const sheet = workbookData[currentSheet];
-            const dateColIdx = currentSheet === "iBET Banners" ? 1 : 3;
+            let dateColIdx = sheet ? sheet.headers.findIndex(h => {
+                const upper = h.toUpperCase();
+                return upper === "KO DATE" || upper === "EVENT DATE";
+            }) : -1;
+            if (dateColIdx === -1) dateColIdx = currentSheet === "iBET Banners" ? 1 : 3;
+
             const limitVal = document.getElementById('recordLimitSelect')?.value || "30";
 
             const boIdx = sheet ? sheet.headers.indexOf("BO") : -1;
@@ -533,6 +545,148 @@
 
             let mappedRows = getSortedAndLimitedRows(sheet.rows || []);
             renderTableRows(mappedRows);
+        }
+
+        function renderGuidelinesView() {
+            const view = document.getElementById('guidelinesView');
+            const gData = (workbookData["Guideliness"] && workbookData["Guideliness"].data) ? workbookData["Guideliness"].data : guidelinesData;
+
+            let html = `
+                <div class="guidelines-container">
+                    <div>
+                        <span class="guidelines-header-badge">FOOTBALL HERO TEAMS TO BE BOOSTED BY LEAGUE PRIORITIES</span>
+                    </div>
+                    
+                    <div>
+                        <div class="guidelines-section-title">HERO TEAMS COVERAGE</div>
+                        <table class="guidelines-table">
+                            <thead>
+                                <tr>
+                                    <th>RANK</th>
+                                    <th>LEAGUE / COMPETITION</th>
+                                    <th>OPTION 1</th>
+                                    <th>OPTION 2</th>
+                                    <th>OPTION 3</th>
+                                    <th>OPTION 4</th>
+                                    <th>OPTION 5</th>
+                                    <th>OPTION 6</th>
+                                    <th>OPTION 7</th>
+                                    <th>OPTION 8</th>
+                                    <th>OPTION 9</th>
+                                    <th>OPTION 10</th>
+                                    <th>OPTION 11</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            if (gData.hero) {
+                gData.hero.forEach(item => {
+                    html += `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${item.rank}</td>
+                            <td style="font-weight: bold;">${item.league}</td>
+                    `;
+                    for (let i = 0; i < 11; i++) {
+                        const opt = item.options && item.options[i] ? item.options[i] : '';
+                        html += `<td><input class="guidelines-cell-input" value="${escapeHtml(opt)}" readonly></td>`;
+                    }
+                    html += `</tr>`;
+                });
+            }
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 300px;">
+                            <div class="guidelines-section-title">NORMAL BOOSTS FORMAT</div>
+                            <table class="guidelines-table">
+                                <thead>
+                                    <tr>
+                                        <th>TYPE</th>
+                                        <th>MAX STAKE</th>
+                                        <th>ODDS BOOST % (1)</th>
+                                        <th>ODDS BOOST % (2)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            if (gData.normalBoosts) {
+                gData.normalBoosts.forEach(b => {
+                    html += `
+                        <tr>
+                            <td><input class="guidelines-cell-input left-align" value="${escapeHtml(b.type)}" readonly></td>
+                            <td><input class="guidelines-cell-input" value="${escapeHtml(b.maxStake)}" readonly></td>
+                            <td><input class="guidelines-cell-input" value="${escapeHtml(b.odds1)}" readonly></td>
+                            <td><input class="guidelines-cell-input" value="${escapeHtml(b.odds2 || '')}" readonly></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="flex: 1; min-width: 300px;">
+                            <div class="guidelines-section-title">SPECIAL BOOSTS FORMAT</div>
+                            <table class="guidelines-table">
+                                <thead>
+                                    <tr>
+                                        <th>TYPE</th>
+                                        <th>MAX STAKE</th>
+                                        <th>ODDS BOOST %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            if (gData.specialBoosts) {
+                gData.specialBoosts.forEach(b => {
+                    html += `
+                        <tr>
+                            <td><input class="guidelines-cell-input left-align" value="${escapeHtml(b.type)}" readonly></td>
+                            <td><input class="guidelines-cell-input" value="${escapeHtml(b.maxStake)}" readonly></td>
+                            <td><input class="guidelines-cell-input" value="${escapeHtml(b.odds1)}" readonly></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="rules-card">
+                        <div>RULES / GENERAL INSTRUCTIONS:</div>
+                        <div class="rules-list">
+            `;
+
+            if (gData.instructions) {
+                gData.instructions.forEach((ins, idx) => {
+                    html += `
+                        <div class="rules-item">
+                            <span>${idx + 1}.</span>
+                            <textarea class="rule-textarea" readonly>${escapeHtml(ins)}</textarea>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            view.innerHTML = html;
         }
 
         function renderTableRows(mappedRows) {
@@ -602,7 +756,7 @@
 
         function updateCell(rowIndex, colIndex, value) {
             workbookData[currentSheet].rows[rowIndex][colIndex] = value;
-            saveToFirebaseNow();
+            saveToFirebaseNow(true);
             renderActiveSheet();
         }
 
@@ -613,7 +767,7 @@
 
         function debouncedSaveToFirebase() {
             clearTimeout(saveDebounceTimer);
-            saveDebounceTimer = setTimeout(() => { saveToFirebaseNow(); }, 400);
+            saveDebounceTimer = setTimeout(() => { saveToFirebaseNow(true); }, 400);
         }
 
         function addNewRow() {
@@ -629,7 +783,7 @@
             });
 
             sheet.rows.unshift(newRow);
-            saveToFirebaseNow();
+            saveToFirebaseNow(true);
             renderActiveSheet();
         }
 
