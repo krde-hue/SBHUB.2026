@@ -138,7 +138,7 @@
         .rules-item { display: flex; align-items: flex-start; gap: 8px; }
         .rule-textarea { flex: 1; border: 1px solid transparent; background: rgba(255, 255, 255, 0.4); color: var(--excel-yellow-text); font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 6px; outline: none; resize: none; overflow: hidden; min-height: 32px; }
 
-        /* MODAL STYLES (CALENDAR & MARKETS MANAGER) */
+        /* MODAL STYLES */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(6px); z-index: 2000;
@@ -149,7 +149,7 @@
         
         .modal-card {
             background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 12px;
-            padding: 22px 26px; width: 92%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            padding: 22px 26px; width: 92%; max-width: 520px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
             display: flex; flex-direction: column; gap: 16px; transition: transform 0.25s ease;
         }
 
@@ -157,10 +157,13 @@
         .modal-body { display: flex; flex-direction: column; gap: 14px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
         
         .column-toggle-list { display: flex; flex-direction: column; gap: 8px; }
-        .column-toggle-item { display: flex; align-items: center; justify-content: space-between; background: var(--th-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 13px; font-weight: 600; }
+        .column-toggle-item { display: flex; align-items: center; justify-content: space-between; background: var(--th-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 13px; font-weight: 600; gap: 8px; }
         .column-toggle-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1; }
-        .column-delete-icon { color: #ef4444; cursor: pointer; font-size: 14px; font-weight: bold; opacity: 0.8; padding: 2px 6px; }
-        .column-delete-icon:hover { opacity: 1; background: rgba(239, 68, 68, 0.15); border-radius: 4px; }
+        .column-title-input { padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-color); font-size: 12px; font-weight: 700; flex: 1; }
+        .column-title-input:focus { border-color: #38bdf8; outline: none; }
+        
+        .column-delete-btn { color: #ef4444; cursor: pointer; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); transition: all 0.2s; white-space: nowrap; }
+        .column-delete-btn:hover { background: #ef4444; color: #ffffff; }
 
         .market-actions-group { display: flex; gap: 10px; margin-top: 8px; border-top: 1px dashed var(--border-color); padding-top: 12px; }
     </style>
@@ -204,7 +207,7 @@
                 <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled title="Undo (Ctrl+Z)">↩️ Undo</button>
                 <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled title="Redo (Ctrl+Y)">↪️ Redo</button>
                 <button class="btn btn-success" id="addRowBtn" onclick="addNewRow()">➕ Add Row (At Top)</button>
-                <button class="btn btn-markets" id="marketsManagerBtn" onclick="openMarketsModal()" title="Configure Markets & Hide Columns">⚙️ Markets</button>
+                <button class="btn btn-markets" id="marketsManagerBtn" onclick="openMarketsModal()" title="Configure Markets, Rename or Delete Columns">⚙️ Markets</button>
                 <span id="recordCounter" class="record-count">Records: 0</span>
                 <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search active tab..." oninput="filterTable()">
             </div>
@@ -254,12 +257,12 @@
             </div>
             <div class="modal-body">
                 <div style="font-size: 12px; color: var(--credit-text); font-weight: 600; margin-bottom: 4px;">
-                    Toggle checkboxes to hide/show columns to fit data cleanly on screen:
+                    Edit titles, toggle visibility, or delete banner/market columns:
                 </div>
                 <div class="column-toggle-list" id="columnToggleContainer"></div>
 
                 <div class="market-actions-group">
-                    <button class="btn btn-success" style="flex: 1;" onclick="addNewMarketColumn()">➕ Add Market Column</button>
+                    <button class="btn btn-success" style="flex: 1;" onclick="addNewMarketColumn()">➕ Add Column</button>
                     <button class="btn btn-secondary" onclick="resetHiddenColumns()">👁️ Show All</button>
                 </div>
             </div>
@@ -342,6 +345,8 @@
         }
 
         /* --- MARKETS & COLUMN MANAGER MODAL CONTROLS --- */
+        const nonDeletableColumns = ["BO", "PUB", "PUBLISHED", "KO DATE", "EVENT DATE", "BRANDS", "KO TIME", "SPORTS", "LEAGUE", "EVENT", "TYPE"];
+
         function openMarketsModal() {
             const sheet = workbookData[currentSheet];
             if (!sheet || !sheet.headers) return;
@@ -353,19 +358,19 @@
 
             sheet.headers.forEach((header, idx) => {
                 const isHidden = sheet.hiddenCols.includes(header);
-                const isMarket = header.toUpperCase().includes('MARKET');
+                const isCore = nonDeletableColumns.includes(header.toUpperCase());
 
                 const div = document.createElement('div');
                 div.className = 'column-toggle-item';
 
-                let deleteHtml = isMarket ? `<span class="column-delete-icon" onclick="removeMarketColumn('${escapeHtml(header)}')" title="Delete Market Column">🗑️ Delete</span>` : '';
+                let deleteBtnHtml = !isCore ? `<button class="column-delete-btn" onclick="removeMarketColumn(${idx})" title="Delete Column">🗑️ Delete</button>` : '';
 
                 div.innerHTML = `
                     <label>
                         <input type="checkbox" class="checkbox-cell" ${!isHidden ? 'checked' : ''} onchange="toggleColumnVisibility('${escapeHtml(header)}', this.checked)">
-                        <span>${escapeHtml(header)}</span>
                     </label>
-                    ${deleteHtml}
+                    <input type="text" class="column-title-input" value="${escapeHtml(header)}" onchange="renameColumn(${idx}, this.value)">
+                    ${deleteBtnHtml}
                 `;
                 container.appendChild(div);
             });
@@ -375,6 +380,21 @@
 
         function closeMarketsModal() {
             document.getElementById('marketsModal').classList.remove('active');
+        }
+
+        function renameColumn(colIdx, newTitle) {
+            const sheet = workbookData[currentSheet];
+            if (!sheet || !sheet.headers || !newTitle.trim()) return;
+
+            const oldTitle = sheet.headers[colIdx];
+            sheet.headers[colIdx] = newTitle.trim();
+
+            if (sheet.hiddenCols && sheet.hiddenCols.includes(oldTitle)) {
+                sheet.hiddenCols = sheet.hiddenCols.map(h => h === oldTitle ? newTitle.trim() : h);
+            }
+
+            saveToFirebaseNow(true);
+            renderActiveSheet();
         }
 
         function toggleColumnVisibility(headerName, isVisible) {
@@ -403,31 +423,26 @@
             const sheet = workbookData[currentSheet];
             if (!sheet || !sheet.headers) return;
 
-            let highestNum = 0;
-            sheet.headers.forEach(h => {
-                const match = h.match(/Market\s*(\d+)/i);
-                if (match) {
-                    const num = parseInt(match[1], 10);
-                    if (num > highestNum) highestNum = num;
-                }
-            });
+            const isBanners = currentSheet.includes("Banners");
+            let defaultName = isBanners ? "NEW BANNER" : "Market 1";
 
-            const nextNum = highestNum + 1;
-            const newHeader = `Market ${nextNum}`;
-
-            let insertIndex = sheet.headers.length;
-            for (let i = sheet.headers.length - 1; i >= 0; i--) {
-                if (sheet.headers[i].toUpperCase().includes('MARKET')) {
-                    insertIndex = i + 1;
-                    break;
-                }
+            if (!isBanners) {
+                let highestNum = 0;
+                sheet.headers.forEach(h => {
+                    const match = h.match(/Market\s*(\d+)/i);
+                    if (match) {
+                        const num = parseInt(match[1], 10);
+                        if (num > highestNum) highestNum = num;
+                    }
+                });
+                defaultName = `Market ${highestNum + 1}`;
             }
 
-            sheet.headers.splice(insertIndex, 0, newHeader);
+            sheet.headers.push(defaultName);
 
             if (sheet.rows) {
                 sheet.rows.forEach(row => {
-                    row.splice(insertIndex, 0, "");
+                    row.push("");
                 });
             }
 
@@ -436,26 +451,24 @@
             renderActiveSheet();
         }
 
-        function removeMarketColumn(headerName) {
+        function removeMarketColumn(colIdx) {
             const sheet = workbookData[currentSheet];
             if (!sheet || !sheet.headers) return;
 
-            if (confirm(`Are you sure you want to remove column "${headerName}"? This will delete data in this column across all rows.`)) {
-                const colIdx = sheet.headers.indexOf(headerName);
-                if (colIdx !== -1) {
-                    sheet.headers.splice(colIdx, 1);
-                    if (sheet.rows) {
-                        sheet.rows.forEach(row => {
-                            row.splice(colIdx, 1);
-                        });
-                    }
-                    if (sheet.hiddenCols) {
-                        sheet.hiddenCols = sheet.hiddenCols.filter(h => h !== headerName);
-                    }
-                    saveToFirebaseNow(true);
-                    openMarketsModal();
-                    renderActiveSheet();
+            const headerName = sheet.headers[colIdx];
+            if (confirm(`Are you sure you want to remove column "${headerName}"? This will delete all data inside this column across all rows.`)) {
+                sheet.headers.splice(colIdx, 1);
+                if (sheet.rows) {
+                    sheet.rows.forEach(row => {
+                        row.splice(colIdx, 1);
+                    });
                 }
+                if (sheet.hiddenCols) {
+                    sheet.hiddenCols = sheet.hiddenCols.filter(h => h !== headerName);
+                }
+                saveToFirebaseNow(true);
+                openMarketsModal();
+                renderActiveSheet();
             }
         }
 
@@ -874,11 +887,13 @@
 
             const boIdx = sheet.headers.indexOf("BO");
             const pubIdx = sheet.headers.indexOf("PUB");
+            const publishedIdx = sheet.headers.indexOf("PUBLISHED");
 
             const isBoChecked = boIdx !== -1 ? Boolean(row[boIdx]) : false;
             const isPubChecked = pubIdx !== -1 ? Boolean(row[pubIdx]) : false;
+            const isPublishedChecked = publishedIdx !== -1 ? Boolean(row[publishedIdx]) : false;
 
-            if (isBoChecked && isPubChecked) {
+            if ((isBoChecked && isPubChecked) || isPublishedChecked) {
                 tr.className = "highlight-both";
             } else if (isBoChecked || isPubChecked) {
                 tr.className = "highlight-single";
