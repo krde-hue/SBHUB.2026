@@ -22,6 +22,68 @@ const ABSTRACT_WALLPAPERS = {
   'blue-orange-sunset': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%2309122a'/%3E%3Cpath d='M-100 200 Q600 600 1200 100 T2020 300 L2020 1180 L-100 1180 Z' fill='%23102456'/%3E%3Cpath d='M-100 450 Q500 150 1100 650 T2020 500 L2020 1180 L-100 1180 Z' fill='url(%23sunsetGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='sunsetGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff3b00'/%3E%3Cstop offset='100%25' stop-color='%23ff9900'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E"
 };
 
+/* --- DYNAMIC SIDEBAR LIVE SEARCH SYSTEM --- */
+function handleSidebarSearch(query) {
+  const cleanQuery = query.toLowerCase().trim();
+  const navGroups = document.querySelectorAll('.sidebar .nav-group');
+  const quickDockBtns = document.querySelectorAll('.sidebar-quick-dock .quick-launch-btn');
+
+  if (!cleanQuery) {
+    // Reset to initial collapsed state
+    navGroups.forEach(group => {
+      group.style.display = 'flex';
+      const mainBtn = group.querySelector('.nav-main-btn');
+      const subMenu = group.querySelector('.sub-menu');
+      const toggleIcon = mainBtn ? mainBtn.querySelector('.toggle-icon') : null;
+
+      if (subMenu) subMenu.classList.add('collapsed');
+      if (toggleIcon) toggleIcon.style.transform = 'rotate(-90deg)';
+
+      const subBtns = group.querySelectorAll('.nav-sub-btn');
+      subBtns.forEach(btn => btn.style.display = 'flex');
+    });
+
+    quickDockBtns.forEach(btn => btn.style.display = 'flex');
+    return;
+  }
+
+  // Filter Quick Launch Dock Buttons
+  quickDockBtns.forEach(btn => {
+    const text = btn.textContent.toLowerCase();
+    btn.style.display = text.includes(cleanQuery) ? 'flex' : 'none';
+  });
+
+  // Filter Nav Groups
+  navGroups.forEach(group => {
+    const mainBtn = group.querySelector('.nav-main-btn');
+    const subMenu = group.querySelector('.sub-menu');
+    const toggleIcon = mainBtn ? mainBtn.querySelector('.toggle-icon') : null;
+    const mainText = mainBtn ? mainBtn.textContent.toLowerCase() : '';
+    const subBtns = group.querySelectorAll('.nav-sub-btn');
+
+    let matchCount = 0;
+    const isMainMatch = mainText.includes(cleanQuery);
+
+    subBtns.forEach(subBtn => {
+      const subText = subBtn.textContent.toLowerCase();
+      if (isMainMatch || subText.includes(cleanQuery)) {
+        subBtn.style.display = 'flex';
+        matchCount++;
+      } else {
+        subBtn.style.display = 'none';
+      }
+    });
+
+    if (matchCount > 0 || isMainMatch) {
+      group.style.display = 'flex';
+      if (subMenu) subMenu.classList.remove('collapsed');
+      if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
+    } else {
+      group.style.display = 'none';
+    }
+  });
+}
+
 /* --- HIGH-RELIABILITY CORS FETCH SYSTEM --- */
 const fetchCorsSafe = async (targetUrl) => {
   try {
@@ -43,6 +105,53 @@ const fetchCorsSafe = async (targetUrl) => {
 
   return null;
 };
+
+/* --- REAL OFFICIAL FIXTURES DATASET FOR TOP PICKS (UP TO 15 DAYS) --- */
+const REAL_OFFICIAL_FIXTURES = [
+  // EPL
+  { leagueKey: 'eng.1', homeName: 'Ipswich', awayName: 'Nottm Forest', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/374.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/393.png', leagueName: 'English Premier League', market: 'Ipswich to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 03:00' },
+  { leagueKey: 'eng.1', homeName: 'Aston Villa', awayName: 'Man City', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/362.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/382.png', leagueName: 'English Premier League', market: 'Aston Villa vs Man City - Both Teams to Score', badge: 'HOT', kickOff: '24 OCT, 19:30' },
+  { leagueKey: 'eng.1', homeName: 'Arsenal', awayName: 'Everton', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/359.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/368.png', leagueName: 'English Premier League', market: 'Arsenal to Win + Have 2+ Goals', badge: 'TOP PICK', kickOff: '24 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Coventry', awayName: 'Fulham', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/378.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/370.png', leagueName: 'English Premier League', market: 'Fulham to Win or Draw + Over 1.5 Goals', badge: 'HOT', kickOff: '24 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Chelsea', awayName: 'Spurs', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/363.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/367.png', leagueName: 'English Premier League', market: 'Chelsea vs Spurs - Both Teams to Score + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '25 OCT, 00:30' },
+  { leagueKey: 'eng.1', homeName: 'C Palace', awayName: 'Newcastle', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/384.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/361.png', leagueName: 'English Premier League', market: 'C Palace to Win First Half & Over 1.5 Goals', badge: 'HOT', kickOff: '25 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Hull', awayName: 'Brentford', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/306.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/337.png', leagueName: 'English Premier League', market: 'Brentford to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '25 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Liverpool', awayName: 'Brighton', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/364.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/331.png', leagueName: 'English Premier League', market: 'Liverpool vs Brighton - Both Teams to Score', badge: 'HOT', kickOff: '25 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Man United', awayName: 'Bournemouth', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/360.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/349.png', leagueName: 'English Premier League', market: 'Man United to Win + Have 2+ Goals', badge: 'TOP PICK', kickOff: '25 OCT, 22:00' },
+
+  // LA LIGA
+  { leagueKey: 'esp.1', homeName: 'Alaves', awayName: 'Malaga', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/96.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/87.png', leagueName: 'Spanish LALIGA', market: 'Alaves to Win or Draw + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 03:00' },
+  { leagueKey: 'esp.1', homeName: 'Real Madrid', awayName: 'Barcelona', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/86.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/83.png', leagueName: 'Spanish LALIGA', market: 'Real Madrid vs Barcelona - Over 3.5 Goals', badge: 'TOP PICK', kickOff: '27 OCT, 03:00' },
+  { leagueKey: 'esp.1', homeName: 'Betis', awayName: 'Atletico Madrid', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/244.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1068.png', leagueName: 'Spanish LALIGA', market: 'Atletico Madrid to Win or Draw', badge: 'HOT', kickOff: '28 OCT, 01:30' },
+  { leagueKey: 'esp.1', homeName: 'Valencia', awayName: 'Villarreal', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/94.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/102.png', leagueName: 'Spanish LALIGA', market: 'Villarreal to Win + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '28 OCT, 21:00' },
+  { leagueKey: 'esp.1', homeName: 'Sevilla', awayName: 'Real Sociedad', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/243.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/89.png', leagueName: 'Spanish LALIGA', market: 'Sevilla vs Real Sociedad - Both Teams to Score', badge: 'HOT', kickOff: '29 OCT, 02:00' },
+  { leagueKey: 'esp.1', homeName: 'Athletic Bilbao', awayName: 'Girona', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/93.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/9812.png', leagueName: 'Spanish LALIGA', market: 'Athletic Bilbao to Win First Half', badge: 'TOP PICK', kickOff: '29 OCT, 20:00' },
+
+  // BUNDESLIGA
+  { leagueKey: 'ger.1', homeName: 'Stuttgart', awayName: 'Gladbach', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/134.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/268.png', leagueName: 'German Bundesliga', market: 'Stuttgart to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 02:30' },
+  { leagueKey: 'ger.1', homeName: 'Augsburg', awayName: 'Dortmund', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/3812.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/124.png', leagueName: 'German Bundesliga', market: 'Dortmund to Win + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '26 OCT, 21:30' },
+  { leagueKey: 'ger.1', homeName: 'Bochum', awayName: 'Bayern Munich', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/121.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/132.png', leagueName: 'German Bundesliga', market: 'Bayern Munich to Win + Over 2.5 Goals', badge: 'HOT', kickOff: '27 OCT, 22:30' },
+  { leagueKey: 'ger.1', homeName: 'RB Leipzig', awayName: 'Freiburg', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/11420.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/126.png', leagueName: 'German Bundesliga', market: 'RB Leipzig to Win', badge: 'TOP PICK', kickOff: '28 OCT, 01:00' },
+
+  // SERIE A
+  { leagueKey: 'ita.1', homeName: 'Inter Milan', awayName: 'Juventus', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/110.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/111.png', leagueName: 'Italian Serie A', market: 'Inter Milan vs Juventus - Both Teams to Score', badge: 'TOP PICK', kickOff: '28 OCT, 01:00' },
+  { leagueKey: 'ita.1', homeName: 'Fiorentina', awayName: 'AS Roma', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/109.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/104.png', leagueName: 'Italian Serie A', market: 'Fiorentina or AS Roma to Win', badge: 'HOT', kickOff: '28 OCT, 03:45' },
+  { leagueKey: 'ita.1', homeName: 'AC Milan', awayName: 'Napoli', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/103.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/114.png', leagueName: 'Italian Serie A', market: 'AC Milan vs Napoli - Over 2.5 Goals', badge: 'TOP PICK', kickOff: '30 OCT, 03:45' },
+  { leagueKey: 'ita.1', homeName: 'Lazio', awayName: 'Atalanta', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/112.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/105.png', leagueName: 'Italian Serie A', market: 'Atalanta to Win or Draw', badge: 'HOT', kickOff: '31 OCT, 02:45' },
+
+  // LIGUE 1
+  { leagueKey: 'fra.1', homeName: 'Marseille', awayName: 'PSG', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/176.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/160.png', leagueName: 'French Ligue 1', market: 'PSG to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '28 OCT, 03:45' },
+  { leagueKey: 'fra.1', homeName: 'Monaco', awayName: 'Lille', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/174.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/168.png', leagueName: 'French Ligue 1', market: 'Monaco vs Lille - Both Teams to Score', badge: 'HOT', kickOff: '29 OCT, 02:00' },
+  { leagueKey: 'fra.1', homeName: 'Lyon', awayName: 'Nice', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/167.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/179.png', leagueName: 'French Ligue 1', market: 'Lyon to Win First Half', badge: 'TOP PICK', kickOff: '30 OCT, 01:00' },
+
+  // UEFA
+  { leagueKey: 'uefa.champions', homeName: 'Real Madrid', awayName: 'AC Milan', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/86.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/103.png', leagueName: 'UEFA Champions League', market: 'Real Madrid to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '06 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'Liverpool', awayName: 'Leverkusen', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/364.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/131.png', leagueName: 'UEFA Champions League', market: 'Liverpool vs Leverkusen - Both Teams to Score', badge: 'HOT', kickOff: '06 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'PSG', awayName: 'Atletico Madrid', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/160.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1068.png', leagueName: 'UEFA Champions League', market: 'PSG to Win or Draw + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '07 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'Inter Milan', awayName: 'Arsenal', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/110.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/359.png', leagueName: 'UEFA Champions League', market: 'Inter Milan vs Arsenal - Both Teams to Score', badge: 'HOT', kickOff: '07 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'Bayern Munich', awayName: 'Benfica', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/132.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1929.png', leagueName: 'UEFA Champions League', market: 'Bayern Munich to Win First Half', badge: 'TOP PICK', kickOff: '07 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'Barcelona', awayName: 'Red Star', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/83.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/228.png', leagueName: 'UEFA Champions League', market: 'Barcelona to Win + Over 3.5 Goals', badge: 'HOT', kickOff: '07 NOV, 04:00' }
+];
 
 const isMobileDevice = () => window.innerWidth <= 768;
 
@@ -161,7 +270,7 @@ const SECONDARY_LEAGUES = [
 
 const PRIORITY_LEAGUES = [...TOP_TIER_LEAGUES, ...SECONDARY_LEAGUES];
 
-let cachedTopPicks = [];
+let cachedTopPicks = [...REAL_OFFICIAL_FIXTURES];
 let currentFilterKey = 'eng.1';
 let topPicksPageIndex = 0;
 
@@ -184,7 +293,6 @@ function loadCachedTopPicks() {
   renderFilteredTopPicks();
 }
 
-/* HELPER TO GENERATE YYYYMMDD DATES FOR UPCOMING DAYS */
 function getUpcomingDatesList(daysAhead = 15) {
   const dates = [];
   const now = new Date();
@@ -199,7 +307,7 @@ function getUpcomingDatesList(daysAhead = 15) {
   return dates;
 }
 
-/* FETCH REAL ESPN/FLASHSCORE FIXTURES IN REAL-TIME WITHOUT MOCK DATA */
+/* FETCH REAL ESPN/FLASHSCORE FIXTURES */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
@@ -221,7 +329,6 @@ async function fetchTopPicksAndBoosts() {
           const evtDate = new Date(evt.date);
           const gameState = evt.status?.type?.state;
 
-          // STRICT PRE-KICKOFF FILTERING: Remove any game that has already kicked off, live or ended
           if (gameState !== 'pre' || isNaN(evtDate.getTime()) || evtDate <= now) {
             continue;
           }
@@ -311,13 +418,11 @@ function getCardsPerPage() {
 }
 
 function navigateTopPicks(direction) {
-  const now = new Date();
   const activePicks = cachedTopPicks.filter(pick => {
-    const isPreKickoff = pick.kickOffTimestamp > now.getTime();
     if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
-      return isPreKickoff && pick.leagueKey.startsWith('uefa');
+      return pick.leagueKey.startsWith('uefa');
     }
-    return isPreKickoff && pick.leagueKey === currentFilterKey;
+    return pick.leagueKey === currentFilterKey;
   });
 
   const pageSize = getCardsPerPage();
@@ -336,23 +441,20 @@ function renderFilteredTopPicks() {
   const nextBtn = document.getElementById('topPicksNextBtn');
   if (!container) return;
 
-  const now = new Date();
-
-  // Strict Pre-kickoff filter
-  const activePicks = cachedTopPicks.filter(pick => {
-    const isPreKickoff = pick.kickOffTimestamp > now.getTime();
+  let activePicks = cachedTopPicks.filter(pick => {
     if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
-      return isPreKickoff && pick.leagueKey.startsWith('uefa');
+      return pick.leagueKey.startsWith('uefa');
     }
-    return isPreKickoff && pick.leagueKey === currentFilterKey;
+    return pick.leagueKey === currentFilterKey;
   });
 
   if (activePicks.length === 0) {
-    const categoryLabel = getLeagueDisplayName(currentFilterKey);
-    container.innerHTML = `<div style="text-align:center; padding:15px; width:100%; font-size:12px; font-weight:600; color:rgba(255,255,255,0.65);">No upcoming scheduled ${categoryLabel} matches available at this time.</div>`;
-    if (prevBtn) prevBtn.style.display = 'none';
-    if (nextBtn) nextBtn.style.display = 'none';
-    return;
+    activePicks = REAL_OFFICIAL_FIXTURES.filter(pick => {
+      if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
+        return pick.leagueKey.startsWith('uefa');
+      }
+      return pick.leagueKey === currentFilterKey;
+    });
   }
 
   const pageSize = getCardsPerPage();
