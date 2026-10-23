@@ -1,10 +1,11 @@
 :root {
+  --glass-opacity-val: 0.45;
   --glass-bg: rgba(255, 255, 255, 0.12);
-  --glass-card-bg: rgba(15, 23, 42, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.28);
+  --glass-card-bg: rgba(15, 23, 42, var(--glass-opacity-val));
+  --glass-border: rgba(255, 255, 255, calc(var(--glass-opacity-val) * 0.7));
   --glass-highlight: inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.2);
   --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-  --card-blur: blur(30px) saturate(150%);
+  --card-blur: blur(35px) saturate(160%);
 }
 
 * {
@@ -22,8 +23,7 @@ html, body {
 
 body {
   min-height: 100vh;
-  /* Primary Default Wallpaper: Liquid Chrome & Blue / Fluid Ink Swirl */
-  background: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat #090d16;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23070c1b'/%3E%3Cpath d='M0 0 L1920 0 L1920 1080 L0 1080 Z' fill='%230b152d'/%3E%3Cpath d='M-100 300 Q400 100 960 500 T2020 400 L2020 1180 L-100 1180 Z' fill='%230f214a'/%3E%3Cpath d='M-100 500 Q500 800 1100 400 T2020 700 L2020 1180 L-100 1180 Z' fill='url(%23orangeGrad1)'/%3E%3Cpath d='M-100 750 Q600 450 1200 850 T2020 600 L2020 1180 L-100 1180 Z' fill='url(%23orangeGrad2)' opacity='0.95'/%3E%3Cdefs%3E%3ClinearGradient id='orangeGrad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff5500'/%3E%3Cstop offset='100%25' stop-color='%23ff8c00'/%3E%3C/linearGradient%3E%3ClinearGradient id='orangeGrad2' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ff3b00'/%3E%3Cstop offset='50%25' stop-color='%23ff7700'/%3E%3Cstop offset='100%25' stop-color='%23ffa000'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E") center/cover fixed no-repeat #070c1b;
   color: #ffffff;
   display: flex;
   padding: 24px;
@@ -32,7 +32,6 @@ body {
   position: relative;
 }
 
-/* --- INSTANT AUTHENTICATED STATE (PREVENTS REFRESH GLIMPSE) --- */
 html.sbhub-authenticated #authOverlay {
   display: none !important;
   opacity: 0 !important;
@@ -46,7 +45,6 @@ html.sbhub-authenticated #dashboardApp {
   pointer-events: auto !important;
 }
 
-/* CUSTOM SCROLLBARS */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -70,9 +68,6 @@ html.sbhub-authenticated #dashboardApp {
   pointer-events: none;
 }
 
-/* ==========================================================================
-   AUTHENTICATION OVERLAY & LOGIN MODAL
-   ========================================================================== */
 #authOverlay {
   position: fixed;
   inset: 0;
@@ -130,7 +125,6 @@ html.sbhub-authenticated #dashboardApp {
   40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
-/* SITTING ROBOT STAGE */
 .sitting-robot-stage {
   position: absolute;
   top: -72px;
@@ -336,9 +330,6 @@ html.sbhub-authenticated #dashboardApp {
 
 .login-error { font-size: 11px; font-weight: 700; color: #f87171; min-height: 16px; text-align: center; }
 
-/* ==========================================================================
-   MAIN DASHBOARD APP LAYOUT & UNLOCK FAILSAFE
-   ========================================================================== */
 #dashboardApp {
   display: flex;
   gap: 24px;
@@ -360,7 +351,6 @@ html.sbhub-authenticated #dashboardApp {
   pointer-events: auto !important;
 }
 
-/* SIDEBAR NAVIGATION (DESKTOP) */
 .sidebar {
   width: 270px;
   display: flex;
@@ -699,7 +689,6 @@ html.sbhub-authenticated #dashboardApp {
   color: #ffffff !important;
 }
 
-/* MAIN WORKSPACE */
 .main-workspace {
   flex: 1;
   display: flex;
@@ -713,10 +702,10 @@ html.sbhub-authenticated #dashboardApp {
 }
 
 .glass-card {
-  background: var(--glass-card-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
+  background: rgba(15, 23, 42, var(--glass-opacity-val, 0.45));
+  border: 1px solid rgba(255, 255, 255, calc(var(--glass-opacity-val, 0.45) * 0.7));
+  backdrop-filter: blur(35px) saturate(160%);
+  -webkit-backdrop-filter: blur(35px) saturate(160%);
   border-radius: 24px;
   padding: 20px;
   display: flex;
@@ -725,6 +714,7 @@ html.sbhub-authenticated #dashboardApp {
   width: 100%;
   box-sizing: border-box;
   box-shadow: var(--glass-shadow);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .card-header {
@@ -743,9 +733,6 @@ html.sbhub-authenticated #dashboardApp {
   opacity: 0.6;
 }
 
-/* ==========================================================================
-   OVERVIEW BANNER CARD - HERO HEADER (FROZEN STICKY BANNER)
-   ========================================================================== */
 .top-banner-card {
   display: flex;
   flex-direction: column;
@@ -821,7 +808,6 @@ html.sbhub-authenticated #dashboardApp {
 .weather-location-tag { font-weight: 700; color: #ffffff; }
 .weather-banner-details { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 8.5px; color: rgba(255, 255, 255, 0.75); font-weight: 600; }
 
-/* INLINE HIGH-VISIBILITY RED GLOWING JIRA ALERT BANNER */
 @keyframes redPulseGlow {
   0% {
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.2);
@@ -958,9 +944,6 @@ html.sbhub-authenticated #dashboardApp {
   color: #ffffff !important;
 }
 
-/* ==========================================================================
-   YELLOW GLOWING URGENT HANDOVER BANNER - CATEGORIZATION & COUNT STYLES
-   ========================================================================== */
 @keyframes yellowPulseGlow {
   0% {
     box-shadow: 0 0 10px rgba(234, 179, 8, 0.55), inset 0 0 8px rgba(234, 179, 8, 0.25);
@@ -1151,7 +1134,6 @@ html.sbhub-authenticated #dashboardApp {
   border-radius: 8px !important;
 }
 
-/* INTERACTIVE HANDOVER MODAL */
 .handover-modal-overlay {
   display: none;
   position: fixed;
@@ -1335,7 +1317,6 @@ html.sbhub-authenticated #dashboardApp {
   color: #ffffff;
 }
 
-/* BOTTOM ROW FLEX (CLOCKS & CONTROLS) */
 .banner-bottom-row {
   display: flex;
   justify-content: space-between;
@@ -1442,17 +1423,19 @@ html.sbhub-authenticated #dashboardApp {
 
 .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.4); display: inline-block; }
 
-/* ==========================================================================
-   TOP PICKS / HOT BOOSTS WIDGET & FILTER TABS
-   ========================================================================== */
+.compact-picks-widget {
+  padding: 14px 18px !important;
+  gap: 10px !important;
+}
+
 .top-picks-filter-bar {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
-  margin-bottom: 6px;
-  scrollbar-width: thin;
+  padding-bottom: 2px;
+  scrollbar-width: none;
 }
+.top-picks-filter-bar::-webkit-scrollbar { display: none; }
 
 .boost-filter-btn {
   background: rgba(255, 255, 255, 0.08);
@@ -1461,7 +1444,7 @@ html.sbhub-authenticated #dashboardApp {
   color: rgba(255, 255, 255, 0.85);
   font-size: 10px;
   font-weight: 800;
-  padding: 6px 14px;
+  padding: 5px 12px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
@@ -1481,25 +1464,66 @@ html.sbhub-authenticated #dashboardApp {
   box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
 }
 
-.top-picks-grid-row {
+.top-picks-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 180px;
+}
+
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.carousel-nav-btn:hover {
+  background: rgba(239, 68, 68, 0.9);
+  border-color: #f87171;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+}
+
+.carousel-nav-btn.prev-btn { left: -12px; }
+.carousel-nav-btn.next-btn { right: -12px; }
+
+/* STRICT MAXIMUM 6 COLUMNS PER ROW LAYOUT */
+.top-picks-single-row {
   display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)) !important;
-  gap: 12px !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 10px !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .boost-card {
   width: 100% !important;
+  max-width: 100% !important;
   min-width: 0 !important;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 10px;
+  gap: 6px;
   box-sizing: border-box;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1518,12 +1542,12 @@ html.sbhub-authenticated #dashboardApp {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .team-flag-img {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
   border: 1.5px solid rgba(255, 255, 255, 0.25);
@@ -1534,14 +1558,14 @@ html.sbhub-authenticated #dashboardApp {
 .vs-light { font-size: 10px; font-weight: 400; color: #64748b; }
 
 .boost-match-info { text-align: center; }
-.boost-match-title { font-size: 11px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.boost-league-sub { font-size: 9px; color: rgba(255, 255, 255, 0.65); margin-top: 2px; }
+.boost-match-title { font-size: 10.5px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.boost-league-sub { font-size: 8.5px; color: rgba(255, 255, 255, 0.65); margin-top: 1px; }
 
 .boost-badge {
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
   text-transform: uppercase;
   display: inline-block;
 }
@@ -1549,7 +1573,7 @@ html.sbhub-authenticated #dashboardApp {
 .boost-badge.top-pick { background: #0284c7; color: #ffffff; }
 .boost-badge.hot { background: #dc2626; color: #ffffff; }
 
-.boost-market-desc { font-size: 10.5px; font-weight: 600; color: #cbd5e1; line-height: 1.3; min-height: 28px; }
+.boost-market-desc { font-size: 10px; font-weight: 600; color: #cbd5e1; line-height: 1.25; min-height: 25px; }
 
 .boost-card-bottom { display: flex; justify-content: flex-end; }
 
@@ -1557,18 +1581,15 @@ html.sbhub-authenticated #dashboardApp {
   background: rgba(56, 189, 248, 0.12);
   border: 1px solid rgba(56, 189, 248, 0.35);
   color: #38bdf8;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 3px 6px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
-/* ==========================================================================
-   DASHBOARD THREE-COLUMN GRID
-   ========================================================================== */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -1702,9 +1723,6 @@ html.sbhub-authenticated #dashboardApp {
   letter-spacing: 0.3px;
 }
 
-/* ==========================================================================
-   LIGHT THEME (DAYLIGHT OPTIONS)
-   ========================================================================== */
 body.light-theme { color: #0f172a !important; }
 body.light-theme .sidebar-header,
 body.light-theme .mobile-brand-title,
@@ -1827,11 +1845,20 @@ body.light-theme .handover-field { background: #ffffff !important; border-color:
 body.light-theme .handover-manage-row { background: #f8fafc !important; border-color: #e2e8f0 !important; }
 body.light-theme .handover-manage-text { color: #1e293b !important; }
 
-/* ==========================================================================
-   MOBILE & TOUCHSCREEN RESPONSIVE MEDIA QUERIES
-   ========================================================================== */
 .mobile-nav-header { display: none; }
 .sidebar-overlay { display: none; }
+
+@media (max-width: 1200px) {
+  .top-picks-single-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-picks-single-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
 
 @media (max-width: 768px) {
   body { padding: 10px; gap: 0; overflow-x: hidden; }
@@ -1980,11 +2007,14 @@ body.light-theme .handover-manage-text { color: #1e293b !important; }
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95) !important;
   }
 
-  .top-picks-grid-row {
+  .top-picks-single-row {
     grid-template-columns: 1fr !important;
   }
 
-  .boost-card { width: 100% !important; padding: 14px; }
+  .carousel-nav-btn.prev-btn { left: -6px; }
+  .carousel-nav-btn.next-btn { right: -6px; }
+
+  .boost-card { width: 100% !important; padding: 12px; }
   .dashboard-grid { grid-template-columns: 1fr; gap: 14px; }
   .glass-card { padding: 14px; border-radius: 18px; }
 
