@@ -68,6 +68,84 @@ html.sbhub-authenticated #dashboardApp {
   pointer-events: none;
 }
 
+/* BRAND DIRECTORY WIDGET COLOR TINTING ENGINE */
+#widget-brand-dock {
+  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+#widget-brand-dock.tint-ibet {
+  background: rgba(185, 28, 28, var(--glass-opacity-val, 0.45)) !important;
+  border-color: rgba(248, 113, 113, 0.5) !important;
+  box-shadow: 0 15px 35px rgba(185, 28, 28, 0.25) !important;
+}
+
+#widget-brand-dock.tint-edge {
+  background: rgba(6, 122, 80, var(--glass-opacity-val, 0.45)) !important;
+  border-color: rgba(52, 211, 153, 0.5) !important;
+  box-shadow: 0 15px 35px rgba(6, 122, 80, 0.25) !important;
+}
+
+#widget-brand-dock.tint-pubs {
+  background: rgba(194, 65, 12, var(--glass-opacity-val, 0.45)) !important;
+  border-color: rgba(251, 146, 60, 0.5) !important;
+  box-shadow: 0 15px 35px rgba(194, 65, 12, 0.25) !important;
+}
+
+/* BRAND ACTION ROW ITEM STYLES */
+.brand-action-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease !important;
+}
+
+.brand-action-row:hover {
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  transform: translateX(2px);
+}
+
+.brand-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.brand-item-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.brand-item-desc {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  transition: color 0.2s ease;
+}
+
+.brand-action-row:hover .brand-item-desc {
+  color: #38bdf8;
+}
+
+/* QUICK LAUNCH ICON BADGE COLORS */
+.icon-claude   { background: linear-gradient(135deg, #d97706, #b45309) !important; }
+.icon-chatgpt  { background: linear-gradient(135deg, #10a37f, #0d8a6a) !important; }
+.icon-gemini   { background: linear-gradient(135deg, #4285f4, #9b51e0) !important; }
+
 #authOverlay {
   position: fixed;
   inset: 0;
@@ -501,8 +579,6 @@ html.sbhub-authenticated #dashboardApp {
 .icon-brands   { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
 .icon-price    { background: linear-gradient(135deg, #84cc16, #4d7c0f); }
 .icon-proc     { background: linear-gradient(135deg, #ec4899, #be185d); }
-.icon-claude   { background: linear-gradient(135deg, #d97706, #b45309); }
-.icon-risk     { background: linear-gradient(135deg, #10b981, #047857); }
 
 .sub-menu {
   display: flex;
@@ -1502,7 +1578,6 @@ html.sbhub-authenticated #dashboardApp {
 .carousel-nav-btn.prev-btn { left: -12px; }
 .carousel-nav-btn.next-btn { right: -12px; }
 
-/* STRICT MAXIMUM 6 COLUMNS PER ROW LAYOUT */
 .top-picks-single-row {
   display: grid !important;
   grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
@@ -1601,6 +1676,15 @@ html.sbhub-authenticated #dashboardApp {
 
 @media (max-width: 1200px) {
   .dashboard-grid { grid-template-columns: 1fr; }
+  .top-picks-single-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-picks-single-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 }
 
 .tab-pills { display: flex; gap: 6px; }
@@ -1847,18 +1931,6 @@ body.light-theme .handover-manage-text { color: #1e293b !important; }
 
 .mobile-nav-header { display: none; }
 .sidebar-overlay { display: none; }
-
-@media (max-width: 1200px) {
-  .top-picks-single-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 900px) {
-  .top-picks-single-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
 
 @media (max-width: 768px) {
   body { padding: 10px; gap: 0; overflow-x: hidden; }
