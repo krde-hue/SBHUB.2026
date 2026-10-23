@@ -29,7 +29,6 @@ function handleSidebarSearch(query) {
   const quickDockBtns = document.querySelectorAll('.sidebar-quick-dock .quick-launch-btn');
 
   if (!cleanQuery) {
-    // Reset to initial collapsed state
     navGroups.forEach(group => {
       group.style.display = 'flex';
       const mainBtn = group.querySelector('.nav-main-btn');
@@ -47,13 +46,11 @@ function handleSidebarSearch(query) {
     return;
   }
 
-  // Filter Quick Launch Dock Buttons
   quickDockBtns.forEach(btn => {
     const text = btn.textContent.toLowerCase();
     btn.style.display = text.includes(cleanQuery) ? 'flex' : 'none';
   });
 
-  // Filter Nav Groups
   navGroups.forEach(group => {
     const mainBtn = group.querySelector('.nav-main-btn');
     const subMenu = group.querySelector('.sub-menu');
@@ -84,6 +81,59 @@ function handleSidebarSearch(query) {
   });
 }
 
+/* --- BRAND DIRECTORY TAB DATA WITH GLASS TINTING & HOVER DESCRIPTIONS --- */
+const brandTabData = {
+  ibet: [
+    { name: "IBET ADMIN", url: "https://mga-betbook.center/ibet/bets", desc: "Ibet Customer Info/Docs/Transactions" },
+    { name: "IBET BETSSON", url: "https://b2b.betssonbusiness.com/", desc: "Ticket Escalation for Betsson" },
+    { name: "BET CONSTRUCT", url: "https://backoffice.betconstruct.com/", desc: "Pubs, Ibet, 55bet(Player Limit Adjustment, Market Creation & Suspension)" }
+  ],
+  edge: [
+    { name: "KT SBX", url: "https://p2ibet.sbx.bet/bets", desc: "KT Tickers, Boost/Banners, Players Info" },
+    { name: "EDGE ADMIN", url: "https://admin.edgegaming.io/admin/qbet/homepage", desc: "Edge Customer Info/Docs/Transactions" },
+    { name: "SERVICE DESK", url: "https://kickertech.atlassian.net/servicedesk/customer/user/login?destination=portals", desc: "KT projects Ticket Escalations" }
+  ],
+  pubs: [
+    { name: "GO GAMING", url: "https://gg-backoffice-eu.gogaming.cc/en-US/member/list", desc: "Pubs Customer Info/Docs/Transactions" }
+  ]
+};
+
+function switchBrandTab(tabName) {
+  document.querySelectorAll('.tab-pill').forEach(pill => pill.classList.remove('active'));
+  const activePill = document.getElementById(`tab-${tabName}`);
+  if (activePill) activePill.classList.add('active');
+
+  const brandDock = document.getElementById('widget-brand-dock');
+  if (brandDock) {
+    brandDock.classList.remove('tint-ibet', 'tint-edge', 'tint-pubs');
+    if (tabName === 'ibet') brandDock.classList.add('tint-ibet');
+    else if (tabName === 'edge') brandDock.classList.add('tint-edge');
+    else if (tabName === 'pubs') brandDock.classList.add('tint-pubs');
+  }
+
+  const container = document.getElementById('brandLinksContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const items = brandTabData[tabName] || [];
+  items.forEach(item => {
+    const a = document.createElement('a');
+    a.className = 'action-row brand-action-row';
+    a.href = item.url;
+    a.title = item.desc; // Native Browser Hover Tooltip
+    if (item.url !== '#') a.target = '_blank';
+    
+    a.innerHTML = `
+      <div class="brand-item-left">
+        <span class="brand-item-title">${item.name}</span>
+        <span class="brand-item-desc">${item.desc}</span>
+      </div>
+      <i class='bx bx-right-arrow-alt'></i>
+    `;
+    container.appendChild(a);
+  });
+}
+
 /* --- HIGH-RELIABILITY CORS FETCH SYSTEM --- */
 const fetchCorsSafe = async (targetUrl) => {
   try {
@@ -106,7 +156,7 @@ const fetchCorsSafe = async (targetUrl) => {
   return null;
 };
 
-/* --- REAL OFFICIAL FIXTURES DATASET FOR TOP PICKS (UP TO 15 DAYS) --- */
+/* --- REAL OFFICIAL FIXTURES DATASET FOR TOP PICKS --- */
 const REAL_OFFICIAL_FIXTURES = [
   // EPL
   { leagueKey: 'eng.1', homeName: 'Ipswich', awayName: 'Nottm Forest', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/374.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/393.png', leagueName: 'English Premier League', market: 'Ipswich to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 03:00' },
@@ -152,92 +202,6 @@ const REAL_OFFICIAL_FIXTURES = [
   { leagueKey: 'uefa.champions', homeName: 'Bayern Munich', awayName: 'Benfica', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/132.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1929.png', leagueName: 'UEFA Champions League', market: 'Bayern Munich to Win First Half', badge: 'TOP PICK', kickOff: '07 NOV, 04:00' },
   { leagueKey: 'uefa.champions', homeName: 'Barcelona', awayName: 'Red Star', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/83.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/228.png', leagueName: 'UEFA Champions League', market: 'Barcelona to Win + Over 3.5 Goals', badge: 'HOT', kickOff: '07 NOV, 04:00' }
 ];
-
-const isMobileDevice = () => window.innerWidth <= 768;
-
-function updateGlassOpacity(val) {
-  const opacityVal = parseFloat(val);
-  document.documentElement.style.setProperty('--glass-opacity-val', opacityVal);
-  localStorage.setItem('sbhub_glass_opacity', opacityVal);
-  const labelEl = document.getElementById('opacityValLabel');
-  if (labelEl) labelEl.textContent = `${Math.round(opacityVal * 100)}%`;
-}
-
-let rosterDb = null;
-try {
-  if (typeof firebase !== 'undefined') {
-    const rosterFirebaseConfig = {
-      apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
-      authDomain: "test-daily-task--sb.firebaseapp.com",
-      databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
-      projectId: "test-daily-task--sb",
-      storageBucket: "test-daily-task--sb.firebasestorage.app",
-      messagingSenderId: "928476661919",
-      appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(rosterFirebaseConfig);
-    rosterDb = firebase.database();
-  }
-} catch (e) {
-  console.warn("Firebase offline or blocked.", e);
-}
-
-let selectedGameDayOffset = 0;
-
-function toggleMobileSidebar(forceState) {
-  const sidebar = document.getElementById('mainSidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  if (!sidebar || !overlay) return;
-
-  const isActive = forceState !== undefined ? forceState : !sidebar.classList.contains('mobile-open');
-
-  if (isActive) {
-    sidebar.classList.add('mobile-open');
-    overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  } else {
-    sidebar.classList.remove('mobile-open');
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-}
-
-const brandTabData = {
-  ibet: [
-    { name: "IBET ADMIN", url: "https://mga-betbook.center/ibet/bets" },
-    { name: "IBET BETSSON", url: "https://b2b.betssonbusiness.com/" },
-    { name: "BET CONSTRUCT", url: "https://backoffice.betconstruct.com/" }
-  ],
-  edge: [
-    { name: "KT SBX", url: "https://p2ibet.sbx.bet/bets" },
-    { name: "KT PROJECTS", url: "https://kickertech.atlassian.net/jira/projects" },
-    { name: "EDGE ADMIN", url: "https://admin.edgegaming.io/admin/qbet/homepage" },
-    { name: "SERVICE DESK", url: "https://kickertech.atlassian.net/servicedesk/customer/user/login?destination=portals" }
-  ],
-  pubs: [
-    { name: "GO GAMING", url: "https://gg-backoffice-eu.gogaming.cc/en-US/member/list" }
-  ]
-};
-
-function switchBrandTab(tabName) {
-  document.querySelectorAll('.tab-pill').forEach(pill => pill.classList.remove('active'));
-  const activePill = document.getElementById(`tab-${tabName}`);
-  if (activePill) activePill.classList.add('active');
-
-  const container = document.getElementById('brandLinksContainer');
-  if (!container) return;
-  container.innerHTML = '';
-
-  const items = brandTabData[tabName] || [];
-  items.forEach(item => {
-    const a = document.createElement('a');
-    a.className = 'action-row';
-    a.href = item.url;
-    if (item.url !== '#') a.target = '_blank';
-    a.innerHTML = `<span>${item.name}</span><i class='bx bx-right-arrow-alt'></i>`;
-    container.appendChild(a);
-  });
-}
 
 function generateScriptedMarket(homeName, awayName, index) {
   const templates = [
@@ -418,12 +382,21 @@ function getCardsPerPage() {
 }
 
 function navigateTopPicks(direction) {
-  const activePicks = cachedTopPicks.filter(pick => {
+  let activePicks = cachedTopPicks.filter(pick => {
     if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
       return pick.leagueKey.startsWith('uefa');
     }
     return pick.leagueKey === currentFilterKey;
   });
+
+  if (activePicks.length === 0) {
+    activePicks = REAL_OFFICIAL_FIXTURES.filter(pick => {
+      if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
+        return pick.leagueKey.startsWith('uefa');
+      }
+      return pick.leagueKey === currentFilterKey;
+    });
+  }
 
   const pageSize = getCardsPerPage();
   const maxPages = Math.ceil(activePicks.length / pageSize);
