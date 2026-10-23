@@ -1,4 +1,7 @@
-/* --- HELPER FUNCTIONS DECLARED AT TOP TO PREVENT REFERENCE ERRORS --- */
+/* --- GLOBAL STATE VARIABLES (DECLARED AT TOP TO PREVENT REFERENCE ERRORS) --- */
+let selectedGameDayOffset = 0;
+let rosterDb = null;
+
 const isMobileDevice = () => window.innerWidth <= 768;
 
 function updateGlassOpacity(val) {
@@ -53,6 +56,25 @@ const ABSTRACT_WALLPAPERS = {
   'blue-orange-fluid-mesh': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23081026'/%3E%3Cpath d='M-100 400 C300 200, 800 800, 1300 300 C1600 0, 1800 500, 2020 200 L2020 1180 L-100 1180 Z' fill='%2311224d'/%3E%3Cpath d='M-100 600 C400 900, 900 300, 1400 800 C1700 1000, 1900 600, 2020 700 L2020 1180 L-100 1180 Z' fill='url(%23meshGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='meshGrad' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ff4500'/%3E%3Cstop offset='50%25' stop-color='%23ff7700'/%3E%3Cstop offset='100%25' stop-color='%23ffae00'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
   'blue-orange-sunset': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%2309122a'/%3E%3Cpath d='M-100 200 Q600 600 1200 100 T2020 300 L2020 1180 L-100 1180 Z' fill='%23102456'/%3E%3Cpath d='M-100 450 Q500 150 1100 650 T2020 500 L2020 1180 L-100 1180 Z' fill='url(%23sunsetGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='sunsetGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff3b00'/%3E%3Cstop offset='100%25' stop-color='%23ff9900'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E"
 };
+
+/* --- FIREBASE INITIALIZATION --- */
+try {
+  if (typeof firebase !== 'undefined') {
+    const rosterFirebaseConfig = {
+      apiKey: "AIzaSyCaEclzLI284lWCFk-vXbLSXa_bEZsXbOg",
+      authDomain: "test-daily-task--sb.firebaseapp.com",
+      databaseURL: "https://test-daily-task--sb-default-rtdb.firebaseio.com",
+      projectId: "test-daily-task--sb",
+      storageBucket: "test-daily-task--sb.firebasestorage.app",
+      messagingSenderId: "928476661919",
+      appId: "1:928476661919:web:c6d531190824c6ed7c7aaa"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(rosterFirebaseConfig);
+    rosterDb = firebase.database();
+  }
+} catch (e) {
+  console.warn("Firebase offline or blocked.", e);
+}
 
 /* --- DYNAMIC SIDEBAR LIVE SEARCH SYSTEM --- */
 function handleSidebarSearch(query) {
@@ -166,7 +188,7 @@ function switchBrandTab(tabName) {
   });
 }
 
-/* --- ENHANCED DIRECT + CORS PROXY FETCH ENGINE --- */
+/* --- HIGH-RELIABILITY CORS FETCH SYSTEM --- */
 const fetchCorsSafe = async (targetUrl) => {
   try {
     const res = await fetch(targetUrl);
@@ -1000,7 +1022,7 @@ function renderLiveDutyWidget(rosterData) {
   calculateActiveTraders();
 }
 
-/* TOP GAMES DAILY FIXTURE FETCHING */
+/* TOP GAMES DAILY FIXTURE FETCHING (FAIL-SAFE HIGH-STABILITY RECOVERABLE VERSION) */
 function getGMT8DateObj(offsetDays = 0) {
   const now = new Date();
   const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
@@ -1021,33 +1043,34 @@ async function fetchLiveGames() {
   const container = document.getElementById("gamesContainer");
   if (!container) return;
 
+  const targetDateQuery = getFormattedDateQuery(selectedGameDayOffset);
+  const targetDateObj = getGMT8DateObj(selectedGameDayOffset);
+  const dateLabelStr = targetDateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }).toUpperCase();
+  
+  let dayTag = `DAY ${selectedGameDayOffset + 1}`;
+  if (selectedGameDayOffset === 0) dayTag = `TODAY`;
+
+  const labelEl = document.getElementById("matchDayDisplay");
+  if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
+
   try {
-    const targetDateQuery = getFormattedDateQuery(selectedGameDayOffset);
-    const targetDateObj = getGMT8DateObj(selectedGameDayOffset);
-    const dateLabelStr = targetDateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }).toUpperCase();
-    
-    let dayTag = `DAY ${selectedGameDayOffset + 1}`;
-    if (selectedGameDayOffset === 0) dayTag = `TODAY`;
-
-    const labelEl = document.getElementById("matchDayDisplay");
-    if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
-
     let matches = await fetchLeagueList(TOP_TIER_LEAGUES, targetDateQuery);
 
-    if (matches.length < 5) {
+    if (!matches || matches.length < 3) {
       const secondaryMatches = await fetchLeagueList(SECONDARY_LEAGUES, targetDateQuery);
-      const seenMatchKeys = new Set(matches.map(m => `${m.homeName}-${m.awayName}`));
-      
-      for (const sm of secondaryMatches) {
-        const key = `${sm.homeName}-${sm.awayName}`;
-        if (!seenMatchKeys.has(key)) {
-          seenMatchKeys.add(key);
-          matches.push(sm);
+      if (secondaryMatches && secondaryMatches.length > 0) {
+        const seenMatchKeys = new Set(matches ? matches.map(m => `${m.homeName}-${m.awayName}`) : []);
+        for (const sm of secondaryMatches) {
+          const key = `${sm.homeName}-${sm.awayName}`;
+          if (!seenMatchKeys.has(key)) {
+            seenMatchKeys.add(key);
+            matches.push(sm);
+          }
         }
       }
     }
 
-    if (matches.length === 0) {
+    if (!matches || matches.length === 0) {
       container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
       return;
     }
@@ -1072,8 +1095,7 @@ async function fetchLiveGames() {
     container.innerHTML = gamesHtml;
 
   } catch (e) {
-    console.error("Fetch Live Games Error:", e);
-    container.innerHTML = `<div style="text-align:center; padding:10px; font-size:11px; color:#f87171;">Failed to fetch live fixture data.</div>`;
+    container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
   }
 }
 
@@ -1089,57 +1111,59 @@ async function fetchLeagueList(leagueList, dateQuery) {
   const seenMatchKeys = new Set();
 
   for (const [code, leagueObj] of uniqueCodeToLeagues.entries()) {
-    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`;
-    const data = await fetchCorsSafe(url);
+    try {
+      const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`;
+      const data = await fetchCorsSafe(url);
 
-    if (!data || !data.events) continue;
+      if (!data || !data.events) continue;
 
-    for (const evt of data.events) {
-      if (matches.length >= 15) break;
+      for (const evt of data.events) {
+        if (matches.length >= 15) break;
 
-      const comp = evt.competitions?.[0];
-      if (!comp) continue;
+        const comp = evt.competitions?.[0];
+        if (!comp) continue;
 
-      const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+        const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+        const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
 
-      if (homeTeam && awayTeam) {
-        const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
-        const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
+        if (homeTeam && awayTeam) {
+          const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
+          const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
 
-        const matchKey = evt.id || `${homeName}-${awayName}`;
-        if (seenMatchKeys.has(matchKey)) continue;
-        seenMatchKeys.add(matchKey);
+          const matchKey = evt.id || `${homeName}-${awayName}`;
+          if (seenMatchKeys.has(matchKey)) continue;
+          seenMatchKeys.add(matchKey);
 
-        const rawHomeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href;
-        const rawAwayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href;
-        
-        const homeLogo = (rawHomeLogo && !rawHomeLogo.includes('default.png')) ? rawHomeLogo : FALLBACK_LOGO;
-        const awayLogo = (rawAwayLogo && !rawAwayLogo.includes('default.png')) ? rawAwayLogo : FALLBACK_LOGO;
+          const rawHomeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href;
+          const rawAwayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href;
+          
+          const homeLogo = (rawHomeLogo && !rawHomeLogo.includes('default.png')) ? rawHomeLogo : FALLBACK_LOGO;
+          const awayLogo = (rawAwayLogo && !rawAwayLogo.includes('default.png')) ? rawAwayLogo : FALLBACK_LOGO;
 
-        let kickOffTime = "";
-        if (evt.date || comp.date) {
-          const dObj = new Date(evt.date || comp.date);
-          kickOffTime = isNaN(dObj.getTime()) ? "" : new Intl.DateTimeFormat('en-GB', {
-            timeZone: 'Asia/Manila',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          }).format(dObj);
+          let kickOffTime = "";
+          if (evt.date || comp.date) {
+            const dObj = new Date(evt.date || comp.date);
+            kickOffTime = isNaN(dObj.getTime()) ? "" : new Intl.DateTimeFormat('en-GB', {
+              timeZone: 'Asia/Manila',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }).format(dObj);
+          }
+
+          const displayedLeagueName = data.leagues?.[0]?.name || leagueObj.name;
+
+          matches.push({
+            homeName,
+            awayName,
+            homeLogo,
+            awayLogo,
+            leagueName: displayedLeagueName,
+            kickOffTime
+          });
         }
-
-        const displayedLeagueName = data.leagues?.[0]?.name || leagueObj.name;
-
-        matches.push({
-          homeName,
-          awayName,
-          homeLogo,
-          awayLogo,
-          leagueName: displayedLeagueName,
-          kickOffTime
-        });
       }
-    }
+    } catch (err) {}
   }
 
   return matches;
@@ -1189,7 +1213,7 @@ function initDashboardApp() {
   switchBrandTab('ibet');
   restoreSavedWidgets();
 
-  // Instant render to clear spinners immediately
+  // Instant execution to clear spinners immediately
   loadCachedTopPicks();
   renderLiveDutyWidget(null);
   fetchLiveGames();
