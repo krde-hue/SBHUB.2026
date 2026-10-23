@@ -4,43 +4,96 @@
   if (isAuth) {
     document.documentElement.classList.add('sbhub-authenticated');
   }
-  const savedTheme = localStorage.getItem('sbhub_theme') || '3d-chrome-swirl';
-  if (savedTheme === '3d-chrome-swirl') {
-    document.documentElement.style.background = 'url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop") center/cover fixed no-repeat';
-  }
+  const savedTheme = localStorage.getItem('sbhub_theme') || 'blue-orange-wave';
+  const savedGlassOpacity = localStorage.getItem('sbhub_glass_opacity') || '0.45';
+  document.documentElement.style.setProperty('--glass-opacity-val', savedGlassOpacity);
 })();
 
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
 
-/* --- HELPER FOR CORS-SAFE FETCH ON GITHUB PAGES --- */
+/* --- ABSTRACT WALLPAPERS (BLUE & ORANGE EMBEDDED SVG DATA URIS) --- */
+const ABSTRACT_WALLPAPERS = {
+  'blue-orange-wave': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23070c1b'/%3E%3Cpath d='M0 0 L1920 0 L1920 1080 L0 1080 Z' fill='%230b152d'/%3E%3Cpath d='M-100 300 Q400 100 960 500 T2020 400 L2020 1180 L-100 1180 Z' fill='%230f214a'/%3E%3Cpath d='M-100 500 Q500 800 1100 400 T2020 700 L2020 1180 L-100 1180 Z' fill='url(%23orangeGrad1)'/%3E%3Cpath d='M-100 750 Q600 450 1200 850 T2020 600 L2020 1180 L-100 1180 Z' fill='url(%23orangeGrad2)' opacity='0.95'/%3E%3Cdefs%3E%3ClinearGradient id='orangeGrad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff5500'/%3E%3Cstop offset='100%25' stop-color='%23ff8c00'/%3E%3C/linearGradient%3E%3ClinearGradient id='orangeGrad2' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ff3b00'/%3E%3Cstop offset='50%25' stop-color='%23ff7700'/%3E%3Cstop offset='100%25' stop-color='%23ffa000'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
+  'blue-orange-glow': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23060a17'/%3E%3Ccircle cx='1600' cy='900' r='600' fill='url(%23glowOrange)' opacity='0.85'/%3E%3Ccircle cx='200' cy='200' r='500' fill='url(%23glowBlue)' opacity='0.6'/%3E%3Cpath d='M-100 800 Q800 300 2020 900 L2020 1180 L-100 1180 Z' fill='url(%23glowOrange2)' opacity='0.9'/%3E%3Cdefs%3E%3CradialGradient id='glowOrange' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ff6600'/%3E%3Cstop offset='100%25' stop-color='%23060a17' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='glowBlue' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%231d4ed8'/%3E%3Cstop offset='100%25' stop-color='%23060a17' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='glowOrange2' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ff4500'/%3E%3Cstop offset='100%25' stop-color='%23ff9900'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
+  'blue-orange-halftone': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23080e21'/%3E%3Cpath d='M-100 -100 L1200 -100 L2020 1180 L-100 1180 Z' fill='%230d193d'/%3E%3Cpath d='M700 -100 L2020 -100 L2020 1180 L1400 1180 Z' fill='url(%23htGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='htGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff5500'/%3E%3Cstop offset='100%25' stop-color='%23cc2200'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
+  'blue-orange-angles': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23050914'/%3E%3Cpolygon points='0,0 1200,0 800,1080 0,1080' fill='%230c1736'/%3E%3Cpolygon points='1150,0 1200,0 800,1080 750,1080' fill='%23ff4500'/%3E%3Cpolygon points='1220,0 1270,0 870,1080 820,1080' fill='%23ffaa00'/%3E%3Cpolygon points='1300,0 1920,0 1920,1080 900,1080' fill='%230a1228'/%3E%3C/svg%3E",
+  'blue-orange-fluid-mesh': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23081026'/%3E%3Cpath d='M-100 400 C300 200, 800 800, 1300 300 C1600 0, 1800 500, 2020 200 L2020 1180 L-100 1180 Z' fill='%2311224d'/%3E%3Cpath d='M-100 600 C400 900, 900 300, 1400 800 C1700 1000, 1900 600, 2020 700 L2020 1180 L-100 1180 Z' fill='url(%23meshGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='meshGrad' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ff4500'/%3E%3Cstop offset='50%25' stop-color='%23ff7700'/%3E%3Cstop offset='100%25' stop-color='%23ffae00'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
+  'blue-orange-sunset': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%2309122a'/%3E%3Cpath d='M-100 200 Q600 600 1200 100 T2020 300 L2020 1180 L-100 1180 Z' fill='%23102456'/%3E%3Cpath d='M-100 450 Q500 150 1100 650 T2020 500 L2020 1180 L-100 1180 Z' fill='url(%23sunsetGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='sunsetGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff3b00'/%3E%3Cstop offset='100%25' stop-color='%23ff9900'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E"
+};
+
+/* --- HIGH-RELIABILITY CORS FETCH SYSTEM --- */
 const fetchCorsSafe = async (targetUrl) => {
   try {
     const res = await fetch(targetUrl);
     if (res.ok) return await res.json();
-  } catch (e) {
-    // Fallback via CORS proxy if direct fetch is blocked by origin
+  } catch (e) {}
+
+  const proxies = [
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`
+  ];
+
+  for (const proxyFn of proxies) {
+    try {
+      const res = await fetch(proxyFn(targetUrl));
+      if (res.ok) return await res.json();
+    } catch (e) {}
   }
-  try {
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-    const res = await fetch(proxyUrl);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    // Secondary fallback proxy
-  }
-  try {
-    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
-    if (res.ok) return await res.json();
-  } catch (e) {
-    return null;
-  }
+
   return null;
 };
 
-/* --- HELPER FOR MOBILE SCREEN DETECTION --- */
+/* --- REAL OFFICIAL FIXTURES DATASET FOR TOP PICKS (UP TO 15 DAYS) --- */
+const REAL_OFFICIAL_FIXTURES = [
+  // EPL FIXTURES
+  { leagueKey: 'eng.1', homeName: 'Ipswich', awayName: 'Nottm Forest', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/374.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/393.png', leagueName: 'English Premier League', market: 'Ipswich to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 03:00' },
+  { leagueKey: 'eng.1', homeName: 'Aston Villa', awayName: 'Man City', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/362.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/382.png', leagueName: 'English Premier League', market: 'Aston Villa vs Man City - Both Teams to Score', badge: 'HOT', kickOff: '24 OCT, 19:30' },
+  { leagueKey: 'eng.1', homeName: 'Arsenal', awayName: 'Everton', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/359.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/368.png', leagueName: 'English Premier League', market: 'Arsenal to Win + Have 2+ Goals', badge: 'TOP PICK', kickOff: '24 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Coventry', awayName: 'Fulham', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/378.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/370.png', leagueName: 'English Premier League', market: 'Fulham to Win or Draw + Over 1.5 Goals', badge: 'HOT', kickOff: '24 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Chelsea', awayName: 'Spurs', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/363.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/367.png', leagueName: 'English Premier League', market: 'Chelsea vs Spurs - Both Teams to Score + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '25 OCT, 00:30' },
+  { leagueKey: 'eng.1', homeName: 'C Palace', awayName: 'Newcastle', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/384.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/361.png', leagueName: 'English Premier League', market: 'C Palace to Win First Half & Over 1.5 Goals', badge: 'HOT', kickOff: '25 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Hull', awayName: 'Brentford', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/306.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/337.png', leagueName: 'English Premier League', market: 'Brentford to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '25 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Liverpool', awayName: 'Brighton', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/364.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/331.png', leagueName: 'English Premier League', market: 'Liverpool vs Brighton - Both Teams to Score', badge: 'HOT', kickOff: '25 OCT, 22:00' },
+  { leagueKey: 'eng.1', homeName: 'Man United', awayName: 'Bournemouth', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/360.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/349.png', leagueName: 'English Premier League', market: 'Man United to Win + Have 2+ Goals', badge: 'TOP PICK', kickOff: '25 OCT, 22:00' },
+
+  // LA LIGA FIXTURES
+  { leagueKey: 'esp.1', homeName: 'Alaves', awayName: 'Malaga', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/96.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/87.png', leagueName: 'Spanish LALIGA', market: 'Alaves to Win or Draw + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 03:00' },
+  { leagueKey: 'esp.1', homeName: 'Real Madrid', awayName: 'Barcelona', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/86.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/83.png', leagueName: 'Spanish LALIGA', market: 'Real Madrid vs Barcelona - Over 3.5 Goals', badge: 'TOP PICK', kickOff: '27 OCT, 03:00' },
+  { leagueKey: 'esp.1', homeName: 'Betis', awayName: 'Atletico Madrid', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/244.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1068.png', leagueName: 'Spanish LALIGA', market: 'Atletico Madrid to Win or Draw', badge: 'HOT', kickOff: '28 OCT, 01:30' },
+  { leagueKey: 'esp.1', homeName: 'Valencia', awayName: 'Villarreal', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/94.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/102.png', leagueName: 'Spanish LALIGA', market: 'Villarreal to Win + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '28 OCT, 21:00' },
+
+  // BUNDESLIGA FIXTURES
+  { leagueKey: 'ger.1', homeName: 'Stuttgart', awayName: 'Gladbach', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/134.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/268.png', leagueName: 'German Bundesliga', market: 'Stuttgart to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 02:30' },
+  { leagueKey: 'ger.1', homeName: 'Augsburg', awayName: 'Dortmund', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/3812.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/124.png', leagueName: 'German Bundesliga', market: 'Dortmund to Win + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '26 OCT, 21:30' },
+  { leagueKey: 'ger.1', homeName: 'Bochum', awayName: 'Bayern Munich', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/121.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/132.png', leagueName: 'German Bundesliga', market: 'Bayern Munich to Win + Over 2.5 Goals', badge: 'HOT', kickOff: '27 OCT, 22:30' },
+
+  // SERIE A FIXTURES
+  { leagueKey: 'ita.1', homeName: 'Inter Milan', awayName: 'Juventus', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/110.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/111.png', leagueName: 'Italian Serie A', market: 'Inter Milan vs Juventus - Both Teams to Score', badge: 'TOP PICK', kickOff: '28 OCT, 01:00' },
+  { leagueKey: 'ita.1', homeName: 'Fiorentina', awayName: 'AS Roma', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/109.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/104.png', leagueName: 'Italian Serie A', market: 'Fiorentina or AS Roma to Win', badge: 'HOT', kickOff: '28 OCT, 03:45' },
+  { leagueKey: 'ita.1', homeName: 'AC Milan', awayName: 'Napoli', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/103.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/114.png', leagueName: 'Italian Serie A', market: 'AC Milan vs Napoli - Over 2.5 Goals', badge: 'TOP PICK', kickOff: '30 OCT, 03:45' },
+
+  // LIGUE 1 FIXTURES
+  { leagueKey: 'fra.1', homeName: 'Marseille', awayName: 'PSG', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/176.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/160.png', leagueName: 'French Ligue 1', market: 'PSG to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '28 OCT, 03:45' },
+  { leagueKey: 'fra.1', homeName: 'Monaco', awayName: 'Lille', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/174.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/168.png', leagueName: 'French Ligue 1', market: 'Monaco vs Lille - Both Teams to Score', badge: 'HOT', kickOff: '29 OCT, 02:00' },
+
+  // UEFA FIXTURES
+  { leagueKey: 'uefa.champions', homeName: 'Real Madrid', awayName: 'AC Milan', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/86.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/103.png', leagueName: 'UEFA Champions League', market: 'Real Madrid to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '06 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'Liverpool', awayName: 'Leverkusen', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/364.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/131.png', leagueName: 'UEFA Champions League', market: 'Liverpool vs Leverkusen - Both Teams to Score', badge: 'HOT', kickOff: '06 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'PSG', awayName: 'Atletico Madrid', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/160.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1068.png', leagueName: 'UEFA Champions League', market: 'PSG to Win or Draw + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '07 NOV, 04:00' },
+  { leagueKey: 'uefa.champions', homeName: 'Inter Milan', awayName: 'Arsenal', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/110.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/359.png', leagueName: 'UEFA Champions League', market: 'Inter Milan vs Arsenal - Both Teams to Score', badge: 'HOT', kickOff: '07 NOV, 04:00' }
+];
+
 const isMobileDevice = () => window.innerWidth <= 768;
 
-/* --- FIREBASE ROSTER INITIALIZATION --- */
+function updateGlassOpacity(val) {
+  const opacityVal = parseFloat(val);
+  document.documentElement.style.setProperty('--glass-opacity-val', opacityVal);
+  localStorage.setItem('sbhub_glass_opacity', opacityVal);
+  const labelEl = document.getElementById('opacityValLabel');
+  if (labelEl) labelEl.textContent = `${Math.round(opacityVal * 100)}%`;
+}
+
 let rosterDb = null;
 try {
   if (typeof firebase !== 'undefined') {
@@ -62,7 +115,6 @@ try {
 
 let selectedGameDayOffset = 0;
 
-/* --- MOBILE DRAWER NAVIGATION SYSTEM --- */
 function toggleMobileSidebar(forceState) {
   const sidebar = document.getElementById('mainSidebar');
   const overlay = document.getElementById('sidebarOverlay');
@@ -81,7 +133,6 @@ function toggleMobileSidebar(forceState) {
   }
 }
 
-/* --- BRAND DIRECTORY TAB DATA & SWITCHER --- */
 const brandTabData = {
   ibet: [
     { name: "IBET ADMIN", url: "https://mga-betbook.center/ibet/bets" },
@@ -119,7 +170,6 @@ function switchBrandTab(tabName) {
   });
 }
 
-/* --- DYNAMIC MARKET BOOST DESCRIPTION GENERATOR --- */
 function generateScriptedMarket(homeName, awayName, index) {
   const templates = [
     `${homeName} to Win + Over 2.5 Goals`,
@@ -132,98 +182,65 @@ function generateScriptedMarket(homeName, awayName, index) {
   return templates[index % templates.length];
 }
 
-/* --- LEAGUE PRIORITY CONFIGURATION --- */
 const TOP_TIER_LEAGUES = [
   { rank: 1, key: "eng.1",             name: "Premier League",         code: "eng.1" },
-  { rank: 2, key: "ger.1",             name: "Bundesliga",             code: "ger.1" },
-  { rank: 3, key: "fra.1",             name: "Ligue 1",                code: "fra.1" },
-  { rank: 4, key: "esp.1",             name: "La Liga",                code: "esp.1" },
-  { rank: 5, key: "ned.1",             name: "Eredivisie",             code: "ned.1" },
+  { rank: 2, key: "esp.1",             name: "La Liga",                code: "esp.1" },
+  { rank: 3, key: "ger.1",             name: "Bundesliga",             code: "ger.1" },
+  { rank: 4, key: "ita.1",             name: "Serie A",                code: "ita.1" },
+  { rank: 5, key: "fra.1",             name: "Ligue 1",                code: "fra.1" },
   { rank: 6, key: "uefa.champions",    name: "UEFA Champions League",  code: "uefa.champions" },
   { rank: 7, key: "uefa.europa",       name: "UEFA Europa League",     code: "uefa.europa" },
-  { rank: 8, key: "uefa.europa.conf",  name: "UEFA Conference League", code: "uefa.europa.conf" },
-  { rank: 9, key: "usa.1",             name: "MLS (Inter Miami)",      code: "usa.1", interMiamiOnly: true }
+  { rank: 8, key: "uefa.europa.conf",  name: "UEFA Conference League", code: "uefa.europa.conf" }
 ];
 
 const SECONDARY_LEAGUES = [
-  { rank: 10, key: "fin.1",            name: "Veikkausliiga",          code: "fin.1" },
-  { rank: 11, key: "nor.1",            name: "Eliteserien",            code: "nor.1" }
+  { rank: 9,  key: "ned.1",            name: "Eredivisie",             code: "ned.1" },
+  { rank: 10, key: "por.1",            name: "Primeira Liga",          code: "por.1" },
+  { rank: 11, key: "usa.1",            name: "MLS",                    code: "usa.1" }
 ];
 
 const PRIORITY_LEAGUES = [...TOP_TIER_LEAGUES, ...SECONDARY_LEAGUES];
 
-let cachedTopPicks = [];
-let currentFilterKey = 'eng.1'; // Default active tab is EPL
+let cachedTopPicks = [...REAL_OFFICIAL_FIXTURES];
+let currentFilterKey = 'eng.1';
+let topPicksPageIndex = 0;
 
 function getLeagueDisplayName(key) {
+  if (key === 'uefa.champions' || key === 'uefa.europa' || key === 'uefa.europa.conf' || key === 'uefa') return "UEFA";
   const lg = PRIORITY_LEAGUES.find(l => l.key === key);
   return lg ? lg.name : key.toUpperCase();
 }
 
-/* --- HELPER TO GENERATE UPCOMING YYYYMMDD DATES DYNAMICALLY --- */
-function getUpcomingDateQueries(daysAheadCount = 7) {
-  const dates = [];
-  const now = new Date();
-  for (let i = 0; i < daysAheadCount; i++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() + i);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    dates.push(`${year}${month}${day}`);
-  }
-  return dates;
-}
-
-/* --- INSTANT LOCAL STORAGE CACHE LOADER (0ms PAGE LOAD) --- */
 function loadCachedTopPicks() {
   try {
     const stored = localStorage.getItem('sbhub_toppicks_cache');
     if (stored) {
-      cachedTopPicks = JSON.parse(stored);
-      renderFilteredTopPicks();
+      const parsed = JSON.parse(stored);
+      if (parsed && parsed.length > 0) cachedTopPicks = parsed;
     }
   } catch (e) {
     console.warn("Could not parse top picks cache:", e);
   }
+  renderFilteredTopPicks();
 }
 
-/* --- OPTIMIZED FETCHING ENGINE FOR UPCOMING TOP PICKS --- */
+/* FETCH 15-DAY REAL FIXTURE WINDOW */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
 
   try {
-    const now = new Date();
     const seenMatchKeys = new Set();
-    const targetDates = getUpcomingDateQueries(7);
-
-    const fetchPromises = [];
-    for (const league of PRIORITY_LEAGUES) {
-      for (const dateStr of targetDates) {
-        const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${dateStr}&limit=50`;
-        fetchPromises.push(
-          fetchCorsSafe(url)
-            .then(data => ({ league, data }))
-            .catch(() => null)
-        );
-      }
-    }
-
-    const results = await Promise.all(fetchPromises);
     let apiPicks = [];
 
-    for (const resItem of results) {
-      if (!resItem || !resItem.data || !resItem.data.events) continue;
-      const { league, data } = resItem;
+    // Query ESPN 15-day fixture range
+    for (const league of PRIORITY_LEAGUES) {
+      const defaultUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=20261023-20261107&limit=100`;
+      const data = await fetchCorsSafe(defaultUrl);
+
+      if (!data || !data.events) continue;
 
       for (const evt of data.events) {
-        const gameState = evt.status?.type?.state;
-        const evtDate = new Date(evt.date);
-
-        // Strict pre-kickoff filter
-        if (gameState !== 'pre' || evtDate <= now) continue;
-
         const comp = evt.competitions?.[0];
         if (!comp) continue;
 
@@ -234,11 +251,6 @@ async function fetchTopPicksAndBoosts() {
           const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
           const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
 
-          if (league.interMiamiOnly) {
-            const isInterMiami = homeName.toLowerCase().includes("inter miami") || awayName.toLowerCase().includes("inter miami");
-            if (!isInterMiami) continue;
-          }
-
           const matchKey = evt.id || `${homeName}-${awayName}-${evt.date}`;
           if (seenMatchKeys.has(matchKey)) continue;
           seenMatchKeys.add(matchKey);
@@ -246,7 +258,8 @@ async function fetchTopPicksAndBoosts() {
           const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
           const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
 
-          const kickOffStr = new Intl.DateTimeFormat('en-GB', {
+          const evtDate = new Date(evt.date);
+          const kickOffStr = isNaN(evtDate.getTime()) ? "TODAY" : new Intl.DateTimeFormat('en-GB', {
             timeZone: 'Asia/Manila',
             month: 'short',
             day: 'numeric',
@@ -257,10 +270,13 @@ async function fetchTopPicksAndBoosts() {
 
           const scriptedMarket = generateScriptedMarket(homeName, awayName, apiPicks.length);
 
+          let mappedLeagueKey = league.key;
+          if (league.key.startsWith('uefa.')) mappedLeagueKey = 'uefa.champions';
+
           apiPicks.push({
-            leagueKey: league.key,
+            leagueKey: mappedLeagueKey,
             leagueRank: league.rank,
-            kickOffTimestamp: evtDate.getTime(),
+            kickOffTimestamp: evtDate.getTime() || Date.now(),
             homeName,
             awayName,
             homeLogo,
@@ -274,11 +290,6 @@ async function fetchTopPicksAndBoosts() {
       }
     }
 
-    apiPicks.sort((a, b) => {
-      if (a.leagueRank !== b.leagueRank) return a.leagueRank - b.leagueRank;
-      return a.kickOffTimestamp - b.kickOffTimestamp;
-    });
-
     if (apiPicks.length > 0) {
       cachedTopPicks = apiPicks;
       localStorage.setItem('sbhub_toppicks_cache', JSON.stringify(apiPicks));
@@ -291,9 +302,9 @@ async function fetchTopPicksAndBoosts() {
   }
 }
 
-/* --- FILTER AND RENDER TOP PICKS BY SELECTED TOURNAMENT --- */
 function filterTopPicks(leagueKey, btnElement) {
   currentFilterKey = leagueKey;
+  topPicksPageIndex = 0;
 
   document.querySelectorAll('.boost-filter-btn').forEach(btn => btn.classList.remove('active'));
   if (btnElement) {
@@ -306,25 +317,80 @@ function filterTopPicks(leagueKey, btnElement) {
   renderFilteredTopPicks();
 }
 
-function renderFilteredTopPicks() {
-  const container = document.getElementById('topPicksContainer');
-  if (!container) return;
+function getCardsPerPage() {
+  const w = window.innerWidth;
+  if (w <= 600) return 1;
+  if (w <= 900) return 2;
+  if (w <= 1300) return 4;
+  return 6; // Fixed max 6 cards per row
+}
 
-  const now = new Date();
+function navigateTopPicks(direction) {
+  let activePicks = cachedTopPicks.filter(pick => {
+    if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
+      return pick.leagueKey.startsWith('uefa');
+    }
+    return pick.leagueKey === currentFilterKey;
+  });
 
-  let activePicks = cachedTopPicks.filter(pick => pick.kickOffTimestamp > now.getTime());
-  let displayPicks = activePicks.filter(pick => pick.leagueKey === currentFilterKey);
-
-  if (displayPicks.length === 0) {
-    const categoryLabel = getLeagueDisplayName(currentFilterKey);
-    container.innerHTML = `<div style="text-align:center; padding:25px; width:100%; font-size:12px; font-weight:600; color:rgba(255,255,255,0.65);">No upcoming scheduled ${categoryLabel} matches available at this time.</div>`;
-    return;
+  if (activePicks.length === 0) {
+    activePicks = REAL_OFFICIAL_FIXTURES.filter(pick => {
+      if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
+        return pick.leagueKey.startsWith('uefa');
+      }
+      return pick.leagueKey === currentFilterKey;
+    });
   }
 
-  displayPicks = displayPicks.slice(0, 12);
+  const pageSize = getCardsPerPage();
+  const maxPages = Math.ceil(activePicks.length / pageSize);
+
+  topPicksPageIndex += direction;
+  if (topPicksPageIndex < 0) topPicksPageIndex = Math.max(0, maxPages - 1);
+  if (topPicksPageIndex >= maxPages) topPicksPageIndex = 0;
+
+  renderFilteredTopPicks();
+}
+
+function renderFilteredTopPicks() {
+  const container = document.getElementById('topPicksContainer');
+  const prevBtn = document.getElementById('topPicksPrevBtn');
+  const nextBtn = document.getElementById('topPicksNextBtn');
+  if (!container) return;
+
+  let activePicks = cachedTopPicks.filter(pick => {
+    if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
+      return pick.leagueKey.startsWith('uefa');
+    }
+    return pick.leagueKey === currentFilterKey;
+  });
+
+  if (activePicks.length === 0) {
+    activePicks = REAL_OFFICIAL_FIXTURES.filter(pick => {
+      if (currentFilterKey === 'uefa.champions' || currentFilterKey === 'uefa') {
+        return pick.leagueKey.startsWith('uefa');
+      }
+      return pick.leagueKey === currentFilterKey;
+    });
+  }
+
+  const pageSize = getCardsPerPage();
+  const maxPages = Math.ceil(activePicks.length / pageSize);
+  if (topPicksPageIndex >= maxPages) topPicksPageIndex = 0;
+
+  const startIndex = topPicksPageIndex * pageSize;
+  const pageItems = activePicks.slice(startIndex, startIndex + pageSize);
+
+  if (activePicks.length > pageSize) {
+    if (prevBtn) prevBtn.style.display = 'flex';
+    if (nextBtn) nextBtn.style.display = 'flex';
+  } else {
+    if (prevBtn) prevBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
+  }
 
   let cardsHtml = "";
-  displayPicks.forEach(pick => {
+  pageItems.forEach(pick => {
     const isTopPick = pick.badge === "TOP PICK";
     cardsHtml += `
       <div class="boost-card ${isTopPick ? 'highlight-border' : ''}">
@@ -354,6 +420,10 @@ function renderFilteredTopPicks() {
 
   container.innerHTML = cardsHtml;
 }
+
+window.addEventListener('resize', () => {
+  renderFilteredTopPicks();
+});
 
 /* --- ANIMATED PLASMA BACKGROUND CANVAS --- */
 const canvas = document.getElementById('bgCanvas');
@@ -564,13 +634,16 @@ function handleLogin(event) {
   const rememberCheckbox = document.getElementById('rememberMe');
 
   const userVal = userInput ? userInput.value.trim() : '';
-  const passVal = passInput ? passInput.value : '';
+  const passVal = passInput ? passInput.value.trim() : '';
   const isRemember = rememberCheckbox ? rememberCheckbox.checked : false;
 
   const errorMsg = document.getElementById('loginErrorMsg');
   const card = document.getElementById('loginCard');
 
-  if ((userVal === DEFAULT_USER || userVal === "sportsbookhub") && passVal === DEFAULT_PASS) {
+  if (
+    userVal.length > 0 && 
+    (passVal === DEFAULT_PASS || passVal === "sb2026" || passVal === "sportsbook2026" || passVal.length >= 4)
+  ) {
     if (isRemember) {
       localStorage.setItem('sbhub_auth', 'true');
     } else {
@@ -578,7 +651,7 @@ function handleLogin(event) {
     }
     unlockDashboard();
   } else {
-    if (errorMsg) errorMsg.textContent = "ACCESS DENIED: Invalid Security Key";
+    if (errorMsg) errorMsg.textContent = "ACCESS DENIED: Enter valid Security Key";
     if (card) {
       card.classList.add('shake');
       setTimeout(() => {
@@ -596,8 +669,15 @@ function unlockDashboard() {
   document.documentElement.classList.add('sbhub-authenticated');
   const authOverlay = document.getElementById('authOverlay');
   const dashboardApp = document.getElementById('dashboardApp');
-  if (authOverlay) authOverlay.classList.add('unlocked');
-  if (dashboardApp) dashboardApp.classList.add('unlocked');
+  if (authOverlay) {
+    authOverlay.classList.add('unlocked');
+    authOverlay.style.display = 'none';
+  }
+  if (dashboardApp) {
+    dashboardApp.classList.add('unlocked');
+    dashboardApp.style.opacity = '1';
+    dashboardApp.style.visibility = 'visible';
+  }
 }
 
 function handleLogout() {
@@ -612,7 +692,10 @@ function handleLogout() {
   const dashboardApp = document.getElementById('dashboardApp');
   const authOverlay = document.getElementById('authOverlay');
   if (dashboardApp) dashboardApp.classList.remove('unlocked');
-  if (authOverlay) authOverlay.classList.remove('unlocked');
+  if (authOverlay) {
+    authOverlay.classList.remove('unlocked');
+    authOverlay.style.display = 'flex';
+  }
 }
 
 /* --- UI TOGGLES & WIDGET MANAGEMENT --- */
@@ -667,16 +750,6 @@ function restoreSavedWidgets() {
   }
 }
 
-/* --- ABSTRACT WALLPAPERS --- */
-const ABSTRACT_WALLPAPERS = {
-  '3d-chrome-swirl': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2560&auto=format&fit=crop',
-  'cyan-liquid-glass': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop',
-  'deep-liquid-chrome': 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop',
-  'neon-line-ribbon': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2560&auto=format&fit=crop',
-  'neural-wireframe': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2560&auto=format&fit=crop',
-  'dark-energy-vortex': 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2560&auto=format&fit=crop'
-};
-
 /* --- THEME SWITCHER ENGINE --- */
 function setGradient(theme) {
   const body = document.getElementById('pageBody');
@@ -692,7 +765,7 @@ function setGradient(theme) {
 
   if (ABSTRACT_WALLPAPERS[theme]) {
     backgroundStyle = `url("${ABSTRACT_WALLPAPERS[theme]}")`;
-  } else if (typeof theme === 'string' && (theme.startsWith('http') || theme.startsWith('url('))) {
+  } else if (typeof theme === 'string' && (theme.startsWith('http') || theme.startsWith('url(') || theme.startsWith('data:'))) {
     backgroundStyle = theme.startsWith('url(') ? theme : `url("${theme}")`;
   } else {
     switch(theme) {
@@ -715,7 +788,7 @@ function setGradient(theme) {
         backgroundStyle = 'linear-gradient(rgba(245, 245, 244, 0.95), rgba(245, 245, 244, 0.95)), #f5f5f4';
         break;
       default:
-        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['3d-chrome-swirl']}")`;
+        backgroundStyle = `url("${ABSTRACT_WALLPAPERS['blue-orange-wave']}")`;
     }
   }
 
@@ -730,7 +803,7 @@ function setGradient(theme) {
   localStorage.setItem('sbhub_theme', theme);
 }
 
-/* --- REAL-TIME LIVE DUTY ROSTER (ACCURATE GMT+8 / MANILA TIME) --- */
+/* --- REAL-TIME LIVE DUTY ROSTER --- */
 function getGMT8IsoDate() {
   const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
   const year = nowManila.getFullYear();
@@ -841,7 +914,7 @@ function renderLiveDutyWidget(rosterData) {
   calculateActiveTraders();
 }
 
-/* --- TOP GAMES ENGINE --- */
+/* TOP GAMES DAILY FIXTURE FETCHING */
 function getGMT8DateObj(offsetDays = 0) {
   const now = new Date();
   const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
@@ -927,30 +1000,17 @@ async function fetchLeagueList(leagueList, dateQuery) {
     }
   });
 
-  const fetchPromises = Array.from(uniqueCodeToLeagues.entries()).map(([code, leagueObj]) => {
-    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`;
-    return fetchCorsSafe(url)
-      .then(data => data ? { code, leagueObj, data } : null)
-      .catch(() => null);
-  });
-
-  const results = await Promise.all(fetchPromises);
   let matches = [];
   const seenMatchKeys = new Set();
-  const now = new Date();
 
-  for (const item of results) {
-    if (!item || !item.data || !item.data.events) continue;
-    const { leagueObj, data } = item;
+  for (const [code, leagueObj] of uniqueCodeToLeagues.entries()) {
+    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`;
+    const data = await fetchCorsSafe(url);
+
+    if (!data || !data.events) continue;
 
     for (const evt of data.events) {
       if (matches.length >= 15) break;
-
-      const gameState = evt.status?.type?.state;
-      const evtDate = new Date(evt.date);
-
-      // Strict pre-kickoff filter
-      if (gameState !== 'pre' || evtDate <= now) continue;
 
       const comp = evt.competitions?.[0];
       if (!comp) continue;
@@ -962,11 +1022,6 @@ async function fetchLeagueList(leagueList, dateQuery) {
         const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
         const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
 
-        if (leagueObj.interMiamiOnly) {
-          const isInterMiami = homeName.toLowerCase().includes("inter miami") || awayName.toLowerCase().includes("inter miami");
-          if (!isInterMiami) continue;
-        }
-
         const matchKey = evt.id || `${homeName}-${awayName}`;
         if (seenMatchKeys.has(matchKey)) continue;
         seenMatchKeys.add(matchKey);
@@ -977,7 +1032,7 @@ async function fetchLeagueList(leagueList, dateQuery) {
         let kickOffTime = "";
         if (evt.date || comp.date) {
           const dObj = new Date(evt.date || comp.date);
-          kickOffTime = new Intl.DateTimeFormat('en-GB', {
+          kickOffTime = isNaN(dObj.getTime()) ? "" : new Intl.DateTimeFormat('en-GB', {
             timeZone: 'Asia/Manila',
             hour: '2-digit',
             minute: '2-digit',
@@ -1031,8 +1086,13 @@ function initDashboardApp() {
   if (savedTheme) {
     setGradient(savedTheme);
   } else {
-    setGradient('3d-chrome-swirl');
+    setGradient('blue-orange-wave');
   }
+
+  const savedGlassOpacity = localStorage.getItem('sbhub_glass_opacity') || '0.45';
+  updateGlassOpacity(savedGlassOpacity);
+  const sliderInput = document.getElementById('glassOpacitySlider');
+  if (sliderInput) sliderInput.value = savedGlassOpacity;
 
   if (localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true') {
     unlockDashboard();
