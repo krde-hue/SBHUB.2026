@@ -809,7 +809,6 @@ html.sbhub-authenticated #dashboardApp {
   opacity: 0.6;
 }
 
-/* TOP BANNER CARD (CLEAN NO FOOTBALL WALLPAPER) */
 .top-banner-card {
   display: flex;
   flex-direction: column;
@@ -824,18 +823,18 @@ html.sbhub-authenticated #dashboardApp {
   top: 0 !important;
   z-index: 1000 !important;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, calc(var(--glass-opacity-val, 0.45) * 0.7)) !important;
-  background: rgba(15, 23, 42, var(--glass-opacity-val, 0.45)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background-color: #080c1a !important;
+  background-image: 
+    linear-gradient(180deg, rgba(10, 14, 26, 0.85) 0%, rgba(8, 11, 20, 0.95) 100%), 
+    url('./sports-banner.jpg'), 
+    url('./american-football-player-neon-style_23-2151827356.avif') !important;
+  background-size: cover, cover, cover !important;
+  background-position: center 25%, center 25%, center 25% !important;
+  background-repeat: no-repeat, no-repeat, no-repeat !important;
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 15px 35px rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(35px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(35px) saturate(160%) !important;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-body.light-theme .top-banner-card {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
 }
 
 .banner-top-row {
@@ -1675,6 +1674,139 @@ body.light-theme .top-banner-card {
   z-index: 1;
 }
 
+@media (max-width: 1200px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .top-picks-single-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-picks-single-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+.tab-pills { display: flex; gap: 6px; }
+.tab-pill {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab-pill.active {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.action-row:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.duty-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.duty-card:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.duty-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; }
+.badge-time {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+}
+.duty-desc { font-size: 10px; opacity: 0.85; }
+
+.top-game-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.top-game-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.top-game-flags {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+
+.top-game-flags .team-flag-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: #1e293b;
+}
+
+.top-game-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.top-game-title .vs-light {
+  font-size: 11px;
+  font-weight: 400;
+  color: #94a3b8;
+  margin: 0 2px;
+}
+
+.top-game-league {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+}
+
 body.light-theme { color: #0f172a !important; }
 body.light-theme .sidebar-header,
 body.light-theme .mobile-brand-title,
@@ -1686,6 +1818,12 @@ body.light-theme .glass-card:not(.top-banner-card) {
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+body.light-theme .top-banner-card {
+  background-color: #080c1a !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 15px 35px rgba(0, 0, 0, 0.3) !important;
 }
 
 body.light-theme .search-box { background: #ffffff !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important; }
@@ -1793,19 +1931,6 @@ body.light-theme .handover-manage-text { color: #1e293b !important; }
 
 .mobile-nav-header { display: none; }
 .sidebar-overlay { display: none; }
-
-@media (max-width: 1200px) {
-  .dashboard-grid { grid-template-columns: 1fr; }
-  .top-picks-single-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 900px) {
-  .top-picks-single-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
 
 @media (max-width: 768px) {
   body { padding: 10px; gap: 0; overflow-x: hidden; }
