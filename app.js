@@ -1,6 +1,8 @@
-/* --- GLOBAL STATE VARIABLES (DECLARED AT TOP TO PREVENT REFERENCE ERRORS) --- */
+/* --- GLOBAL STATE VARIABLES (HOISTED AT TOP TO PREVENT REFERENCE ERRORS) --- */
 let selectedGameDayOffset = 0;
 let rosterDb = null;
+let activeTraderFilter = 'ALL';
+let lastRosterSnapshotData = null;
 
 const isMobileDevice = () => window.innerWidth <= 768;
 
@@ -884,7 +886,12 @@ function setGradient(theme) {
   localStorage.setItem('sbhub_theme', theme);
 }
 
-/* --- REAL-TIME LIVE DUTY ROSTER --- */
+/* --- REAL-TIME LIVE DUTY ROSTER WITH TRADER FILTER --- */
+function filterTraderDuty(traderName) {
+  activeTraderFilter = traderName.toUpperCase();
+  renderLiveDutyWidget(lastRosterSnapshotData);
+}
+
 function getGMT8IsoDate() {
   const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
   const year = nowManila.getFullYear();
@@ -917,6 +924,7 @@ function listenToLiveDutyRoster() {
 }
 
 function renderLiveDutyWidget(rosterData) {
+  lastRosterSnapshotData = rosterData;
   const container = document.getElementById("liveDutyContent");
   if (!container) return;
 
@@ -925,11 +933,15 @@ function renderLiveDutyWidget(rosterData) {
 
   if (!rosterData) {
     const fallbackMembers = [
-      { name: 'ANN', shift: '7-16', task: 'Monitoring Edge & IBET Markets' },
-      { name: 'DAVE', shift: 'REST DAY', task: 'Rest day.' },
-      { name: 'KEN', shift: 'REST DAY', task: 'Rest day.' },
-      { name: 'KRIZTEL', shift: '12-21', task: 'Live Risk & Duty Operations' }
+      { id: 'ann', name: 'ANN', shift: '7-16', task: 'Monitoring Edge & IBET Markets' },
+      { id: 'dave', name: 'DAVE', shift: 'REST DAY', task: 'Rest day.' },
+      { id: 'ken', name: 'KEN', shift: 'REST DAY', task: 'Rest day.' },
+      { id: 'kriztel', name: 'KRIZTEL', shift: '12-21', task: 'Live Risk & Duty Operations' }
     ];
+
+    const filteredMembers = fallbackMembers.filter(m => 
+      activeTraderFilter === 'ALL' || m.name === activeTraderFilter
+    );
 
     let fallbackHtml = `
       <div style="font-size:11px; font-weight:700; opacity:0.9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
@@ -938,7 +950,7 @@ function renderLiveDutyWidget(rosterData) {
       </div>
     `;
 
-    fallbackMembers.forEach(m => {
+    filteredMembers.forEach(m => {
       fallbackHtml += `
         <div class="duty-card">
           <div class="duty-top">
@@ -978,6 +990,10 @@ function renderLiveDutyWidget(rosterData) {
     { id: 'ken', name: 'KEN' }, { id: 'kriztel', name: 'KRIZTEL' }
   ];
 
+  const filteredTeam = teamMembers.filter(m => 
+    activeTraderFilter === 'ALL' || m.name === activeTraderFilter
+  );
+
   let html = `
     <div style="font-size:11px; font-weight:700; opacity:0.9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
       <span>📅 ${displayDate}</span>
@@ -985,7 +1001,7 @@ function renderLiveDutyWidget(rosterData) {
     </div>
   `;
 
-  teamMembers.forEach(m => {
+  filteredTeam.forEach(m => {
     const mGrid = dayData.grid ? dayData.grid[m.id] : null;
     const shiftId = mGrid?.shift || 'shift-7-16';
     const isRest = (shiftId === 'shift-rd' || shiftId === 'shift-vl' || shiftId === 'shift-sl');
@@ -1022,7 +1038,7 @@ function renderLiveDutyWidget(rosterData) {
   calculateActiveTraders();
 }
 
-/* TOP GAMES DAILY FIXTURE FETCHING (FAIL-SAFE HIGH-STABILITY RECOVERABLE VERSION) */
+/* TOP GAMES DAILY FIXTURE FETCHING */
 function getGMT8DateObj(offsetDays = 0) {
   const now = new Date();
   const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
