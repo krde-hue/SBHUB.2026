@@ -1,3 +1,6 @@
+/* --- HELPER FOR MOBILE SCREEN DETECTION (DECLARED AT TOP TO PREVENT REFERENCE ERROR) --- */
+const isMobileDevice = () => window.innerWidth <= 768;
+
 /* --- IMMEDIATE AUTH & DEFAULT THEME CHECK --- */
 (function checkInitialStateImmediately() {
   const isAuth = localStorage.getItem('sbhub_auth') === 'true' || sessionStorage.getItem('sbhub_auth') === 'true';
@@ -11,6 +14,9 @@
 
 const DEFAULT_USER = "sportsbook2026";
 const DEFAULT_PASS = "sb2026";
+
+/* --- SAFE LOGO FALLBACK SVG --- */
+const FALLBACK_LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%231e293b' stroke='%2338bdf8' stroke-width='4'/%3E%3Cpath d='M30 50 L70 50 M50 30 L50 70' stroke='%2338bdf8' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E";
 
 /* --- ABSTRACT WALLPAPERS (BLUE & ORANGE EMBEDDED SVG DATA URIS) --- */
 const ABSTRACT_WALLPAPERS = {
@@ -170,7 +176,6 @@ const REAL_OFFICIAL_FIXTURES = [
   { leagueKey: 'esp.1', homeName: 'Alaves', awayName: 'Malaga', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/96.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/87.png', leagueName: 'Spanish LALIGA', market: 'Alaves to Win or Draw + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 03:00' },
   { leagueKey: 'esp.1', homeName: 'Real Madrid', awayName: 'Barcelona', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/86.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/83.png', leagueName: 'Spanish LALIGA', market: 'Real Madrid vs Barcelona - Over 3.5 Goals', badge: 'TOP PICK', kickOff: '27 OCT, 03:00' },
   { leagueKey: 'esp.1', homeName: 'Betis', awayName: 'Atletico Madrid', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/244.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1068.png', leagueName: 'Spanish LALIGA', market: 'Atletico Madrid to Win or Draw', badge: 'HOT', kickOff: '28 OCT, 01:30' },
-  { leagueKey: 'esp.1', homeName: 'Valencia', awayName: 'Villarreal', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/94.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/102.png', leagueName: 'Spanish LALIGA', market: 'Villarreal to Win + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '28 OCT, 21:00' },
 
   // BUNDESLIGA
   { leagueKey: 'ger.1', homeName: 'Stuttgart', awayName: 'Gladbach', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/134.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/268.png', leagueName: 'German Bundesliga', market: 'Stuttgart to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 02:30' },
@@ -182,8 +187,6 @@ const REAL_OFFICIAL_FIXTURES = [
   { leagueKey: 'ita.1', homeName: 'Cagliari', awayName: 'Bologna', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/2804.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/108.png', leagueName: 'Italian Serie A', market: 'Bologna to Win or Draw', badge: 'HOT', kickOff: '24 OCT, 21:00' },
   { leagueKey: 'ita.1', homeName: 'Como', awayName: 'Sassuolo', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/2805.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/3815.png', leagueName: 'Italian Serie A', market: 'Como vs Sassuolo - Over 2.5 Goals', badge: 'TOP PICK', kickOff: '24 OCT, 21:00' },
   { leagueKey: 'ita.1', homeName: 'Napoli', awayName: 'AS Roma', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/114.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/104.png', leagueName: 'Italian Serie A', market: 'Napoli to Win', badge: 'HOT', kickOff: '25 OCT, 00:00' },
-  { leagueKey: 'ita.1', homeName: 'Lazio', awayName: 'Parma', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/112.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/113.png', leagueName: 'Italian Serie A', market: 'Lazio to Win First Half', badge: 'TOP PICK', kickOff: '25 OCT, 02:45' },
-  { leagueKey: 'ita.1', homeName: 'Inter Milan', awayName: 'Fiorentina', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/110.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/109.png', leagueName: 'Italian Serie A', market: 'Inter Milan to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '25 OCT, 19:30' },
 
   // LIGUE 1
   { leagueKey: 'fra.1', homeName: 'Marseille', awayName: 'PSG', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/176.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/160.png', leagueName: 'French Ligue 1', market: 'PSG to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '28 OCT, 03:45' },
@@ -191,8 +194,7 @@ const REAL_OFFICIAL_FIXTURES = [
 
   // UEFA
   { leagueKey: 'uefa.champions', homeName: 'Real Madrid', awayName: 'AC Milan', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/86.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/103.png', leagueName: 'UEFA Champions League', market: 'Real Madrid to Win + Over 2.5 Goals', badge: 'TOP PICK', kickOff: '06 NOV, 04:00' },
-  { leagueKey: 'uefa.champions', homeName: 'Liverpool', awayName: 'Leverkusen', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/364.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/131.png', leagueName: 'UEFA Champions League', market: 'Liverpool vs Leverkusen - Both Teams to Score', badge: 'HOT', kickOff: '06 NOV, 04:00' },
-  { leagueKey: 'uefa.champions', homeName: 'PSG', awayName: 'Atletico Madrid', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/160.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/1068.png', leagueName: 'UEFA Champions League', market: 'PSG to Win or Draw + Over 1.5 Goals', badge: 'TOP PICK', kickOff: '07 NOV, 04:00' }
+  { leagueKey: 'uefa.champions', homeName: 'Liverpool', awayName: 'Leverkusen', homeLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/364.png', awayLogo: 'https://a.espncdn.com/i/teamlogos/soccer/500/131.png', leagueName: 'UEFA Champions League', market: 'Liverpool vs Leverkusen - Both Teams to Score', badge: 'HOT', kickOff: '06 NOV, 04:00' }
 ];
 
 function generateScriptedMarket(homeName, awayName, index) {
@@ -261,6 +263,7 @@ function getUpcomingDatesList(daysAhead = 7) {
   return dates;
 }
 
+/* FETCH REAL ESPN/FLASHSCORE FIXTURES WITH SAFE IMAGE FALLBACK */
 async function fetchTopPicksAndBoosts() {
   const container = document.getElementById('topPicksContainer');
   if (!container) return;
@@ -294,8 +297,11 @@ async function fetchTopPicksAndBoosts() {
               if (seenMatchKeys.has(matchKey)) continue;
               seenMatchKeys.add(matchKey);
 
-              const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
-              const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+              const rawHomeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href;
+              const rawAwayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href;
+              
+              const homeLogo = (rawHomeLogo && !rawHomeLogo.includes('default.png')) ? rawHomeLogo : FALLBACK_LOGO;
+              const awayLogo = (rawAwayLogo && !rawAwayLogo.includes('default.png')) ? rawAwayLogo : FALLBACK_LOGO;
 
               const evtDate = new Date(evt.date);
               const kickOffStr = isNaN(evtDate.getTime()) ? "TODAY" : new Intl.DateTimeFormat('en-GB', {
@@ -433,9 +439,9 @@ function renderFilteredTopPicks() {
     cardsHtml += `
       <div class="boost-card ${isTopPick ? 'highlight-border' : ''}">
         <div class="flags-row">
-          <img src="${pick.homeLogo}" alt="${pick.homeName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+          <img src="${pick.homeLogo}" alt="${pick.homeName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
           <span class="vs-text">VS</span>
-          <img src="${pick.awayLogo}" alt="${pick.awayName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+          <img src="${pick.awayLogo}" alt="${pick.awayName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
         </div>
         
         <div class="boost-match-info">
@@ -876,7 +882,6 @@ function renderLiveDutyWidget(rosterData) {
   const { slotId, label: slotLabel } = getCurrentSlotInfo();
 
   if (!rosterData) {
-    // Immediate fallback duty schedule rendering if Firebase is offline
     const fallbackMembers = [
       { name: 'ANN', shift: '7-16', task: 'Monitoring Edge & IBET Markets' },
       { name: 'DAVE', shift: 'REST DAY', task: 'Rest day.' },
@@ -892,7 +897,6 @@ function renderLiveDutyWidget(rosterData) {
     `;
 
     fallbackMembers.forEach(m => {
-      const isRest = m.shift === 'REST DAY';
       fallbackHtml += `
         <div class="duty-card">
           <div class="duty-top">
@@ -1035,9 +1039,9 @@ async function fetchLiveGames() {
       gamesHtml += `
         <div class="top-game-card">
           <div class="top-game-flags">
-            <img src="${item.homeLogo}" alt="${item.homeName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+            <img src="${item.homeLogo}" alt="${item.homeName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
             <span class="vs-text">vs</span>
-            <img src="${item.awayLogo}" alt="${item.awayName}" class="team-flag-img" onerror="this.src='https://a.espncdn.com/i/teamlogos/soccer/500/default.png'">
+            <img src="${item.awayLogo}" alt="${item.awayName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
           </div>
           <div class="top-game-title">${item.homeName} <span class="vs-light">vs</span> ${item.awayName}</div>
           <div class="top-game-league">${item.leagueName}${item.kickOffTime ? ' &bull; <span style="color:#38bdf8;">' + item.kickOffTime + '</span>' : ''}</div>
@@ -1087,8 +1091,11 @@ async function fetchLeagueList(leagueList, dateQuery) {
         if (seenMatchKeys.has(matchKey)) continue;
         seenMatchKeys.add(matchKey);
 
-        const homeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
-        const awayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href || "https://a.espncdn.com/i/teamlogos/soccer/500/default.png";
+        const rawHomeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href;
+        const rawAwayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href;
+        
+        const homeLogo = (rawHomeLogo && !rawHomeLogo.includes('default.png')) ? rawHomeLogo : FALLBACK_LOGO;
+        const awayLogo = (rawAwayLogo && !rawAwayLogo.includes('default.png')) ? rawAwayLogo : FALLBACK_LOGO;
 
         let kickOffTime = "";
         if (evt.date || comp.date) {
@@ -1162,7 +1169,7 @@ function initDashboardApp() {
   switchBrandTab('ibet');
   restoreSavedWidgets();
 
-  // Instant render to clear spinners immediately
+  // Instant execution to clear spinners immediately
   loadCachedTopPicks();
   renderLiveDutyWidget(null);
   fetchLiveGames();
