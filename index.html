@@ -36,7 +36,7 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./styles.css?v=9.4.0">
+  <link rel="stylesheet" href="./styles.css?v=11.0.0">
 
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -44,18 +44,15 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- App JS -->
-  <script src="./app.js?v=9.8.0" defer></script>
+  <script src="./app.js?v=11.0.0" defer></script>
 </head>
 <body id="pageBody">
 
-  <!-- ANIMATED PLASMA BACKGROUND CANVAS -->
   <canvas id="bgCanvas"></canvas>
 
-  <!-- FRONT SECURITY LOGIN OVERLAY MODAL -->
   <div id="authOverlay">
     <div class="login-container">
 
-      <!-- SITTING ROBOT STAGE -->
       <div class="sitting-robot-stage" id="sittingRobotStage">
         <div class="robot-body-wrapper" id="robotBodyWrapper">
           <div class="robot-antenna"></div>
@@ -73,7 +70,6 @@
         </div>
       </div>
 
-      <!-- SOLID LOGIN CARD -->
       <div class="login-card" id="loginCard">
         <div class="login-title">Security Gateway</div>
         <div class="login-subtitle">SPORTSBOOK HUB OPERATIONAL PORTAL</div>
@@ -113,10 +109,8 @@
     </div>
   </div>
 
-  <!-- DASHBOARD APP CONTAINER -->
   <div id="dashboardApp">
 
-    <!-- MOBILE NAVIGATION HEADER -->
     <div class="mobile-nav-header">
       <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation Menu">
         <i class="bx bx-menu"></i>
@@ -127,10 +121,8 @@
       </button>
     </div>
 
-    <!-- SIDEBAR OVERLAY FOR MOBILE -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar(false)"></div>
 
-    <!-- SIDEBAR NAVIGATION -->
     <aside class="sidebar" id="mainSidebar">
       <div class="sidebar-menu-scroll">
         <div class="sidebar-header">
@@ -140,13 +132,11 @@
           </button>
         </div>
 
-        <!-- FUNCTIONAL REAL-TIME SEARCH BOX -->
         <div class="search-box">
           <i class="bx bx-search" style="font-size: 14px;"></i>
           <input type="text" id="sidebarSearchInput" placeholder="Search categories &amp; links..." oninput="handleSidebarSearch(this.value)">
         </div>
 
-        <!-- INTERNAL -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-internal', this)">
             <div class="nav-main-left">
@@ -163,7 +153,6 @@
           </div>
         </div>
 
-        <!-- DAILY TASK -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-dailytask', this)">
             <div class="nav-main-left">
@@ -183,7 +172,6 @@
           </div>
         </div>
 
-        <!-- DAILY MONITORING -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-dailymonitoring', this)">
             <div class="nav-main-left">
@@ -202,7 +190,6 @@
           </div>
         </div>
 
-        <!-- BACK OFFICE -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-backoffice', this)">
             <div class="nav-main-left">
@@ -218,7 +205,6 @@
           </div>
         </div>
 
-        <!-- MULTI MONITOR -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-multimonitor', this)">
             <div class="nav-main-left">
@@ -235,7 +221,6 @@
           </div>
         </div>
 
-        <!-- BETRADAR -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-betradar', this)">
             <div class="nav-main-left">
@@ -250,7 +235,6 @@
           </div>
         </div>
 
-        <!-- OWN BRANDS -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-ownbrands', this)">
             <div class="nav-main-left">
@@ -270,7 +254,6 @@
           </div>
         </div>
 
-        <!-- PRICE REFERENCES -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-priceref', this)">
             <div class="nav-main-left">
@@ -295,7 +278,6 @@
           </div>
         </div>
 
-        <!-- PROCEDURES -->
         <div class="nav-group">
           <div class="nav-main-btn" onclick="toggleMenu('sub-procedures', this)">
             <div class="nav-main-left">
@@ -310,7 +292,6 @@
           </div>
         </div>
 
-        <!-- QUICK LAUNCH DOCK -->
         <div class="sidebar-quick-dock">
           <div class="quick-dock-title"><i class="bx bx-rocket"></i> QUICK LAUNCH</div>
           <div class="quick-dock-buttons">
@@ -321,10 +302,17 @@
               </div>
               <i class="bx bx-export" style="font-size: 13px; opacity: 0.7;"></i>
             </a>
-            <a href="Edge_Gaming_Client_Risk_Segmentation_Tool_July_2026_Dashboard.html" target="_blank" rel="noreferrer" class="quick-launch-btn">
+            <a href="https://chatgpt.com" target="_blank" rel="noreferrer" class="quick-launch-btn">
               <div class="btn-left">
-                <div class="icon-badge icon-risk"><i class="bx bx-shield-quarter"></i></div>
-                <span>Risk Seg. Tool</span>
+                <div class="icon-badge icon-chatgpt"><i class="bx bx-message-square-dots"></i></div>
+                <span>ChatGPT</span>
+              </div>
+              <i class="bx bx-export" style="font-size: 13px; opacity: 0.7;"></i>
+            </a>
+            <a href="https://gemini.google.com" target="_blank" rel="noreferrer" class="quick-launch-btn">
+              <div class="btn-left">
+                <div class="icon-badge icon-gemini"><i class="bx bx-sparkles"></i></div>
+                <span>Gemini</span>
               </div>
               <i class="bx bx-export" style="font-size: 13px; opacity: 0.7;"></i>
             </a>
@@ -447,7 +435,6 @@
               </div>
             </div>
 
-            <!-- THEME CUSTOMIZER WITH GLASS OPACITY CONTROL -->
             <div class="dropdown-container">
               <button class="dropdown-btn" type="button" onclick="toggleDropdown('themeMenu')">
               <i class="bx bx-palette"></i> Theme <i class="bx bx-chevron-down"></i>
@@ -492,7 +479,6 @@
 
       </div>
 
-      <!-- COMPACT SINGLE-ROW TOP PICKS WIDGET -->
       <div class="glass-card compact-picks-widget" id="widget-top-picks">
         <div class="card-header">
           <span style="color: #ff4d4d; display: flex; align-items: center; gap: 8px;">
@@ -529,7 +515,6 @@
         </div>
       </div>
 
-      <!-- 3-COLUMN DASHBOARD GRID -->
       <div class="dashboard-grid">
 
         <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -565,7 +550,16 @@
         <div class="glass-card" id="widget-duties-dock">
           <div class="card-header">
             <span style="color: #f97316;"><i class="bx bx-time"></i> LIVE TIME-SLOT DUTIES</span>
-            <div class="actions"><i class="bx bx-x" style="cursor:pointer;" onclick="hideWidgetDirect('widget-duties-dock')"></i></div>
+            <div class="actions">
+              <select id="traderFilterSelect" class="trader-filter-dropdown" onchange="filterTraderDuty(this.value)">
+                <option value="ALL" selected>ALL TRADERS</option>
+                <option value="ANN">ANN</option>
+                <option value="DAVE">DAVE</option>
+                <option value="KEN">KEN</option>
+                <option value="KRIZTEL">KRIZTEL</option>
+              </select>
+              <i class="bx bx-x" style="cursor:pointer;" onclick="hideWidgetDirect('widget-duties-dock')"></i>
+            </div>
           </div>
           <div id="liveDutyContent" style="display: flex; flex-direction: column; gap: 8px;">
             <div style="text-align:center; padding:15px;"><i class="bx bx-loader-alt bx-spin" style="font-size:20px; color:#38bdf8;"></i></div>
@@ -592,7 +586,6 @@
     </main>
   </div>
 
-  <!-- INTERACTIVE HANDOVER MODAL -->
   <div id="handoverModal" class="handover-modal-overlay">
     <div class="handover-modal-card">
       <div class="handover-modal-header">
