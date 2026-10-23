@@ -5,7 +5,7 @@
   --glass-border: rgba(255, 255, 255, calc(var(--glass-opacity-val) * 0.7));
   --glass-highlight: inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.2);
   --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-  --card-blur: blur(35px) saturate(160%);
+  --card-blur: blur(30px) saturate(150%);
 }
 
 * {
@@ -32,6 +32,7 @@ body {
   position: relative;
 }
 
+/* --- INSTANT AUTHENTICATED STATE --- */
 html.sbhub-authenticated #authOverlay {
   display: none !important;
   opacity: 0 !important;
@@ -45,6 +46,7 @@ html.sbhub-authenticated #dashboardApp {
   pointer-events: auto !important;
 }
 
+/* CUSTOM SCROLLBARS */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -112,40 +114,69 @@ html.sbhub-authenticated #dashboardApp {
 }
 
 .brand-item-left {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
 }
 
 .brand-item-title {
-  font-size: 11px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.3px;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.3px !important;
+  display: block !important;
 }
 
 .brand-item-desc {
-  font-size: 9.5px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.65);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
-  transition: color 0.2s ease;
+  font-size: 9.5px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 90% !important;
+  display: block !important;
+  transition: color 0.2s ease !important;
 }
 
 .brand-action-row:hover .brand-item-desc {
-  color: #38bdf8;
+  color: #38bdf8 !important;
 }
 
-/* QUICK LAUNCH ICON BADGE COLORS */
-.icon-claude   { background: linear-gradient(135deg, #d97706, #b45309) !important; }
-.icon-chatgpt  { background: linear-gradient(135deg, #10a37f, #0d8a6a) !important; }
-.icon-gemini   { background: linear-gradient(135deg, #4285f4, #9b51e0) !important; }
+/* TIGHT HEIGHT ADJUSTMENT FOR LIVE DUTIES WIDGET */
+#widget-duties-dock {
+  align-self: flex-start !important;
+  height: auto !important;
+}
 
+/* TRADER FILTER DROPDOWN STYLES */
+.trader-filter-dropdown {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trader-filter-dropdown:hover {
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.2);
+}
+
+.trader-filter-dropdown option {
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* AUTHENTICATION OVERLAY & LOGIN MODAL */
 #authOverlay {
   position: fixed;
   inset: 0;
@@ -504,31 +535,33 @@ html.sbhub-authenticated #dashboardApp {
   margin-bottom: 5px;
 }
 
+/* OBLONG MAIN CATEGORY ACCORDION BUTTONS */
 .nav-main-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 12px;
-  min-height: 36px;
-  height: 36px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  min-height: 38px;
+  height: 38px;
+  border-radius: 999px !important;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   color: #ffffff;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
 }
 
 .nav-main-btn:hover {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.45);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 6px 16px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 6px 16px rgba(0, 0, 0, 0.35);
+  transform: translateY(-1px);
 }
 
 .nav-main-left { 
@@ -541,8 +574,8 @@ html.sbhub-authenticated #dashboardApp {
 
 .nav-main-btn span {
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -554,7 +587,7 @@ html.sbhub-authenticated #dashboardApp {
   width: 24px;
   height: 24px;
   min-width: 24px;
-  border-radius: 6px;
+  border-radius: 50% !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -565,9 +598,9 @@ html.sbhub-authenticated #dashboardApp {
 
 .toggle-icon {
   font-size: 14px;
-  opacity: 0.7;
+  opacity: 0.8;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease;
 }
 
 .icon-internal { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
@@ -579,13 +612,16 @@ html.sbhub-authenticated #dashboardApp {
 .icon-brands   { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
 .icon-price    { background: linear-gradient(135deg, #84cc16, #4d7c0f); }
 .icon-proc     { background: linear-gradient(135deg, #ec4899, #be185d); }
+.icon-claude   { background: linear-gradient(135deg, #d97706, #b45309) !important; }
+.icon-chatgpt  { background: linear-gradient(135deg, #10a37f, #0d8a6a) !important; }
+.icon-gemini   { background: linear-gradient(135deg, #4285f4, #9b51e0) !important; }
 
 .sub-menu {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding-left: 4px;
-  margin-top: 3px;
+  gap: 4px;
+  padding-left: 6px;
+  margin-top: 4px;
   max-height: 450px;
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.3s ease;
@@ -597,16 +633,17 @@ html.sbhub-authenticated #dashboardApp {
   pointer-events: none;
 }
 
+/* OBLONG SUB-FOLDER LINKS */
 .nav-sub-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 10px;
-  min-height: 32px;
-  height: 32px;
+  padding: 6px 14px;
+  min-height: 34px;
+  height: 34px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px !important;
   font-size: 10.5px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.95);
@@ -618,17 +655,19 @@ html.sbhub-authenticated #dashboardApp {
 }
 
 .nav-sub-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(56, 189, 248, 0.5);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 12px rgba(56, 189, 248, 0.3);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 12px rgba(56, 189, 248, 0.35);
+  transform: translateX(3px);
 }
 
+/* OBLONG QUICK LAUNCH DOCK & BUTTONS */
 .sidebar-quick-dock {
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 14px;
+  border-radius: 20px !important;
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
@@ -646,7 +685,7 @@ html.sbhub-authenticated #dashboardApp {
   align-items: center;
   gap: 6px;
   text-transform: uppercase;
-  padding-left: 2px;
+  padding-left: 4px;
 }
 
 .quick-dock-buttons {
@@ -659,12 +698,12 @@ html.sbhub-authenticated #dashboardApp {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 5px 10px !important;
-  min-height: 34px !important;
-  height: 34px !important;
+  padding: 6px 14px !important;
+  min-height: 36px !important;
+  height: 36px !important;
   background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 999px !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   color: #ffffff !important;
@@ -809,6 +848,7 @@ html.sbhub-authenticated #dashboardApp {
   opacity: 0.6;
 }
 
+/* TOP BANNER CARD (CLEAN GLASS, NO BACKGROUND IMAGE) */
 .top-banner-card {
   display: flex;
   flex-direction: column;
@@ -823,18 +863,18 @@ html.sbhub-authenticated #dashboardApp {
   top: 0 !important;
   z-index: 1000 !important;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  background-color: #080c1a !important;
-  background-image: 
-    linear-gradient(180deg, rgba(10, 14, 26, 0.85) 0%, rgba(8, 11, 20, 0.95) 100%), 
-    url('./sports-banner.jpg'), 
-    url('./american-football-player-neon-style_23-2151827356.avif') !important;
-  background-size: cover, cover, cover !important;
-  background-position: center 25%, center 25%, center 25% !important;
-  background-repeat: no-repeat, no-repeat, no-repeat !important;
+  border: 1px solid rgba(255, 255, 255, calc(var(--glass-opacity-val, 0.45) * 0.7)) !important;
+  background: rgba(15, 23, 42, var(--glass-opacity-val, 0.45)) !important;
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 15px 35px rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
+  backdrop-filter: blur(35px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(35px) saturate(160%) !important;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+body.light-theme .top-banner-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
 }
 
 .banner-top-row {
@@ -1674,19 +1714,7 @@ html.sbhub-authenticated #dashboardApp {
   z-index: 1;
 }
 
-@media (max-width: 1200px) {
-  .dashboard-grid { grid-template-columns: 1fr; }
-  .top-picks-single-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 900px) {
-  .top-picks-single-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
+/* TAB PILLS */
 .tab-pills { display: flex; gap: 6px; }
 .tab-pill {
   padding: 5px 12px;
@@ -1695,6 +1723,7 @@ html.sbhub-authenticated #dashboardApp {
   border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1704,6 +1733,7 @@ html.sbhub-authenticated #dashboardApp {
   color: #ffffff;
 }
 
+/* ACTION ROWS & LINKS */
 .action-row {
   display: flex;
   align-items: center;
@@ -1714,9 +1744,16 @@ html.sbhub-authenticated #dashboardApp {
   border-radius: 14px;
   font-size: 11px;
   font-weight: 700;
-  color: #ffffff;
-  text-decoration: none;
+  color: #ffffff !important;
+  text-decoration: none !important;
   transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.action-row:visited,
+.action-row:active,
+.action-row:hover {
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .action-row:hover {
@@ -1818,12 +1855,6 @@ body.light-theme .glass-card:not(.top-banner-card) {
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-}
-
-body.light-theme .top-banner-card {
-  background-color: #080c1a !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35), 0 15px 35px rgba(0, 0, 0, 0.3) !important;
 }
 
 body.light-theme .search-box { background: #ffffff !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important; }
@@ -1931,6 +1962,19 @@ body.light-theme .handover-manage-text { color: #1e293b !important; }
 
 .mobile-nav-header { display: none; }
 .sidebar-overlay { display: none; }
+
+@media (max-width: 1200px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .top-picks-single-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-picks-single-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
 
 @media (max-width: 768px) {
   body { padding: 10px; gap: 0; overflow-x: hidden; }
