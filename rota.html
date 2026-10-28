@@ -355,6 +355,27 @@
 
         .custom-dropdown-menu.show { display: block; }
 
+        /* REDESIGNED SPACIOUS MANAGE MEMBERS MENU */
+        #memberDropdownMenu {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            right: 0 !important;
+            left: auto !important;
+            min-width: 300px !important;
+            width: 300px !important;
+            max-width: 92vw !important;
+            padding: 16px !important;
+            border-radius: 16px !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+            z-index: 1000 !important;
+        }
+
+        #memberDropdownMenu.show {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+
         /* 2-COLUMN SHIFT MENU (NO SCROLL BAR) */
         .shift-dropdown-grid.show {
             display: grid !important;
@@ -399,12 +420,12 @@
         .shift-bg-rd          { background-color: #334155 !important; color: #94a3b8 !important; border: 1px solid #475569 !important; font-weight: 700; }
         .shift-bg-vl          { background: linear-gradient(135deg, #ca8a04, #a16207) !important; color: #ffffff !important; border: 1px solid #facc15 !important; font-weight: 800; }
         .shift-bg-sl          { background: linear-gradient(135deg, #7e22ce, #6b21a8) !important; color: #ffffff !important; border: 1px solid #c084fc !important; font-weight: 800; }
-        .shift-bg-6-15        { background-color: #475569 !important; color: #ffffff !important; border: 1px solid #64748b; font-weight: 700; }
-        .shift-bg-7-16        { background-color: #f97316 !important; color: #0f172a !important; border: 1px solid #fb923c; font-weight: 800; }
-        .shift-bg-9-18        { background-color: #059669 !important; color: #ffffff !important; border: 1px solid #10b981; font-weight: 800; }
-        .shift-bg-12-21       { background-color: #db2777 !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
-        .shift-bg-15-0        { background-color: #e11d48 !important; color: #ffffff !important; border: 1px solid #fda4af; font-weight: 800; }
-        .shift-bg-6-15-wfh    { background-color: #1e293b !important; color: #38bdf8 !important; border: 1.5px solid #38bdf8; font-weight: 800; }
+        .shift-bg-6-15        { background-color: #475569 !important; color: #ffffff !important; border: 1px solid #64748b !important; font-weight: 700; }
+        .shift-bg-7-16        { background-color: #f97316 !important; color: #0f172a !important; border: 1px solid #fb923c !important; font-weight: 800; }
+        .shift-bg-9-18        { background-color: #059669 !important; color: #ffffff !important; border: 1px solid #10b981 !important; font-weight: 800; }
+        .shift-bg-12-21       { background-color: #db2777 !important; color: #ffffff !important; border: 1px solid #f472b6 !important; font-weight: 800; }
+        .shift-bg-15-0        { background-color: #e11d48 !important; color: #ffffff !important; border: 1px solid #fda4af !important; font-weight: 800; }
+        .shift-bg-6-15-wfh    { background-color: #1e293b !important; color: #38bdf8 !important; border: 1.5px solid #38bdf8 !important; font-weight: 800; }
         .shift-bg-7-16-wfh    { background-color: #c2410c !important; color: #ffffff !important; border: 1px solid #fdba74; font-weight: 800; }
         .shift-bg-9-18-wfh    { background-color: #047857 !important; color: #ffffff !important; border: 1px solid #6ee7b7; font-weight: 800; }
         .shift-bg-12-21-wfh   { background-color: #9d174d !important; color: #ffffff !important; border: 1px solid #f472b6; font-weight: 800; }
@@ -535,7 +556,6 @@
             border-color: #d8b4fe;
         }
 
-        /* DYNAMIC WFH BADGES WITH SHIFT COLORING */
         .badge-wfh {
             font-weight: 800;
             padding: 3px 8px;
@@ -753,14 +773,20 @@
         <div class="custom-dropdown team-manager-dropdown">
             <button id="memberDropdownBtn" class="btn btn-secondary" onclick="toggleMemberDropdown(event)">👥 Manage Members ▾</button>
             <div id="memberDropdownMenu" class="custom-dropdown-menu">
-                <button class="btn btn-admin" style="width: 100%; margin-bottom: 8px; justify-content: center; font-size: 11px;" onclick="addNewMemberPrompt()">➕ MEMBER</button>
-                <div style="border-top: 1px solid var(--glass-border); margin: 8px 0;"></div>
-                <label for="manage-member-select" style="font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block;">Select Member:</label>
-                <select id="manage-member-select" style="font-size: 11px; padding: 4px; width: 100%; margin-bottom: 6px;"></select>
-                <div style="display: flex; gap: 6px;">
-                    <button class="btn btn-warning" style="padding: 5px 8px; font-size: 11px; flex: 1; justify-content: center;" onclick="editSelectedMember()">✏️ EDIT</button>
-                    <button class="btn btn-danger" style="padding: 5px 8px; font-size: 11px; flex: 1; justify-content: center;" onclick="removeSelectedMember()">➖ DELETE</button>
+                <button class="btn btn-admin" style="width: 100%; padding: 10px; justify-content: center; font-size: 12px; font-weight: 800; border-radius: 10px;" onclick="addNewMemberPrompt()">➕ ADD NEW MEMBER</button>
+                <div style="border-top: 1px solid var(--glass-border); margin: 2px 0;"></div>
+                
+                <div>
+                    <label for="manage-member-select" style="font-size: 11px; font-weight: 800; color: var(--accent-cyan); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px;">Select Member:</label>
+                    <select id="manage-member-select" style="font-size: 12px; padding: 8px 10px; width: 100%; border-radius: 8px;"></select>
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px;">
+                    <button class="btn btn-warning" style="padding: 9px 8px; font-size: 12px; justify-content: center; border-radius: 8px;" onclick="editSelectedMember()">✏️ Edit Info</button>
+                    <button class="btn btn-secondary" style="padding: 9px 8px; font-size: 12px; justify-content: center; border-radius: 8px;" onclick="setMemberLastDayPrompt()">📅 Last Day</button>
+                </div>
+
+                <button class="btn btn-danger" style="width: 100%; padding: 8px 10px; font-size: 11.5px; justify-content: center; border-radius: 8px; opacity: 0.9; margin-top: 2px;" onclick="removeSelectedMember()">🗑️ Delete Member</button>
             </div>
         </div>
     </div>
@@ -864,7 +890,7 @@
             { name: "Dave", location: "MANILA" },
             { name: "Kenneth", location: "MANILA" },
             { name: "Kriztel", location: "MANILA" },
-            { name: "Miguel", location: "MANILA" },
+            { name: "Miguel", location: "MANILA", lastWorkingDay: "2026-11-06" },
             { name: "Matthew", location: "MALTA" }
         ];
 
@@ -930,6 +956,38 @@
         let isMobileViewActive = false;
         let isViewOnlyMode = true;
         const ADMIN_PASSWORD = "sb2026";
+
+        function isMemberActiveInMonth(memberObj, year, monthIdx) {
+            if (!memberObj.lastWorkingDay) return true;
+            const parts = memberObj.lastWorkingDay.split('-').map(Number);
+            if (parts.length !== 3 || isNaN(parts[0])) return true;
+            const [lYear, lMonth, lDay] = parts;
+            const lMonthIdx = lMonth - 1;
+            
+            if (year < lYear) return true;
+            if (year > lYear) return false;
+            return monthIdx <= lMonthIdx;
+        }
+
+        function isMemberResignedOnDay(memberObj, year, monthIdx, dayNum) {
+            if (!memberObj.lastWorkingDay) return false;
+            const parts = memberObj.lastWorkingDay.split('-').map(Number);
+            if (parts.length !== 3 || isNaN(parts[0])) return false;
+            const [lYear, lMonth, lDay] = parts;
+            const lMonthIdx = lMonth - 1;
+            
+            if (year > lYear) return true;
+            if (year === lYear && monthIdx > lMonthIdx) return true;
+            if (year === lYear && monthIdx === lMonthIdx && dayNum > lDay) return true;
+            return false;
+        }
+
+        function isMemberActiveInYear(memberObj, year) {
+            if (!memberObj.lastWorkingDay) return true;
+            const parts = memberObj.lastWorkingDay.split('-').map(Number);
+            if (parts.length !== 3 || isNaN(parts[0])) return true;
+            return year <= parts[0];
+        }
 
         function sortLeaveDatesDescending(arr) {
             const monthOrder = {
@@ -1180,7 +1238,7 @@
                         { name: "Dave", location: "MANILA" },
                         { name: "Kenneth", location: "MANILA" },
                         { name: "Kriztel", location: "MANILA" },
-                        { name: "Miguel", location: "MANILA" },
+                        { name: "Miguel", location: "MANILA", lastWorkingDay: "2026-11-06" },
                         { name: "Matthew", location: "MALTA" }
                     ];
                 }
@@ -1247,7 +1305,8 @@
             teamObjects.forEach(member => {
                 const opt = document.createElement('option');
                 opt.value = member.name;
-                opt.textContent = `${member.name} (${member.location || 'MANILA'})`;
+                const status = member.lastWorkingDay ? ` [Last Day: ${member.lastWorkingDay}]` : '';
+                opt.textContent = `${member.name} (${member.location || 'MANILA'})${status}`;
                 manageMemberSelect.appendChild(opt);
             });
         }
@@ -1306,12 +1365,54 @@
                 updatedLoc = "MALTA";
             }
 
-            teamObjects[memberIdx] = { name: trimmedName, location: updatedLoc };
+            teamObjects[memberIdx].name = trimmedName;
+            teamObjects[memberIdx].location = updatedLoc;
             team = teamObjects.map(t => t.name);
 
             saveTeamToDatabase();
+            updateMemberDropdown();
             renderAll();
             alert(`✓ Updated ${trimmedName} (${updatedLoc}) details successfully!`);
+        }
+
+        function setMemberLastDayPrompt() {
+            if (isViewOnlyMode) return;
+            const selectedName = manageMemberSelect.value;
+            if (!selectedName) return;
+
+            const memberIdx = teamObjects.findIndex(t => t.name === selectedName);
+            if (memberIdx === -1) return;
+
+            const currentObj = teamObjects[memberIdx];
+            const currentLastDay = currentObj.lastWorkingDay || "";
+
+            const input = prompt(
+                `Set Last Working Day for ${currentObj.name}:\n` +
+                `Format: YYYY-MM-DD (e.g., 2026-11-06)\n\n` +
+                `Leave BLANK and press OK to clear resignation (keep active indefinitely):`,
+                currentLastDay
+            );
+
+            if (input === null) return;
+
+            const trimmed = input.trim();
+            if (trimmed === "") {
+                delete currentObj.lastWorkingDay;
+                alert(`✓ Cleared resignation for ${currentObj.name}. Member is active indefinitely.`);
+            } else {
+                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                if (!dateRegex.test(trimmed)) {
+                    alert("Invalid date format! Please use YYYY-MM-DD (e.g., 2026-11-06).");
+                    return;
+                }
+                currentObj.lastWorkingDay = trimmed;
+                alert(`✓ Last working day for ${currentObj.name} set to ${trimmed}.\n\n` +
+                      `They will appear normally on and before this date, and will be automatically hidden from all future months.`);
+            }
+
+            saveTeamToDatabase();
+            updateMemberDropdown();
+            renderAll();
         }
 
         function removeSelectedMember() {
@@ -1322,12 +1423,13 @@
                 alert("Cannot delete the last remaining team member.");
                 return;
             }
-            if (confirm(`Are you sure you want to remove ${selectedMember} from the Rota?`)) {
+            if (confirm(`⚠️ Warning: Deleting a member permanently shifts array indices and will alter past schedules!\n\nTo safely archive a resigned member while preserving past history, use the '📅 LAST DAY' button instead.\n\nAre you sure you want to permanently delete ${selectedMember}?`)) {
                 const index = teamObjects.findIndex(t => t.name === selectedMember);
                 if (index > -1) {
                     teamObjects.splice(index, 1);
                     team = teamObjects.map(t => t.name);
                     saveTeamToDatabase();
+                    updateMemberDropdown();
                     renderAll();
                 }
             }
@@ -1449,7 +1551,8 @@
                 renderHorizontalCalendar();
             }
 
-            const leaveTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
+            const selectedYear = parseInt(yearInput.value);
+            const leaveTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA" && isMemberActiveInYear(m, selectedYear)).map(m => m.name);
             let leaveHtml = '<th style="width: 50px;">Type</th>';
             leaveTeam.forEach(member => {
                 leaveHtml += `<th>${member}</th>`;
@@ -1615,6 +1718,8 @@
             scheduleHeaderRow.innerHTML = headerHtml;
 
             teamObjects.forEach((memberObj, memberIdx) => {
+                if (!isMemberActiveInMonth(memberObj, selectedYear, selectedMonth)) return;
+
                 const member = memberObj.name;
                 const loc = memberObj.location || "MANILA";
                 const tr = document.createElement('tr');
@@ -1649,27 +1754,34 @@
                     if (isSunday) tdShift.classList.add('week-divider');
                     if (isToday) tdShift.classList.add('today-cell');
 
-                    let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
+                    const isResigned = isMemberResignedOnDay(memberObj, selectedYear, selectedMonth, d);
 
-                    const activeInfo = getShiftInfo(activeShift);
-                    const convertedText = formatShiftForTimezone(activeShift);
+                    if (isResigned) {
+                        tdShift.style.opacity = '0.35';
+                        tdShift.innerHTML = '<span style="font-size:10px; font-weight:700; color:var(--text-muted);">--</span>';
+                        tdShift.title = `${memberObj.name} resigned on ${memberObj.lastWorkingDay}`;
+                    } else {
+                        let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
+                        const activeInfo = getShiftInfo(activeShift);
+                        const convertedText = formatShiftForTimezone(activeShift);
 
-                    const dropdownContainer = document.createElement('div');
-                    dropdownContainer.className = 'custom-dropdown';
+                        const dropdownContainer = document.createElement('div');
+                        dropdownContainer.className = 'custom-dropdown';
 
-                    const btn = document.createElement('div');
-                    btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
-                    btn.innerHTML = getDisplayText(convertedText);
+                        const btn = document.createElement('div');
+                        btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
+                        btn.innerHTML = getDisplayText(convertedText);
 
-                    const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
+                        const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
 
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openSmartDropdown(btn, menu);
-                    });
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openSmartDropdown(btn, menu);
+                        });
 
-                    dropdownContainer.appendChild(btn);
-                    tdShift.appendChild(dropdownContainer);
+                        dropdownContainer.appendChild(btn);
+                        tdShift.appendChild(dropdownContainer);
+                    }
 
                     tr.appendChild(tdShift);
                 }
@@ -1696,6 +1808,8 @@
 
             let headerHtml = '<th class="date-col-mobile">Date</th>';
             teamObjects.forEach((memberObj, memberIdx) => {
+                if (!isMemberActiveInMonth(memberObj, selectedYear, selectedMonth)) return;
+
                 headerHtml += `
                     <th>
                         <div class="mobile-member-name">${memberObj.name}</div>
@@ -1735,30 +1849,39 @@
                 tr.appendChild(tdDate);
 
                 teamObjects.forEach((memberObj, memberIdx) => {
+                    if (!isMemberActiveInMonth(memberObj, selectedYear, selectedMonth)) return;
+
                     const tdShift = document.createElement('td');
                     if (isToday) tdShift.classList.add('today-cell');
 
-                    let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
+                    const isResigned = isMemberResignedOnDay(memberObj, selectedYear, selectedMonth, d);
 
-                    const activeInfo = getShiftInfo(activeShift);
-                    const convertedText = formatShiftForTimezone(activeShift);
+                    if (isResigned) {
+                        tdShift.style.opacity = '0.3';
+                        tdShift.innerHTML = '<span style="font-size:9px; font-weight:700;">--</span>';
+                        tdShift.title = `${memberObj.name} resigned on ${memberObj.lastWorkingDay}`;
+                    } else {
+                        let activeShift = (rotaData[d] && rotaData[d][memberIdx] !== undefined) ? rotaData[d][memberIdx] : "";
+                        const activeInfo = getShiftInfo(activeShift);
+                        const convertedText = formatShiftForTimezone(activeShift);
 
-                    const dropdownContainer = document.createElement('div');
-                    dropdownContainer.className = 'custom-dropdown';
+                        const dropdownContainer = document.createElement('div');
+                        dropdownContainer.className = 'custom-dropdown';
 
-                    const btn = document.createElement('div');
-                    btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
-                    btn.innerHTML = getDisplayText(convertedText);
+                        const btn = document.createElement('div');
+                        btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
+                        btn.innerHTML = getDisplayText(convertedText);
 
-                    const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
+                        const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
 
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openSmartDropdown(btn, menu);
-                    });
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openSmartDropdown(btn, menu);
+                        });
 
-                    dropdownContainer.appendChild(btn);
-                    tdShift.appendChild(dropdownContainer);
+                        dropdownContainer.appendChild(btn);
+                        tdShift.appendChild(dropdownContainer);
+                    }
 
                     tr.appendChild(tdShift);
                 });
@@ -1831,7 +1954,8 @@
 
         function buildLeaveTables() {
             leaveDatesBody.innerHTML = '';
-            const leaveTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
+            const selectedYear = parseInt(yearInput.value);
+            const leaveTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA" && isMemberActiveInYear(m, selectedYear)).map(m => m.name);
 
             leaveTeam.forEach((member) => {
                 if (leaveMatrixData[member]) {
@@ -1891,7 +2015,7 @@
             const selectedYear = parseInt(yearInput.value);
             const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const monthLabel = monthSelect.options[selectedMonth].text.substring(0, 3);
-            const wfhTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
+            const wfhTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA" && isMemberActiveInMonth(m, selectedYear, selectedMonth)).map(m => m.name);
 
             wfhTeam.forEach((member) => {
                 const memberIdx = team.indexOf(member);
@@ -1927,7 +2051,8 @@
 
         function renderVLPieChart() {
             document.getElementById('vlChartYearLabel').innerText = yearInput.value;
-            const chartTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
+            const selectedYear = parseInt(yearInput.value);
+            const chartTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA" && isMemberActiveInYear(m, selectedYear)).map(m => m.name);
             let memberVLCounts = chartTeam.map(() => 0);
 
             chartTeam.forEach((member, idx) => {
@@ -1980,7 +2105,7 @@
             const labelElem = document.getElementById('lateShiftYearLabel');
             if (labelElem) labelElem.innerText = selectedYear;
 
-            const trackerTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA").map(m => m.name);
+            const trackerTeam = teamObjects.filter(m => m.name !== "Miguel" && (m.location || "MANILA") === "MANILA" && isMemberActiveInYear(m, selectedYear)).map(m => m.name);
             const lateShiftBody = document.getElementById('late-shift-body');
             const lateShiftThead = document.getElementById('late-shift-thead');
             const lateShiftTableTitle = document.getElementById('lateShiftTableTitle');
