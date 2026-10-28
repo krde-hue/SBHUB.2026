@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -312,33 +313,6 @@
         th.person-col { background-color: var(--sticky-header-bg); }
         td.person-col { background-color: var(--sticky-col-bg); backdrop-filter: blur(16px); }
 
-        th.day-col-mobile, td.day-col-mobile {
-            position: sticky !important;
-            left: 0 !important;
-            z-index: 30 !important;
-            min-width: 48px !important;
-            width: 48px !important;
-            max-width: 48px !important;
-            background-color: var(--sticky-col-bg) !important;
-        }
-
-        th.date-col-mobile, td.date-col-mobile {
-            position: sticky !important;
-            left: 48px !important;
-            z-index: 30 !important;
-            min-width: 64px !important;
-            width: 64px !important;
-            max-width: 64px !important;
-            border-right: 2px solid var(--accent-cyan) !important;
-            background-color: var(--sticky-col-bg) !important;
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.25);
-        }
-
-        th.day-col-mobile, th.date-col-mobile {
-            z-index: 35 !important;
-            background-color: var(--sticky-header-bg) !important;
-        }
-
         .week-divider { border-right: 3px solid var(--week-divider) !important; }
 
         .bulk-set-container { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
@@ -589,28 +563,77 @@
                 gap: 10px;
                 padding: 12px;
             }
-
             .controls > div, .controls > button {
                 flex: 1 1 auto;
                 min-width: 120px;
             }
-
             .controls select, .controls input {
                 width: 100%;
             }
-
             #mobileViewToggleBtn { display: inline-flex !important; }
 
             .table-container {
-                max-height: 70vh;
+                max-height: 75vh;
                 overflow-y: auto;
+                overflow-x: auto;
             }
-
+            .table-container th, .table-container td {
+                min-width: 48px;
+                padding: 4px 2px;
+            }
             .table-container th {
                 position: sticky;
                 top: 0;
                 z-index: 40;
                 background-color: var(--sticky-header-bg);
+                font-size: 11px;
+            }
+
+            th.date-col-mobile, td.date-col-mobile {
+                position: sticky !important;
+                left: 0 !important;
+                z-index: 30 !important;
+                min-width: 44px !important;
+                width: 44px !important;
+                max-width: 44px !important;
+                border-right: 2px solid var(--accent-cyan) !important;
+                background-color: var(--sticky-col-bg) !important;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.25);
+            }
+            th.date-col-mobile {
+                z-index: 45 !important;
+                background-color: var(--sticky-header-bg) !important;
+            }
+
+            .mobile-member-name {
+                font-weight: 800;
+                font-size: 10.5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 48px;
+                margin: 0 auto;
+            }
+            .badge-location {
+                font-size: 7.5px;
+                padding: 1px 3px;
+                margin-top: 3px;
+                display: inline-block;
+            }
+            .bulk-set-container {
+                display: none !important; 
+            }
+            .custom-dropdown-btn {
+                padding: 5px 1px;
+                font-size: 9.5px;
+                min-height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                letter-spacing: -0.3px;
+            }
+            .today-header-box {
+                padding: 4px 0 !important;
             }
 
             .leave-section { padding: 14px; }
@@ -1360,6 +1383,25 @@
             return shiftList.find(s => s.text === val) || { bgClass: "shift-bg-adjusted" };
         }
 
+        function getDisplayText(formattedText) {
+            if (!isMobileViewActive) return formattedText === "" ? "--" : formattedText;
+            if (formattedText === "") return "--";
+            
+            if (["RD", "VL", "SL"].includes(formattedText)) return formattedText;
+            if (formattedText.startsWith("Adjusted") || formattedText === "Adjusted") return "Adj";
+            
+            let isWfh = formattedText.includes("WFH");
+            let timeMatch = formattedText.match(/(\d{1,2}):\d{2}\s*-\s*(\d{1,2}):\d{2}/);
+            let display = formattedText;
+            
+            if (timeMatch) {
+                display = `${timeMatch[1]}-${timeMatch[2]}`;
+            }
+            if (isWfh) display += "🏠";
+            
+            return display;
+        }
+
         function renderAll() {
             renderCalendar();
             buildLeaveTables();
@@ -1479,7 +1521,7 @@
                     const info = getShiftInfo(newShiftVal);
                     const formattedText = formatShiftForTimezone(newShiftVal);
 
-                    btn.textContent = formattedText === "" ? "--" : formattedText;
+                    btn.innerHTML = getDisplayText(formattedText);
                     btn.className = `custom-dropdown-btn ${info.bgClass}`;
                     menu.classList.remove('show');
 
@@ -1585,7 +1627,7 @@
 
                     const btn = document.createElement('div');
                     btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
-                    btn.textContent = convertedText === "" ? "--" : convertedText;
+                    btn.innerHTML = getDisplayText(convertedText);
 
                     const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
 
@@ -1620,11 +1662,12 @@
             const isCurrentMonthAndYear = (selectedMonth === realToday.getMonth() && selectedYear === realToday.getFullYear());
             const todayDayNum = realToday.getDate();
 
-            let headerHtml = '<th class="day-col-mobile">Day</th><th class="date-col-mobile">Date</th>';
+            let headerHtml = '<th class="date-col-mobile">Date</th>';
             teamObjects.forEach((memberObj, memberIdx) => {
                 headerHtml += `
                     <th>
-                        <div>${memberObj.name} <span class="badge-location ${memberObj.location.toLowerCase()}">${memberObj.location}</span></div>
+                        <div class="mobile-member-name">${memberObj.name}</div>
+                        <div class="badge-location ${memberObj.location.toLowerCase()}">${memberObj.location.substring(0,3)}</div>
                         <div class="bulk-set-container">
                             <select class="bulk-select" onchange="bulkSetShift(${memberIdx}, this)">
                                 <option value="">-- Set All --</option>
@@ -1649,17 +1692,13 @@
                 const tr = document.createElement('tr');
                 if (isToday) tr.id = 'mobile-today-row';
 
-                const tdDay = document.createElement('td');
-                tdDay.className = 'day-col-mobile';
-                tdDay.textContent = dayName;
-                if (isToday) tdDay.classList.add('today-cell');
-                tr.appendChild(tdDay);
-
                 const tdDate = document.createElement('td');
                 tdDate.className = 'date-col-mobile';
-                tdDate.textContent = `${d}-${monthLabel}`;
                 if (isToday) {
-                    tdDate.innerHTML = `<span class="today-header-box">${d}-${monthLabel}</span>`;
+                    tdDate.classList.add('today-cell');
+                    tdDate.innerHTML = `<div class="today-header-box" style="padding:2px;"><strong style="font-size:12px;">${d}</strong><br><span style="font-size:9px;">${dayName}</span></div>`;
+                } else {
+                    tdDate.innerHTML = `<strong style="font-size:12px;">${d}</strong><br><span style="font-size:9px; opacity:0.8;">${dayName}</span>`;
                 }
                 tr.appendChild(tdDate);
 
@@ -1677,7 +1716,7 @@
 
                     const btn = document.createElement('div');
                     btn.className = `custom-dropdown-btn ${activeInfo.bgClass}`;
-                    btn.textContent = convertedText === "" ? "-- Select --" : convertedText;
+                    btn.innerHTML = getDisplayText(convertedText);
 
                     const menu = createShiftDropdownMenu(shiftList, btn, memberIdx, d);
 
