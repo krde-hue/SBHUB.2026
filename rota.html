@@ -396,9 +396,9 @@
         }
         .custom-dropdown-item:hover { filter: brightness(1.15); }
 
-        .shift-bg-rd          { background-color: #334155 !important; color: #94a3b8 !important; border: 1px solid #475569; font-weight: 700; }
-        .shift-bg-vl          { background: linear-gradient(135deg, #ca8a04, #a16207) !important; color: #ffffff !important; border: 1px solid #facc15; font-weight: 800; }
-        .shift-bg-sl          { background: linear-gradient(135deg, #7e22ce, #6b21a8) !important; color: #ffffff !important; border: 1px solid #c084fc; font-weight: 800; }
+        .shift-bg-rd          { background-color: #334155 !important; color: #94a3b8 !important; border: 1px solid #475569 !important; font-weight: 700; }
+        .shift-bg-vl          { background: linear-gradient(135deg, #ca8a04, #a16207) !important; color: #ffffff !important; border: 1px solid #facc15 !important; font-weight: 800; }
+        .shift-bg-sl          { background: linear-gradient(135deg, #7e22ce, #6b21a8) !important; color: #ffffff !important; border: 1px solid #c084fc !important; font-weight: 800; }
         .shift-bg-6-15        { background-color: #475569 !important; color: #ffffff !important; border: 1px solid #64748b; font-weight: 700; }
         .shift-bg-7-16        { background-color: #f97316 !important; color: #0f172a !important; border: 1px solid #fb923c; font-weight: 800; }
         .shift-bg-9-18        { background-color: #059669 !important; color: #ffffff !important; border: 1px solid #10b981; font-weight: 800; }
@@ -535,15 +535,21 @@
             border-color: #d8b4fe;
         }
 
+        /* DYNAMIC WFH BADGES WITH SHIFT COLORING */
         .badge-wfh {
-            background-color: #0284c7;
-            color: #ffffff;
-            border: 1px solid #38bdf8;
-            font-weight: 700;
+            font-weight: 800;
             padding: 3px 8px;
             border-radius: 6px;
             display: inline-block;
             margin: 2px;
+            font-size: 11px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+        }
+
+        .badge-wfh:not([class*="shift-bg-"]) {
+            background-color: #0284c7;
+            color: #ffffff;
+            border: 1px solid #38bdf8;
         }
 
         .badge-location {
@@ -1889,26 +1895,31 @@
 
             wfhTeam.forEach((member) => {
                 const memberIdx = team.indexOf(member);
-                let wfhDates = [];
+                let wfhEntries = [];
 
                 if (memberIdx !== -1) {
                     for (let d = 1; d <= totalDays; d++) {
                         const shiftVal = (rotaData[d] && rotaData[d][memberIdx]) ? rotaData[d][memberIdx] : '';
                         if (shiftVal.includes('WFH')) {
-                            wfhDates.push(`${d}-${monthLabel}`);
+                            const shiftInfo = getShiftInfo(shiftVal);
+                            const bgClass = (shiftInfo && shiftInfo.bgClass) ? shiftInfo.bgClass : 'shift-bg-6-15-wfh';
+                            wfhEntries.push({
+                                dateStr: `${d}-${monthLabel}`,
+                                bgClass: bgClass
+                            });
                         }
                     }
                 }
 
-                let wfhBadges = wfhDates.length > 0 
-                    ? wfhDates.map(dStr => `<span class="badge-wfh">${dStr}</span>`).join(' ')
+                let wfhBadges = wfhEntries.length > 0 
+                    ? wfhEntries.map(e => `<span class="badge-wfh ${e.bgClass}">${e.dateStr}</span>`).join(' ')
                     : '<span style="opacity: 0.6;">None</span>';
 
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-weight:700;">${member}</td>
                     <td>${wfhBadges}</td>
-                    <td><strong>${wfhDates.length} WFH</strong></td>
+                    <td><strong>${wfhEntries.length} WFH</strong></td>
                 `;
                 wfhTrackerBody.appendChild(tr);
             });
@@ -2004,7 +2015,7 @@
 
             const counts = {};
             trackerTeam.forEach(member => {
-                counts[member] = { total: 0 };
+                counts[member] = { total: 0, onsite: 0, wfh: 0 };
                 targetMonths.forEach(mIdx => counts[member][mIdx] = 0);
             });
 
@@ -2018,9 +2029,14 @@
                         const memberIdx = team.indexOf(member);
                         if (memberIdx !== -1 && row && row[memberIdx]) {
                             const shiftVal = row[memberIdx].trim();
-                            if (shiftVal === "15:00 - 00:00" || shiftVal === "15:00 - 00:00 (WFH)") {
+                            if (shiftVal === "15:00 - 00:00") {
                                 counts[member][mIdx]++;
                                 counts[member].total++;
+                                counts[member].onsite++;
+                            } else if (shiftVal === "15:00 - 00:00 (WFH)") {
+                                counts[member][mIdx]++;
+                                counts[member].total++;
+                                counts[member].wfh++;
                             }
                         }
                     });
@@ -2048,7 +2064,8 @@
             const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
             const fontColor = activeTheme === 'light' ? '#0f172a' : '#f8fafc';
 
-            const totals = trackerTeam.map(m => counts[m] ? counts[m].total : 0);
+            const onsiteData = trackerTeam.map(m => counts[m] ? counts[m].onsite : 0);
+            const wfhData = trackerTeam.map(m => counts[m] ? counts[m].wfh : 0);
 
             if (lateShiftChartInstance) lateShiftChartInstance.destroy();
 
@@ -2056,20 +2073,39 @@
                 type: 'bar',
                 data: {
                     labels: trackerTeam,
-                    datasets: [{
-                        label: `15:00 - 00:00 Shifts (${rangeText})`,
-                        data: totals,
-                        backgroundColor: activeTheme === 'light' ? 'rgba(225, 29, 72, 0.85)' : 'rgba(225, 29, 72, 0.75)',
-                        borderColor: '#e11d48',
-                        borderWidth: 1.5,
-                        borderRadius: 6
-                    }]
+                    datasets: [
+                        {
+                            label: 'On-site',
+                            data: onsiteData,
+                            backgroundColor: activeTheme === 'light' ? 'rgba(253, 224, 71, 0.9)' : 'rgba(250, 204, 21, 0.85)',
+                            borderColor: activeTheme === 'light' ? '#eab308' : '#fde047',
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'WFH',
+                            data: wfhData,
+                            backgroundColor: activeTheme === 'light' ? 'rgba(225, 29, 72, 0.85)' : 'rgba(180, 20, 60, 0.85)',
+                            borderColor: activeTheme === 'light' ? '#be123c' : '#f43f5e',
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                color: fontColor,
+                                font: { family: "'Plus Jakarta Sans', sans-serif", weight: '700' }
+                            },
+                            grid: { display: false }
+                        },
                         y: {
+                            stacked: true,
                             beginAtZero: true,
                             ticks: {
                                 stepSize: 1,
@@ -2077,13 +2113,6 @@
                                 font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600' }
                             },
                             grid: { color: activeTheme === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.1)' }
-                        },
-                        x: {
-                            ticks: {
-                                color: fontColor,
-                                font: { family: "'Plus Jakarta Sans', sans-serif", weight: '700' }
-                            },
-                            grid: { display: false }
                         }
                     },
                     plugins: {
@@ -2092,7 +2121,8 @@
                             position: 'top',
                             labels: {
                                 color: fontColor,
-                                font: { size: 11, weight: '700', family: "'Plus Jakarta Sans', sans-serif" }
+                                font: { size: 11, weight: '700', family: "'Plus Jakarta Sans', sans-serif" },
+                                boxWidth: 12
                             }
                         }
                     }
