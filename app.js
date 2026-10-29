@@ -141,12 +141,14 @@ function handleSidebarSearch(query) {
 const brandTabData = {
   ibet: [
     { name: "IBET ADMIN", url: "https://mga-betbook.center/ibet/bets", desc: "Ibet Customer Info/Docs/Transactions" },
+    { name: "IBET DEV ADMIN", url: "https://admin.dev.apexplatform.io/login", desc: "Ibet Customer Info/SMS/Funds/Transactions" },
     { name: "IBET BETSSON", url: "https://b2b.betssonbusiness.com/", desc: "Ticket Escalation for Betsson" },
     { name: "BET CONSTRUCT", url: "https://backoffice.betconstruct.com/", desc: "Pubs, Ibet, 55bet(Player Limit Adjustment, Market Creation & Suspension)" }
   ],
   edge: [
     { name: "KT SBX", url: "https://p2ibet.sbx.bet/bets", desc: "KT Tickers, Boost/Banners, Players Info" },
     { name: "EDGE ADMIN", url: "https://admin.edgegaming.io/admin/qbet/homepage", desc: "Edge Customer Info/Docs/Transactions" },
+    { name: "EDGE DEV ADMIN", url: "https://admin.dev.edgegaming.io/admin/qbet/homepage", desc: "Edge Customer Info/SMS/Funds/Transactions" },
     { name: "SERVICE DESK", url: "https://kickertech.atlassian.net/servicedesk/customer/user/login?destination=portals", desc: "KT projects Ticket Escalations" }
   ],
   pubs: [
