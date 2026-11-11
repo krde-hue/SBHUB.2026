@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -751,7 +750,6 @@
             { id: 'slot_21_0', label: '21:00 - 00:00', startHour: 21 }
         ];
 
-        /* Updated Categorized Task List */
         const taskCategories = [
             {
                 category: "Morning Shifts",
@@ -868,7 +866,6 @@
             'shift-adjusted': []
         };
 
-        // Helper function for local date string formatting (YYYY-MM-DD)
         function getLocalDateString(date = new Date()) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -889,7 +886,6 @@
             let defaultDb = {
                 "archives": {}
             };
-            // Seed a starting database structure based on today's date
             let targetStr = getLocalDateString();
             defaultDb["day_1"] = {
                 isoDate: targetStr,
@@ -910,7 +906,6 @@
             });
         }
 
-        /* Drag and Drop Handlers for Duty Tasks */
         function handleTaskDragStart(event, memberId, slotId, taskIdx) {
             if (isLocked) { event.preventDefault(); return; }
             dragSource = { memberId, slotId, taskIdx };
@@ -1063,7 +1058,6 @@
             }
         }
 
-        /* Archive System Functions */
         function openArchivesModal() {
             const container = document.getElementById('archivesModalContainer');
             container.style.display = 'block';
@@ -1260,10 +1254,6 @@
             });
         }
 
-        /* -------------------------------------------------------------
-           AUTOMATIC CALENDAR SYNCHRONIZATION AND SCHEDULING LOGIC
-           ------------------------------------------------------------- */
-
         function maintainRollingSchedule(dbObj) {
             let todayStr = getLocalDateString();
             let changed = false;
@@ -1271,7 +1261,6 @@
             
             let activeKeys = Object.keys(dbObj).filter(k => k !== 'archives');
             
-            // 1. Auto Archive Past Dates
             activeKeys.forEach(key => {
                 let dayDate = dbObj[key].isoDate;
                 if (dayDate && dayDate < todayStr) {
@@ -1283,11 +1272,9 @@
                 }
             });
 
-            // Refresh active keys after archiving
             activeKeys = Object.keys(dbObj).filter(k => k !== 'archives');
             let existingDates = activeKeys.map(k => dbObj[k].isoDate);
             
-            // Find highest day index to generate unique keys
             let maxIndex = 0;
             activeKeys.forEach(k => {
                 if(k.startsWith('day_')) {
@@ -1296,7 +1283,6 @@
                 }
             });
 
-            // 2. Auto-Generate up to 6 days rolling schedule continuously
             for (let i = 0; i < 6; i++) {
                 let targetDate = new Date();
                 targetDate.setDate(targetDate.getDate() + i);
@@ -1313,10 +1299,8 @@
                 }
             }
 
-            // Verify selectedDayKey is still valid, else default to the current active day (today)
             activeKeys = Object.keys(dbObj).filter(k => k !== 'archives');
             if (activeKeys.length > 0) {
-                // Sort chronologically
                 activeKeys.sort((a, b) => dbObj[a].isoDate.localeCompare(dbObj[b].isoDate));
                 if (!dbObj[selectedDayKey]) {
                     selectedDayKey = activeKeys[0];
@@ -1338,7 +1322,6 @@
                 if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
                     let scheduleCheck = maintainRollingSchedule(liveData);
                     if (scheduleCheck.changed) {
-                        // Maintain rolling schedule, auto-archive, and generate dates, then save globally
                         db.ref('roster_data').set(scheduleCheck.updatedDb);
                         return;
                     }
@@ -1495,7 +1478,7 @@
             if (!shiftId) return 99;
             const match = shiftId.match(/shift-(\d+)-/);
             if (match) return parseInt(match[1], 10);
-            return 12; // default safe fallback
+            return 12;
         }
 
         function addTaskToMemberSlot(grid, memberId, slotId, taskText) {
@@ -1524,65 +1507,74 @@
                 return copy;
             }
 
-            // Clear all current duties on the selected day
             members.forEach(m => {
                 if (grid[m.id]) grid[m.id].slots = {};
             });
 
-            // 1. Intelligent Task Mapping & Tickers Coverage per Time-Frame
+            // Base pool of Real Time Checks
+            const baseRealTimeChecks = [
+                "Edge Prediction Market Ticker",
+                "Pubs Prediction Market Ticker",
+                "Qbet tickers",
+                "30Bet tickers",
+                "55Bet tickers",
+                "Ibet tickers (Swe & Betsson)",
+                "Pubs Ticker",
+                "KT Tickers (7a/BVB/GQ)",
+                "Rejected Bets Monitoring",
+                "Telegram Channel Monitoring",
+                "Bet Tickers Monitoring",
+                "@Sportsbook Escalation Check"
+            ];
+
+            // 1. Intelligent Task Mapping & Fair Real Time Checks Coverage per Time-Frame
             timeSlots.forEach((slot, slotIdx) => {
                 let active = members.filter(m => !isOffDuty(grid[m.id]?.shift || m.defaultShift, slot.id));
                 if (active.length === 0) return;
 
-                // Sort active members by shift start time (earliest starters first)
                 active.sort((a, b) => {
                     let shiftA = grid[a.id]?.shift || a.defaultShift;
                     let shiftB = grid[b.id]?.shift || b.defaultShift;
                     return getMemberStartHour(shiftA) - getMemberStartHour(shiftB);
                 });
 
-                // CORE TICKERS (Distributed fairly across active members)
-                let coreTickers = [
-                    "Edge Prediction Market Ticker",
-                    "Pubs Prediction Market Ticker",
-                    "Bet Tickers Monitoring",
-                    "@Sportsbook Escalation Check"
-                ];
-
-                if (isShuffle) coreTickers = shuffleArray(coreTickers);
-
-                if (active.length === 1) {
-                    coreTickers.forEach(t => addTaskToMemberSlot(grid, active[0].id, slot.id, t));
-                } else if (active.length === 2) {
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, coreTickers[0]);
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, coreTickers[2]);
-                    addTaskToMemberSlot(grid, active[1].id, slot.id, coreTickers[1]);
-                    addTaskToMemberSlot(grid, active[1].id, slot.id, coreTickers[3]);
-                } else if (active.length === 3) {
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, coreTickers[0]);
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, coreTickers[2]);
-                    addTaskToMemberSlot(grid, active[1].id, slot.id, coreTickers[1]);
-                    addTaskToMemberSlot(grid, active[2].id, slot.id, coreTickers[3]);
-                    addTaskToMemberSlot(grid, active[2].id, slot.id, "Telegram Channel Monitoring");
+                // FAIR REAL TIME CHECKS DISTRIBUTION
+                // Rotate the start index per slot to prevent the same trader from getting identical tickers every slot
+                let slotRealTimePool = [...baseRealTimeChecks];
+                if (isShuffle) {
+                    slotRealTimePool = shuffleArray(slotRealTimePool);
                 } else {
-                    coreTickers.forEach((t, tIdx) => {
-                        addTaskToMemberSlot(grid, active[tIdx % active.length].id, slot.id, t);
-                    });
-                    addTaskToMemberSlot(grid, active[3].id, slot.id, "Telegram Channel Monitoring");
+                    let offset = (slotIdx * 3) % slotRealTimePool.length;
+                    slotRealTimePool = slotRealTimePool.slice(offset).concat(slotRealTimePool.slice(0, offset));
                 }
 
-                // SPECIFIC SHIFT-PHASE TASK DISTRIBUTION
+                // Fairly distribute the entire pool evenly across active members in this slot
+                slotRealTimePool.forEach((task, tIdx) => {
+                    let assignedMember = active[tIdx % active.length];
+                    addTaskToMemberSlot(grid, assignedMember.id, slot.id, task);
+                });
+
+                // Identify shift categories for specific distribution (Morning vs Late Tasks)
+                let morningMembers = active.filter(m => {
+                    let s = grid[m.id]?.shift || m.defaultShift;
+                    return s.startsWith('shift-6') || s.startsWith('shift-7') || s.startsWith('shift-9') || s.startsWith('shift-10');
+                });
+                
+                let lateMembers = active.filter(m => {
+                    let s = grid[m.id]?.shift || m.defaultShift;
+                    return s.startsWith('shift-12') || s.startsWith('shift-14') || s.startsWith('shift-15') || s.startsWith('shift-16');
+                });
+
+                // SPECIFIC SHIFT-PHASE OPERATIONAL TASK DISTRIBUTION
                 if (slotIdx === 0) { // 7:00 - 9:00 Phase
                     let earlyTasks = ["Overnight Bets", "Overnight Escalations"];
                     if (isShuffle) earlyTasks = shuffleArray(earlyTasks);
                     
-                    earlyTasks.forEach(t => addTaskToMemberSlot(grid, active[0].id, slot.id, t));
-                    if (active.length > 1) {
-                        addTaskToMemberSlot(grid, active[1].id, slot.id, "Big Winners Check");
-                    }
+                    let taskReceivers = morningMembers.length > 0 ? morningMembers : active;
+                    earlyTasks.forEach((t, i) => addTaskToMemberSlot(grid, taskReceivers[i % taskReceivers.length].id, slot.id, t));
+
                 } else if (slotIdx === 1) { // 9:00 - 12:00 Phase
                     let morningTasks = [
-                        "Big Winners Check",
                         "Brands Checking (Web/Mobile)",
                         "KT Sports Offer Check",
                         "Customers Limit File Check",
@@ -1590,13 +1582,9 @@
                     ];
                     if (isShuffle) morningTasks = shuffleArray(morningTasks);
                     
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, morningTasks[0]);
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, morningTasks[1]);
-                    if (active.length > 1) {
-                        for (let i = 2; i < morningTasks.length; i++) {
-                            addTaskToMemberSlot(grid, active[1].id, slot.id, morningTasks[i]);
-                        }
-                    }
+                    let taskReceivers = morningMembers.length > 0 ? morningMembers : active;
+                    morningTasks.forEach((t, i) => addTaskToMemberSlot(grid, taskReceivers[i % taskReceivers.length].id, slot.id, t));
+
                 } else if (slotIdx === 2) { // 12:00 - 15:00 Phase
                     let midTasks = [
                         "KT Boosts / Banner Creation",
@@ -1608,15 +1596,9 @@
                     ];
                     if (isShuffle) midTasks = shuffleArray(midTasks);
                     
-                    let midPerson = active[active.length - 1]; // Newest starter (mid shift)
-                    addTaskToMemberSlot(grid, midPerson.id, slot.id, midTasks[0]);
-                    addTaskToMemberSlot(grid, midPerson.id, slot.id, midTasks[1]);
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, midTasks[2]);
+                    let taskReceivers = lateMembers.length > 0 ? lateMembers : (morningMembers.length > 0 ? morningMembers : active);
+                    midTasks.forEach((t, i) => addTaskToMemberSlot(grid, taskReceivers[i % taskReceivers.length].id, slot.id, t));
                     
-                    if (active.length > 2) {
-                        addTaskToMemberSlot(grid, active[1].id, slot.id, midTasks[3]);
-                        addTaskToMemberSlot(grid, active[1].id, slot.id, midTasks[4]);
-                    }
                 } else if (slotIdx === 3) { // 15:00 - 18:00 Phase
                     let transTasks = [
                         "Prediction Markets Check (Browse through Polymarket & if we can add anything to the offer)",
@@ -1628,58 +1610,76 @@
                     ];
                     if (isShuffle) transTasks = shuffleArray(transTasks);
                     
-                    let latePerson = active[active.length - 1]; // Newest starter (late shift)
-                    addTaskToMemberSlot(grid, latePerson.id, slot.id, transTasks[0]);
-                    addTaskToMemberSlot(grid, latePerson.id, slot.id, transTasks[1]);
-                    
-                    if (active.length > 2) {
-                        addTaskToMemberSlot(grid, active[2].id, slot.id, transTasks[2]);
-                    }
-                    if (active.length > 1) {
-                        addTaskToMemberSlot(grid, active[1].id, slot.id, transTasks[3]);
-                    }
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, transTasks[4]);
+                    let taskReceivers = lateMembers.length > 0 ? lateMembers : active;
+                    transTasks.forEach((t, i) => addTaskToMemberSlot(grid, taskReceivers[i % taskReceivers.length].id, slot.id, t));
+
                 } else if (slotIdx === 4) { // 18:00 - 21:00 Phase
                     let lateTasks = [
                         "Schedule Next Days Boosts (No need to activate)",
                         "SB Files Checking (Update if needed)",
-                        "Telegram Channel Monitoring",
                         "Customers Limit File Check",
                         "Brands Checking (Web/Mobile)"
                     ];
                     if (isShuffle) lateTasks = shuffleArray(lateTasks);
                     
-                    let latePerson = active[active.length - 1];
-                    addTaskToMemberSlot(grid, latePerson.id, slot.id, lateTasks[0]);
-                    addTaskToMemberSlot(grid, latePerson.id, slot.id, lateTasks[1]);
-                    
-                    if (active.length > 1) {
-                        addTaskToMemberSlot(grid, active[0].id, slot.id, lateTasks[2]);
-                        addTaskToMemberSlot(grid, active[0].id, slot.id, lateTasks[3]);
-                    }
+                    let taskReceivers = lateMembers.length > 0 ? lateMembers : active;
+                    lateTasks.forEach((t, i) => addTaskToMemberSlot(grid, taskReceivers[i % taskReceivers.length].id, slot.id, t));
+
                 } else if (slotIdx === 5) { // 21:00 - 00:00 Phase
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, "Schedule Next Days Boosts (No need to activate)");
-                    addTaskToMemberSlot(grid, active[0].id, slot.id, "Telegram Channel Monitoring");
+                    let nightTasks = [
+                        "Schedule Next Days Boosts (No need to activate)"
+                    ];
+                    if (isShuffle) nightTasks = shuffleArray(nightTasks);
+
+                    let taskReceivers = lateMembers.length > 0 ? lateMembers : active;
+                    nightTasks.forEach((t, i) => addTaskToMemberSlot(grid, taskReceivers[i % taskReceivers.length].id, slot.id, t));
                 }
             });
 
-            // 2. HANDOVER REPORTS
-            members.forEach(m => {
-                let memberShift = grid[m.id]?.shift || m.defaultShift;
-                let workingSlots = timeSlots.filter(s => !isOffDuty(memberShift, s.id));
-                if (workingSlots.length > 0) {
-                    let finalSlot = workingSlots[workingSlots.length - 1];
-                    
-                    // Morning shifts
-                    if (['6-15', '7-16', '9-18', '10-19'].some(k => memberShift.includes(k))) {
-                        addTaskToMemberSlot(grid, m.id, finalSlot.id, "Handover Report AM");
-                    }
-                    // Late shifts
-                    if (['15-0', '16-1', '14-23', '12-21'].some(k => memberShift.includes(k)) || finalSlot.id === 'slot_21_0') {
-                        addTaskToMemberSlot(grid, m.id, finalSlot.id, "Handover Report PM");
-                    }
-                }
+            // 2. BIG WINNERS CHECK & HANDOVER REPORTS
+            let sevenAmPerson = members.find(m => {
+                let s = grid[m.id]?.shift || m.defaultShift;
+                return s.startsWith('shift-7') || s.startsWith('shift-6');
             });
+            let nineAmPerson = members.find(m => {
+                let s = grid[m.id]?.shift || m.defaultShift;
+                return s.startsWith('shift-9') || s.startsWith('shift-10');
+            });
+            let twelvePmPerson = members.find(m => {
+                let s = grid[m.id]?.shift || m.defaultShift;
+                return s.startsWith('shift-12') || s.startsWith('shift-14');
+            });
+            let fifteenPmPerson = members.find(m => {
+                let s = grid[m.id]?.shift || m.defaultShift;
+                return s.startsWith('shift-15') || s.startsWith('shift-16');
+            });
+
+            // BIG WINNERS CHECK: Always 7:00 if present, otherwise 9:00
+            if (sevenAmPerson && !isOffDuty(grid[sevenAmPerson.id]?.shift || sevenAmPerson.defaultShift, 'slot_6_9')) {
+                addTaskToMemberSlot(grid, sevenAmPerson.id, 'slot_6_9', "Big Winners Check");
+            } else if (nineAmPerson && !isOffDuty(grid[nineAmPerson.id]?.shift || nineAmPerson.defaultShift, 'slot_9_12')) {
+                addTaskToMemberSlot(grid, nineAmPerson.id, 'slot_9_12', "Big Winners Check");
+            }
+
+            // HANDOVER REPORTS: 1 AM (7am fallback 9am) & 1 PM (3pm fallback 12pm)
+            let amHandoverPerson = sevenAmPerson || nineAmPerson;
+            let pmHandoverPerson = fifteenPmPerson || twelvePmPerson;
+
+            if (amHandoverPerson) {
+                let shiftId = grid[amHandoverPerson.id]?.shift || amHandoverPerson.defaultShift;
+                let workingSlots = timeSlots.filter(s => !isOffDuty(shiftId, s.id));
+                if (workingSlots.length > 0) {
+                    addTaskToMemberSlot(grid, amHandoverPerson.id, workingSlots[workingSlots.length - 1].id, "Handover Report AM");
+                }
+            }
+
+            if (pmHandoverPerson) {
+                let shiftId = grid[pmHandoverPerson.id]?.shift || pmHandoverPerson.defaultShift;
+                let workingSlots = timeSlots.filter(s => !isOffDuty(shiftId, s.id));
+                if (workingSlots.length > 0) {
+                    addTaskToMemberSlot(grid, pmHandoverPerson.id, workingSlots[workingSlots.length - 1].id, "Handover Report PM");
+                }
+            }
 
             saveToDatabase();
             renderActiveDayPanel();
@@ -1707,8 +1707,6 @@
             const todayStr = getLocalDateString();
             let dayKeys = Object.keys(database || {}).filter(k => k !== 'archives');
 
-            // Automatic date sorting: Chronological order (Oldest -> Newest)
-            // Due to auto-archiving, the current date will naturally be the earliest active date at the top.
             dayKeys.sort((a, b) => {
                 let dateA = database[a]?.isoDate || '';
                 let dateB = database[b]?.isoDate || '';
