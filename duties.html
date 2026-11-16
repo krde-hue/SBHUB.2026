@@ -1714,34 +1714,36 @@
                 }
             });
 
-            // 2. BIG WINNERS CHECK & HANDOVER REPORTS (Uses daily-rotated orderedMembers so same-shift coworkers alternate)
-            let sevenAmPerson = orderedMembers.find(m => {
-                let s = grid[m.id]?.shift || m.defaultShift;
-                return s.startsWith('shift-7') || s.startsWith('shift-6');
-            });
-            let nineAmPerson = orderedMembers.find(m => {
-                let s = grid[m.id]?.shift || m.defaultShift;
-                return s.startsWith('shift-9') || s.startsWith('shift-10');
-            });
-            let twelvePmPerson = orderedMembers.find(m => {
-                let s = grid[m.id]?.shift || m.defaultShift;
-                return s.startsWith('shift-12') || s.startsWith('shift-14');
-            });
-            let fifteenPmPerson = orderedMembers.find(m => {
-                let s = grid[m.id]?.shift || m.defaultShift;
-                return s.startsWith('shift-15') || s.startsWith('shift-16');
-            });
+            // 2. BIG WINNERS CHECK & HANDOVER REPORTS
+            
+            // --- DYNAMIC BIG WINNERS CHECK ---
+            // Scans chronologically to find the absolutely earliest active slot with anyone on shift
+            let earliestActivePerson = null;
+            let earliestActiveSlotId = null;
 
-            // BIG WINNERS CHECK: Always 7:00 if present, otherwise 9:00
-            if (sevenAmPerson && !isOffDuty(grid[sevenAmPerson.id]?.shift || sevenAmPerson.defaultShift, 'slot_6_9')) {
-                addTaskToMemberSlot(grid, sevenAmPerson.id, 'slot_6_9', "Big Winners Check");
-            } else if (nineAmPerson && !isOffDuty(grid[nineAmPerson.id]?.shift || nineAmPerson.defaultShift, 'slot_9_12')) {
-                addTaskToMemberSlot(grid, nineAmPerson.id, 'slot_9_12', "Big Winners Check");
+            for (let slot of timeSlots) {
+                // orderedMembers handles the daily fairness rotation naturally 
+                let activeInSlot = orderedMembers.filter(m => !isOffDuty(grid[m.id]?.shift || m.defaultShift, slot.id));
+                if (activeInSlot.length > 0) {
+                    earliestActivePerson = activeInSlot[0];
+                    earliestActiveSlotId = slot.id;
+                    break; 
+                }
             }
 
-            // HANDOVER REPORTS: 1 AM (7am fallback 9am) & 1 PM (3pm fallback 12pm)
-            let amHandoverPerson = sevenAmPerson || nineAmPerson;
-            let pmHandoverPerson = fifteenPmPerson || twelvePmPerson;
+            if (earliestActivePerson && earliestActiveSlotId) {
+                addTaskToMemberSlot(grid, earliestActivePerson.id, earliestActiveSlotId, "Big Winners Check");
+            }
+
+            // --- HANDOVER REPORTS ---
+            let amHandoverPerson = orderedMembers.find(m => {
+                let s = grid[m.id]?.shift || m.defaultShift;
+                return s.startsWith('shift-6') || s.startsWith('shift-7') || s.startsWith('shift-9') || s.startsWith('shift-10');
+            });
+            let pmHandoverPerson = orderedMembers.find(m => {
+                let s = grid[m.id]?.shift || m.defaultShift;
+                return s.startsWith('shift-12') || s.startsWith('shift-14') || s.startsWith('shift-15') || s.startsWith('shift-16');
+            });
 
             if (amHandoverPerson) {
                 let shiftId = grid[amHandoverPerson.id]?.shift || amHandoverPerson.defaultShift;
