@@ -677,7 +677,7 @@
 
         <div class="sidebar-actions">
             <button class="btn btn-success action-protected" type="button" onclick="autoDistributeTasks()" style="width: 100%; justify-content: center;" title="Auto-Distribute Tasks">🎲 <span>Auto-Distribute Tasks</span></button>
-            <button class="btn btn-warning action-protected" type="button" onclick="shuffleTasks()" style="width: 100%; justify-content: center;" title="SHUFFLE Tasks">𔤁 <span>SHUFFLE Tasks</span></button>
+            <button class="btn btn-warning action-protected" type="button" onclick="shuffleTasks()" style="width: 100%; justify-content: center;" title="SHUFFLE Tasks">🔀 <span>SHUFFLE Tasks</span></button>
             <button class="btn btn-secondary" type="button" onclick="openArchivesModal()" style="width: 100%; justify-content: center;" title="View Archived Days">📁 <span>View Archives (<span id="sidebarArchiveCount">0</span>)</span></button>
         </div>
     </aside>
@@ -689,7 +689,7 @@
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <button class="btn btn-secondary" type="button" onclick="toggleMaximizeCalendar()" id="maximizeCalendarBtn" title="Maximize/Minimize Calendar View">
-                    𗁤 <span id="maximizeBtnText">Maximize</span>
+                    ⛶ <span id="maximizeBtnText">Maximize</span>
                 </button>
                 <button id="lockUnlockBtn" class="btn btn-lock" type="button" onclick="handleLockToggle()" title="Lock / Unlock Roster Editing">
                     🔒 <span id="lockBtnText">Locked (View Only)</span>
@@ -813,7 +813,7 @@
                     "Pubs Prediction Market Ticker",
                     "KT Tickers (7a/BVB/GQ)",
                     "Rejected Bets Monitoring",
-                    "Telegram Channel Monitoring",
+                    "Telegram Channel Monitoring"
                 ]
             }
         ];
@@ -873,6 +873,14 @@
             return `${year}-${month}-${day}`;
         }
 
+        function getDaySeed(isoDateStr) {
+            if (!isoDateStr) return 0;
+            const parts = isoDateStr.split('-');
+            if (parts.length !== 3) return 0;
+            const utcMs = Date.UTC(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            return isNaN(utcMs) ? 0 : Math.floor(utcMs / 86400000);
+        }
+
         let database = createDefaultDatabase();
         let masterRotaCalendar = {};
         let activeOpenDropdownId = null;
@@ -890,7 +898,8 @@
             defaultDb["day_1"] = {
                 isoDate: targetStr,
                 reminder: "",
-                grid: {}
+                grid: {},
+                tasksDistributed: false
             };
             members.forEach(m => {
                 defaultDb["day_1"].grid[m.id] = { shift: m.defaultShift, slots: {} };
@@ -1291,7 +1300,7 @@
                 if (!existingDates.includes(targetStr)) {
                     maxIndex++;
                     let newKey = "day_" + maxIndex;
-                    dbObj[newKey] = { isoDate: targetStr, reminder: "", grid: {} };
+                    dbObj[newKey] = { isoDate: targetStr, reminder: "", grid: {}, tasksDistributed: false };
                     members.forEach(m => {
                         dbObj[newKey].grid[m.id] = { shift: m.defaultShift, slots: {} };
                     });
@@ -1310,32 +1319,74 @@
             return { updatedDb: dbObj, changed: changed };
         }
 
+        function isDayGridEmpty(grid) {
+            if (!grid) return true;
+            for (let mId in grid) {
+                let slots = grid[mId].slots;
+                if (slots) {
+                    for (let sId in slots) {
+                        if (slots[sId] && slots[sId].length > 0) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         function listenToLiveDatabase() {
             db.ref('rota_data').on('value', (snapshot) => {
                 masterRotaCalendar = snapshot.val() || {};
-                syncShiftsFromRotaMaster();
+                let updatedDayKeys = syncShiftsFromRotaMaster(true);
+                if (updatedDayKeys.length > 0) {
+                    updatedDayKeys.forEach(dayKey => {
+                        executeDistribution(false, dayKey, true);
+                    });
+                    saveToDatabase(true);
+                    renderApp();
+                }
             });
 
             db.ref('roster_data').on('value', (snapshot) => {
                 let liveData = snapshot.val();
+                let needsSave = false;
                 
                 if (liveData && typeof liveData === 'object' && Object.keys(liveData).length > 0) {
                     let scheduleCheck = maintainRollingSchedule(liveData);
-                    if (scheduleCheck.changed) {
-                        db.ref('roster_data').set(scheduleCheck.updatedDb);
-                        return;
-                    }
                     database = scheduleCheck.updatedDb;
+                    if (scheduleCheck.changed) needsSave = true;
                 } else {
                     let defaultDb = createDefaultDatabase();
                     let scheduleCheck = maintainRollingSchedule(defaultDb);
                     database = scheduleCheck.updatedDb;
-                    saveToDatabase();
-                    return;
+                    needsSave = true;
                 }
                 
-                syncShiftsFromRotaMaster();
+                let updatedDayKeys = syncShiftsFromRotaMaster(true);
+                if (updatedDayKeys.length > 0) {
+                    updatedDayKeys.forEach(dayKey => {
+                        database[dayKey].tasksDistributed = false;
+                    });
+                    needsSave = true;
+                }
 
+                // Automatic Duty Distribution Logic (Triggers seamlessly in the background)
+                Object.keys(database).forEach(dayKey => {
+                    if (dayKey === 'archives') return;
+                    let dayData = database[dayKey];
+                    
+                    if (dayData.tasksDistributed === false || (dayData.tasksDistributed === undefined && isDayGridEmpty(dayData.grid))) {
+                        executeDistribution(false, dayKey, true); 
+                        dayData.tasksDistributed = true;
+                        needsSave = true;
+                    } else if (dayData.tasksDistributed === undefined) {
+                        dayData.tasksDistributed = true; 
+                        needsSave = true;
+                    }
+                });
+
+                if (needsSave) {
+                    saveToDatabase(true); 
+                }
+                
                 if (!activeOpenDropdownId) {
                     renderApp();
                 } else {
@@ -1371,12 +1422,13 @@
             return "shift-adjusted";
         }
 
-        function syncShiftsFromRotaMaster() {
-            if (!masterRotaCalendar || Object.keys(masterRotaCalendar).length === 0) return;
-            let updated = false;
+        function syncShiftsFromRotaMaster(silent = false) {
+            if (!masterRotaCalendar || Object.keys(masterRotaCalendar).length === 0) return [];
+            let updatedDayKeys = [];
             Object.keys(database || {}).forEach(dayKey => {
                 if (dayKey === 'archives') return;
                 let dayData = database[dayKey];
+                let dayUpdated = false;
                 if (dayData && dayData.isoDate) {
                     let dateParts = dayData.isoDate.split('-');
                     if (dateParts.length === 3) {
@@ -1394,19 +1446,21 @@
                                     if (!dayData.grid[m.id]) dayData.grid[m.id] = { slots: {} };
                                     if (dayData.grid[m.id].shift !== matchedShiftId) {
                                         dayData.grid[m.id].shift = matchedShiftId;
-                                        updated = true;
+                                        dayUpdated = true;
                                     }
                                 }
                             });
                         }
                     }
                 }
+                if (dayUpdated) updatedDayKeys.push(dayKey);
             });
-            if (updated) renderApp();
+            if (updatedDayKeys.length > 0 && !silent) renderApp();
+            return updatedDayKeys;
         }
 
-        function saveToDatabase() {
-            if (isLocked) return;
+        function saveToDatabase(force = false) {
+            if (isLocked && !force) return;
             if (!database) database = createDefaultDatabase();
             db.ref('roster_data').set(database);
             let statusBadge = document.getElementById('saveStatus');
@@ -1471,7 +1525,7 @@
         }
 
         /* -------------------------------------------------------------
-           INTELLIGENT SHIFT-BASED TASK DISTRIBUTION ENGINE
+           INTELLIGENT MULTI-DAY SHIFT-BASED TASK DISTRIBUTION ENGINE
            ------------------------------------------------------------- */
         
         function getMemberStartHour(shiftId) {
@@ -1479,6 +1533,31 @@
             const match = shiftId.match(/shift-(\d+)-/);
             if (match) return parseInt(match[1], 10);
             return 12;
+        }
+
+        /**
+         * Orders members by shift start hour, while rotating members who share
+         * the exact same shift start hour based on the calendar day seed so
+         * coworkers working identical shifts all week alternate duties evenly.
+         */
+        function getFairlyOrderedMembers(memberList, grid, daySeed) {
+            const groups = {};
+            memberList.forEach(m => {
+                const shiftId = grid[m.id]?.shift || m.defaultShift;
+                const startHour = getMemberStartHour(shiftId);
+                if (!groups[startHour]) groups[startHour] = [];
+                groups[startHour].push(m);
+            });
+
+            const sortedHours = Object.keys(groups).map(Number).sort((a, b) => a - b);
+            let ordered = [];
+            sortedHours.forEach(hour => {
+                const group = groups[hour];
+                const rot = ((daySeed % group.length) + group.length) % group.length;
+                const rotatedGroup = group.slice(rot).concat(group.slice(0, rot));
+                ordered = ordered.concat(rotatedGroup);
+            });
+            return ordered;
         }
 
         function addTaskToMemberSlot(grid, memberId, slotId, taskText) {
@@ -1492,11 +1571,14 @@
             }
         }
 
-        function executeDistribution(isShuffle = false) {
-            if (isLocked) { alert("Roster is locked! Unlock with password to modify."); return; }
-            if (!database[selectedDayKey]) return;
-            let dayData = database[selectedDayKey];
+        function executeDistribution(isShuffle = false, targetDayKey = null, isAuto = false) {
+            if (!isAuto && isLocked) { alert("Roster is locked! Unlock with password to modify."); return; }
+            
+            let dayKey = targetDayKey || selectedDayKey;
+            if (!database[dayKey]) return;
+            let dayData = database[dayKey];
             let grid = dayData.grid || {};
+            const daySeed = getDaySeed(dayData.isoDate);
 
             function shuffleArray(arr) {
                 let copy = [...arr];
@@ -1527,19 +1609,16 @@
                 "@Sportsbook Escalation Check"
             ];
 
+            // Pre-order members fairly for this specific calendar day (rotates same-shift coworkers daily)
+            const orderedMembers = getFairlyOrderedMembers(members, grid, daySeed);
+
             // 1. Intelligent Task Mapping & Fair Real Time Checks Coverage per Time-Frame
             timeSlots.forEach((slot, slotIdx) => {
-                let active = members.filter(m => !isOffDuty(grid[m.id]?.shift || m.defaultShift, slot.id));
+                let active = orderedMembers.filter(m => !isOffDuty(grid[m.id]?.shift || m.defaultShift, slot.id));
                 if (active.length === 0) return;
 
-                active.sort((a, b) => {
-                    let shiftA = grid[a.id]?.shift || a.defaultShift;
-                    let shiftB = grid[b.id]?.shift || b.defaultShift;
-                    return getMemberStartHour(shiftA) - getMemberStartHour(shiftB);
-                });
-
                 // FAIR REAL TIME CHECKS DISTRIBUTION
-                // Rotate the start index per slot to prevent the same trader from getting identical tickers every slot
+                // Rotate start index per slot + rely on daily rotated active order so same-shift coworkers alternate every slot & day
                 let slotRealTimePool = [...baseRealTimeChecks];
                 if (isShuffle) {
                     slotRealTimePool = shuffleArray(slotRealTimePool);
@@ -1548,7 +1627,6 @@
                     slotRealTimePool = slotRealTimePool.slice(offset).concat(slotRealTimePool.slice(0, offset));
                 }
 
-                // Fairly distribute the entire pool evenly across active members in this slot
                 slotRealTimePool.forEach((task, tIdx) => {
                     let assignedMember = active[tIdx % active.length];
                     addTaskToMemberSlot(grid, assignedMember.id, slot.id, task);
@@ -1636,20 +1714,20 @@
                 }
             });
 
-            // 2. BIG WINNERS CHECK & HANDOVER REPORTS
-            let sevenAmPerson = members.find(m => {
+            // 2. BIG WINNERS CHECK & HANDOVER REPORTS (Uses daily-rotated orderedMembers so same-shift coworkers alternate)
+            let sevenAmPerson = orderedMembers.find(m => {
                 let s = grid[m.id]?.shift || m.defaultShift;
                 return s.startsWith('shift-7') || s.startsWith('shift-6');
             });
-            let nineAmPerson = members.find(m => {
+            let nineAmPerson = orderedMembers.find(m => {
                 let s = grid[m.id]?.shift || m.defaultShift;
                 return s.startsWith('shift-9') || s.startsWith('shift-10');
             });
-            let twelvePmPerson = members.find(m => {
+            let twelvePmPerson = orderedMembers.find(m => {
                 let s = grid[m.id]?.shift || m.defaultShift;
                 return s.startsWith('shift-12') || s.startsWith('shift-14');
             });
-            let fifteenPmPerson = members.find(m => {
+            let fifteenPmPerson = orderedMembers.find(m => {
                 let s = grid[m.id]?.shift || m.defaultShift;
                 return s.startsWith('shift-15') || s.startsWith('shift-16');
             });
@@ -1681,16 +1759,21 @@
                 }
             }
 
-            saveToDatabase();
-            renderActiveDayPanel();
+            // Flag as distributed so we don't infinitely overwrite manual changes
+            dayData.tasksDistributed = true;
+
+            if (!isAuto) {
+                saveToDatabase();
+                renderActiveDayPanel();
+            }
         }
 
         function autoDistributeTasks() {
-            executeDistribution(false);
+            executeDistribution(false, selectedDayKey, false);
         }
 
         function shuffleTasks() {
-            executeDistribution(true);
+            executeDistribution(true, selectedDayKey, false);
         }
 
         function renderApp() {
