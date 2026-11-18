@@ -3,6 +3,7 @@ let selectedGameDayOffset = 0;
 let rosterDb = null;
 let activeTraderFilter = 'ALL';
 let lastRosterSnapshotData = null;
+let isChristmasThemeActive = false;
 
 const isMobileDevice = () => window.innerWidth <= 768;
 
@@ -39,6 +40,9 @@ function toggleMobileSidebar(forceState) {
     document.documentElement.classList.add('sbhub-authenticated');
   }
   const savedTheme = localStorage.getItem('sbhub_theme') || 'blue-orange-wave';
+  if (savedTheme.startsWith('christmas-')) {
+    isChristmasThemeActive = true;
+  }
   const savedGlassOpacity = localStorage.getItem('sbhub_glass_opacity') || '0.45';
   document.documentElement.style.setProperty('--glass-opacity-val', savedGlassOpacity);
 })();
@@ -49,8 +53,11 @@ const DEFAULT_PASS = "sb2026";
 /* --- SAFE LOGO FALLBACK SVG --- */
 const FALLBACK_LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%231e293b' stroke='%2338bdf8' stroke-width='4'/%3E%3Cpath d='M30 50 L70 50 M50 30 L50 70' stroke='%2338bdf8' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E";
 
-/* --- ABSTRACT WALLPAPERS --- */
+/* --- ABSTRACT & DETAILED CHRISTMAS THEME WALLPAPERS WITH TREES & SNOWMEN --- */
 const ABSTRACT_WALLPAPERS = {
+  'christmas-silent-night': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Cdefs%3E%3CradialGradient id='nightSky' cx='50%25' cy='20%25' r='80%25'%3E%3Cstop offset='0%25' stop-color='%23082f23'/%3E%3Cstop offset='50%25' stop-color='%23041611'/%3E%3Cstop offset='100%25' stop-color='%23020907'/%3E%3C/radialGradient%3E%3CradialGradient id='moonGlow' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23fef08a' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%23fef08a' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='snowBank' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23134e3e'/%3E%3Cstop offset='100%25' stop-color='%23071c16'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1920' height='1080' fill='url(%23nightSky)'/%3E%3Ccircle cx='1560' cy='180' r='180' fill='url(%23moonGlow)'/%3E%3Ccircle cx='1560' cy='180' r='50' fill='%23fef08a'/%3E%3Ccircle cx='240' cy='140' r='2' fill='%23ffffff' opacity='0.7'/%3E%3Ccircle cx='480' cy='90' r='3' fill='%23fde047' opacity='0.8'/%3E%3Ccircle cx='760' cy='170' r='2.5' fill='%23ffffff' opacity='0.8'/%3E%3Ccircle cx='1120' cy='110' r='3' fill='%23fde047' opacity='0.7'/%3E%3Ccircle cx='1340' cy='220' r='2' fill='%23ffffff' opacity='0.6'/%3E%3Cpath d='M-50 850 Q500 720 1000 840 T1970 800 L1970 1120 L-50 1120 Z' fill='url(%23snowBank)'/%3E%3Cg fill='%23051f17'%3E%3Cpolygon points='160,860 220,620 280,860'/%3E%3Cpolygon points='175,760 220,570 265,760'/%3E%3Cpolygon points='290,875 350,670 410,875'/%3E%3Cpolygon points='1520,845 1600,560 1680,845'/%3E%3Cpolygon points='1540,730 1600,505 1660,730'/%3E%3Cpolygon points='1690,860 1760,650 1830,860'/%3E%3C/g%3E%3Cpath d='M-50 935 Q600 830 1250 940 T1970 890 L1970 1120 L-50 1120 Z' fill='%230f3d30' opacity='0.9'/%3E%3Ccircle cx='220' cy='585' r='6' fill='%23ef4444'/%3E%3Ccircle cx='205' cy='675' r='5' fill='%23fde047'/%3E%3Ccircle cx='235' cy='740' r='5' fill='%2338bdf8'/%3E%3Ccircle cx='1600' cy='530' r='6' fill='%23fde047'/%3E%3Ccircle cx='1585' cy='610' r='5' fill='%23ef4444'/%3E%3Ccircle cx='1618' cy='690' r='5' fill='%2338bdf8'/%3E%3C/svg%3E",
+  'christmas-crimson-gold': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='crimsonGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234c050d'/%3E%3Cstop offset='50%25' stop-color='%237f1d1d'/%3E%3Cstop offset='100%25' stop-color='%23111e15'/%3E%3C/linearGradient%3E%3CradialGradient id='goldGlow' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23f59e0b' stop-opacity='0.4'/%3E%3Cstop offset='100%25' stop-color='%23f59e0b' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='goldRibbon' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23b45309' stop-opacity='0.3'/%3E%3Cstop offset='50%25' stop-color='%23fde047' stop-opacity='0.55'/%3E%3Cstop offset='100%25' stop-color='%2392400e' stop-opacity='0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1920' height='1080' fill='url(%23crimsonGrad)'/%3E%3Ccircle cx='280' cy='220' r='280' fill='url(%23goldGlow)'/%3E%3Ccircle cx='1640' cy='820' r='360' fill='url(%23goldGlow)'/%3E%3Cpath d='M-100 640 Q540 380 1140 680 T2020 480 L2020 540 Q1140 740 540 440 T-100 700 Z' fill='url(%23goldRibbon)'/%3E%3Cpath d='M-100 780 Q620 540 1240 820 T2020 640 L2020 1120 L-100 1120 Z' fill='%2328090d' opacity='0.75'/%3E%3Cg transform='translate(180, 780)'%3E%3Cpath d='M 15 15 C 25 -10 65 -10 75 15 Z' fill='%2316a34a' stroke='%23fde047' stroke-width='2'/%3E%3Ccircle cx='45' cy='2' r='8' fill='%23dc2626' stroke='%23fde047' stroke-width='2'/%3E%3Ccircle cx='25' cy='12' r='6' fill='%23fde047'/%3E%3Ccircle cx='65' cy='12' r='6' fill='%2338bdf8'/%3E%3C/g%3E%3Cg transform='translate(1640, 740)'%3E%3Cpath d='M 15 15 C 25 -10 65 -10 75 15 Z' fill='%2316a34a' stroke='%23fde047' stroke-width='2'/%3E%3Ccircle cx='45' cy='2' r='8' fill='%23dc2626' stroke='%23fde047' stroke-width='2'/%3E%3Ccircle cx='25' cy='12' r='6' fill='%23fde047'/%3E%3Ccircle cx='65' cy='12' r='6' fill='%2338bdf8'/%3E%3C/g%3E%3C/svg%3E",
+  'christmas-north-pole': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='polarSky' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2305162a'/%3E%3Cstop offset='55%25' stop-color='%230b2c4d'/%3E%3Cstop offset='100%25' stop-color='%23164875'/%3E%3C/linearGradient%3E%3ClinearGradient id='auroraBorealis' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2310b981' stop-opacity='0.38'/%3E%3Cstop offset='50%25' stop-color='%2338bdf8' stop-opacity='0.35'/%3E%3Cstop offset='100%25' stop-color='%23c084fc' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1920' height='1080' fill='url(%23polarSky)'/%3E%3Cpath d='M-100 280 Q480 100 1020 310 T2020 180 L2020 440 Q1020 540 480 310 T-100 460 Z' fill='url(%23auroraBorealis)'/%3E%3Cpath d='M-50 860 Q500 740 1020 860 T1970 810 L1970 1120 L-50 1120 Z' fill='%231d527a'/%3E%3Cpath d='M-50 940 Q620 860 1280 950 T1970 900 L1970 1120 L-50 1120 Z' fill='%23286b9e' opacity='0.85'/%3E%3Cg transform='translate(1500, 770)'%3E%3Ccircle cx='40' cy='75' r='35' fill='%23ffffff' stroke='%23cbd5e1' stroke-width='2'/%3E%3Ccircle cx='40' cy='32' r='25' fill='%23ffffff' stroke='%23cbd5e1' stroke-width='2'/%3E%3Ccircle cx='40' cy='1' r='20' fill='%23ffffff' stroke='%23cbd5e1' stroke-width='2'/%3E%3Crect x='25' y='-32' width='30' height='22' fill='%230f172a' rx='3'/%3E%3Crect x='15' y='-12' width='50' height='5' fill='%230f172a' rx='2'/%3E%3Cpath d='M 12 10 Q 40 22 68 10' stroke='%23dc2626' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M 55 15 L 75 30' stroke='%23dc2626' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='40' cy='-2' r='2.5' fill='%230f172a'/%3E%3Ccircle cx='40' cy='7' r='2.5' fill='%230f172a'/%3E%3Cpolygon points='40,2 52,7 40,12' fill='%23f97316'/%3E%3Ccircle cx='40' cy='50' r='3.5' fill='%230f172a'/%3E%3Ccircle cx='40' cy='70' r='3.5' fill='%230f172a'/%3E%3Ccircle cx='40' cy='90' r='3.5' fill='%230f172a'/%3E%3Cpath d='M 12 55 Q -8 40 5 25' stroke='%2378350f' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M 68 55 Q 88 40 75 25' stroke='%2378350f' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E",
   'blue-orange-wave': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23070c1b'/%3E%3Cpath d='M0 0 L1920 0 L1920 1080 L0 1080 Z' fill='%230b152d'/%3E%3Cpath d='M-100 300 Q400 100 960 500 T2020 400 L2020 1180 L-100 1180 Z' fill='%230f214a'/%3E%3Cpath d='M-100 500 Q500 800 1100 400 T2020 700 L2020 1180 L-100 1180 Z' fill='url(%23orangeGrad1)'/%3E%3Cpath d='M-100 750 Q600 450 1200 850 T2020 600 L2020 1180 L-100 1180 Z' fill='url(%23orangeGrad2)' opacity='0.95'/%3E%3Cdefs%3E%3ClinearGradient id='orangeGrad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff5500'/%3E%3Cstop offset='100%25' stop-color='%23ff8c00'/%3E%3C/linearGradient%3E%3ClinearGradient id='orangeGrad2' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ff3b00'/%3E%3Cstop offset='50%25' stop-color='%23ff7700'/%3E%3Cstop offset='100%25' stop-color='%23ffa000'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
   'blue-orange-glow': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23060a17'/%3E%3Ccircle cx='1600' cy='900' r='600' fill='url(%23glowOrange)' opacity='0.85'/%3E%3Ccircle cx='200' cy='200' r='500' fill='url(%23glowBlue)' opacity='0.6'/%3E%3Cpath d='M-100 800 Q800 300 2020 900 L2020 1180 L-100 1180 Z' fill='url(%23glowOrange2)' opacity='0.9'/%3E%3Cdefs%3E%3CradialGradient id='glowOrange' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23ff6600'/%3E%3Cstop offset='100%25' stop-color='%23060a17' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='glowBlue' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%231d4ed8'/%3E%3Cstop offset='100%25' stop-color='%23060a17' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='glowOrange2' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ff4500'/%3E%3Cstop offset='100%25' stop-color='%23ff9900'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
   'blue-orange-halftone': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%23080e21'/%3E%3Cpath d='M-100 -100 L1200 -100 L2020 1180 L-100 1180 Z' fill='%230d193d'/%3E%3Cpath d='M700 -100 L2020 -100 L2020 1180 L1400 1180 Z' fill='url(%23htGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='htGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff5500'/%3E%3Cstop offset='100%25' stop-color='%23cc2200'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
@@ -59,7 +66,6 @@ const ABSTRACT_WALLPAPERS = {
   'blue-orange-sunset': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' preserveAspectRatio='none'%3E%3Crect width='1920' height='1080' fill='%2309122a'/%3E%3Cpath d='M-100 200 Q600 600 1200 100 T2020 300 L2020 1180 L-100 1180 Z' fill='%23102456'/%3E%3Cpath d='M-100 450 Q500 150 1100 650 T2020 500 L2020 1180 L-100 1180 Z' fill='url(%23sunsetGrad)'/%3E%3Cdefs%3E%3ClinearGradient id='sunsetGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff3b00'/%3E%3Cstop offset='100%25' stop-color='%23ff9900'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E"
 };
 
-/* --- FIREBASE INITIALIZATION --- */
 try {
   if (typeof firebase !== 'undefined') {
     const rosterFirebaseConfig = {
@@ -78,7 +84,6 @@ try {
   console.warn("Firebase offline or blocked.", e);
 }
 
-/* --- DYNAMIC SIDEBAR LIVE SEARCH SYSTEM --- */
 function handleSidebarSearch(query) {
   const cleanQuery = query.toLowerCase().trim();
   const navGroups = document.querySelectorAll('.sidebar .nav-group');
@@ -137,7 +142,6 @@ function handleSidebarSearch(query) {
   });
 }
 
-/* --- BRAND DIRECTORY TAB DATA --- */
 const brandTabData = {
   ibet: [
     { name: "IBET ADMIN", url: "https://mga-betbook.center/ibet/bets", desc: "Ibet Customer Info/Docs/Transactions" },
@@ -192,7 +196,6 @@ function switchBrandTab(tabName) {
   });
 }
 
-/* --- HIGH-RELIABILITY CORS FETCH SYSTEM --- */
 const fetchCorsSafe = async (targetUrl) => {
   try {
     const res = await fetch(targetUrl);
@@ -262,28 +265,27 @@ function loadCachedTopPicks() {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed) && parsed.length > 0) {
         const now = Date.now();
-        cachedTopPicks = parsed.filter(item => (item.kickOffTimestamp || 0) > now);
-        renderFilteredTopPicks();
+        const validPicks = parsed.filter(item => (item.kickOffTimestamp || 0) > now);
+        if (validPicks.length > 0) {
+          cachedTopPicks = validPicks;
+          renderFilteredTopPicks();
+        }
       }
     }
   } catch (e) {}
 }
 
-/* ROBUST ESPN SCOREBOARD FETCHER (CURRENT MONTH + ACTIVE ROUND + NEXT MONTH LOOKAHEAD) */
 async function fetchLeagueScoreboard(league) {
   const now = new Date();
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, '0');
   const currentMonthStr = `${y}${m}`;
 
-  // 1. Current full month (ESPN supports dates=YYYYMM up to 100 events)
   const monthUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?dates=${currentMonthStr}&limit=100`;
-  // 2. Active gameweek round (catches cross-month active rounds)
   const roundUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard?limit=50`;
 
   const fetchCalls = [fetchCorsSafe(monthUrl), fetchCorsSafe(roundUrl)];
 
-  // 3. If past the 15th, look ahead into the next calendar month so upcoming matches never run out
   if (now.getDate() >= 15) {
     const nextDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const nextY = nextDate.getFullYear();
@@ -331,7 +333,6 @@ async function fetchTopPicksAndBoosts() {
           const comp = evt.competitions?.[0];
           if (!comp) continue;
 
-          // STRICT UPCOMING ONLY: Discard completed, in-progress, or finished events
           const statusState = evt.status?.type?.state || comp.status?.type?.state;
           const isCompleted = evt.status?.type?.completed || comp.status?.type?.completed;
           if (isCompleted === true || statusState === 'post' || statusState === 'in') continue;
@@ -339,7 +340,6 @@ async function fetchTopPicksAndBoosts() {
           const evtDate = new Date(evt.date || comp.date);
           const kickOffTimestamp = evtDate.getTime();
 
-          // Reject matches whose kickoff has already passed
           if (isNaN(kickOffTimestamp) || kickOffTimestamp <= now) continue;
 
           const homeTeam = comp.competitors?.find(c => c.homeAway === 'home') || comp.competitors?.[0];
@@ -403,17 +403,13 @@ async function fetchTopPicksAndBoosts() {
       }
     });
 
-    // Chronological order: earliest upcoming kickoff first
-    apiPicks.sort((a, b) => a.kickOffTimestamp - b.kickOffTimestamp);
-
-    // Assign procedural boost markets and badge dynamically
-    apiPicks.forEach((pick, index) => {
-      pick.market = generateScriptedMarket(pick.homeName, pick.awayName, index);
-      pick.badge = (index % 2 === 0) ? "TOP PICK" : "HOT";
-    });
-
-    cachedTopPicks = apiPicks;
     if (apiPicks.length > 0) {
+      apiPicks.sort((a, b) => a.kickOffTimestamp - b.kickOffTimestamp);
+      apiPicks.forEach((pick, index) => {
+        pick.market = generateScriptedMarket(pick.homeName, pick.awayName, index);
+        pick.badge = (index % 2 === 0) ? "TOP PICK" : "HOT";
+      });
+      cachedTopPicks = apiPicks;
       localStorage.setItem('sbhub_toppicks_cache', JSON.stringify(apiPicks));
     }
   } catch (e) {}
@@ -548,7 +544,356 @@ window.addEventListener('resize', () => {
   renderFilteredTopPicks();
 });
 
-/* --- ANIMATED PLASMA BACKGROUND CANVAS --- */
+/* --- REAL-TIME LIVE DUTY ROSTER WITH TRADER FILTER --- */
+function filterTraderDuty(traderName) {
+  activeTraderFilter = traderName.toUpperCase();
+  renderLiveDutyWidget(lastRosterSnapshotData);
+}
+
+function getGMT8IsoDate() {
+  const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  const year = nowManila.getFullYear();
+  const month = String(nowManila.getMonth() + 1).padStart(2, '0');
+  const day = String(nowManila.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getCurrentSlotInfo() {
+  const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  const hours = nowManila.getHours();
+  if (hours >= 6 && hours < 9)    return { slotId: "slot_6_9", label: "7:00 - 9:00" };
+  if (hours >= 9 && hours < 12)  return { slotId: "slot_9_12", label: "9:00 - 12:00" };
+  if (hours >= 12 && hours < 15) return { slotId: "slot_12_15", label: "12:00 - 15:00" };
+  if (hours >= 15 && hours < 18) return { slotId: "slot_15_18", label: "15:00 - 18:00" };
+  if (hours >= 18 && hours < 21) return { slotId: "slot_18_21", label: "18:00 - 21:00" };
+  return { slotId: "slot_21_0", label: "21:00 - 00:00" };
+}
+
+function listenToLiveDutyRoster() {
+  if (!rosterDb) {
+    renderLiveDutyWidget(null);
+    return;
+  }
+  rosterDb.ref('roster_data').on('value', (snapshot) => {
+    renderLiveDutyWidget(snapshot.val());
+  }, (error) => {
+    renderLiveDutyWidget(null);
+  });
+}
+
+function renderLiveDutyWidget(rosterData) {
+  lastRosterSnapshotData = rosterData;
+  const container = document.getElementById("liveDutyContent");
+  if (!container) return;
+
+  const todayIso = getGMT8IsoDate();
+  const { slotId, label: slotLabel } = getCurrentSlotInfo();
+
+  if (!rosterData) {
+    const fallbackMembers = [
+      { id: 'ann', name: 'ANN', shift: '7-16', task: 'Monitoring Edge & IBET Markets' },
+      { id: 'dave', name: 'DAVE', shift: 'REST DAY', task: 'Rest day.' },
+      { id: 'ken', name: 'KEN', shift: 'REST DAY', task: 'Rest day.' },
+      { id: 'kriztel', name: 'KRIZTEL', shift: '12-21', task: 'Live Risk & Duty Operations' }
+    ];
+
+    const filteredMembers = fallbackMembers.filter(m => 
+      activeTraderFilter === 'ALL' || m.name === activeTraderFilter
+    );
+
+    let fallbackHtml = `
+      <div style="font-size:11px; font-weight:700; opacity:0.9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span>📅 ${todayIso}</span>
+        <span class="badge-time">⏰ ${slotLabel}</span>
+      </div>
+    `;
+
+    filteredMembers.forEach(m => {
+      fallbackHtml += `
+        <div class="duty-card">
+          <div class="duty-top">
+            <span>${m.name}</span>
+            <span class="badge-time">${m.shift}</span>
+          </div>
+          <div class="duty-desc">${m.task}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = fallbackHtml;
+    calculateActiveTraders();
+    return;
+  }
+
+  let activeDayKey = Object.keys(rosterData).find(key => {
+    if (key === 'archives') return false;
+    const entry = rosterData[key];
+    return entry?.isoDate === todayIso || entry?.date === todayIso || key === todayIso || key.includes(todayIso);
+  });
+
+  if (!activeDayKey) {
+    const activeKeys = Object.keys(rosterData).filter(k => k !== 'archives');
+    activeKeys.sort((a, b) => {
+      const dateA = rosterData[b]?.isoDate || rosterData[b]?.date || b;
+      const dateB = rosterData[a]?.isoDate || rosterData[a]?.date || a;
+      return String(dateA).localeCompare(String(dateB));
+    });
+    activeDayKey = activeKeys[0];
+  }
+
+  const dayData = rosterData[activeDayKey];
+  const displayDate = dayData?.isoDate || dayData?.date || todayIso;
+  const teamMembers = [
+    { id: 'ann', name: 'ANN' }, { id: 'dave', name: 'DAVE' },
+    { id: 'ken', name: 'KEN' }, { id: 'kriztel', name: 'KRIZTEL' }
+  ];
+
+  const filteredTeam = teamMembers.filter(m => 
+    activeTraderFilter === 'ALL' || m.name === activeTraderFilter
+  );
+
+  let html = `
+    <div style="font-size:11px; font-weight:700; opacity:0.9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+      <span>📅 ${displayDate}</span>
+      <span class="badge-time">⏰ ${slotLabel}</span>
+    </div>
+  `;
+
+  filteredTeam.forEach(m => {
+    const mGrid = dayData.grid ? dayData.grid[m.id] : null;
+    const shiftId = mGrid?.shift || 'shift-7-16';
+    const isRest = (shiftId === 'shift-rd' || shiftId === 'shift-vl' || shiftId === 'shift-sl');
+    const restLabel = shiftId === 'shift-vl' ? 'VACATION LEAVE' : (shiftId === 'shift-sl' ? 'SICK LEAVE' : 'REST DAY');
+
+    let rawTasks = (mGrid && mGrid.slots) ? mGrid.slots[slotId] || [] : [];
+    if (!Array.isArray(rawTasks)) rawTasks = [];
+    const tasks = rawTasks.map(item => (typeof item === 'string' ? { text: item, done: false } : { text: item.text || '', done: !!item.done }));
+
+    html += `
+      <div class="duty-card">
+        <div class="duty-top">
+          <span>${m.name}</span>
+          <span class="badge-time">${isRest ? restLabel : shiftId.replace('shift-', '')}</span>
+        </div>
+    `;
+
+    if (isRest) {
+      html += `<div class="duty-desc">Rest day.</div>`;
+    } else if (tasks.length === 0) {
+      html += `<div class="duty-desc">No assigned tasks in this slot.</div>`;
+    } else {
+      tasks.forEach(t => {
+        html += `<div class="duty-desc" style="display:flex; gap:4px; align-items:center;">
+          <i class='bx ${t.done ? 'bx-check-circle' : 'bx-time-five'}' style="color:${t.done ? '#34d399' : '#38bdf8'}"></i>
+          <span style="${t.done ? 'text-decoration:line-through; opacity:0.6;' : ''}">${t.text}</span>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+  calculateActiveTraders();
+}
+
+/* --- TOP GAMES DAILY FIXTURE FETCHING (FLASHSCORE GMT+8 ACCURATE) --- */
+function getGMT8DateObj(offsetDays = 0) {
+  const now = new Date();
+  const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
+  const gmt8Date = new Date(gmt8String);
+  gmt8Date.setDate(gmt8Date.getDate() + offsetDays);
+  return gmt8Date;
+}
+
+function getFormattedDateQuery(daysAhead) {
+  const d = getGMT8DateObj(daysAhead);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+}
+
+async function fetchLiveGames() {
+  const container = document.getElementById("gamesContainer");
+  if (!container) return;
+
+  const targetDateQuery = getFormattedDateQuery(selectedGameDayOffset);
+  const targetDateObj = getGMT8DateObj(selectedGameDayOffset);
+  const dateLabelStr = targetDateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }).toUpperCase();
+  
+  let dayTag = `DAY ${selectedGameDayOffset + 1}`;
+  if (selectedGameDayOffset === 0) dayTag = `TODAY`;
+
+  const labelEl = document.getElementById("matchDayDisplay");
+  if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
+
+  try {
+    let matches = await fetchLeagueList(TOP_TIER_LEAGUES, targetDateQuery, targetDateObj);
+
+    if (!matches || matches.length < 3) {
+      const secondaryMatches = await fetchLeagueList(SECONDARY_LEAGUES, targetDateQuery, targetDateObj);
+      if (secondaryMatches && secondaryMatches.length > 0) {
+        const seenMatchKeys = new Set(matches ? matches.map(m => `${m.homeName}-${m.awayName}`) : []);
+        for (const sm of secondaryMatches) {
+          const key = `${sm.homeName}-${sm.awayName}`;
+          if (!seenMatchKeys.has(key)) {
+            seenMatchKeys.add(key);
+            matches.push(sm);
+          }
+        }
+      }
+    }
+
+    if (!matches || matches.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
+      return;
+    }
+
+    matches.sort((a, b) => a.kickOffTimestamp - b.kickOffTimestamp);
+    matches = matches.slice(0, 10);
+
+    let gamesHtml = "";
+    matches.forEach(item => {
+      gamesHtml += `
+        <div class="top-game-card">
+          <div class="top-game-flags">
+            <img src="${item.homeLogo}" alt="${item.homeName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
+            <span class="vs-text">vs</span>
+            <img src="${item.awayLogo}" alt="${item.awayName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
+          </div>
+          <div class="top-game-title">${item.homeName} <span class="vs-light">vs</span> ${item.awayName}</div>
+          <div class="top-game-league">${item.leagueName}${item.kickOffTime ? ' &bull; <span style="color:#38bdf8;">' + item.kickOffTime + '</span>' : ''}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = gamesHtml;
+
+  } catch (e) {
+    container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
+  }
+}
+
+async function fetchLeagueList(leagueList, dateQuery, targetDateObj) {
+  const uniqueCodeToLeagues = new Map();
+  leagueList.forEach(league => {
+    if (!uniqueCodeToLeagues.has(league.code)) {
+      uniqueCodeToLeagues.set(league.code, league);
+    }
+  });
+
+  let matches = [];
+  const seenMatchKeys = new Set();
+  const now = Date.now();
+
+  const prevDateQuery = getFormattedDateQuery(selectedGameDayOffset - 1);
+  const targetIsoDay = `${targetDateObj.getFullYear()}-${String(targetDateObj.getMonth() + 1).padStart(2, '0')}-${String(targetDateObj.getDate()).padStart(2, '0')}`;
+
+  for (const [code, leagueObj] of uniqueCodeToLeagues.entries()) {
+    try {
+      const urls = [
+        `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`,
+        `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${prevDateQuery}`
+      ];
+
+      const responses = await Promise.allSettled(urls.map(u => fetchCorsSafe(u)));
+
+      for (const res of responses) {
+        if (res.status !== 'fulfilled' || !res.value || !res.value.events) continue;
+        const data = res.value;
+
+        for (const evt of data.events) {
+          if (matches.length >= 15) break;
+
+          const comp = evt.competitions?.[0];
+          if (!comp) continue;
+
+          const statusState = evt.status?.type?.state || comp.status?.type?.state;
+          const isCompleted = evt.status?.type?.completed || comp.status?.type?.completed;
+          if (isCompleted === true || statusState === 'post' || statusState === 'in') continue;
+
+          const dObj = new Date(evt.date || comp.date);
+          const matchTimestamp = dObj.getTime();
+          if (isNaN(matchTimestamp)) continue;
+
+          const matchDayInManila = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Manila',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).format(dObj);
+
+          if (matchDayInManila !== targetIsoDay) continue;
+          if (selectedGameDayOffset === 0 && matchTimestamp <= now) continue;
+
+          const homeTeam = comp.competitors?.find(c => c.homeAway === 'home') || comp.competitors?.[0];
+          const awayTeam = comp.competitors?.find(c => c.homeAway === 'away') || comp.competitors?.[1];
+
+          if (homeTeam && awayTeam) {
+            const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
+            const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
+
+            const matchKey = evt.id || `${homeName}-${awayName}`;
+            if (seenMatchKeys.has(matchKey)) continue;
+            seenMatchKeys.add(matchKey);
+
+            const rawHomeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href;
+            const rawAwayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href;
+            
+            const homeLogo = (rawHomeLogo && !rawHomeLogo.includes('default.png')) ? rawHomeLogo : FALLBACK_LOGO;
+            const awayLogo = (rawAwayLogo && !rawAwayLogo.includes('default.png')) ? rawAwayLogo : FALLBACK_LOGO;
+
+            const kickOffTime = new Intl.DateTimeFormat('en-GB', {
+              timeZone: 'Asia/Manila',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }).format(dObj);
+
+            const displayedLeagueName = data.leagues?.[0]?.name || leagueObj.name;
+
+            matches.push({
+              homeName,
+              awayName,
+              homeLogo,
+              awayLogo,
+              leagueName: displayedLeagueName,
+              kickOffTimestamp: matchTimestamp,
+              kickOffTime
+            });
+          }
+        }
+      }
+    } catch (err) {}
+  }
+
+  return matches;
+}
+
+function navigateMatchDay(dir) {
+  selectedGameDayOffset += dir;
+  if (selectedGameDayOffset < 0) selectedGameDayOffset = 6;
+  if (selectedGameDayOffset > 6) selectedGameDayOffset = 0;
+  fetchLiveGames();
+}
+
+function calculateActiveTraders() {
+  const dutyCards = document.querySelectorAll('.duty-card');
+  let activeCount = 0;
+  dutyCards.forEach(card => {
+    const timeBadge = card.querySelector('.badge-time');
+    if (timeBadge) {
+      const text = timeBadge.textContent.trim().toUpperCase();
+      if (!text.includes('OFF') && !text.includes('REST') && !text.includes('RD') && !text.includes('LEAVE')) {
+        activeCount++;
+      }
+    }
+  });
+  const el = document.getElementById('activeTraderCount');
+  if (el) el.textContent = activeCount + ' Working';
+}
+
+/* --- ANIMATED PLASMA & SNOW BACKGROUND CANVAS --- */
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
 let width = 0, height = 0, particles = [];
@@ -566,32 +911,53 @@ window.addEventListener('resize', () => {
 
 class Particle {
   constructor() {
-    this.reset();
+    this.reset(true);
   }
-  reset() {
+  reset(initial = false) {
     this.x = Math.random() * width;
-    this.y = Math.random() * height;
-    this.radius = Math.random() * (isMobileDevice() ? 1.5 : 2) + 1;
-    this.vx = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
-    this.vy = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
-    this.alpha = Math.random() * 0.4 + 0.1;
+    this.y = initial ? Math.random() * height : -10;
+    if (isChristmasThemeActive) {
+      this.radius = Math.random() * (isMobileDevice() ? 2.2 : 3.4) + 1.2;
+      this.vx = (Math.random() - 0.5) * 0.5;
+      this.vy = Math.random() * 0.9 + 0.4;
+      this.alpha = Math.random() * 0.6 + 0.3;
+    } else {
+      this.radius = Math.random() * (isMobileDevice() ? 1.5 : 2) + 1;
+      this.vx = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
+      this.vy = (Math.random() - 0.5) * (isMobileDevice() ? 0.4 : 0.8);
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
   }
   update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > width) this.vx *= -1;
-    if (this.y < 0 || this.y > height) this.vy *= -1;
+    if (isChristmasThemeActive) {
+      this.x += this.vx + Math.sin(this.y * 0.015) * 0.25;
+      this.y += this.vy;
+      if (this.y > height + 10) this.reset(false);
+      if (this.x < -10) this.x = width + 10;
+      if (this.x > width + 10) this.x = -10;
+    } else {
+      this.x += this.vx;
+      this.y += this.vy;
+      if (this.x < 0 || this.x > width) this.vx *= -1;
+      if (this.y < 0 || this.y > height) this.vy *= -1;
+    }
   }
   draw() {
     if (!ctx) return;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(56, 189, 248, ${this.alpha})`;
-    if (!isMobileDevice()) {
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = '#00f2fe';
+    if (isChristmasThemeActive) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+      ctx.shadowBlur = isMobileDevice() ? 0 : 6;
+      ctx.shadowColor = '#ffffff';
     } else {
-      ctx.shadowBlur = 0;
+      ctx.fillStyle = `rgba(56, 189, 248, ${this.alpha})`;
+      if (!isMobileDevice()) {
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#00f2fe';
+      } else {
+        ctx.shadowBlur = 0;
+      }
     }
     ctx.fill();
   }
@@ -600,7 +966,9 @@ class Particle {
 function initParticles() {
   if (!canvas) return;
   particles = [];
-  const particleCount = isMobileDevice() ? 15 : 45;
+  const particleCount = isMobileDevice()
+    ? (isChristmasThemeActive ? 25 : 15)
+    : (isChristmasThemeActive ? 65 : 45);
   for (let i = 0; i < particleCount; i++) particles.push(new Particle());
 }
 
@@ -881,6 +1249,12 @@ function setGradient(theme) {
     body.classList.remove('light-theme');
   }
 
+  const wasChristmas = isChristmasThemeActive;
+  isChristmasThemeActive = typeof theme === 'string' && theme.startsWith('christmas-');
+  if (wasChristmas !== isChristmasThemeActive) {
+    initParticles();
+  }
+
   if (ABSTRACT_WALLPAPERS[theme]) {
     backgroundStyle = `url("${ABSTRACT_WALLPAPERS[theme]}")`;
   } else if (typeof theme === 'string' && (theme.startsWith('http') || theme.startsWith('url(') || theme.startsWith('data:'))) {
@@ -921,359 +1295,6 @@ function setGradient(theme) {
   localStorage.setItem('sbhub_theme', theme);
 }
 
-/* --- REAL-TIME LIVE DUTY ROSTER WITH TRADER FILTER --- */
-function filterTraderDuty(traderName) {
-  activeTraderFilter = traderName.toUpperCase();
-  renderLiveDutyWidget(lastRosterSnapshotData);
-}
-
-function getGMT8IsoDate() {
-  const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
-  const year = nowManila.getFullYear();
-  const month = String(nowManila.getMonth() + 1).padStart(2, '0');
-  const day = String(nowManila.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function getCurrentSlotInfo() {
-  const nowManila = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
-  const hours = nowManila.getHours();
-  if (hours >= 6 && hours < 9)    return { slotId: "slot_6_9", label: "7:00 - 9:00" };
-  if (hours >= 9 && hours < 12)  return { slotId: "slot_9_12", label: "9:00 - 12:00" };
-  if (hours >= 12 && hours < 15) return { slotId: "slot_12_15", label: "12:00 - 15:00" };
-  if (hours >= 15 && hours < 18) return { slotId: "slot_15_18", label: "15:00 - 18:00" };
-  if (hours >= 18 && hours < 21) return { slotId: "slot_18_21", label: "18:00 - 21:00" };
-  return { slotId: "slot_21_0", label: "21:00 - 00:00" };
-}
-
-function listenToLiveDutyRoster() {
-  if (!rosterDb) {
-    renderLiveDutyWidget(null);
-    return;
-  }
-  rosterDb.ref('roster_data').on('value', (snapshot) => {
-    renderLiveDutyWidget(snapshot.val());
-  }, (error) => {
-    renderLiveDutyWidget(null);
-  });
-}
-
-function renderLiveDutyWidget(rosterData) {
-  lastRosterSnapshotData = rosterData;
-  const container = document.getElementById("liveDutyContent");
-  if (!container) return;
-
-  const todayIso = getGMT8IsoDate();
-  const { slotId, label: slotLabel } = getCurrentSlotInfo();
-
-  if (!rosterData) {
-    const fallbackMembers = [
-      { id: 'ann', name: 'ANN', shift: '7-16', task: 'Monitoring Edge & IBET Markets' },
-      { id: 'dave', name: 'DAVE', shift: 'REST DAY', task: 'Rest day.' },
-      { id: 'ken', name: 'KEN', shift: 'REST DAY', task: 'Rest day.' },
-      { id: 'kriztel', name: 'KRIZTEL', shift: '12-21', task: 'Live Risk & Duty Operations' }
-    ];
-
-    const filteredMembers = fallbackMembers.filter(m => 
-      activeTraderFilter === 'ALL' || m.name === activeTraderFilter
-    );
-
-    let fallbackHtml = `
-      <div style="font-size:11px; font-weight:700; opacity:0.9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-        <span>📅 ${todayIso}</span>
-        <span class="badge-time">⏰ ${slotLabel}</span>
-      </div>
-    `;
-
-    filteredMembers.forEach(m => {
-      fallbackHtml += `
-        <div class="duty-card">
-          <div class="duty-top">
-            <span>${m.name}</span>
-            <span class="badge-time">${m.shift}</span>
-          </div>
-          <div class="duty-desc">${m.task}</div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = fallbackHtml;
-    calculateActiveTraders();
-    return;
-  }
-
-  let activeDayKey = Object.keys(rosterData).find(key => {
-    if (key === 'archives') return false;
-    const entry = rosterData[key];
-    return entry?.isoDate === todayIso || entry?.date === todayIso || key === todayIso || key.includes(todayIso);
-  });
-
-  if (!activeDayKey) {
-    const activeKeys = Object.keys(rosterData).filter(k => k !== 'archives');
-    activeKeys.sort((a, b) => {
-      const dateA = rosterData[b]?.isoDate || rosterData[b]?.date || b;
-      const dateB = rosterData[a]?.isoDate || rosterData[a]?.date || a;
-      return String(dateA).localeCompare(String(dateB));
-    });
-    activeDayKey = activeKeys[0];
-  }
-
-  const dayData = rosterData[activeDayKey];
-  const displayDate = dayData?.isoDate || dayData?.date || todayIso;
-  const teamMembers = [
-    { id: 'ann', name: 'ANN' }, { id: 'dave', name: 'DAVE' },
-    { id: 'ken', name: 'KEN' }, { id: 'kriztel', name: 'KRIZTEL' }
-  ];
-
-  const filteredTeam = teamMembers.filter(m => 
-    activeTraderFilter === 'ALL' || m.name === activeTraderFilter
-  );
-
-  let html = `
-    <div style="font-size:11px; font-weight:700; opacity:0.9; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-      <span>📅 ${displayDate}</span>
-      <span class="badge-time">⏰ ${slotLabel}</span>
-    </div>
-  `;
-
-  filteredTeam.forEach(m => {
-    const mGrid = dayData.grid ? dayData.grid[m.id] : null;
-    const shiftId = mGrid?.shift || 'shift-7-16';
-    const isRest = (shiftId === 'shift-rd' || shiftId === 'shift-vl' || shiftId === 'shift-sl');
-    const restLabel = shiftId === 'shift-vl' ? 'VACATION LEAVE' : (shiftId === 'shift-sl' ? 'SICK LEAVE' : 'REST DAY');
-
-    let rawTasks = (mGrid && mGrid.slots) ? mGrid.slots[slotId] || [] : [];
-    if (!Array.isArray(rawTasks)) rawTasks = [];
-    const tasks = rawTasks.map(item => (typeof item === 'string' ? { text: item, done: false } : { text: item.text || '', done: !!item.done }));
-
-    html += `
-      <div class="duty-card">
-        <div class="duty-top">
-          <span>${m.name}</span>
-          <span class="badge-time">${isRest ? restLabel : shiftId.replace('shift-', '')}</span>
-        </div>
-    `;
-
-    if (isRest) {
-      html += `<div class="duty-desc">Rest day.</div>`;
-    } else if (tasks.length === 0) {
-      html += `<div class="duty-desc">No assigned tasks in this slot.</div>`;
-    } else {
-      tasks.forEach(t => {
-        html += `<div class="duty-desc" style="display:flex; gap:4px; align-items:center;">
-          <i class='bx ${t.done ? 'bx-check-circle' : 'bx-time-five'}' style="color:${t.done ? '#34d399' : '#38bdf8'}"></i>
-          <span style="${t.done ? 'text-decoration:line-through; opacity:0.6;' : ''}">${t.text}</span>
-        </div>`;
-      });
-    }
-    html += `</div>`;
-  });
-
-  container.innerHTML = html;
-  calculateActiveTraders();
-}
-
-/* --- TOP GAMES DAILY FIXTURE FETCHING (FLASHSCORE GMT+8 ACCURATE) --- */
-function getGMT8DateObj(offsetDays = 0) {
-  const now = new Date();
-  const gmt8String = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
-  const gmt8Date = new Date(gmt8String);
-  gmt8Date.setDate(gmt8Date.getDate() + offsetDays);
-  return gmt8Date;
-}
-
-function getFormattedDateQuery(daysAhead) {
-  const d = getGMT8DateObj(daysAhead);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}${month}${day}`;
-}
-
-async function fetchLiveGames() {
-  const container = document.getElementById("gamesContainer");
-  if (!container) return;
-
-  const targetDateQuery = getFormattedDateQuery(selectedGameDayOffset);
-  const targetDateObj = getGMT8DateObj(selectedGameDayOffset);
-  const dateLabelStr = targetDateObj.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }).toUpperCase();
-  
-  let dayTag = `DAY ${selectedGameDayOffset + 1}`;
-  if (selectedGameDayOffset === 0) dayTag = `TODAY`;
-
-  const labelEl = document.getElementById("matchDayDisplay");
-  if (labelEl) labelEl.textContent = `${dayTag} (${dateLabelStr})`;
-
-  try {
-    let matches = await fetchLeagueList(TOP_TIER_LEAGUES, targetDateQuery, targetDateObj);
-
-    if (!matches || matches.length < 3) {
-      const secondaryMatches = await fetchLeagueList(SECONDARY_LEAGUES, targetDateQuery, targetDateObj);
-      if (secondaryMatches && secondaryMatches.length > 0) {
-        const seenMatchKeys = new Set(matches ? matches.map(m => `${m.homeName}-${m.awayName}`) : []);
-        for (const sm of secondaryMatches) {
-          const key = `${sm.homeName}-${sm.awayName}`;
-          if (!seenMatchKeys.has(key)) {
-            seenMatchKeys.add(key);
-            matches.push(sm);
-          }
-        }
-      }
-    }
-
-    if (!matches || matches.length === 0) {
-      container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
-      return;
-    }
-
-    // Sort ascending by kickoff time
-    matches.sort((a, b) => a.kickOffTimestamp - b.kickOffTimestamp);
-    matches = matches.slice(0, 10);
-
-    let gamesHtml = "";
-    matches.forEach(item => {
-      gamesHtml += `
-        <div class="top-game-card">
-          <div class="top-game-flags">
-            <img src="${item.homeLogo}" alt="${item.homeName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
-            <span class="vs-text">vs</span>
-            <img src="${item.awayLogo}" alt="${item.awayName}" class="team-flag-img" onerror="this.src='${FALLBACK_LOGO}'">
-          </div>
-          <div class="top-game-title">${item.homeName} <span class="vs-light">vs</span> ${item.awayName}</div>
-          <div class="top-game-league">${item.leagueName}${item.kickOffTime ? ' &bull; <span style="color:#38bdf8;">' + item.kickOffTime + '</span>' : ''}</div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = gamesHtml;
-
-  } catch (e) {
-    container.innerHTML = `<div style="text-align:center; padding:20px; font-size:11px; color:rgba(255,255,255,0.65);">No scheduled fixtures for ${dateLabelStr} (GMT+8).</div>`;
-  }
-}
-
-async function fetchLeagueList(leagueList, dateQuery, targetDateObj) {
-  const uniqueCodeToLeagues = new Map();
-  leagueList.forEach(league => {
-    if (!uniqueCodeToLeagues.has(league.code)) {
-      uniqueCodeToLeagues.set(league.code, league);
-    }
-  });
-
-  let matches = [];
-  const seenMatchKeys = new Set();
-  const now = Date.now();
-
-  const prevDateQuery = getFormattedDateQuery(selectedGameDayOffset - 1);
-  const targetIsoDay = `${targetDateObj.getFullYear()}-${String(targetDateObj.getMonth() + 1).padStart(2, '0')}-${String(targetDateObj.getDate()).padStart(2, '0')}`;
-
-  for (const [code, leagueObj] of uniqueCodeToLeagues.entries()) {
-    try {
-      // Query both the target day and the previous UTC day to account for midnight GMT+8 European evening kickoffs
-      const urls = [
-        `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${dateQuery}`,
-        `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${prevDateQuery}`
-      ];
-
-      const responses = await Promise.allSettled(urls.map(u => fetchCorsSafe(u)));
-
-      for (const res of responses) {
-        if (res.status !== 'fulfilled' || !res.value || !res.value.events) continue;
-        const data = res.value;
-
-        for (const evt of data.events) {
-          if (matches.length >= 15) break;
-
-          const comp = evt.competitions?.[0];
-          if (!comp) continue;
-
-          // FILTER: Discard completed, in-progress, or post-match events
-          const statusState = evt.status?.type?.state || comp.status?.type?.state;
-          const isCompleted = evt.status?.type?.completed || comp.status?.type?.completed;
-          if (isCompleted === true || statusState === 'post' || statusState === 'in') continue;
-
-          const dObj = new Date(evt.date || comp.date);
-          const matchTimestamp = dObj.getTime();
-          if (isNaN(matchTimestamp)) continue;
-
-          // Check if match takes place on the target day in Asia/Manila (GMT+8)
-          const matchDayInManila = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Asia/Manila',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          }).format(dObj);
-
-          if (matchDayInManila !== targetIsoDay) continue;
-          if (selectedGameDayOffset === 0 && matchTimestamp <= now) continue;
-
-          const homeTeam = comp.competitors?.find(c => c.homeAway === 'home') || comp.competitors?.[0];
-          const awayTeam = comp.competitors?.find(c => c.homeAway === 'away') || comp.competitors?.[1];
-
-          if (homeTeam && awayTeam) {
-            const homeName = homeTeam.team?.shortDisplayName || homeTeam.team?.displayName || "Home";
-            const awayName = awayTeam.team?.shortDisplayName || awayTeam.team?.displayName || "Away";
-
-            const matchKey = evt.id || `${homeName}-${awayName}`;
-            if (seenMatchKeys.has(matchKey)) continue;
-            seenMatchKeys.add(matchKey);
-
-            const rawHomeLogo = homeTeam.team?.logo || homeTeam.team?.logos?.[0]?.href;
-            const rawAwayLogo = awayTeam.team?.logo || awayTeam.team?.logos?.[0]?.href;
-            
-            const homeLogo = (rawHomeLogo && !rawHomeLogo.includes('default.png')) ? rawHomeLogo : FALLBACK_LOGO;
-            const awayLogo = (rawAwayLogo && !rawAwayLogo.includes('default.png')) ? rawAwayLogo : FALLBACK_LOGO;
-
-            const kickOffTime = new Intl.DateTimeFormat('en-GB', {
-              timeZone: 'Asia/Manila',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            }).format(dObj);
-
-            const displayedLeagueName = data.leagues?.[0]?.name || leagueObj.name;
-
-            matches.push({
-              homeName,
-              awayName,
-              homeLogo,
-              awayLogo,
-              leagueName: displayedLeagueName,
-              kickOffTimestamp: matchTimestamp,
-              kickOffTime
-            });
-          }
-        }
-      }
-    } catch (err) {}
-  }
-
-  return matches;
-}
-
-function navigateMatchDay(dir) {
-  selectedGameDayOffset += dir;
-  if (selectedGameDayOffset < 0) selectedGameDayOffset = 6;
-  if (selectedGameDayOffset > 6) selectedGameDayOffset = 0;
-  fetchLiveGames();
-}
-
-function calculateActiveTraders() {
-  const dutyCards = document.querySelectorAll('.duty-card');
-  let activeCount = 0;
-  dutyCards.forEach(card => {
-    const timeBadge = card.querySelector('.badge-time');
-    if (timeBadge) {
-      const text = timeBadge.textContent.trim().toUpperCase();
-      if (!text.includes('OFF') && !text.includes('REST') && !text.includes('RD') && !text.includes('LEAVE')) {
-        activeCount++;
-      }
-    }
-  });
-  const el = document.getElementById('activeTraderCount');
-  if (el) el.textContent = activeCount + ' Working';
-}
-
 /* --- INITIALIZATION --- */
 function initDashboardApp() {
   const savedTheme = localStorage.getItem('sbhub_theme');
@@ -1295,14 +1316,13 @@ function initDashboardApp() {
   switchBrandTab('ibet');
   restoreSavedWidgets();
 
-  // Load genuine cached live data if present; triggers initial live fetches
   loadCachedTopPicks();
   renderLiveDutyWidget(null);
   fetchLiveGames();
 
-  // Background Live Fetch Pipeline
   fetchTopPicksAndBoosts();
-  setInterval(fetchTopPicksAndBoosts, 2 * 60 * 1000);
+  setInterval(fetchTopPicksAndBoosts, 3 * 60 * 1000);
+  setInterval(fetchLiveGames, 60 * 1000);
 
   listenToLiveDutyRoster();
   calculateActiveTraders();
